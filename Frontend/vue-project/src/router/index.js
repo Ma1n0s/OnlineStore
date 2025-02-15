@@ -3,6 +3,7 @@ import Main from '../views/Main.vue';
 import About from '../views/About.vue';
 import StroitelnyjInstrument from '@/views/category/stroitelnyj-instrument.vue';
 import Shurupoverty from '@/views/category/shurupoverty.vue';
+import Publication from '@/views/publication.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,6 +27,11 @@ const router = createRouter({
       path: '/category/shurupoverty',
       name: 'Shurupoverty',
       component: Shurupoverty,
+    },
+    {
+      path: '/publication',
+      name: 'Publication',
+      component: Publication,
     },
 
   ]
