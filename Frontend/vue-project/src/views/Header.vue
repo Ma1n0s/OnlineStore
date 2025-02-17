@@ -95,29 +95,30 @@ function CloseModalLogin(){
         </div>
     </div>
       <div class="container mx-auto flex justify-between items-center px-4 py-4">
-        <div class="flex items-center">
-            <img src="/public/logo.svg" alt="Logo" class="w-20 h-12" />
+        <div class="flex items-center ">
+            <img src="/public/logo.svg" alt="Logo" class="w-24 h-12 " />
             <div class="flex items-center ml-4">
-        <img src="/public/menu.svg" alt="categor" class="w-3 h-3 bg-white shadow-lg z-10 mr-2" />
-        <div 
-            class="cursor-pointer hover:text-blue-600 relative"
-            @mouseenter="thisMenu = true"
-            @mouseleave="thisMenu = false"
-        >
-            Категория
-            <div v-if="thisMenu" class="absolute bg-white border rounded-lg shadow-lg mt-2 z-20">
-                <nav>
-                    <ul class="py-2">
-                        <li class="px-4 py-2 hover:bg-gray-100">Категория 1</li>
-                        <li class="px-4 py-2 hover:bg-gray-100">Категория 2</li>
-                        <li class="px-4 py-2 hover:bg-gray-100">Категория 3</li>
-                        <li class="px-4 py-2 hover:bg-gray-100">Категория 4</li>
-                    </ul>
-                </nav>
-            </div>
+         <div class="flex items-center justify-center bg-gray-700 p-3 rounded-lg text-white">   
+          <img src="/public/menu.svg" alt="categor" class="w-3 h-3 bg-white shadow-lg z-10 mr-2" />
+          <div 
+              class="cursor-pointer  hover:text-blue-600 relative"
+              @mouseenter="thisMenu = true"
+              @mouseleave="thisMenu = false"
+          >
+              Категория
+              <div v-if="thisMenu" class="absolute bg-white border  rounded-lg shadow-lg mt-2 z-20">
+                  <nav>
+                      <ul class="py-2">
+                          <li class="px-4 py-2 hover:bg-gray-100">Категория 1</li>
+                          <li class="px-4 py-2 hover:bg-gray-100">Категория 2</li>
+                          <li class="px-4 py-2 hover:bg-gray-100">Категория 3</li>
+                          <li class="px-4 py-2 hover:bg-gray-100">Категория 4</li>
+                      </ul>
+                  </nav>
+              </div>
+          </div>
         </div>
     </div>
-
     </div>
     <div class="flex items-center space-x-4">
         <div class="flex border border-2 border-gray-400 rounded-lg overflow-hidden">
@@ -151,7 +152,7 @@ function CloseModalLogin(){
     </div>
 </div>
 
-    <div class="container mx-auto flex justify-between items-center px-4 py-4">
+    <div class="container mx-auto flex justify-between items-center px-4 py-4 mb-10">
       <div class="flex justify-between items-center">
         <nav>
           <ul class="flex space-x-4">
