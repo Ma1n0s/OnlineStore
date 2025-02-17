@@ -5,7 +5,7 @@ import { ref } from 'vue';
 </script>
 
 <template>
-      <div class="flex bg-red-200 items-center justify-between px-52 p-2">
+      <div class="flex bg-gray-200 items-center justify-between px-52 p-2">
           <div class="font-bold flex flex-grow mr-4">
               <img src="/public/email.svg" alt="mail" class="w-5 h-5 mr-4" />
               Подпишитесь на рассылку и будьте в курсе! Акции, скидки, распродажи ждут!
@@ -19,7 +19,7 @@ import { ref } from 'vue';
       </div>
   
       <div>
-            <div class="grid grid-cols-5 gap-4 bg-rose-50 p-4 px-52">
+            <div class="grid grid-cols-5 gap-4 bg-gray-100 p-4 px-52">
               <div>
                   <ul>
                       <li class="font-bold mb-4">О компании</li>
