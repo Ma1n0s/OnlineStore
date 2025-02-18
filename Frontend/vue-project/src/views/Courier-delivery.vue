@@ -1,6 +1,40 @@
-<script setup>
+<script setup lang="ts">
+import { ref } from 'vue';
+import { shallowRef } from 'vue';
+import type { YMap } from '@yandex/ymaps3-types';
 import Header from './Header.vue';
 import Footer from './Footer.vue';
+
+import {
+  YandexMap,
+  YandexMapDefaultSchemeLayer,
+  YandexMapDefaultFeaturesLayer,
+  YandexMapDefaultMarker,
+} from 'vue-yandex-maps';
+
+const map = shallowRef<null | YMap>(null);
+
+const isMkadInsideVisible = ref(false);
+const isMkadOutsideVisible = ref(false);
+
+const toggleMkadInside = () => {
+  isMkadInsideVisible.value = !isMkadInsideVisible.value;
+};
+
+const toggleMkadOutside = () => {
+  isMkadOutsideVisible.value = !isMkadOutsideVisible.value;
+};
+
+const mapState = ref({
+  center: [55.751574, 37.573856], 
+  zoom: 9, 
+});
+
+const markerCoords = ref([55.751574, 37.573856]);
+const markerProperties = ref({
+  balloonContent: 'Это Москва!',
+});
+
 </script>
 <template>
 <div class="container mx-auto py-8">
@@ -68,6 +102,44 @@ import Footer from './Footer.vue';
             </div>
         </div>
     </div>
+    <div class="p-4">
+        <div class="flex items-center">
+            <button @click="toggleMkadInside" class="mt-2 px-4 py-2 rounded hover:bg-gray-400">
+                Условие доставки
+            </button>
+            <img src="" alt="arrow" class="" />
+        </div>
+        <div v-if="isMkadInsideVisible" class="mt-4 p-4 bg-gray-100 border border-gray-300">
+            <p>Это содержимое внутри МКАД.</p>
+        </div>
+        
+        <div class="flex items-center">
+            <button @click="toggleMkadOutside" class="mt-2 px-4 py-2 rounded hover:bg-gray-400">
+                Памятка покупателя
+            </button>
+            <img src="" alt="arrow" class="" />
+        </div>
+        <div v-if="isMkadOutsideVisible" class="mt-4 p-4 bg-gray-100 border border-gray-300">
+            <p>Это содержимое вне МКАД.</p>
+        </div>
+    </div>
+
+    <yandex-map
+      v-model="map"
+      :settings="{
+        location: {
+          center: [37.617644, 55.755819],
+          zoom: 9,
+        },
+      }"
+      width="100%"
+      height="500px"
+  >
+    <yandex-map-default-scheme-layer/>
+    <yandex-map-default-features-layer/>
+    <yandex-map-default-marker :settings="{ coordinates: [37.617644, 55.755819] }"/>
+  </yandex-map>
+
 </div>
 
 </template>
