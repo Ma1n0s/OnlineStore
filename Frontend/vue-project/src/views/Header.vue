@@ -96,7 +96,7 @@ function CloseModalLogin(){
     </div>
       <div class="container mx-auto flex justify-between items-center px-4 py-4">
         <div class="flex items-center ">
-            <img src="/public/logo.svg" alt="Logo" class="w-24 h-12 " />
+            <img src="/public/FULL.png" alt="Logo" class="w-40 " />
             <div class="flex items-center ml-4">
          <div class="flex items-center justify-center bg-gray-700 p-3 rounded-lg text-white">   
           <img src="/public/menu.svg" alt="categor" class="w-3 h-3 bg-white shadow-lg z-10 mr-2" />
