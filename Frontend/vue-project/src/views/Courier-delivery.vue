@@ -9,6 +9,7 @@
       <yandex-map-default-features-layer />
       <yandex-map-default-marker :settings="{ coordinates: markerCoords }" />
     </yandex-map>
+    
   </template>
   
   <script setup lang="ts">
