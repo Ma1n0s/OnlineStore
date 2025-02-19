@@ -3,6 +3,7 @@
   import { shallowRef } from 'vue';
   import Header from './Header.vue';
   import Footer from './Footer.vue';
+  import { GMapMap, GMapMarker } from '@fawmi/vue-google-maps';
 
   const isMkadInsideVisible = ref(false);
   const isMkadOutsideVisible = ref(false);
@@ -98,6 +99,15 @@
         <div v-if="isMkadOutsideVisible" class="mt-4 p-4 bg-gray-100 border border-gray-300">
             <p>Это содержимое вне МКАД.</p>
         </div>
+    </div>
+    <div>
+      <GMapMap
+        :center="{ lat: 10.0, lng: 10.0 }"
+        :zoom="7"
+        style="width: 100%; height: 400px"
+      >
+        <GMapMarker :position="{ lat: 10.0, lng: 10.0 }" />
+      </GMapMap>
     </div>
 
 </div>
