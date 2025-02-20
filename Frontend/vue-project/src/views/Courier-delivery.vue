@@ -79,28 +79,36 @@
             </div>
         </div>
     </div>
-    <div class="p-4">
-        <div class="flex items-center">
-            <button @click="toggleMkadInside" class="mt-2 px-4 py-2 rounded hover:bg-gray-400">
-                Условие доставки
-            </button>
-            <img src="" alt="arrow" class="" />
+    <div>
+        <div class="flex flex-col w-full mt-2 hover:bg-gray-200 rounded">
+            <hr class="border-gray-300" />
+            <div class="flex items-center w-full">
+                <button @click="toggleMkadInside" class="px-4 py-2 rounded w-full text-left bg-transparent border-none">
+                    Условие доставки
+                </button>
+                <img src="/public/arrow-down.svg" alt="arrow" class="w-4 h-4 mr-2" />
+            </div>
+            <hr class="border-gray-300" />
         </div>
         <div v-if="isMkadInsideVisible" class="mt-4 p-4 bg-gray-100 border border-gray-300">
             <p>Это содержимое внутри МКАД.</p>
         </div>
-        
-        <div class="flex items-center">
-            <button @click="toggleMkadOutside" class="mt-2 px-4 py-2 rounded hover:bg-gray-400">
-                Памятка покупателя
-            </button>
-            <img src="" alt="arrow" class="" />
+
+        <div class="flex flex-col w-full mt-2 hover:bg-gray-200 rounded">
+            <hr class="border-gray-300" />
+            <div class="flex items-center w-full">
+                <button @click="toggleMkadOutside" class="px-4 py-2 rounded w-full text-left bg-transparent border-none">
+                    Памятка покупателя
+                </button>
+                <img src="/public/arrow-down.svg" alt="arrow" class="w-4 h-4 mr-2" />
+            </div>
+            <hr class="border-gray-300" />
         </div>
         <div v-if="isMkadOutsideVisible" class="mt-4 p-4 bg-gray-100 border border-gray-300">
-            <p>Это содержимое вне МКАД.</p>
+            <p>Это содержимое внутри МКАД.</p>
         </div>
     </div>
-    <div>
+    <!-- <div>
       <GMapMap
         :center="{ lat: 10.0, lng: 10.0 }"
         :zoom="7"
@@ -108,7 +116,87 @@
       >
         <GMapMarker :position="{ lat: 10.0, lng: 10.0 }" />
       </GMapMap>
-    </div>
+    </div> -->
+    <h1 class="font-bold mb-2">Стоимость доставки, руб.</h1>
+    <table class="min-w-full border-collapse bg-white text-left text-sm text-gray-500">
+    <thead class="">
+        <tr>
+            <th class="px-6 py-3 border-b font-medium text-gray-700">Общий вес заказа</th>
+            <th class="px-6 py-3 border-b font-medium text-gray-700">Внутри МКАД</th>
+            <th class="px-6 py-3 border-b font-medium text-gray-700">От 0 до 15 км</th>
+            <th class="px-6 py-3 border-b font-medium text-gray-700">От 16 до 35 км</th>
+            <th class="px-6 py-3 border-b font-medium text-gray-700">От 36 до 60 км</th>
+            <th class="px-6 py-3 border-b font-medium text-gray-700">От 61 до 100 км</th>
+            <th class="px-6 py-3 border-b font-medium text-gray-700">От 101 до 130 км</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr class="border-b hover:bg-gray-50">
+            <td class="px-6 py-4">от 0 до 14.9 кг</td>
+            <td class="px-6 py-4">290</td>
+            <td class="px-6 py-4">290</td>
+            <td class="px-6 py-4">390</td>
+            <td class="px-6 py-4">650</td>
+            <td class="px-6 py-4">750</td>
+            <td class="px-6 py-4">1000</td>
+        </tr>
+        <tr class="border-b hover:bg-gray-50">
+            <td class="px-6 py-4">от 15 до 29.9 кг</td>
+            <td class="px-6 py-4">540</td>
+            <td class="px-6 py-4">540</td>
+            <td class="px-6 py-4">640</td>
+            <td class="px-6 py-4">900</td>
+            <td class="px-6 py-4">1000</td>
+            <td class="px-6 py-4">1250</td>
+        </tr>
+        <tr class="border-b hover:bg-gray-50">
+            <td class="px-6 py-4">от 30 до 99.9 кг</td>
+            <td class="px-6 py-4">780</td>
+            <td class="px-6 py-4">780</td>
+            <td class="px-6 py-4">1500</td>
+            <td class="px-6 py-4">1800</td>
+            <td class="px-6 py-4">2100</td>
+            <td class="px-6 py-4">2400</td>
+        </tr>
+        <tr class="border-b hover:bg-gray-50">
+            <td class="px-6 py-4">от 100 до 199.9 кг</td>
+            <td class="px-6 py-4">1200</td>
+            <td class="px-6 py-4">1400</td>
+            <td class="px-6 py-4">1700</td>
+            <td class="px-6 py-4">2000</td>
+            <td class="px-6 py-4">2300</td>
+            <td class="px-6 py-4">2600</td>
+        </tr>
+        <tr class="border-b hover:bg-gray-50">
+            <td class="px-6 py-4">от 200 до 499.9 кг</td>
+            <td class="px-6 py-4">1450</td>
+            <td class="px-6 py-4">1650</td>
+            <td class="px-6 py-4">1950</td>
+            <td class="px-6 py-4">2250</td>
+            <td class="px-6 py-4">2550</td>
+            <td class="px-6 py-4">2850</td>
+        </tr>
+        <tr class="border-b hover:bg-gray-50">
+            <td class="px-6 py-4">от 500 до 999.9 кг</td>
+            <td class="px-6 py-4">1700</td>
+            <td class="px-6 py-4">1900</td>
+            <td class="px-6 py-4">2200</td>
+            <td class="px-6 py-4">2500</td>
+            <td class="px-6 py-4">2800</td>
+            <td class="px-6 py-4">3100</td>
+        </tr>
+        <tr class="border-b hover:bg-gray-50">
+            <td class="px-6 py-4">от 1000 до 1499.9 кг</td>
+            <td class="px-6 py-4">9400</td>
+            <td class="px-6 py-4">9800</td>
+            <td class="px-6 py-4">10400</td>
+            <td class="px-6 py-4">11100</td>
+            <td class="px-6 py-4">12300</td>
+            <td class="px-6 py-4">13200</td>
+        </tr>
+    </tbody>
+</table>
+
 
 </div>
 
