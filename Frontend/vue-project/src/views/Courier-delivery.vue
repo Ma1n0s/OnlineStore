@@ -279,8 +279,21 @@
             </tbody>
         </table>
     </div>
-    <div class="w-1/2">
+    <div class="w-1/2 mb-4">
         <p>Стоимость услуг указана для подъема товара на лифте. Если подъем осуществляется по лестнице, к указанной стоимости прибавляется 50 руб. за каждый этаж.</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div class="bg-gray-100 p-6 rounded-2xl shadow">
+        <h2 class="text-lg font-semibold">Доставка транспортной компанией</h2>
+        <p class="text-gray-700">Вы сможете заказать доставку транспортными компаниями «Почта России», «СДЭК».</p>
+        <RouterLink class="text-blue-600 hover:underline mt-2">Полные условия программы</RouterLink>
+    </div>
+
+    <div class="bg-gray-100 p-6 rounded-2xl shadow">
+        <h2 class="text-lg font-semibold">Отследите ваш заказ</h2>
+        <p class="text-gray-700">Воспользуйтесь проверкой статуса заказа. Если у вас возникли вопросы по срокам или стоимости доставки, обращайтесь к нашим менеджерам по телефону 8 800 550-37-70.</p>
+        <RouterLink href="#" class="text-blue-600 hover:underline mt-2">Проверить статус заказа</RouterLink>
+        </div>
     </div>
 
 
