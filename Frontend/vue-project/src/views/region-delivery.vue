@@ -27,7 +27,7 @@
                 <h2 class="text-xl md:text-2xl font-bold my-2">Почта России</h2>
                 <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4 mt-2">
                 <RouterLink to="" class="text-blue-700">Уточнит условия</RouterLink>
-                <RouterLink to="" class="text-blue-700">Отследить груз</RouterLink>
+                <a href="https://www.pochta.ru/tracking" target="_blank" class="text-blue-700">Отследить груз</a>
                 </div>
             </div>
             </div>
