@@ -5,6 +5,7 @@ import StroitelnyjInstrument from '@/views/category/stroitelnyj-instrument.vue';
 import Shurupoverty from '@/views/category/shurupoverty.vue';
 import Publication from '@/views/publication.vue';
 import CourierDelivery from '@/views/Courier-delivery.vue';
+import RegionDelivery from '@/views/region-delivery.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -39,7 +40,11 @@ const router = createRouter({
       name: 'Courier-delivery',
       component: CourierDelivery,
     },
-
+    {
+      path: '/region-delivery',
+      name: 'Region-delivery',
+      component: RegionDelivery,
+    },
   ]
 })
 
