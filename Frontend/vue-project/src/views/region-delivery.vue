@@ -9,6 +9,7 @@
   };
 </script>
 <template>
+    <Header />
     <div class="container mx-auto px-4 md:px-6 lg:px-8 py-8">
         <div>
             <p class="text-gray-600 mb-2">Главная / Доставка транспортной компанией</p>
@@ -173,4 +174,5 @@
             </div>
         </div>
     </div>
+    <Footer />
 </template>
