@@ -9,7 +9,6 @@
   };
 </script>
 <template>
-    <Header />
     <div class="container mx-auto px-4 md:px-6 lg:px-8 py-8">
         <div>
             <p class="text-gray-600 mb-2">Главная / Доставка транспортной компанией</p>
@@ -19,43 +18,43 @@
 
         <h2 class="font-bold text-2xl mb-2">Наши основные партнеры</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div class="flex bg-gray-100 p-6 rounded-2xl shadow">
-                <div class="bg-white w-32 h-20 rounded-lg mr-8">
-                    <img src="/public/russian-post.svg" alt="russianPost" class="w-28 h-20 mx-2"/>
-                </div>
-                    <div class="flex-1">
-                    <h2 class="text-2xl font-bold my-2 2xl">Почта России</h2>
-                    <div class="flex space-x-4 mt-2">
-                        <RouterLink to="" class="mr-2 text-blue-700">Уточнит условия</RouterLink>
-                        <RouterLink to="" class="text-blue-700">Отследить груз</RouterLink>
-                    </div>
+            <div class="flex bg-gray-100 p-4 md:p-6 rounded-2xl shadow">
+            <div class="bg-white w-24 h-16 md:w-32 md:h-20 rounded-lg mr-4 md:mr-8 flex-shrink-0">
+                <img src="/public/russian-post.svg" alt="russianPost" class="w-full h-full object-contain mx-auto" />
+            </div>
+            <div class="flex-1">
+                <h2 class="text-xl md:text-2xl font-bold my-2">Почта России</h2>
+                <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4 mt-2">
+                <RouterLink to="" class="text-blue-700">Уточнит условия</RouterLink>
+                <RouterLink to="" class="text-blue-700">Отследить груз</RouterLink>
                 </div>
             </div>
-
-            <div class="flex bg-gray-100 p-6 rounded-2xl shadow">
-                <div class="bg-white w-32 h-20 rounded-lg mr-8">
-                    <img src="/public/sdek.svg" alt="sdek" class="w-28 h-20 mx-2"/>
-                </div>
-                    <div class="flex-1">
-                    <h2 class="text-2xl font-bold my-2 2xl">СДЭК</h2>
-                    <div class="flex space-x-4 mt-2">
-                        <RouterLink to="" class="mr-2 text-blue-700">Уточнит условия</RouterLink>
-                        <RouterLink to="" class="text-blue-700">Отследить груз</RouterLink>
-                    </div>
-                </div>
             </div>
 
-            <div class="flex bg-gray-100 p-6 rounded-2xl shadow">
-                <div class="bg-white w-32 h-20 rounded-lg mr-8">
-                    <img src="/public/pek_logo.svg" alt="pek_logo" class="w-28 h-20 mx-2"/>
+            <div class="flex bg-gray-100 p-4 md:p-6 rounded-2xl shadow">
+            <div class="bg-white w-24 h-16 md:w-32 md:h-20 rounded-lg mr-4 md:mr-8 flex-shrink-0">
+                <img src="/public/sdek.svg" alt="sdek" class="w-full h-full object-contain mx-auto" />
+            </div>
+            <div class="flex-1">
+                <h2 class="text-xl md:text-2xl font-bold my-2">СДЭК</h2>
+                <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4 mt-2">
+                <RouterLink to="" class="text-blue-700">Уточнит условия</RouterLink>
+                <RouterLink to="" class="text-blue-700">Отследить груз</RouterLink>
                 </div>
-                    <div class="flex-1">
-                    <h2 class="text-2xl font-bold my-2 2xl">ПЭК</h2>
-                    <div class="flex space-x-4 mt-2">
-                        <RouterLink to="" class="mr-2 text-blue-700">Уточнит условия</RouterLink>
-                        <RouterLink to="" class="text-blue-700">Отследить груз</RouterLink>
-                    </div>
+            </div>
+            </div>
+
+            <div class="flex bg-gray-100 p-4 md:p-6 rounded-2xl shadow">
+            <div class="bg-white w-24 h-16 md:w-32 md:h-20 rounded-lg mr-4 md:mr-8 flex-shrink-0">
+                <img src="/public/pek_logo.svg" alt="pek_logo" class="w-full h-full object-contain mx-auto" />
+            </div>
+            <div class="flex-1">
+                <h2 class="text-xl md:text-2xl font-bold my-2">ПЭК</h2>
+                <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4 mt-2">
+                <RouterLink to="" class="text-blue-700">Уточнит условия</RouterLink>
+                <RouterLink to="" class="text-blue-700">Отследить груз</RouterLink>
                 </div>
+            </div>
             </div>
         </div>
         <div class="overflow-x-auto">
@@ -174,5 +173,4 @@
             </div>
         </div>
     </div>
-    <Footer/>
 </template>
