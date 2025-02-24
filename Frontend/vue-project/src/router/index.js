@@ -6,6 +6,7 @@ import Shurupoverty from '@/views/category/shurupoverty.vue';
 import Publication from '@/views/publication.vue';
 import CourierDelivery from '@/views/Courier-delivery.vue';
 import RegionDelivery from '@/views/region-delivery.vue';
+import RussianPost from '@/views/delivery/russian-post.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,6 +45,11 @@ const router = createRouter({
       path: '/region-delivery',
       name: 'Region-delivery',
       component: RegionDelivery,
+    },
+    {
+      path: '/russian-post',
+      name: 'Russian-post',
+      component: RussianPost,
     },
   ]
 })
