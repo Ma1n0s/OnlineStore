@@ -56,7 +56,6 @@ import { ref } from 'vue';
               <div>
                   <ul>
                       <li class="font-bold mb-4">Сервис и поддержка</li>
-                      <li class="hover:text-rose-700">Сервисный центр ВсеИнструменты.ру</li>
                       <li class="hover:text-rose-700">Обратная связь</li>
                       <li class="hover:text-rose-700">Помощь по работе с сайтом</li>
                       <li class="hover:text-rose-700 font-bold my-4">Работа у нас</li>
@@ -64,32 +63,10 @@ import { ref } from 'vue';
                   </ul>
               </div>
   
-              <div class="flex flex-col items-center ">
-              <div class="border border-black rounded-lg p-4 ">
-                  <img src="/public/qr.svg" alt="QR Code" class="w-32 h-32 mx-auto" />
-                  <p class="mt-2 text-center font-bold">Всё для дома, дачи, стройки и ремонта в вашем смартфоне</p>
-                  <div class="flex justify-center mt-2">
-                      <img src="" alt="Play Market" class="w-5 h-5 mx-1" />
-                      <img src="" alt="App Store" class="w-5 h-5 mx-1" />
-                  </div>
-              </div>
-          </div>
+             
           <div>
-            <h1 class="mb-2 font-bold">Давайте дружить</h1>
-            <div class="flex items-center space-x-4">
-                <img src="/public/vk.svg" alt="vkmini" class="h-8 w-8"/>
-                <img src="/public/youtube.svg" alt="yotubemini" class="h-8 w-8"/>
-                <img src="/public/telegram.svg" alt="telegrammini" class="h-8 w-8"/>
-                <img src="/public/rutube.svg" alt="rutubemini" class="h-8 w-8"/>
-                <img src="/public/yandex-zen.svg" alt="zenmini" class="h-8 w-8"/>
-                <img src="/public/odnoklassniki.svg" alt="odnoklassnikimini" class="h-8 w-8"/>
-            </div>
-            <div class="text-xs mt-4 w-full">
-                Вы принимаете условия политики в отношении обработки персональных данных и пользовательского соглашения каждый раз, когда оставляете свои
-                данные в любой форме обратной связи на сайте ВсеИнструменты.ру
-                <br />
-                © 2006 — 2025. ВсеИнструменты.ру
-            </div>
+           
+           
           </div>
   
         </div>

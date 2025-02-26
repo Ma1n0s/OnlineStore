@@ -21,73 +21,8 @@ function CloseModalLogin(){
 
 <template>
   <div class="bg-white shadow">
-    <div class="container mx-auto flex justify-between items-center px-4 py-4">
-      <div class="flex justify-between items-center">
-        <div class="flex space-x-4">
-          <div class="flex">
-            <img src="/public/flag-black.svg" alt="Logo" class="w- h-5 mr-2" />
-            <div class="text-[12px] hover:text-rose-700">Москва</div>
-          </div>
-          <div class="flex">
-            <img src="/public/location.svg" alt="Logo" class="w-5 h-5 mr-2" />
-            <div class="text-[12px] hover:text-rose-700">{{ 369 }} магазинов</div>
-          </div>
-          <div class="flex justify-between space-x-4 items-center px-72">
-            <div class="flex">
-              <img src="/public/portfolio.svg" alt="Logo" class="w-5 h-5" />
-              <div class="text-[12px]">Покупаю как юрлицо</div>
-            </div>
-            <div class="flex relative">
-              <div 
-                class="text-[12px] cursor-pointer "
-                @mouseenter="showMenu = true"
-                @mouseleave="showMenu = false"
-              >
-                Получение и оплата
-                <div v-if="showMenu" class="absolute left-0 mt-1 bg-white shadow-lg rounded-md z-10"
-                @mouseenter="showMenu = true"
-                @mouseleave="showMenu = false"
-                >
-                <nav>
-                  <ul class="py-2">
-                    <li class="px-4 py-2 hover:bg-gray-100">Категория 1</li>
-                    <li class="px-4 py-2 hover:bg-gray-100">Категория 2</li>
-                    <li class="px-4 py-2 hover:bg-gray-100">Категория 3</li>
-                    <li class="px-4 py-2 hover:bg-gray-100">Категория 4</li>
-                  </ul>
-                </nav>
-                </div>
-              </div>
-            </div>
-            <div class="flex">
-              <div class="text-[12px] hover:text-rose-700">Сервис и поддержка</div>
-            </div>
-            <div class="flex relative">
-              <div 
-                class="text-[12px] cursor-pointer"
-                @mouseenter="aboutUsMenu = true"
-                @mouseleave="aboutUsMenu = false"
-              >
-                О нас
-                <div v-if="aboutUsMenu" class="absolute left-0 mt-1 bg-white shadow-lg rounded-md z-10"
-                @mouseenter="aboutUsMenu = true"
-                @mouseleave="aboutUsMenu = false"
-                >
-                  <ul class="py-2">
-                    <li class="px-4 py-2 hover:bg-gray-100">Категория 1</li>
-                    <li class="px-4 py-2 hover:bg-gray-100">Категория 2</li>
-                    <li class="px-4 py-2 hover:bg-gray-100">Категория 3</li>
-                    <li class="px-4 py-2 hover:bg-gray-100">Категория 4</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-            <div class="flex">
-              <div class="text-[12px] hover:text-rose-700">Инвесторам</div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div class="container mx-auto flex justify-between items-center px-4 py-4 hidden md:block">
+
 
       <div class="flex justify-end items-end">
           <img src="/public/question-mark.svg" alt="Logo" class="w-5 h-5 mr-2" />
@@ -129,19 +64,11 @@ function CloseModalLogin(){
         </div>
         <div class="flex items-center space-x-1">
             <img src="/public/stars.svg" alt="favorite" class="w-5 h-5 "/>
-            <div class="hover:text-rose-700">Избранное</div>
-        </div>
-        <div class="flex items-center space-x-1">
-            <img src="/public/pantone.svg" alt="favorite" class="w-5 h-5" />
-            <div class="hover:text-rose-700">Сравнение</div>
-        </div>
-        <div class="flex items-center space-x-1">
-            <img src="/public/order.svg" alt="box" class="w-5 h-5" />
-            <div class="hover:text-rose-700">Заказы</div>
+            <RouterLink to="/user/favorites/" class="hover:text-rose-700">Избранное</RouterLink>
         </div>
         <div class="flex items-center space-x-1">
             <img src="/public/shopping-cart.svg" alt="buy" class="w-5 h-5" />
-            <div class="hover:text-rose-700">Корзина</div>
+            <RouterLink to="/cart-checkout/" class="hover:text-rose-700">Корзина</RouterLink>
         </div>
         <div>
             <button @click="OpenModalLogin" class="border border-2 rounded-lg bg-gray-300 px-4 py-2">
@@ -152,23 +79,14 @@ function CloseModalLogin(){
     </div>
 </div>
 
-    <div class="container mx-auto flex justify-between items-center px-4 py-4 mb-10">
+    <!-- <div class="container mx-auto flex justify-between items-center px-4 py-4 mb-10">
       <div class="flex justify-between items-center">
         <nav>
           <ul class="flex space-x-4">
-            <li class="text-red-600">% Акции</li>
-            <li class="hover:text-rose-700">Уборка снега</li>
-            <li class="hover:text-rose-700">Отопление</li>
-            <li class="hover:text-rose-700">Инструмент</li>
-            <li class="hover:text-rose-700">Электрика</li>
-            <li class="hover:text-rose-700">Силовая техника</li>
-            <li class="hover:text-rose-700">Станки</li>
-            <li class="hover:text-rose-700">Спецодежда и СИЗ</li>
-            <li class="hover:text-rose-700">Сантехника</li>
-            <li class="hover:text-rose-700">Авто</li>
+
           </ul>
         </nav>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
