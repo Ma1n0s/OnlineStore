@@ -1,6 +1,10 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 
+const specifications = ref([]);
+const features = ref([]);
+const advantages = ref([]);
+const description = ref([]);
 const mainImage = ref("path/to/your/main/image.jpg");
 const images = ref([
   "path/to/your/image1.jpg",
@@ -8,9 +12,58 @@ const images = ref([
   "path/to/your/image3.jpg",
   "path/to/your/image4.jpg",
 ]);
-const promotionCode = ref("VMESTE10");
+
+// const tempSpecifications = [
+//     { parameter: 'Тип двигателя', value: 'бесщёточный' },
+//     { parameter: 'Макс крутящий момент', value: '55 Нм' },
+//     { parameter: 'Тип аккумулятора', value: 'Li-Ion' },
+//     { parameter: 'Напряжение аккумулятора', value: '18 В' },
+//     { parameter: 'Емкость аккумулятора', value: '2 Ач' },
+//     { parameter: 'Количество аккумуляторов в комплекте', value: '2' },
+//     { parameter: 'Наличие удара', value: 'нет' },
+//     { parameter: 'Наличие реверса', value: 'да' },
+//     { parameter: 'Тормоз двигателя', value: 'есть' },
+//     { parameter: 'Размер зажимаемой оснастки', value: '2-13 мм' },
+// ];
+const fetchSpecifications = async () => {
+    try {
+        const response = await fetch('/api/product-specifications');
+        const data = await response.json();
+        // specifications.value = tempSpecifications;
+        specifications.value = {
+            maxTorque: data.max_torque,
+            batteryType: data.battery_type,
+            batteryVoltage: data.battery_voltage,
+            maxDrillDiameterMetal: data.max_diameter_metal,
+            maxDrillDiameterWood: data.max_diameter_wood,
+            chargerIncluded: data.charger_included ? 'да' : 'нет',
+            netWeight: data.net_weight
+        };
+        advantages.value = {
+            NameDescription: data.NameDescription,
+            maxDescription1: data.maxDescription1,
+            maxDescription2: data.maxDescription2,
+            maxDescription3: data.maxDescription3,
+            maxDescription4: data.maxDescription4,
+            maxDescription5: data.maxDescription5,
+        };
+    } catch (error) {
+        console.error('Ошибка при загрузке данных:', error);
+    }
+};
+const fetchdescription = async () => {
+    try {
+        const response = await fetch('/api/product-description');
+        description.value = await response.json();
+        // specifications.value = tempSpecifications;
+    } catch (error) {
+        console.error('Ошибка при загрузке данных:', error);
+    }
+};
 
 defineProps();
+
+
 
 function checkScroll() {
             const productCard = document.getElementById('product-card');
@@ -25,6 +78,11 @@ function checkScroll() {
         }
 
         window.addEventListener('scroll', checkScroll);
+
+onMounted(() => {
+    fetchSpecifications();
+    fetchdescription();
+});       
 </script>
 <template>
     <div class="container mx-auto px-4 md:px-6 lg:px-8 py-8">
@@ -80,15 +138,15 @@ function checkScroll() {
 
             <div class="flex-1">
                 <h1 class="text-2xl font-bold text-gray-800">Сезон впереди</h1>
-                <p class="text-sm text-gray-600">{{ promotionCode }}</p>
+                <!-- <p class="text-sm text-gray-600">{{ promotionCode }}</p> -->
                 <div class="mt-4">
-                    <h2 class="text-lg font-semibold">Макс крутящий момент: 55 Нм</h2>
-                    <p>Тип аккумулятора: Li-Ion</p>
-                    <p>Напряжение аккумулятора: 18 В</p>
-                    <p>Макс диаметр сверления (металл): 13 мм</p>
-                    <p>Макс диаметр сверления (дерево): 36 мм</p>
-                    <p>Заряжающее устройство в комплекте: есть</p>
-                    <p>Вес нетто: 1.1 кг</p>
+                    <h2 class="text-lg font-semibold">Макс крутящий момент: {{ specifications.maxTorque }}</h2>
+                    <p>Тип аккумулятора: {{ specifications.batteryType }}</p>
+                    <p>Напряжение аккумулятора: {{ specifications.batteryVoltage }}</p>
+                    <p>Макс диаметр сверления (металл): {{ specifications.maxDrillDiameterMetal }}</p>
+                    <p>Макс диаметр сверления (дерево): {{ specifications.maxDrillDiameterWood }}</p>
+                    <p>Заряжающее устройство в комплекте: {{ specifications.chargerIncluded }}</p>
+                    <p>Вес нетто: {{ specifications.netWeight }}</p>
                 </div>
             </div>
 
@@ -103,10 +161,7 @@ function checkScroll() {
                     <span>5498 ₽ x 4 платежа в рассрочку</span>
                 </div>
                 <button class="mt-4 w-full bg-red-600 text-white py-2 rounded-lg">В корзину</button>
-                <button class="mt-4 w-full bg-red-500 text-white py-2 rounded-lg">Быстрый заказ</button>
-                <div class="mt-4">
-                    <span>Списите до 8 796 Р бонусами<br /> Начислим 219 бонусов</span>
-                </div>
+                <button class="mt-4 w-full bg-slate-200  text-black py-2 rounded-lg">Быстрый заказ</button>
             </div>
         </div>
 
@@ -127,17 +182,11 @@ function checkScroll() {
             <div class="flex flex-col md:flex-row">
                 <!-- flex-1 -->
                 <div class="p-6 text-gray-800 text-sm">
-                    <p class="mb-4">
-                        Бесщеточный аккумуляторный шуруповерт KEYANG DD18BL-W(Set) используется для сверления отверстий в металле и дереве, а также для 
-                        закручивания крепежных элементов.
-                    </p>
-                    <h2 class="text-xl font-semibold mb-2">Инструмент обладает оптимальным набором функций для эффективной работы:</h2>
-                    <ul class="list-disc list-inside mb-4">
-                        <li>Быстрозажимной патрон ускоряет процесс замены оснастки.</li>
-                        <li>Наличие реверса облегчает извлечение заклинившего сверла.</li>
-                        <li>Высокий крутящий момент 55 Нм.</li>
-                        <li>Двигатель с повышенной долговечностью и производительностью благодаря специальной двигательной технологии KEYANG.</li>
-                        <li>Подсветка позволяет работать в слабоосвещенных местах.</li>
+                    <h2 v-if="features.length" class="text-xl font-semibold mb-2">
+                    Инструмент обладает оптимальным набором функций для эффективной работы:
+                    </h2>
+                    <ul v-if="features.length" class="list-disc list-inside mb-4">
+                        <li v-for="(feature, index) in features" :key="index">{{ feature }}</li>
                     </ul>
                     <div>
                         <p class="font-bold text-lg">Технические характеристики KEYANG DD18BL-W (Set)</p>
@@ -151,133 +200,21 @@ function checkScroll() {
                             </tr>
                             </thead>
                             <tbody>
-                            <tr>
-                                <td class="py-2 px-4">Тип двигателя</td>
-                                <td class="py-2 px-4">бесщёточный</td>
-                            </tr>
-                            <tr class="">
-                                <td class="py-2 px-4">Макс крутящий момент</td>
-                                <td class="py-2 px-4">55 Нм</td>
-                            </tr>
-                            <tr>
-                                <td class="py-2 px-4">Жестк. вращ. момент</td>
-                                <td class="py-2 px-4">55 Нм</td>
-                            </tr>
-                            <tr class="">
-                                <td class=" px-4">Тип аккумулятора</td>
-                                <td class=" px-4">Li-Ion</td>
-                            </tr>
-                            <tr>
-                                <td class=" px-4">Напряжение аккумулятора</td>
-                                <td class=" px-4">18 В</td>
-                            </tr>
-                            <tr class="">
-                                <td class=" px-4">Емкость аккумулятора</td>
-                                <td class=" px-4">2 Ач</td>
-                            </tr>
-                            <tr>
-                                <td class=" px-4">Устройство аккумулятора</td>
-                                <td class=" px-4">слидер</td>
-                            </tr>
-                            <tr class="">
-                                <td class=" px-4">Количество аккумуляторов в комплекте</td>
-                                <td class=" px-4">2</td>
-                            </tr>
-                            <tr>
-                                <td class=" px-4">Наличие удара</td>
-                                <td class=" px-4">нет</td>
-                            </tr>
-                            <tr class="">
-                                <td class=" px-4">Ленточные (магазинные)</td>
-                                <td class=" px-4">нет</td>
-                            </tr>
-                            <tr>
-                                <td class=" px-4">Наличие реверса</td>
-                                <td class=" px-4">да</td>
-                            </tr>
-                            <tr class="">
-                                <td class=" px-4">Наличие подсветки</td>
-                                <td class=" px-4">да</td>
-                            </tr>
-                            <tr>
-                                <td class=" px-4">Тормоз двигателя</td>
-                                <td class=" px-4">есть</td>
-                            </tr>
-                            <tr class="">
-                                <td class=" px-4">Тип патрона</td>
-                                <td class=" px-4">быстрозажимной</td>
-                            </tr>
-                            <tr>
-                                <td class=" px-4">Крепление патрона</td>
-                                <td class=" px-4">1/2</td>
-                            </tr>
-                            <tr class="">
-                                <td class=" px-4">Блокировка шпинделя</td>
-                                <td class=" px-4">да</td>
-                            </tr>
-                            <tr>
-                                <td class=" px-4">Размер зажимаемой оснастки</td>
-                                <td class=" px-4">2-13 мм</td>
-                            </tr>
-                            <tr class="">
-                                <td class=" px-4">Min размер оснастки</td>
-                                <td class=" px-4">2 мм</td>
-                            </tr>
-                            <tr>
-                                <td class=" px-4">Max размер оснастки</td>
-                                <td class=" px-4">13 мм</td>
-                            </tr>
-                            <tr class="">
-                                <td class=" px-4">Число скоростей</td>
-                                <td class=" px-4">2</td>
-                            </tr>
-                            <tr>
-                                <td class=" px-4">Частота вращения шпинделя</td>
-                                <td class=" px-4">0-500/0-1800 об/мин</td>
-                            </tr>
-                            <tr class="">
-                                <td class=" px-4">Макс частота вращения шпинделя</td>
-                                <td class=" px-4">1800 об/мин</td>
-                            </tr>
-                            <tr>
-                                <td class=" px-4">Max диаметр сверления (металл)</td>
-                                <td class=" px-4">13 мм</td>
-                            </tr>
-                            <tr class="">
-                                <td class=" px-4">Max диаметр сверления (дерево)</td>
-                                <td class=" px-4">36 мм</td>
-                            </tr>
-                            <tr>
-                                <td class=" px-4">Время заряда</td>
-                                <td class=" px-4">1 ч</td>
-                            </tr>
-                            <tr>
-                                <td class=" px-4">Универсальный аккумулятор</td>
-                                <td class=" px-4">нет</td>
-                            </tr>
-                            <tr>
-                                <td class=" px-4">Число ступеней крутоящего комента</td>
-                                <td class=" px-4">16+1</td>
-                            </tr>
-                            <tr>
-                                <td class=" px-4">Зарядное устройство в комплекте</td>
-                                <td class=" px-4">есть</td>
-                            </tr>
-                            <tr>
-                                <td class=" px-4">Дополнительная рукоятка</td>
-                                <td class=" px-4">нет</td>
-                            </tr>
+                                <tr v-for="desc in description" :key="desc.parameter">
+                                    <td class="py-2 px-4">{{ desc.parameter }}</td>
+                                    <td class="py-2 px-4">{{ desc.value }}</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                     <div class="max-w-2xl my-8 p-4 flex-1">
-                        <h2 class="text-lg font-bold mb-4">Преимущества KEYANG DD18BL-W (Set)</h2>
+                        <h2 v-if="advantages.NameDescription" class="text-lg font-bold mb-4">{{ advantages.NameDescription }}</h2>
                         <ul class="list-disc list-inside space-y-2 text-sm">
-                            <li class="text-gray-700">Двойная изоляция защищает от короткого замыкания.</li>
-                            <li class="text-gray-700">Плавный пуск.</li>
-                            <li class="text-gray-700">Простая и компактная конструкция.</li>
-                            <li class="text-gray-700">Эргономичная рукоятка.</li>
-                            <li class="text-gray-700">Индикатор заряда батареи.</li>
+                            <li v-if="advantages.maxDescription1" class="text-gray-700">{{ advantages.maxDescription1 }}</li>
+                            <li v-if="advantages.maxDescription1" class="text-gray-700">{{ advantages.maxDescription2 }}</li>
+                            <li v-if="advantages.maxDescription1" class="text-gray-700">{{ advantages.maxDescription3 }}</li>
+                            <li v-if="advantages.maxDescription1" class="text-gray-700">{{ advantages.maxDescription4 }}</li>
+                            <li v-if="advantages.maxDescription1" class="text-gray-700">{{ advantages.maxDescription5 }}</li>
                         </ul>
                     </div>
                 </div>
