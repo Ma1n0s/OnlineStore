@@ -5,6 +5,14 @@ const specifications = ref([]);
 const features = ref([]);
 const advantages = ref([]);
 const description = ref([]);
+const packagingDetails = ref([]);
+const documentation = ref([]);
+const packagingInfo = ref([]);
+const brandInfo = ref(true);
+const originalPrice = ref(); 
+const discountedPrice = ref(true); 
+const savings = ref(); 
+const finalPrice = ref(); 
 const mainImage = ref("path/to/your/main/image.jpg");
 const images = ref([
   "path/to/your/image1.jpg",
@@ -12,6 +20,8 @@ const images = ref([
   "path/to/your/image3.jpg",
   "path/to/your/image4.jpg",
 ]);
+
+
 
 // const tempSpecifications = [
 //     { parameter: 'Тип двигателя', value: 'бесщёточный' },
@@ -104,9 +114,9 @@ onMounted(() => {
             <h2 class="font-bold text-2xl mb-2">Бесщеточный аккумуляторный шуруповерт KEYANG DD18BL-W (Set)</h2>
         </div>
 
-        <div class="flex justify-center mb-4">
+        <!-- <div class="flex justify-center mb-4">
             <img src="" alt="Шуруповерт KEYANG" class="w-full max-w-xs" />
-        </div>
+        </div> -->
             <div class="flex space-x-4">
                 <p class="text-sm">Код товара: 24955389</p>
                 <div class="flex items-center space-x-2">
@@ -150,18 +160,17 @@ onMounted(() => {
                 </div>
             </div>
 
-            <div class="w-full md:w-1/4 bg-white border rounded-lg p-4 shadow-md">
-                <h2 class="text-xl font-bold  text-red-600">Сезон впереди</h2>
-                <div class="flex justify-between mt-2">
-                    <span class="line-through text-gray-500">23 990 ₽</span>
-                    <span class="text-green-600">Выгода 2 000 ₽</span>
+            <div class="w-full md:w-1/4 bg-white border rounded-lg p-4 shadow-md flex flex-col">
+                <h2 class="text-xl font-bold text-red-600">Сезон впереди</h2>
+                <div class="flex justify-between mt-2" v-if="originalPrice !== null">
+                    <span v-if="discountedPrice" class="line-through text-gray-500">{{ originalPrice }} ₽</span>
+                    <span v-if="savings" class="text-green-600">Выгода {{ savings }} ₽</span>
                 </div>
-                <h2 class="text-2xl font-bold text-black">21 990 ₽</h2>
-                <div class="mt-4">
-                    <span>5498 ₽ x 4 платежа в рассрочку</span>
+  <h2 class="text-2xl font-bold text-black" v-if="finalPrice !== null">{{ finalPrice }} ₽</h2>
+                <div class="mt-auto">
+                    <button class="mt-4 w-full bg-red-600 text-white py-2 rounded-lg">В корзину</button>
+                    <button class="mt-4 w-full bg-slate-200 text-black py-2 rounded-lg">Быстрый заказ</button>
                 </div>
-                <button class="mt-4 w-full bg-red-600 text-white py-2 rounded-lg">В корзину</button>
-                <button class="mt-4 w-full bg-slate-200  text-black py-2 rounded-lg">Быстрый заказ</button>
             </div>
         </div>
 
@@ -179,7 +188,7 @@ onMounted(() => {
             </nav>
         </div>
         <div id="description" class="my-8">
-            <div class="flex flex-col md:flex-row">
+            <div class="flex flex-col md:flex-row justify-end">
                 <!-- flex-1 -->
                 <div class="p-6 text-gray-800 text-sm">
                     <h2 v-if="features.length" class="text-xl font-semibold mb-2">
@@ -219,42 +228,37 @@ onMounted(() => {
                     </div>
                 </div>
                 <div class="flex-1 p-4 md:p-6">
-                        <h1 class="text-xl font-bold mb-2">KEYANG</h1>
-                        <p class="text-gray-500 mb-4">Все товары бренда</p>
+                    <h1 class="text-xl font-bold mb-2">KEYANG</h1>
+                    <p class="text-gray-500 mb-4">Все товары бренда</p>
 
-                        <div class="flex items-center mb-4">
-                            <img src="" alt="Южная Корея" class="w-5 h-5 mr-2" />
-                            <span class="text-gray-700">Южная Корея — родина бренда</span>
-                        </div>
-                        <div class="flex items-center mb-4">
-                            <img src="" alt="Китай" class="w-5 h-5 mr-2" />
-                            <span class="text-gray-700">Китай — страна производства</span>
-                        </div>
-
-                        <h2 class="text-lg font-semibold mt-4 mb-2">Комплектация</h2>
-                        <ul class="list-disc ml-6 mb-4">
-                            <li>Бесщёточный аккумуляторный шуруповерт</li>
-                            <li>2 аккумулятора BL18045A (18V, 2.0Ah)</li>
-                            <li>Зарядное устройство C14415</li>
-                            <li>Руководство по эксплуатации</li>
-                            <li>Крепление на ремень</li>
-                            <li>Пластиковый кейс</li>
-                        </ul>
-
-                        <h2 class="text-lg font-semibold mt-4 mb-2">Информация об упаковке</h2>
-                        <p class="text-gray-700 mb-2">Единица товара: Штука</p>
-                        <p class="text-gray-700">Вес, кг: 4.15</p>
-                        <p class="text-gray-700">Длина, мм: 407</p>
-                        <p class="text-gray-700">Ширина, мм: 321</p>
-                        <p class="text-gray-700">Высота, мм: 123</p>
-
-                        <h2 class="text-lg font-semibold mt-4 mb-2">Документация</h2>
-                        <ul class="list-none ml-0 mb-4">
-                            <li><a href="#" class="text-blue-500 underline">Инструкция к товару</a></li>
-                            <li><a href="#" class="text-blue-500 underline">Сертификаты соответствия</a></li>
-                            <li><a href="#" class="text-blue-500 underline">Скачать всю документацию</a></li>
-                        </ul>
+                    <div v-if="brandInfo" class="flex items-center mb-4">
+                    <img src="" alt="Южная Корея" class="w-5 h-5 mr-2" />
+                    <span class="text-gray-700">Южная Корея — родина бренда</span>
                     </div>
+                    <div v-if="brandInfo" class="flex items-center mb-4">
+                    <img src="" alt="Китай" class="w-5 h-5 mr-2" />
+                    <span class="text-gray-700">Китай — страна производства</span>
+                    </div>
+
+                    <h2 v-if="packagingInfo.length" class="text-lg font-semibold mt-4 mb-2">Комплектация</h2>
+                    <ul v-if="packagingInfo.length" class="list-disc ml-6 mb-4">
+                    <li v-for="(item, index) in packagingInfo" :key="index">{{ item }}</li>
+                    </ul>
+
+                    <h2 class="text-lg font-semibold mt-4 mb-2">Информация об упаковке</h2>
+                    <p v-if="packagingDetails.weight" class="text-gray-700 mb-2">Единица товара: Штука</p>
+                    <p v-if="packagingDetails.weight" class="text-gray-700">Вес, кг: {{ packagingDetails.weight }}</p>
+                    <p v-if="packagingDetails.length" class="text-gray-700">Длина, мм: {{ packagingDetails.length }}</p>
+                    <p v-if="packagingDetails.width" class="text-gray-700">Ширина, мм: {{ packagingDetails.width }}</p>
+                    <p v-if="packagingDetails.height" class="text-gray-700">Высота, мм: {{ packagingDetails.height }}</p>
+
+                    <h2 v-if="documentation.length" class="text-lg font-semibold mt-4 mb-2">Документация</h2>
+                    <ul v-if="documentation.length" class="list-none ml-0 mb-4">
+                    <li v-for="(doc, index) in documentation" :key="index">
+                        <a :href="doc.link" class="text-blue-500 underline">{{ doc.title }}</a>
+                    </li>
+                    </ul>
+                </div>
                 </div>
             </div>
             <!-- <div class="spacer"></div> 
