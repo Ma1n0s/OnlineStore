@@ -15,7 +15,6 @@ const items = ref([
     { id: 8, code: '15640682', title: 'Дрель-шуруповерт Ryobi ONE+ R18DD3-220S 5133003348', image: '/path/to/image.jpg' },
     { id: 9, code: '15640682', title: 'Дрель-шуруповерт Ryobi ONE+ R18DD3-220S 5133003348', image: '/path/to/image.jpg' },
     { id: 10, code: '15640682', title: 'Дрель-шуруповерт Ryobi ONE+ R18DD3-220S 5133003348', image: '/path/to/image.jpg' },
-    // Добавьте больше элементов по необходимости
 ]);
 
 const visibleItems = ref(10); // Начальное количество отображаемых элементов
@@ -25,16 +24,15 @@ const loadMoreItems = () => {
   if (isLoading.value) return; // Если уже загружаем, выходим
   isLoading.value = true;
 
-  // Имитация загрузки новых элементов
   setTimeout(() => {
     const newItems = [
       { id: items.value.length + 1, code: '15640682', title: 'Новый элемент', image: '/path/to/image.jpg' },
       { id: items.value.length + 2, code: '15640682', title: 'Новый элемент', image: '/path/to/image.jpg' },
     ];
     items.value = [...items.value, ...newItems];
-    visibleItems.value += 2; // Увеличиваем количество отображаемых элементов
+    visibleItems.value += 2; 
     isLoading.value = false;
-  }, 1000); // Имитация задержки загрузки
+  }, 1000); 
 };
 
 const showGrid = () => {
@@ -52,7 +50,7 @@ const showList = () => {
         <nav class="flex space-x-2 text-gray-600 mb-4">
             <RouterLink to="/" class="hover:underline">Главная</RouterLink>
             <p>/</p>
-            <RouterLink to="" class="font-semibold">Инструменты</RouterLink>
+            <RouterLink to="/category/troitelnyj-instrument" class="font-semibold">Инструменты</RouterLink>
             <p>/</p>
             <RouterLink to="" class="font-semibold">Шуруповерты</RouterLink>
         </nav>
