@@ -1,30 +1,41 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
+import Header from '../Header.vue';
+import Footer from '../Footer.vue';
 
-const scrollContainer = ref(null);
-const isGrid = ref(true);
+const isGrid = ref(true); // По умолчанию список
 const items = ref([
     { id: 1, code: '15640682', title: 'Дрель-шуруповерт Ryobi ONE+ R18DD3-220S 5133003348', image: '/path/to/image.jpg' },
     { id: 2, code: '15640682', title: 'Дрель-шуруповерт Ryobi ONE+ R18DD3-220S 5133003348', image: '/path/to/image.jpg' },
     { id: 3, code: '15640682', title: 'Дрель-шуруповерт Ryobi ONE+ R18DD3-220S 5133003348', image: '/path/to/image.jpg' },
     { id: 4, code: '15640682', title: 'Дрель-шуруповерт Ryobi ONE+ R18DD3-220S 5133003348', image: '/path/to/image.jpg' },
+    { id: 5, code: '15640682', title: 'Дрель-шуруповерт Ryobi ONE+ R18DD3-220S 5133003348', image: '/path/to/image.jpg' },
+    { id: 6, code: '15640682', title: 'Дрель-шуруповерт Ryobi ONE+ R18DD3-220S 5133003348', image: '/path/to/image.jpg' },
+    { id: 7, code: '15640682', title: 'Дрель-шуруповерт Ryobi ONE+ R18DD3-220S 5133003348', image: '/path/to/image.jpg' },
+    { id: 8, code: '15640682', title: 'Дрель-шуруповерт Ryobi ONE+ R18DD3-220S 5133003348', image: '/path/to/image.jpg' },
+    { id: 9, code: '15640682', title: 'Дрель-шуруповерт Ryobi ONE+ R18DD3-220S 5133003348', image: '/path/to/image.jpg' },
+    { id: 10, code: '15640682', title: 'Дрель-шуруповерт Ryobi ONE+ R18DD3-220S 5133003348', image: '/path/to/image.jpg' },
+    // Добавьте больше элементов по необходимости
 ]);
 
+const visibleItems = ref(10); // Начальное количество отображаемых элементов
+const isLoading = ref(false); // Для предотвращения множественных запросов
+
 const loadMoreItems = () => {
-  const newItems = [
-    { id: items.value.length + 1, code: '15640682', title: 'Новый элемент', image: '/path/to/image.jpg' },
-    { id: items.value.length + 2, code: '15640682', title: 'Новый элемент', image: '/path/to/image.jpg' },
-  ];
-  items.value = [...items.value, ...newItems];
-};
+  if (isLoading.value) return; // Если уже загружаем, выходим
+  isLoading.value = true;
 
-const handleScroll = () => {
-  const container = scrollContainer.value;
-  if (container.scrollTop + container.clientHeight >= container.scrollHeight - 10) {
-    loadMoreItems();
-  }
+  // Имитация загрузки новых элементов
+  setTimeout(() => {
+    const newItems = [
+      { id: items.value.length + 1, code: '15640682', title: 'Новый элемент', image: '/path/to/image.jpg' },
+      { id: items.value.length + 2, code: '15640682', title: 'Новый элемент', image: '/path/to/image.jpg' },
+    ];
+    items.value = [...items.value, ...newItems];
+    visibleItems.value += 2; // Увеличиваем количество отображаемых элементов
+    isLoading.value = false;
+  }, 1000); // Имитация задержки загрузки
 };
-
 
 const showGrid = () => {
   isGrid.value = true;
@@ -33,15 +44,13 @@ const showGrid = () => {
 const showList = () => {
   isGrid.value = false;
 };
-
-// onMounted(() => {
-//   scrollContainer.value.addEventListener('scroll', handleScroll);
-// });
 </script>
+
 <template>
+    <Header/>
     <div class="container mx-auto px-4 md:px-6 lg:px-8 py-8">
         <nav class="flex space-x-2 text-gray-600 mb-4">
-            <RouterLink to="" class="hover:underline">Главная</RouterLink>
+            <RouterLink to="/" class="hover:underline">Главная</RouterLink>
             <p>/</p>
             <RouterLink to="" class="font-semibold">Инструменты</RouterLink>
             <p>/</p>
@@ -51,30 +60,32 @@ const showList = () => {
             <h2 class="font-bold text-2xl">Шуруповерты</h2>
             <p>4945 товаров</p>
         </div>
-        <div class="grid grid-cols-6 gap-x-4 gap-y-2"> 
-            <div class="bg-gray-100 flex flex-col space-y-2 justify-between rounded-lg p-2 h-full hover:bg-gray-300 transition duration-200 ease-in-out shadow-md">
+
+        <!-- Сетка из 4 колонок -->
+        <div class="grid grid-cols-4 gap-4 mt-4"> 
+            <div class="bg-gray-100 flex flex-col space-y-2 justify-between rounded-lg p-4 h-full hover:bg-gray-300 transition duration-200 ease-in-out shadow-md">
                 <div class="font-bold">Шуроповерты</div>
                 <p class="text-gray-400 text-sm">4 754 товара</p>
-                <img src="/public/15.webp" alt="alt" class=" "/>
+                <img src="/public/15.webp" alt="alt" class="w-full h-32 object-cover rounded-md" />
             </div>
-            <div class="bg-gray-100 flex flex-col space-y-2 justify-between rounded-lg p-2 h-full hover:bg-gray-300 transition duration-200 ease-in-out shadow-md">
+            <div class="bg-gray-100 flex flex-col space-y-2 justify-between rounded-lg p-4 h-full hover:bg-gray-300 transition duration-200 ease-in-out shadow-md">
                 <div class="font-bold">Шуроповерты</div>
                 <p class="text-gray-400 text-sm">4 754 товара</p>
-                <img src="/public/15.webp" alt="alt" class=" "/>
+                <img src="/public/15.webp" alt="alt" class="w-full h-32 object-cover rounded-md" />
             </div>
-            <div class="bg-gray-100 flex flex-col space-y-2 justify-between rounded-lg p-2 h-full hover:bg-gray-300 transition duration-200 ease-in-out shadow-md">
+            <div class="bg-gray-100 flex flex-col space-y-2 justify-between rounded-lg p-4 h-full hover:bg-gray-300 transition duration-200 ease-in-out shadow-md">
                 <div class="font-bold">Шуроповерты</div>
                 <p class="text-gray-400 text-sm">4 754 товара</p>
-                <img src="/public/15.webp" alt="alt" class=" "/>
+                <img src="/public/15.webp" alt="alt" class="w-full h-32 object-cover rounded-md" />
             </div>
-            <div class="bg-gray-100 flex flex-col space-y-2 justify-between rounded-lg p-2 h-full hover:bg-gray-300 transition duration-200 ease-in-out shadow-md">
+            <div class="bg-gray-100 flex flex-col space-y-2 justify-between rounded-lg p-4 h-full hover:bg-gray-300 transition duration-200 ease-in-out shadow-md">
                 <div class="font-bold">Шуроповерты</div>
                 <p class="text-gray-400 text-sm">4 754 товара</p>
-                <img src="/public/15.webp" alt="alt" class=" "/>
+                <img src="/public/15.webp" alt="alt" class="w-full h-32 object-cover rounded-md" />
             </div>
         </div>
 
-        <div class="flex flex-col md:flex-row p-4">
+        <div class="flex flex-col md:flex-row p-4 mt-4">
             <p class="flex-1 font-bold mr-2">Найдено 4945 товаров</p>
             <div class="flex space-x-2 flex-grow items-center">
                 <p>Сортировать по:</p>
@@ -83,37 +94,24 @@ const showList = () => {
                 <button class="px-4 py-2">Рейтингу</button>
                 <button class="px-4 py-2">Цене</button>
                 <div class="flex justify-end w-full mb-4">
-                <button @click="showGrid" class="mr-2">
-                    <img src="/public/interface-design-structure-outline.svg" alt="" class="w-5 h-5" />
-                </button>
-                <button @click="showList">
-                    <img src="/public/four-squares-button-of-view-options.svg" alt="" class="w-5 h-5 mr-2 filter text-red-500" />
-                </button>
+                    <button @click="showGrid" class="mr-2">
+                        <img src="/public/interface-design-structure-outline.svg" alt="" class="w-5 h-5" />
+                    </button>
+                    <button @click="showList">
+                        <img src="/public/four-squares-button-of-view-options.svg" alt="" class="w-5 h-5 mr-2 filter text-red-500" />
+                    </button>
                 </div>
             </div>
         </div>
 
-        <div class="flex">
-            <div>
+        <div class="flex mt-4">
+            <div class="w-1/4 pr-4">
                 <!-- Категория -->
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700">Категория</label>
                     <input type="text" value="Инструмент" class="mt-1 block w-full border border-gray-300 rounded-md p-2" />
                     <input type="text" value="Генераторы (электростанции)" class="mt-1 block w-full border border-gray-300 rounded-md p-2" />
                 </div>
-
-                <!-- Наличие в магазинах
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700">Наличие в магазинах</label>
-                    <select class="mt-1 block w-full border border-gray-300 rounded-md p-2">
-                        <option>Выбрать на карте</option>
-                        <option>Выберите магазин</option>
-                    </select>
-                    <div class="mt-2">
-                        <input type="checkbox" id="available-today" class="mr-2" />
-                        <label for="available-today" class="text-sm text-gray-700">Забрать сегодня</label>
-                    </div>
-                </div> -->
 
                 <!-- Цена -->
                 <div class="mb-4">
@@ -202,46 +200,52 @@ const showList = () => {
                 </div>
             </div>
 
-            <div
-    class="flex flex-wrap"
-    :class="{ 'flex-row': isGrid, 'flex-col': !isGrid }"
-    @scroll="handleScroll"
-    ref="scrollContainer"
-    style="overflow-y: auto; height: 500px;" 
-  >
-    <div
-      class="bg-white shadow-md rounded-xl border-2 border-gray-200 overflow-hidden mb-4"
-      :class="isGrid ? 'w-60' : 'w-full h-auto'"
-      v-for="item in items"
-      :key="item.id"
-    >
-      <div class="p-4">
-        <div class="flex">
-          <p>код: {{ item.code }}</p>
-          <img src="" alt="" class="" />
-        </div>
-        <img :src="item.image" alt="Дрель-шуруповерт Ryobi ONE+" class="w-full h-40 object-cover">
-        <h3 class="mt-2 text-xl font-semibold">{{ item.title }}</h3>
-        <p class="text-green-500">В наличии > 100 шт.</p>
+            <div class="w-3/4">
+                <!-- Сетка или список -->
+                <div
+                    :class="isGrid ? 'grid grid-cols-4 gap-4' : 'flex flex-col space-y-4'"
+                >
+                    <div
+                        class="bg-white shadow-md rounded-xl border-2 border-gray-200 overflow-hidden"
+                        :class="isGrid ? 'w-full' : 'w-full'"
+                        v-for="(item, index) in items.slice(0, visibleItems)"
+                        :key="item.id"
+                    >
+                        <div class="p-4">
+                            <div class="flex">
+                                <p>код: {{ item.code }}</p>
+                                <img src="" alt="" class="" />
+                            </div>
+                            <img :src="item.image" alt="Дрель-шуруповерт Ryobi ONE+" class="w-full h-40 object-cover">
+                            <h3 class="mt-2 text-xl font-semibold">{{ item.title }}</h3>
+                            <p class="text-green-500">В наличии > 100 шт.</p>
 
-        <div class="flex flex-col space-y-2">
-          <div class="flex justify-between">
-            <span class="font-medium">Самовывоз:</span>
-            <span class="flex-1 text-right">сегодня</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="font-medium">Курьером:</span>
-            <span class="flex-1 text-right">сегодня</span>
-          </div>
-        </div>
-        <span class="line-through text-gray-400 mr-2">15 990 ₽</span>
-        <span class="bg-green-600 w-10 h-10 p-1 rounded-l-sm text-white items-center">-17%</span>
-        <span class="flex text-red-500">13 290 ₽</span>
-        <button class="flex bg-red-600 text-white py-2 px-4 rounded mt-2 hover:bg-red-700">В корзину</button>
-      </div>
-    </div>
-  </div>
-        </div>
+                            <div class="flex flex-col space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="font-medium">Самовывоз:</span>
+                                    <span class="flex-1 text-right">сегодня</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="font-medium">Курьером:</span>
+                                    <span class="flex-1 text-right">сегодня</span>
+                                </div>
+                            </div>
+                            <span class="line-through text-gray-400 mr-2">15 990 ₽</span>
+                            <span class="bg-green-600 w-10 h-10 p-1 rounded-l-sm text-white items-center">-17%</span>
+                            <span class="flex text-red-500">13 290 ₽</span>
+                            <button class="flex bg-red-600 text-white py-2 px-4 rounded mt-2 hover:bg-red-700">В корзину</button>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- Кнопка "Показать ещё" -->
+                <div class="flex justify-center mt-4" v-if="visibleItems < items.length">
+                    <button @click="loadMoreItems" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+                        Показать ещё
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
+    <Footer/>
 </template>
