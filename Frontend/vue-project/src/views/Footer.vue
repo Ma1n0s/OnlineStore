@@ -16,7 +16,7 @@ import { ref } from 'vue';
       <input type="text" placeholder="Введите email" class="h-8 w-full rounded-lg" />
     </div>
     <div>
-      <button class="bg-red-600 rounded-lg text-white h-8 w-full sm:w-auto mx-4">Подписаться</button>
+      <button class="bg-red-600 px-2  rounded-lg text-white h-8 w-full sm:w-auto mx-4">Подписаться</button>
     </div>
   </div>
       <div>
