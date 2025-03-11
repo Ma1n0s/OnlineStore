@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@googlemaps/js-api-loader": "^1.16.8",
     "@nuxtjs/tailwindcss": "^6.13.2",
     "nuxt": "^3.16.0",
     "vue": "^3.5.13",
