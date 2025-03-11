@@ -20,10 +20,10 @@ const { variant = 'primary', ...props } = defineProps<{
 }>();
 
 const variantClasses = {
-    primary: 'bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded', // Голубой 1
-    secondary: 'bg-blue-300 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded', // Голубой 2
-    transparent: 'bg-transparent hover:bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded border border-gray-500', // Прозрачный
-    warning: 'bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded', // Красный
+    primary: 'px-6 py-2 rounded-lg text-black bg-[#89CFF0] hover:bg-[#60BBCB] transition duration-300', // Голубой 1
+    secondary: 'px-6 py-2 rounded-lg text-black bg-[#60BBCB] hover:bg-[#31918C] transition duration-300', // Голубой 2
+    transparent: 'px-6 py-2 rounded-lg text-[#0D182A] bg-transparent border border-[#0D182A] hover:bg-[#E9F1F7] transition duration-300', // Прозрачный
+    warning: 'px-6 py-2 rounded-lg text-white bg-[#D62828] hover:bg-[#B22222] transition duration-300', // Красный
 };
 
 const buttonClasses = computed(() => [
