@@ -48,7 +48,7 @@ import { RouterLink } from 'vue-router';
             <div class="flex items-center">
               <i class="text-orange-500 text-3xl mr-4"></i>
               <div>
-                <img src="" alt="phone" class="w-10 h-10"/>
+                <img src="" alt="phone" class="w-10 h-10" />
                 <h4 class="text-white text-xl font-semibold">Адрес</h4>
                 <span class="text-gray-500">Ул.Пушкина д.42 </span>
               </div>
@@ -65,7 +65,7 @@ import { RouterLink } from 'vue-router';
           </div>
           <div class="w-full md:w-1/3 px-4 mb-8">
             <div class="flex items-center">
-              <i class=" text-orange-500 text-3xl mr-4"></i>
+              <i class="text-orange-500 text-3xl mr-4"></i>
               <div>
                 <h4 class="text-white text-xl font-semibold">Почта</h4>
                 <span class="text-gray-500">mail@gmail.com</span>
@@ -82,12 +82,14 @@ import { RouterLink } from 'vue-router';
             <div>
               <div class="mb-8">
                 <RouterLink to="">
-                  <img src="https://i.ibb.co/QDy827D/ak-logo.png" class="max-w-full" alt="logo">
+                  <img src="https://i.ibb.co/QDy827D/ak-logo.png" class="max-w-full" alt="logo" />
                 </RouterLink>
               </div>
               <div class="mb-8">
                 <p class="text-gray-500 text-sm leading-7">
-                  Мы предлагаем широкий ассортимент качеасственного оборудования. У нас вы найдете всё необходимое для строительства, ремонта, садовых работ и многого другого. Мы гарантируем надежность, доступные цены.</p>
+                  Мы предлагаем широкий ассортимент качеасственного оборудования. У нас вы найдете всё необходимое для
+                  строительства, ремонта, садовых работ и многого другого. Мы гарантируем надежность, доступные цены.
+                </p>
               </div>
               <!-- <div>
                 <span class="text-white text-xl font-bold mb-5 block">Социальные сети</span>
@@ -114,12 +116,21 @@ import { RouterLink } from 'vue-router';
                 </h3>
               </div>
               <ul class="flex flex-wrap">
-                <li class="w-1/2 mb-3"><RouterLink  to="" class="text-gray-500 hover:text-orange-500">Каталог</RouterLink></li>
-                <li class="w-1/2 mb-3"><RouterLink  to="" class="text-gray-500 hover:text-orange-500">Адреса магазинов</RouterLink></li>
-                <li class="w-1/2 mb-3"><RouterLink  to="" class="text-gray-500 hover:text-orange-500">Что улучшить ?</RouterLink></li>
-                <li class="w-1/2 mb-3"><RouterLink  to="" class="text-gray-500 hover:text-orange-500">Контакты</RouterLink></li>
-                <li class="w-1/2 mb-3"><RouterLink  to="" class="text-gray-500 hover:text-orange-500">О компании</RouterLink></li>
-
+                <li class="w-1/2 mb-3">
+                  <RouterLink to="" class="text-gray-500 hover:text-orange-500">Каталог</RouterLink>
+                </li>
+                <li class="w-1/2 mb-3">
+                  <RouterLink to="" class="text-gray-500 hover:text-orange-500">Адреса магазинов</RouterLink>
+                </li>
+                <li class="w-1/2 mb-3">
+                  <RouterLink to="" class="text-gray-500 hover:text-orange-500">Что улучшить ?</RouterLink>
+                </li>
+                <li class="w-1/2 mb-3">
+                  <RouterLink to="" class="text-gray-500 hover:text-orange-500">Контакты</RouterLink>
+                </li>
+                <li class="w-1/2 mb-3">
+                  <RouterLink to="" class="text-gray-500 hover:text-orange-500">О компании</RouterLink>
+                </li>
               </ul>
             </div>
           </div>
@@ -148,8 +159,6 @@ import { RouterLink } from 'vue-router';
           </div> -->
         </div>
       </div>
- 
     </div>
   </footer>
 </template>
-
