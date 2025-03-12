@@ -35,5 +35,4 @@ const handleConfirm = () => {
       <GoogleMap />
     </div>
   </div>
-  <Footer />
 </template>

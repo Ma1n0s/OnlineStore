@@ -40,7 +40,7 @@ import { RouterLink } from 'vue-router';
     </footer>
 </template> -->
 <template>
-  <footer class="bg-gray-900 text-white relative">
+  <footer class="bg-dark text-white relative">
     <div class="container mx-auto px-4">
       <div class="py-5 border-b border-gray-700">
         <div class="flex flex-wrap -mx-4">
