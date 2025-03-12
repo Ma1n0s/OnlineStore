@@ -21,9 +21,6 @@ const handleConfirm = () => {
 };
 </script>
 <template>
-  <div class="p-4 bg-primary hover:bg-primary-hover">
-    <Button :variant="variant">Hello</Button>
-  </div>
   <div class="bg-gray-800 w-full ~text-sm/xs ~p-0/80">
     <div>
       <button @click="openModal" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
