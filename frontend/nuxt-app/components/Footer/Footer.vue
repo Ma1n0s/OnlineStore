@@ -48,7 +48,6 @@ import { RouterLink } from 'vue-router';
             <div class="flex items-center">
               <i class="text-orange-500 text-3xl mr-4"></i>
               <div>
-                <img src="" alt="phone" class="w-10 h-10" />
                 <h4 class="text-white text-xl font-semibold">Адрес</h4>
                 <span class="text-gray-500">Ул.Пушкина д.42 </span>
               </div>
