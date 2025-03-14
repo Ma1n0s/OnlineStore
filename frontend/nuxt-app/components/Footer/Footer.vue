@@ -1,5 +1,12 @@
 <script setup lang="js">
 import { RouterLink } from 'vue-router';
+const links = [
+  { link: 'catalog', name: 'Каталог' },
+  { link: 'stores', name: 'Адреса магазинов' },
+  { link: 'improve', name: 'Что улучшить?' },
+  { link: 'contacts', name: 'Контакты' },
+  { link: 'about', name: 'О компании' }
+];
 </script>
 <!-- <template>
     <footer class="bg-gray-800 text-white py-8">
@@ -115,20 +122,8 @@ import { RouterLink } from 'vue-router';
                 </h3>
               </div>
               <ul class="flex flex-wrap">
-                <li class="w-1/2 mb-3">
-                  <RouterLink to="" class="text-gray-500 hover:text-orange-500">Каталог</RouterLink>
-                </li>
-                <li class="w-1/2 mb-3">
-                  <RouterLink to="" class="text-gray-500 hover:text-orange-500">Адреса магазинов</RouterLink>
-                </li>
-                <li class="w-1/2 mb-3">
-                  <RouterLink to="" class="text-gray-500 hover:text-orange-500">Что улучшить ?</RouterLink>
-                </li>
-                <li class="w-1/2 mb-3">
-                  <RouterLink to="" class="text-gray-500 hover:text-orange-500">Контакты</RouterLink>
-                </li>
-                <li class="w-1/2 mb-3">
-                  <RouterLink to="" class="text-gray-500 hover:text-orange-500">О компании</RouterLink>
+                <li v-for="(item, index) in links" :key="index" class="w-1/2 mb-3">
+                  <RouterLink :to="item.link" class="text-gray-500 hover:text-orange-500">{{ item.name }}</RouterLink>
                 </li>
               </ul>
             </div>
