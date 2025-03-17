@@ -1,5 +1,4 @@
 <script setup>
-import { defineProps, defineEmits } from "vue";
 import Button from "~/shared/ui/Button/Button.vue";
 
 const props = defineProps({

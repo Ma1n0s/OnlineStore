@@ -1,9 +1,9 @@
 <script setup lang="js">
 import { RouterLink } from 'vue-router';
 const links = [
-  { link: 'catalog', name: 'Каталог' },
-  { link: 'stores', name: 'Адреса магазинов' },
-  { link: 'improve', name: 'Что улучшить?' },
+  // { link: 'catalog', name: 'Каталог' },
+  // { link: 'stores', name: 'Адреса магазинов' },
+  // { link: 'improve', name: 'Что улучшить?' },
   { link: 'contacts', name: 'Контакты' },
   { link: 'about', name: 'О компании' }
 ];

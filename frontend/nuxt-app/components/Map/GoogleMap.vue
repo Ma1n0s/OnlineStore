@@ -3,11 +3,11 @@ import { ref, onMounted } from "vue";
 import { Loader } from "@googlemaps/js-api-loader";
 
 const map = ref(null);
-const config = useRuntimeConfig()
+const config = useRuntimeConfig();
 
 onMounted(async () => {
   const loader = new Loader({
-    apiKey: config.public.env.GOOGLE_MAPS_API_KEY,
+    // apiKey: config.public.env.GOOGLE_MAPS_API_KEY || "",
     version: "weekly",
   });
 
