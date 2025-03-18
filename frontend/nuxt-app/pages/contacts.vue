@@ -1,70 +1,67 @@
 <script setup>
-
+import OpenMap from '~/components/Map/OpenMap.vue';
 </script>
 <template>
-    <div class="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">
-      <div class="max-w-4xl mx-auto">
-        <h1 class="text-4xl font-bold text-dark mb-8">Контакты</h1>
-  
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <!-- Контактная информация -->
-          <div class="space-y-6">
-            <div class="bg-dark p-6 rounded-lg shadow-md">
-              <h2 class="text-2xl font-semibold text-white mb-4">Контактная информация</h2>
-              <ul class="space-y-4">
-                <li class="flex items-center">
-                  <span class="text-white">Телефон:</span>
-                  <a href="tel:+1234567890" class="ml-2 text-white hover:text-primary-hover">+1 (234) 567-890</a>
-                </li>
-                <li class="flex items-center">
-                  <span class="text-white">Адрес:</span>
-                  <span class="ml-2 text-white">ул. Примерная, 123, Город, Страна</span>
-                </li>
-                <li class="flex items-center">
-                  <span class="text-white">Почта:</span>
-                  <a href="mailto:info@example.com" class="ml-2 text-white hover:text-primary-hover">info@example.com</a>
-                </li>
-                <li class="flex items-center">
-                  <span class="text-white">Время работы:</span>
-                  <span class="ml-2 text-white">Пн-Пт: 9:00 - 18:00</span>
-                </li>
-              </ul>
-            </div>
-            <div class="flex flex-col">
-              <h4 class="items-start justify-start mb-2 font-bold text-2xl">Связитесь с нами</h4>
-                <div class="flex bg-danger rounded-lg p-2 mb-2 w-64 items-center justify-center">
-                    <img src="" alt="vk" class="mr-2"/>
-                    <div>Написать в VK</div>
-                </div>
-                <div class="flex bg-danger rounded-lg p-2 mb-2 w-64 items-center justify-center">
-                    <img src="" alt="Telegramm" class="mr-2"/>
-                    <div>Написать в Telegramm</div>
-                </div>
-                <div class="flex bg-danger rounded-lg p-2 mb-2 w-64 items-center justify-center">
-                    <img src="" alt="Whatchap" class="mr-2"/>
-                    <div>Написать в Whatchap</div>
-                </div>
-            </div>
-          </div>
-          
+<div class="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-4xl font-bold text-dark mb-8">Контакты</h1>
 
-          <div class="bg-gray-200 p-6 rounded-lg shadow-md">
-            <h2 class="text-2xl font-semibold text-dark mb-4">Мы на карте</h2>
-            <div class="aspect-w-16 aspect-h-9">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.8354345093747!2d144.95373531531615!3d-37.816279742021665!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad642af0f11fd81%3A0xf577d6e1f7f8f8f8!2sExample%20Address!5e0!3m2!1sen!2sau!4v1625070000000!5m2!1sen!2sau"
-                width="600"
-                height="450"
-                style="border:0;"
-                allowfullscreen=""
-                loading="lazy"
-                class="rounded-lg"
-              ></iframe>
-            </div>
-          </div>
+    <div class="flex">
+      <div>
+        <p>Мы — команда энтузиастов, которая знает всё о качественных инструментах и их роли в вашем успехе. Наша компания уже более [X лет/лет] помогает профессионалам и любителям находить именно те инструменты, которые делают работу легче, быстрее и эффективнее.</p>
+        <p>Наш ассортимент — это тщательно отобранные товары от проверенных мировых производителей. Мы предлагаем только то, что отвечает высоким стандартам качества и надежности. От ручного инструмента до профессионального оборудования — у нас есть всё, что нужно для ремонта, строительства, творчества и других задач.</p>
+      </div>
+      <div class="bg-red-700 rounded-lg p-2 transform scale-133 flex items-center justify-center">logo</div>
+    </div>
+
+    <div class="flex space-x-8 mt-8">
+      <div class="flex items-center">
+        <svg class="w-6 h-6 mr-2 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        </svg>
+        <div>
+          <p class="font-semibold">Адрес</p>
+          <p>Ул. Пушкина д.42</p>
+        </div>
+      </div>
+      <div class="flex items-center">
+        <svg class="w-6 h-6 mr-2 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+        </svg>
+        <div>
+          <p class="font-semibold">Телефон</p>
+          <p>+7 (900) 800 555 33-55</p>
+        </div>
+      </div>
+      <div class="flex items-center">
+        <svg class="w-6 h-6 mr-2 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+        </svg>
+        <div>
+          <p class="font-semibold">Почта</p>
+          <p>mail@gmail.com</p>
         </div>
       </div>
     </div>
+
+    <div class="mt-8">
+      <h2 class="text-2xl font-bold text-dark mb-4">Отзывы наших клиентов</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-gray-100 p-4 rounded-lg">
+          <p class="italic">"Отличный сервис и качественные инструменты! Рекомендую!"</p>
+          <p class="font-semibold mt-2">— Иван Иванов</p>
+        </div>
+        <div class="bg-gray-100 p-4 rounded-lg">
+          <p class="italic">"Быстрая доставка и отличный выбор. Спасибо!"</p>
+          <p class="font-semibold mt-2">— Мария Петрова</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <h1 class="text-2xl font-bold mb-4">Карта с использованием OpenLayers</h1>
+    <OpenMap />
+</div>
   </template>
   
   
