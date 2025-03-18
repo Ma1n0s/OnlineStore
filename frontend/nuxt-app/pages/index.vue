@@ -16,7 +16,6 @@ const closeModal = () => {
 };
 
 const handleConfirm = () => {
-  alert("Действие подтверждено!");
   closeModal();
 };
 </script>
