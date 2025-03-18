@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="input__wrapper flex items-center justify-around border-2 border-transparent rounded-lg shadow-sm bg-white outline focus-within:outline focus-within:outline-primary-hover focus-within:outline-2 focus-visible:outline focus-visible:outline-primary-hover outline-8"
-  >
+  <div class="input__wrapper flex items-center justify-around rounded-lg shadow-sm bg-white">
     <slot name="left"></slot>
     <input
       class="text__element text-dark p-2 h-full w-full rounded-lg bg-white"
@@ -23,7 +21,7 @@ const model = defineModel();
 
 <style>
 .input__wrapper:focus-within {
-  @apply outline-primary-hover outline-2 outline;
+  @apply outline-primary-hover outline-[3px] outline;
 }
 
 .text__element {

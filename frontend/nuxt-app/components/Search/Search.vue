@@ -1,6 +1,6 @@
 <template>
   <TextInput>
-    <template v-slot:right name="right">123</template>
+    <template v-slot:right name="right"> <div class="pr-2">Поиск</div></template>
   </TextInput>
 </template>
 
