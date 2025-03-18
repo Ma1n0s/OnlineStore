@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from "vue";
+import YandexMap from "~/components/Map/YandexMap.vue";
 import Modal from "~/components/Modal/Modal.vue";
 // import GoogleMap from "~/components/Map/GoogleMap.vue";
 
@@ -30,6 +31,7 @@ const handleConfirm = () => {
     </div>
     <div>
       <h1 class="text-2xl font-bold mb-4">Google Map</h1>
+      <YandexMap />
       <!-- <GoogleMap /> -->
     </div>
   </div>
