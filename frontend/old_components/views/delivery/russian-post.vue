@@ -91,11 +91,11 @@
                                 <ul class="list-disc ml-5 text-gray-800">
                                     <li class="mb-2">
                                         Через наш сайт по номеру заказа: в верхнем правом углу кликните по ссылке 
-                                        <a href="#" class="text-blue-600 underline">«Проверить статус заказа»</a>
+                                        <!-- <a href="#" class="text-blue-600 underline">«Проверить статус заказа»</a> -->
                                     </li>
                                     <li class="mb-2">
                                         Через сервис Почты России по трек-номеру: на сайте или в 
-                                        <a href="#" class="text-blue-600 underline">мобильном приложении</a>
+                                        <!-- <a href="#" class="text-blue-600 underline">мобильном приложении</a> -->
                                     </li>
                                 </ul>
                                 <p class="text-gray-800 mt-4">

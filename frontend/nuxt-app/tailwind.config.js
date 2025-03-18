@@ -1,14 +1,22 @@
-import fluid, { extract, screens, fontSize } from "fluid-tailwind";
+// import fluid, { extract, screens, fontSize } from "fluid-tailwind";
 
 export default {
-  content: {
-    // files: [/* ... */],
-    extract,
-  },
-  plugins: [fluid],
+  content: [
+    "./components/**/*.{js,vue,ts}",
+    "./layouts/**/*.vue",
+    "./pages/**/*.vue",
+    "./plugins/**/*.{js,ts}",
+    "./nuxt.config.{js,ts}",
+    "./app.vue",
+  ],
+  // content: {
+  // files: [/* ... */],
+  // extract,
+  // },
+  // plugins: [fluid],
   theme: {
-    screens,
-    fontSize,
+    // screens,
+    // fontSize,
     extend: {
       colors: {
         primary: {

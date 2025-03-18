@@ -4,8 +4,8 @@ const links = [
   // { link: 'catalog', name: 'Каталог' },
   // { link: 'stores', name: 'Адреса магазинов' },
   // { link: 'improve', name: 'Что улучшить?' },
-  { link: 'contacts', name: 'Контакты' },
-  { link: 'about', name: 'О компании' }
+  // { link: 'contacts', name: 'Контакты' },
+  // { link: 'about', name: 'О компании' }
 ];
 </script>
 <!-- <template>
@@ -87,7 +87,7 @@ const links = [
           <div class="w-full md:w-1/3 px-4 mb-8">
             <div>
               <div class="mb-8">
-                <RouterLink to="">
+                <RouterLink to="/">
                   <img src="https://i.ibb.co/QDy827D/ak-logo.png" class="max-w-full" alt="logo" />
                 </RouterLink>
               </div>
@@ -100,13 +100,13 @@ const links = [
               <!-- <div>
                 <span class="text-white text-xl font-bold mb-5 block">Социальные сети</span>
                 <div class="flex flex-row">
-                  <RouterLink to="" class="text-white text-lg mr-4">
+                  <RouterLink to="#" class="text-white text-lg mr-4">
                     <img src="/public/vk.svg" alt="telegram" class="w-10 h-10"/>
                   </RouterLink>
-                  <RouterLink to="" class="text-white text-lg mr-4">
+                  <RouterLink to="#" class="text-white text-lg mr-4">
                     <img src="/public/telegram.svg" alt="telegram" class="w-10 h-10"/>
                   </RouterLink>
-                  <RouterLink to="" class="text-white text-lg">
+                  <RouterLink to="#" class="text-white text-lg">
                     <img src="/public/youtube.svg" alt="telegram" class="w-10 h-10"/>
                   </RouterLink>
                 </div>

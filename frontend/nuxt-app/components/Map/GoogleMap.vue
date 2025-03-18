@@ -1,4 +1,4 @@
-<script setup>
+<!-- <script setup>
 import { ref, onMounted } from "vue";
 import { Loader } from "@googlemaps/js-api-loader";
 
@@ -21,4 +21,4 @@ onMounted(async () => {
 </script>
 <template>
   <div ref="map" class="w-full h-96"></div>
-</template>
+</template> -->

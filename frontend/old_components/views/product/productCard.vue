@@ -91,17 +91,17 @@ onMounted(() => {
 <template>
   <div class="container mx-auto px-4 md:px-6 lg:px-8 py-8">
     <nav class="flex flex-wrap space-x-2 text-gray-600 mb-4">
-      <RouterLink to="" class="hover:underline">Главная</RouterLink>
+      <RouterLink to="#" class="hover:underline">Главная</RouterLink>
       <p>/</p>
-      <RouterLink to="" class="font-semibold">Инструменты</RouterLink>
+      <RouterLink to="#" class="font-semibold">Инструменты</RouterLink>
       <p>/</p>
-      <RouterLink to="" class="font-semibold">Шуруповерты</RouterLink>
+      <RouterLink to="#" class="font-semibold">Шуруповерты</RouterLink>
       <p>/</p>
-      <RouterLink to="" class="font-semibold">Аккумуляторные дрели-шуруповерты</RouterLink>
+      <RouterLink to="#" class="font-semibold">Аккумуляторные дрели-шуруповерты</RouterLink>
       <p>/</p>
-      <RouterLink to="" class="font-semibold">Безударные</RouterLink>
+      <RouterLink to="#" class="font-semibold">Безударные</RouterLink>
       <p>/</p>
-      <RouterLink to="" class="font-semibold">KEYANG</RouterLink>
+      <RouterLink to="#" class="font-semibold">KEYANG</RouterLink>
     </nav>
 
     <div>
@@ -250,7 +250,7 @@ onMounted(() => {
           <h2 v-if="documentation.length" class="text-lg font-semibold mt-4 mb-2">Документация</h2>
           <ul v-if="documentation.length" class="list-none ml-0 mb-4">
             <li v-for="(doc, index) in documentation" :key="index">
-              <a :href="doc.link" class="text-blue-500 underline">{{ doc.title }}</a>
+              <!-- <a :href="doc.link" class="text-blue-500 underline">{{ doc.title }}</a> -->
             </li>
           </ul>
         </div>
