@@ -18,3 +18,16 @@
 
     const model = defineModel()
 </script>
+
+
+<!-- <TextInput v-model="email" placeholder="Введите ваш email" class="mb-4">
+    <template #left>
+      <span class="text-gray-500"></span>
+    </template>
+  </TextInput>
+  
+  <TextInput v-model="password" type="password" placeholder="Введите ваш пароль" class="mb-4">
+    <template #left>
+      <span class="text-gray-500"></span>
+    </template>
+  </TextInput> -->

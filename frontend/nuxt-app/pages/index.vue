@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import Footer from "~/components/Footer/Footer.vue";
 import Modal from "~/components/Modal/Modal.vue";
+import AuthForm from "~/shared/ui/FormField/AuthForm.vue";
 import Button from "~/shared/ui/Button/Button.vue";
 import GoogleMap from "~/components/Map/GoogleMap.vue";
 
@@ -26,8 +27,9 @@ const handleConfirm = () => {
       <button @click="openModal" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
         Открыть модальное окно
       </button>
-      <Modal :isOpen="isModalOpen" @close="closeModal" @confirm="handleConfirm" title="">
-        <p>Текст</p>
+
+      <Modal :isOpen="isModalOpen" @close="closeModal" title="Авторизация">
+        <AuthForm />
       </Modal>
     </div>
     <div>
