@@ -1,14 +1,14 @@
 <template>
-  <div>
+  <div class="w-full">
     <TextInput
       v-model="phone"
       placeholder="Введите ваш телефон"
-      class="mb-4"
+      class="w-full mb-4 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
     />
     <Button
       @click="handlePhoneLogin"
       variant="primary"
-      class="w-full px-6 py-2 rounded-lg text-white bg-[#89CFF0] hover:bg-[#60BBCB] transition duration-300"
+      class="w-full px-6 py-3 rounded-lg text-white bg-[#89CFF0] hover:bg-[#60BBCB] transition duration-300"
     >
       Войти по телефону
     </Button>
