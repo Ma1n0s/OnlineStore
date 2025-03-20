@@ -1,11 +1,4 @@
 <template>
-<<<<<<< Updated upstream
-  <TextInput>
-    <template v-slot:right name="right">
-      <Icon name="material-symbols:search-rounded" class="mr-1 h-8 w-8" />
-    </template>
-  </TextInput>
-=======
   <FormField label="123123">
     <template v-slot:additional>123</template>
     <TextInput>
@@ -14,7 +7,6 @@
       </template>
     </TextInput>
   </FormField>
->>>>>>> Stashed changes
 </template>
 
 <script setup lang="ts">
