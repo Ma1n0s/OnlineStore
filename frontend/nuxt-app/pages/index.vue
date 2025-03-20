@@ -1,9 +1,9 @@
 <script setup>
 import { ref } from "vue";
-import Footer from "~/components/Footer/Footer.vue";
+import YandexMap from "~/components/Map/YandexMap.vue";
+import TwoGis from "~/components/Map/2Gis.vue";
 import Modal from "~/components/Modal/Modal.vue";
-import Button from "~/shared/ui/Button/Button.vue";
-import GoogleMap from "~/components/Map/GoogleMap.vue";
+// import GoogleMap from "~/components/Map/GoogleMap.vue";
 
 const isModalOpen = ref(false);
 
@@ -31,7 +31,9 @@ const handleConfirm = () => {
     </div>
     <div>
       <h1 class="text-2xl font-bold mb-4">Google Map</h1>
-      <GoogleMap />
+      <YandexMap />
+      <TwoGis />
+      <!-- <GoogleMap /> -->
     </div>
   </div>
 </template>

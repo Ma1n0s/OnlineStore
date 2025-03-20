@@ -8,7 +8,7 @@
         </div>
       </div>
       <div v-show="!!selectedCategory">
-        <div v-for="elements in selectedCategory">{{ elements.name }}</div>
+        <div v-for="elements in selectedCategory">{{ elements?.name || "Error" }}</div>
       </div>
     </div>
   </div>
