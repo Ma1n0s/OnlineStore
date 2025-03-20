@@ -1,6 +1,9 @@
+<!-- переделать с watch на функции при выборе селекта change или как то по другому -->
+<!-- + надо ли использовать computed для этой функции -->
 <template>
   <div class="relative">
     <select
+      @change=""
       v-model="selectedValue"
       class="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
     >
@@ -40,7 +43,3 @@ watch(selectedValue, (newValue) => {
   emit("update:modelValue", newValue);
 });
 </script>
-
-<style scoped>
-/* Дополнительные стили, если необходимо */
-</style>

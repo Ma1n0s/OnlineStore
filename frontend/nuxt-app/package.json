@@ -19,6 +19,7 @@
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
+    "@iconify-json/material-symbols": "^1.2.16",
     "fluid-tailwind": "^1.0.4"
   }
 }

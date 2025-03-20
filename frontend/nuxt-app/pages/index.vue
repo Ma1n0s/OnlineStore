@@ -1,9 +1,7 @@
 <script setup>
 import { ref } from "vue";
-import YandexMap from "~/components/Map/YandexMap.vue";
-import TwoGis from "~/components/Map/2Gis.vue";
 import Modal from "~/components/Modal/Modal.vue";
-// import GoogleMap from "~/components/Map/GoogleMap.vue";
+import Select from "~/shared/ui/Select/Select.vue";
 
 const isModalOpen = ref(false);
 
@@ -18,6 +16,8 @@ const closeModal = () => {
 const handleConfirm = () => {
   closeModal();
 };
+
+const s = ref();
 </script>
 <template>
   <div class="bg-gray-800 w-full ~text-sm/xs ~p-0/80">
@@ -29,11 +29,14 @@ const handleConfirm = () => {
         <p>Текст</p>
       </Modal>
     </div>
-    <div>
-      <h1 class="text-2xl font-bold mb-4">Google Map</h1>
-      <YandexMap />
-      <TwoGis />
-      <!-- <GoogleMap /> -->
-    </div>
+
+    {{ JSON.stringify(s) }}
+    <Select
+      :options="[
+        { value: '2222', label: '123' },
+        { value: '2', label: '1' },
+      ]"
+      v-model="s"
+    />
   </div>
 </template>

@@ -26,7 +26,8 @@ const model = defineModel();
   @apply outline-primary-hover outline-2 outline;
 }
 
-.text__element {
+.text__element,
+.text__element:focus-within {
   border: none;
   outline: none;
 }
