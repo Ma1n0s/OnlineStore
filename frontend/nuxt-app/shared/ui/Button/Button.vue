@@ -23,7 +23,7 @@ const { variant = "primary", ...props } = defineProps<{
 }>();
 
 const variantClasses = {
-  primary: "px-6 py-2 rounded-lg text-green-500 bg-primary hover:bg-[#60BBCB] transition duration-300", // Голубой 1
+  primary: "px-6 py-2 rounded-lg text-dark bg-primary hover:bg-[#60BBCB] transition duration-300", // Голубой 1
   secondary: "px-6 py-2 rounded-lg text-green-500 bg-[#60BBCB] hover:bg-[#31918C] transition duration-300", // Голубой 2
   transparent:
     "px-6 py-2 rounded-lg text-[#0D182A] bg-transparent border border-[#0D182A] hover:bg-[#E9F1F7] transition duration-300", // Прозрачный
