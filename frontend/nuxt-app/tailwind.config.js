@@ -9,22 +9,24 @@ export default {
   theme: {
     screens,
     fontSize,
-    colors: {
-      primary: {
-        DEFAULT: "#89CFF0",
-        hover: "#60BBCB",
-        active: "#60BBCB",
+
+    extend: {
+      colors: {
+        primary: {
+          DEFAULT: "#89CFF0",
+          hover: "#60BBCB",
+          active: "#60BBCB",
+        },
+        second: {
+          DEFAULT: "#1B998B",
+          hover: "#31918C",
+          active: "#31918C",
+        },
+        white: "#E9F1F7",
+        danger: "#D62828",
+        dark: "#0D1B2A",
+        gray: "#70798C",
       },
-      second: {
-        DEFAULT: "#1B998B",
-        hover: "#31918C",
-        active: "#31918C",
-      },
-      white: "#E9F1F7",
-      danger: "#D62828",
-      dark: "#0D1B2A",
-      gray: "#70798C",
     },
-    extend: {},
   },
 };
