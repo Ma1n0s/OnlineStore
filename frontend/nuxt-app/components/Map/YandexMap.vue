@@ -1,8 +1,8 @@
 <template>
   <iframe
-    src="https://yandex.ru/map-widget/v1/?um=constructor%3A234b514f4e88d9d535b7336f1ee99fcfdb4677bb36d88fc8c18e1ae9c9095b32&amp;source=constructor"
+    src="https://yandex.ru/map-widget/v1/?um=constructor%3A6fd2f8a4a629a5e879e2b1734be3cece6b76831dfe1c33e737ae175271469063&amp;source=constructor"
     width="100%"
-    height="400"
+    height="600"
     frameborder="0"
   ></iframe>
 </template>
