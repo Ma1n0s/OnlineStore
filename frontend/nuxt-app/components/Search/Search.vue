@@ -1,6 +1,8 @@
 <template>
   <TextInput>
-    <template v-slot:right name="right">123</template>
+    <template v-slot:right name="right">
+      <Icon name="material-symbols:search-rounded" class="mr-1 h-8 w-8" />
+    </template>
   </TextInput>
 </template>
 
