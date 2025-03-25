@@ -11,9 +11,16 @@ export default defineNuxtConfig({
     "@nuxtjs/robots",
     "@nuxt/icon",
     "@nuxtjs/tailwindcss",
+    "@vueuse/nuxt",
   ],
 
   runtimeConfig: {
     public: {},
+  },
+
+  app: {
+    head: {
+      link: [{ rel: "icon", type: "image/x-icon", href: "/logo_test.svg" }],
+    },
   },
 });
