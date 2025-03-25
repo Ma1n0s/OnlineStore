@@ -17,6 +17,7 @@ export default {
   theme: {
     screens,
     fontSize,
+
     extend: {
       colors: {
         primary: {

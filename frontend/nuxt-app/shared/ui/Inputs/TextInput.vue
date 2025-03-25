@@ -1,6 +1,6 @@
 <template>
   <div
-    class="input__wrapper flex items-center justify-around border-2 border-transparent rounded-lg shadow-sm bg-white outline focus-within:outline focus-within:outline-primary-hover focus-within:outline-2 focus-visible:outline focus-visible:outline-primary-hover outline-8"
+    class="input__wrapper h-full flex items-center justify-around border-none rounded-lg bg-white outline outline-2 outline-primary"
   >
     <slot name="left"></slot>
     <input
