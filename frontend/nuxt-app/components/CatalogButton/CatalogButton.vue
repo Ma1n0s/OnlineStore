@@ -14,7 +14,7 @@
           :key="index"
           :class="[
             '~p-4/2 cursor-pointer box-border border-b border-transparent hover:border-dark',
-            { '!border-dark': item.name === selectedCategory.name },
+            { '!border-dark': item.name === selectedCategory?.name },
           ]"
           @mouseenter="toggleSelectedCategory(item)"
         >
@@ -23,7 +23,7 @@
       </div>
       <div v-show="!!selectedCategory" class="grid grid-cols-3 p-2 w-[800px]">
         <div
-          v-for="(elements, index) in selectedCategory.elements"
+          v-for="(elements, index) in selectedCategory?.elements"
           :key="`${index}-catalog`"
           class="~p-4/2 h-fit cursor-pointer hover:bg-dark/20"
         >
@@ -37,7 +37,9 @@
 <script setup lang="ts">
 import Button from "~/shared/ui/Button/Button.vue";
 
-const catalog = [
+type CatalogItem = { name: string; elements: any[] };
+
+const catalog: CatalogItem[] = [
   {
     name: "Инструменты",
     elements: [
@@ -76,8 +78,8 @@ const catalog = [
 const showMenu = ref(false);
 const toggleMenu = () => (showMenu.value = !showMenu.value);
 
-const selectedCategory = ref<{} | null>(catalog[0] || null);
-const toggleSelectedCategory = (item: Record<any, any>) => {
+const selectedCategory = ref<CatalogItem>(catalog[0] || null);
+const toggleSelectedCategory = (item: CatalogItem) => {
   selectedCategory.value = item;
 };
 
