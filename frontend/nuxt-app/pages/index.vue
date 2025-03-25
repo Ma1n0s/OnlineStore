@@ -29,14 +29,5 @@ const s = ref();
         <p>Текст</p>
       </Modal>
     </div>
-
-    {{ JSON.stringify(s) }}
-    <Select
-      :options="[
-        { value: '2222', label: '123' },
-        { value: '2', label: '1' },
-      ]"
-      v-model="s"
-    />
   </div>
 </template>
