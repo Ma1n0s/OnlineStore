@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import Modal from "~/components/Modal/Modal.vue";
-import Select from "~/shared/ui/Select/Select.vue";
+import BrandSwiper from "~/components/Swiper/BrandSwiper.vue";
 
 const isModalOpen = ref(false);
 
@@ -28,6 +28,8 @@ const s = ref();
       <Modal :isOpen="isModalOpen" @close="closeModal" @confirm="handleConfirm" title="">
         <p>Текст</p>
       </Modal>
+
+      <BrandSwiper />
     </div>
   </div>
 </template>
