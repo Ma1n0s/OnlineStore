@@ -12,7 +12,12 @@ export default defineNuxtConfig({
     "@nuxt/icon",
     "@nuxtjs/tailwindcss",
     "@vueuse/nuxt",
+    "nuxt-swiper",
   ],
+
+  // swiper: {
+  //   modules: ["navigation", "pagination", "autoplay"],
+  // },
 
   runtimeConfig: {
     public: {},
