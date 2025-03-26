@@ -3,7 +3,6 @@
     <swiper-container
       ref="containerRef"
       :navigation="true"
-      :pagination="true"
       :loop="true"
       :autoplay-delay="5000"
       slides-per-view="auto"
@@ -41,7 +40,6 @@ const slides = ref([
 <style scoped>
 @import "swiper/css";
 @import "swiper/css/navigation";
-@import "swiper/css/pagination";
 @import "swiper/css/effect-creative";
 
 swiper-container {
