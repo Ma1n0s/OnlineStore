@@ -98,7 +98,7 @@ const toggleFavorite = async () => {
 
 <template>
   <div class="container mx-auto px-4 md:px-6 lg:px-8 py-8">
-    <nav class="flex flex-wrap items-center gap-2 text-gray-600 mb-4">
+    <nav class="flex flex-wrap items-center gap-2 text-gray mb-4">
       <RouterLink to="#" class="hover:underline">Главная</RouterLink>
       <span>/</span>
       <RouterLink to="#" class="font-semibold">Инструменты</RouterLink>
@@ -157,7 +157,7 @@ const toggleFavorite = async () => {
                 :src="image"
                 :alt="'Изображение ' + (index + 1)"
                 class="w-16 h-16 object-cover rounded cursor-pointer border"
-                :class="{ 'border-blue-500': image === mainImage }"
+                :class="{ 'border-primary': image === mainImage }"
                 @click="mainImage = image"
               />
             </div>
@@ -169,13 +169,13 @@ const toggleFavorite = async () => {
           <div class="bg-white rounded-lg shadow-md p-6 mb-6">
             <div class="flex flex-col gap-4">
               <div>
-                <h2 class="text-xl font-bold text-red-600 mb-2">Сезон впереди</h2>
+                <h2 class="text-xl font-bold text-second mb-2">Сезон впереди</h2>
                 <div class="flex items-center gap-4">
                   <p class="text-3xl font-bold">{{ finalPrice }} ₽</p>
-                  <p v-if="originalPrice && originalPrice !== finalPrice" class="text-lg line-through text-gray-500">
+                  <p v-if="originalPrice && originalPrice !== finalPrice" class="text-lg line-through text-gray">
                     {{ originalPrice }} ₽
                   </p>
-                  <p v-if="savings" class="text-green-600 font-medium">
+                  <p v-if="savings" class="text-primary font-medium">
                     Экономия {{ savings }} ₽
                   </p>
                 </div>
@@ -183,12 +183,12 @@ const toggleFavorite = async () => {
 
               <div class="flex flex-col sm:flex-row gap-3">
                 <button 
-                  class="bg-red-600 hover:bg-red-700 text-white py-3 px-6 rounded-lg font-medium transition"
+                  class="bg-second hover:bg-second-hover text-white py-3 px-6 rounded-lg font-medium transition"
                 >
                   В корзину
                 </button>
                 <button 
-                  class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 px-6 rounded-lg font-medium transition"
+                  class="bg-gray-200 hover:bg-gray-300 text-dark py-3 px-6 rounded-lg font-medium transition"
                 >
                   Быстрый заказ
                 </button>
@@ -200,31 +200,31 @@ const toggleFavorite = async () => {
             <h3 class="text-xl font-bold mb-4">Основные характеристики</h3>
             <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <li v-if="specifications.maxTorque" class="flex gap-2">
-                <span class="font-medium text-gray-600">Макс. крутящий момент:</span>
+                <span class="font-medium text-gray">Макс. крутящий момент:</span>
                 <span>{{ specifications.maxTorque }}</span>
               </li>
               <li v-if="specifications.batteryType" class="flex gap-2">
-                <span class="font-medium text-gray-600">Тип аккумулятора:</span>
+                <span class="font-medium text-gray">Тип аккумулятора:</span>
                 <span>{{ specifications.batteryType }}</span>
               </li>
               <li v-if="specifications.batteryVoltage" class="flex gap-2">
-                <span class="font-medium text-gray-600">Напряжение аккумулятора:</span>
+                <span class="font-medium text-gray">Напряжение аккумулятора:</span>
                 <span>{{ specifications.batteryVoltage }}</span>
               </li>
               <li v-if="specifications.maxDrillDiameterMetal" class="flex gap-2">
-                <span class="font-medium text-gray-600">Макс. диаметр сверления (металл):</span>
+                <span class="font-medium text-gray">Макс. диаметр сверления (металл):</span>
                 <span>{{ specifications.maxDrillDiameterMetal }}</span>
               </li>
               <li v-if="specifications.maxDrillDiameterWood" class="flex gap-2">
-                <span class="font-medium text-gray-600">Макс. диаметр сверления (дерево):</span>
+                <span class="font-medium text-gray">Макс. диаметр сверления (дерево):</span>
                 <span>{{ specifications.maxDrillDiameterWood }}</span>
               </li>
               <li v-if="specifications.chargerIncluded" class="flex gap-2">
-                <span class="font-medium text-gray-600">Зарядное устройство:</span>
+                <span class="font-medium text-gray">Зарядное устройство:</span>
                 <span>{{ specifications.chargerIncluded }}</span>
               </li>
               <li v-if="specifications.netWeight" class="flex gap-2">
-                <span class="font-medium text-gray-600">Вес нетто:</span>
+                <span class="font-medium text-gray">Вес нетто:</span>
                 <span>{{ specifications.netWeight }}</span>
               </li>
             </ul>
@@ -240,8 +240,8 @@ const toggleFavorite = async () => {
             @click="activeTab = tab.id"
             class="py-4 px-1 border-b-2 font-medium text-sm"
             :class="{
-              'border-red-600 text-red-600': activeTab === tab.id,
-              'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== tab.id
+              'border-second text-second': activeTab === tab.id,
+              'border-transparent text-gray hover:text-dark hover:border-gray-300': activeTab !== tab.id
             }"
           >
             {{ tab.title }}
@@ -269,14 +269,14 @@ const toggleFavorite = async () => {
                 <table class="min-w-full divide-y divide-gray-200">
                   <thead>
                     <tr>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Параметр</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Значение</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray uppercase tracking-wider">Параметр</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray uppercase tracking-wider">Значение</th>
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-gray-200">
                     <tr v-for="(desc, index) in description" :key="index">
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ desc.parameter }}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ desc.value }}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-dark">{{ desc.parameter }}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray">{{ desc.value }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -287,16 +287,16 @@ const toggleFavorite = async () => {
           <div>
             <div class="rounded-lg p-6 mb-6">
               <h3 class="text-xl font-bold mb-4">KEYANG</h3>
-              <p class="text-gray-500 mb-4">Все товары бренда</p>
+              <p class="text-gray mb-4">Все товары бренда</p>
 
               <div v-if="brandInfo" class="space-y-3">
                 <div class="flex items-center">
                   <img src="" alt="Южная Корея" class="w-5 h-5 mr-2" />
-                  <span class="text-gray-700">Южная Корея — родина бренда</span>
+                  <span class="text-dark">Южная Корея — родина бренда</span>
                 </div>
                 <div class="flex items-center">
                   <img src="" alt="Китай" class="w-5 h-5 mr-2" />
-                  <span class="text-gray-700">Китай — страна производства</span>
+                  <span class="text-dark">Китай — страна производства</span>
                 </div>
               </div>
             </div>
@@ -308,14 +308,13 @@ const toggleFavorite = async () => {
               </ul>
             </div>
 
-
-            <div class=" rounded-lg p-6">
+            <div class="rounded-lg p-6">
               <h3 class="text-xl font-bold mb-4">Информация об упаковке</h3>
               <div class="space-y-2">
-                <p v-if="packagingDetails.weight" class="text-gray-700">Вес, кг: {{ packagingDetails.weight }}</p>
-                <p v-if="packagingDetails.length" class="text-gray-700">Длина, мм: {{ packagingDetails.length }}</p>
-                <p v-if="packagingDetails.width" class="text-gray-700">Ширина, мм: {{ packagingDetails.width }}</p>
-                <p v-if="packagingDetails.height" class="text-gray-700">Высота, мм: {{ packagingDetails.height }}</p>
+                <p v-if="packagingDetails.weight" class="text-dark">Вес, кг: {{ packagingDetails.weight }}</p>
+                <p v-if="packagingDetails.length" class="text-dark">Длина, мм: {{ packagingDetails.length }}</p>
+                <p v-if="packagingDetails.width" class="text-dark">Ширина, мм: {{ packagingDetails.width }}</p>
+                <p v-if="packagingDetails.height" class="text-dark">Высота, мм: {{ packagingDetails.height }}</p>
               </div>
             </div>
           </div>
@@ -332,11 +331,7 @@ const toggleFavorite = async () => {
     </div>
 
     <div v-else class="flex justify-center items-center h-64">
-      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
     </div>
   </div>
 </template>
-
-
-
-
