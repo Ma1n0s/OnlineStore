@@ -6,7 +6,7 @@
     /></Button>
     <div
       v-if="showMenu"
-      class="absolute mt-1 flex bg-white border border-primary-hover text-dark rounded-xl p-1 max-h-96 h-[96rem]"
+      class="absolute mt-1 z-10 flex bg-white border border-primary-hover text-dark rounded-xl p-1 max-h-96 h-[96rem]"
     >
       <div class="h-full flex flex-col p-2 border-r border-primary">
         <div
