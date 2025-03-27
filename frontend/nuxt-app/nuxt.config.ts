@@ -13,11 +13,15 @@ export default defineNuxtConfig({
     "@nuxtjs/tailwindcss",
     "@vueuse/nuxt",
     "nuxt-swiper",
+    "@nuxtjs/google-fonts",
   ],
 
-  // swiper: {
-  //   modules: ["navigation", "pagination", "autoplay"],
-  // },
+  googleFonts: {
+    families: {
+      Montserrat: [400, 500, 600, 700, 800],
+    },
+    display: "swap",
+  },
 
   runtimeConfig: {
     public: {},
