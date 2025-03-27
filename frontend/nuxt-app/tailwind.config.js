@@ -35,6 +35,9 @@ export default {
         dark: "#0D1B2A",
         gray: "#70798C",
       },
+      fontFamily: {
+        sans: ["Montserrat", "sans-serif"],
+      },
     },
   },
 };

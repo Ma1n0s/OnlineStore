@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Product } from "~/types/product.types";
+import type { Product } from "@/types/product.types";
 import ProductSlide from "./ProductSlide.vue";
 
 const containerRef = ref(null);
