@@ -1,5 +1,3 @@
-<!-- переделать с watch на функции при выборе селекта change или как то по другому -->
-<!-- + надо ли использовать computed для этой функции -->
 <template>
   <div class="relative">
     <select
@@ -38,7 +36,7 @@ const selectedValue = ref(props.modelValue);
 const emit = defineEmits(["update:modelValue"]);
 
 function handleChange(event: Event) {
-  const target = event.target as HTMLSelectElement; //тут не особо уверен верно или нет 
+  const target = event.target as HTMLSelectElement; 
   selectedValue.value = target.value;
   emit("update:modelValue", target.value);
 }

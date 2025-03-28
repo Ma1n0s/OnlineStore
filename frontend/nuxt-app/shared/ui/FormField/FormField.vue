@@ -7,9 +7,6 @@
   </div>
 </template>
 
-<!-- исправить стандартный slots, цвет текста -->
-<!-- если передавать template без имени то он встает в slot по умолчанию -->
-
 <script setup lang="ts">
 defineProps<{
   label?: string;

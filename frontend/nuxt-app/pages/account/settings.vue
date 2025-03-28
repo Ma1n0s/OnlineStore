@@ -43,17 +43,7 @@ const companyForm = ref({
   email: ''
 });
 
-// Меню
-const menuItems = ref([
-  'Заказы',
-  'Избранное',
-  'Мои отзывы',
-  'Мои адреса',
-  'Бонусы: 0 Б',
-  'Обратная связь',
-  'Настройка уведомлений',
-  'Настройки профиля'
-]);
+
 
 const toggleCompanyDetails = () => {
   showCompanyDetails.value = !showCompanyDetails.value;
@@ -129,7 +119,7 @@ const startEditCompany = () => {
 
 <template>
   <div class="container mx-auto px-4 md:px-6 lg:px-8 py-8">
-    <h2 class="font-semibold text-3xl mb-4">Настройки профиля</h2>
+    <h2 class="font-semibold text-3xl mb-4 max-w-6xl mx-auto flex gap-8">Настройки профиля</h2>
     <div class="max-w-6xl mx-auto flex gap-8">
       <div class="w-1/4 flex-shrink-0">
         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
@@ -140,41 +130,12 @@ const startEditCompany = () => {
             >
               Заказы
             </RouterLink>
-            <RouterLink 
-              to="#" 
-              class="p-2 hover:bg-gray-100 rounded transition-colors text-sm"
-            >
-              Избранное
-            </RouterLink>
-            <RouterLink 
-              to="#" 
-              class="p-2 hover:bg-gray-100 rounded transition-colors text-sm"
-            >
-              Мои отзывы
-            </RouterLink>
-            <RouterLink 
-              to="#" 
-              class="p-2 hover:bg-gray-100 rounded transition-colors text-sm"
-            >
-              Мои адреса
-            </RouterLink>
-            <RouterLink 
-              to="#" 
-              class="p-2 hover:bg-gray-100 rounded transition-colors text-sm"
-            >
-              Бонусы: 0 Б
-            </RouterLink>
+
             <RouterLink 
               to="#" 
               class="p-2 hover:bg-gray-100 rounded transition-colors text-sm"
             >
               Обратная связь
-            </RouterLink>
-            <RouterLink 
-              to="#" 
-              class="p-2 hover:bg-gray-100 rounded transition-colors text-sm"
-            >
-              Настройка уведомлений
             </RouterLink>
             <RouterLink 
               to="#" 
@@ -211,11 +172,11 @@ const startEditCompany = () => {
               </p>
             </div>
 
-            <button class="flex-shrink-0 text-purple-600 hover:text-purple-800 transition-colors">
+            <!-- <button class="flex-shrink-0 text-purple-600 hover:text-purple-800 transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
               </svg>
-            </button>
+            </button> -->
           </div>
 
           <div class="flex flex-col gap-6">
