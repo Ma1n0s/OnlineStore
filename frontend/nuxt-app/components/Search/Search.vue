@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import TextInput from "~/shared/ui/Inputs/TextInput.vue";
+import TextInput from "~/components/ui/Inputs/TextInput.vue";
 import { onClickOutside } from "@vueuse/core";
 
 const data = ref({
