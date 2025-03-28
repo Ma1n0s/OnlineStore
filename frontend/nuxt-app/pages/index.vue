@@ -1,42 +1,18 @@
-<script setup>
-import { ref } from "vue";
-import Modal from "~/components/Modal/Modal.vue";
-import Select from "~/shared/ui/Select/Select.vue";
-
-const isModalOpen = ref(false);
-
-const openModal = () => {
-  isModalOpen.value = true;
-};
-
-const closeModal = () => {
-  isModalOpen.value = false;
-};
-
-const handleConfirm = () => {
-  closeModal();
-};
-
-const s = ref();
+<script setup lang="ts">
+import BrandSwiper from "~/components/Swiper/BrandSwiper.vue";
+import CategorySwiper from "~/components/Swiper/CategorySwiper.vue";
+import ProductSwiper from "~/components/Swiper/ProductSwiper/ProductSwiper.vue";
 </script>
 <template>
-  <div class="bg-gray-800 w-full ~text-sm/xs ~p-0/80">
-    <div>
-      <button @click="openModal" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-        Открыть модальное окно
-      </button>
-      <Modal :isOpen="isModalOpen" @close="closeModal" @confirm="handleConfirm" title="">
-        <p>Текст</p>
-      </Modal>
+  <div class="bg-white w-full ~text-sm/xs ~p-4/8 flex flex-col items-center">
+    <div class="w-full xl:max-w-7xl">
+      <div class="mb-16">
+        <CategorySwiper />
+      </div>
+      <div class="mb-8">
+        <ProductSwiper />
+      </div>
+      <BrandSwiper />
     </div>
-
-    {{ JSON.stringify(s) }}
-    <Select
-      :options="[
-        { value: '2222', label: '123' },
-        { value: '2', label: '1' },
-      ]"
-      v-model="s"
-    />
   </div>
 </template>
