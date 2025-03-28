@@ -91,17 +91,17 @@ onMounted(() => {
 <template>
   <div class="container mx-auto px-4 md:px-6 lg:px-8 py-8">
     <nav class="flex flex-wrap space-x-2 text-gray-600 mb-4">
-      <RouterLink to="" class="hover:underline">Главная</RouterLink>
+      <NuxtLink to="" class="hover:underline">Главная</NuxtLink>
       <p>/</p>
-      <RouterLink to="" class="font-semibold">Инструменты</RouterLink>
+      <NuxtLink to="" class="font-semibold">Инструменты</NuxtLink>
       <p>/</p>
-      <RouterLink to="" class="font-semibold">Шуруповерты</RouterLink>
+      <NuxtLink to="" class="font-semibold">Шуруповерты</NuxtLink>
       <p>/</p>
-      <RouterLink to="" class="font-semibold">Аккумуляторные дрели-шуруповерты</RouterLink>
+      <NuxtLink to="" class="font-semibold">Аккумуляторные дрели-шуруповерты</NuxtLink>
       <p>/</p>
-      <RouterLink to="" class="font-semibold">Безударные</RouterLink>
+      <NuxtLink to="" class="font-semibold">Безударные</NuxtLink>
       <p>/</p>
-      <RouterLink to="" class="font-semibold">KEYANG</RouterLink>
+      <NuxtLink to="" class="font-semibold">KEYANG</NuxtLink>
     </nav>
 
     <div>
