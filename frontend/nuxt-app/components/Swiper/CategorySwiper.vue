@@ -14,9 +14,12 @@
         :key="idx"
         class="bg-white flex flex-col w-48 h-64 shadow-xl rounded-3xl overflow-hidden"
       >
-        <div class="box-content h-14 p-1 pb-4 text-lg text-dark font-medium">{{ category.name }}</div>
+        <div
+          class="box-content h-14 p-1 pb-4 text-lg text-dark font-medium text-center flex items-center justify-center"
+        >
+          {{ category.name }}
+        </div>
         <div class="flex-1 relative">
-          <!-- Контейнер для изображения -->
           <NuxtImg :alt="category.name" :src="category.src" class="absolute h-full w-full object-cover" format="webp" />
         </div>
       </swiper-slide>

@@ -1,6 +1,6 @@
 <template>
   <component
-    :is="props.to ? RouterLink : 'button'"
+    :is="props.to ? NuxtLink : 'button'"
     :disabled="props.disabled"
     :to="props.disabled ? '#' : props.to"
     :class="buttonClasses"
@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { RouterLink } from "vue-router";
+import { NuxtLink } from "#components";
 import { computed } from "vue";
 
 const { variant = "primary", ...props } = defineProps<{

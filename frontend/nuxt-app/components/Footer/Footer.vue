@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { RouterLink } from "vue-router";
 const links = [
   // { link: 'catalog', name: 'Каталог' },
   // { link: 'stores', name: 'Адреса магазинов' },
@@ -48,9 +47,9 @@ const links = [
           <div class="w-full md:w-1/3 px-4 mb-8">
             <div>
               <div class="mb-8">
-                <RouterLink to="#">
+                <NuxtLink to="#">
                   <img src="https://i.ibb.co/QDy827D/ak-logo.png" class="max-w-full" alt="logo" />
-                </RouterLink>
+                </NuxtLink>
               </div>
               <div class="mb-8">
                 <p class="text-gray-500 text-sm leading-7">
@@ -70,9 +69,9 @@ const links = [
               </div>
               <ul class="flex flex-wrap">
                 <li v-for="(item, index) in links" :key="index" class="w-1/2 mb-3">
-                  <RouterLink :to="item.link || '#'" class="text-gray-500 hover:text-orange-500">{{
+                  <NuxtLink :to="item.link || '#'" class="text-gray-500 hover:text-orange-500">{{
                     item.name
-                  }}</RouterLink>
+                  }}</NuxtLink>
                 </li>
               </ul>
             </div>

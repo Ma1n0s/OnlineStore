@@ -1,10 +1,10 @@
 <template>
   <div class="bg-white flex justify-center w-full border-b border-blue-200 px-2">
     <div class="flex justify-around items-center gap-4 py-2 w-full max-w-screen-xl">
-      <div class="flex items-center gap-2 w-[400px]">
+      <NuxtLink to="/" class="flex items-center gap-2 w-[400px]">
         <NuxtImg src="logo_test.svg" width="40" height="40" />
         <div class="text-nowrap text-xl text-primary font-bold">Абсолют Техно</div>
-      </div>
+      </NuxtLink>
       <CatalogButton />
       <Search />
       <Button class="flex items-center gap-2 h-full"
