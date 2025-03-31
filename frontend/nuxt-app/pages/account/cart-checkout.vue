@@ -1,7 +1,6 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
 
-// Состояние приложения
 const state = ref({
   showSecondForm: false,
   secondCustomer: {
@@ -41,7 +40,6 @@ const state = ref({
   showQrCode: false
 });
 
-// Вычисляемые свойства
 const selectedItems = computed(() => state.value.items.filter(item => item.selected));
 const totalItemsCount = computed(() => selectedItems.value.length);
 const totalWeight = computed(() => '4,8');
@@ -73,7 +71,6 @@ const formattedDiscountAmount = computed(() => {
   return '-' + discountAmount.value.toLocaleString('ru-RU') + ' ₽';
 });
 
-// Методы
 const increaseQuantity = (item) => {
   item.quantity += 1;
 };
@@ -98,7 +95,6 @@ const formatPrice = (price) => {
   return price.toLocaleString('ru-RU') + ' ₽';
 };
 
-// Watchers
 watch(
   () => state.value.items.every((item) => item.selected),
   (allSelected) => {
@@ -112,7 +108,6 @@ watch(selectedItems, (newVal) => {
   }
 }, { deep: true });
 
-// Дата заказа
 const orderDate = computed(() => {
   const today = new Date();
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -124,9 +119,7 @@ const orderDate = computed(() => {
   <div class="min-h-screen bg-gray-50 py-8">
     <div class="container mx-auto px-4">
       <div class="flex flex-col lg:flex-row gap-6">
-        <!-- Основной контент -->
         <div class="lg:w-3/4">
-          <!-- Блок поиска -->
           <div class="bg-white rounded-xl p-6 mb-6 shadow-sm">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
               <div class="flex items-center mb-4 sm:mb-0">
@@ -150,7 +143,6 @@ const orderDate = computed(() => {
             </div>
           </div>
           
-          <!-- Сообщение о пустой корзине -->
           <div v-if="isEmptyCart" class="bg-white rounded-xl p-8 mb-6 shadow-sm text-center">
             <div class="mx-auto max-w-md">
               <Icon name="heroicons:shopping-bag" class="mx-auto h-12 w-12 text-gray-400" />
@@ -167,7 +159,6 @@ const orderDate = computed(() => {
             </div>
           </div>
 
-          <!-- Список товаров -->
           <div v-else class="bg-white rounded-xl p-6 mb-6 shadow-sm">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
               <div class="flex items-center">
@@ -254,7 +245,6 @@ const orderDate = computed(() => {
             </div>
           </div>
           
-          <!-- Форма получателя (показываем только если есть товары) -->
           <div v-if="!isEmptyCart" class="bg-white rounded-xl p-6 shadow-sm">
             <h2 class="text-xl font-bold mb-4 text-gray-800">Укажите данные получателя заказа</h2>
             
@@ -330,7 +320,6 @@ const orderDate = computed(() => {
               />
             </div>
             
-            <!-- Блок оплаты -->
             <div class="mt-6 pt-6 border-t border-gray-200">
               <h3 class="text-lg font-bold mb-4 text-gray-800">Способ оплаты</h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -394,7 +383,6 @@ const orderDate = computed(() => {
           </div>
         </div>
         
-        <!-- Боковая панель (показываем только если есть товары) -->
         <div v-if="!isEmptyCart" class="lg:w-1/4">
           <div class="bg-white rounded-xl p-6 shadow-sm sticky top-6 border border-gray-200">
             <h2 class="text-lg font-bold mb-4 text-gray-800">Ваш заказ</h2>
