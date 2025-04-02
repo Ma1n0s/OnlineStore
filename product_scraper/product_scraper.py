@@ -165,11 +165,25 @@ class ProductScraper:
             self.driver.get(product_url)
             time.sleep(3)  # Уменьшаем время ожидания
             
+            # Нажимаем на кнопку "Все характеристики"
+            try:
+                show_all_buttons = self.driver.find_elements("css selector", "[data-auto='read-more-button'], [data-zone-name='readMoreButton'] button")
+                for button in show_all_buttons:
+                    try:
+                        if "характеристики" in button.text.lower():
+                            button.click()
+                            time.sleep(1)  # Ждем раскрытия характеристик
+                            break
+                    except:
+                        continue
+            except Exception as e:
+                logging.warning(f"Не удалось нажать кнопку 'Все характеристики': {e}")
+            
             product_data = {
-                "технические_характеристики": [],
-                "комплектация": [],
-                "особенности": [],
-                "применение": []
+                "характеристики": {},
+                "функции": {},
+                "общее": {},
+                "дополнительно": {}
             }
             
             try:
@@ -189,21 +203,17 @@ class ProductScraper:
                             if not name or not value or name == ":" or value == ":":
                                 continue
                             
-                            spec_text = f"{name}: {value}"
-                            
                             # Распределяем характеристики по категориям
                             if any(word in name.lower() for word in ["мощность", "напряжение", "вес", "размер", "габарит", "диаметр", "частота", "скорость", "сила", "удар", "патрон", "число", "оборот", "длина", "шаг", "артикул", "бренд", "производитель"]):
-                                if spec_text not in product_data["технические_характеристики"]:
-                                    product_data["технические_характеристики"].append(spec_text)
-                            elif any(word in name.lower() for word in ["комплект", "поставка", "упаковка", "кейс", "чемодан", "в комплекте"]):
-                                if spec_text not in product_data["комплектация"]:
-                                    product_data["комплектация"].append(spec_text)
-                            elif any(word in name.lower() for word in ["режим", "функция", "защита", "система", "особенность", "реверс", "регулировка", "плавный пуск"]):
-                                if spec_text not in product_data["особенности"]:
-                                    product_data["особенности"].append(spec_text)
+                                product_data["характеристики"][name] = value
+                            elif any(word in name.lower() for word in ["режим", "функция", "защита", "система", "реверс", "регулировка", "плавный пуск"]):
+                                product_data["функции"][name] = value
+                            elif any(word in name.lower() for word in ["комплект", "поставка", "упаковка", "кейс", "чемодан", "в комплекте", "особенность", "конструкция"]):
+                                product_data["общее"][name] = value
+                            elif any(word in name.lower() for word in ["гарантия", "срок", "сертификат", "страна"]):
+                                product_data["дополнительно"][name] = value
                             else:
-                                if spec_text not in product_data["технические_характеристики"]:
-                                    product_data["технические_характеристики"].append(spec_text)
+                                product_data["характеристики"][name] = value
                                 
                     except Exception as e:
                         logging.debug(f"Ошибка при обработке строки характеристики: {e}")
@@ -222,7 +232,7 @@ class ProductScraper:
                     try:
                         description = self.driver.find_element("css selector", selector).text.strip()
                         if description:
-                            product_data["применение"].append(description)
+                            product_data["общее"]["описание"] = description
                             break
                     except:
                         continue
@@ -367,12 +377,13 @@ class ProductScraper:
 
             return {
                 "название_товара": product_name,
-                "данные": {
-                    "спецификации": product_data,
-                    "изображения": {
-                        "маркет": market_img_urls[:3],  # До 3 изображений с Маркета
-                        "картинки": yandex_img_urls[:3]  # До 3 изображений с Яндекс.Картинок
-                    }
+                "характеристики": product_data["характеристики"],
+                "функции": product_data["функции"],
+                "общее": product_data["общее"],
+                "дополнительно": product_data["дополнительно"],
+                "изображения": {
+                    "маркет": market_img_urls[:3],  # До 3 изображений с Маркета
+                    "картинки": yandex_img_urls[:3]  # До 3 изображений с Яндекс.Картинок
                 },
                 "ссылки": {
                     "товар": product_url,
