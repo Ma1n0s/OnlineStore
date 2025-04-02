@@ -667,18 +667,21 @@ class ProductScraper:
         
         # Проверяем, есть ли хлебные крошки
         breadcrumbs = product_data.get("хлебные_крошки", [])
-        if breadcrumbs and len(breadcrumbs) > 1:
+        if breadcrumbs and len(breadcrumbs) > 2:  # Нужно минимум 3 элемента
             # Используем хлебные крошки для определения категории и подкатегории
             logging.info(f"Определяем категорию по хлебным крошкам: {breadcrumbs}")
             
-            # Исключаем бренд из хлебных крошек (обычно последний элемент)
-            if len(breadcrumbs) > 2 and len(breadcrumbs[-1]) < 20 and not any(c.isdigit() for c in breadcrumbs[-1]):
-                # Это может быть бренд, используем предпоследний элемент как подкатегорию
-                relevant_breadcrumbs = breadcrumbs[:-1]
-            else:
-                relevant_breadcrumbs = breadcrumbs
+            # Фильтруем хлебные крошки, убирая возможный бренд в конце
+            # Бренд обычно короткий, не содержит пробелов и цифр
+            relevant_breadcrumbs = breadcrumbs.copy()
+            if len(breadcrumbs) > 2:
+                last_item = breadcrumbs[-1]
+                if len(last_item) < 20 and " " not in last_item and not any(c.isdigit() for c in last_item):
+                    # Похоже на бренд, удаляем
+                    relevant_breadcrumbs = breadcrumbs[:-1]
+                    logging.info(f"Исключаем бренд '{last_item}' из хлебных крошек")
             
-            if len(relevant_breadcrumbs) >= 2:
+            if len(relevant_breadcrumbs) >= 3:
                 # Формируем промпт для ИИ с учетом хлебных крошек
                 breadcrumbs_str = " > ".join(relevant_breadcrumbs)
                 
@@ -686,35 +689,47 @@ class ProductScraper:
                 name = product_name
                 description = product_data.get("описание", "")
                 
-                # Собираем характеристики товара из спецификаций
-                specs = ""
-                if "спецификации" in product_data and product_data["спецификации"]:
-                    for category_name, category_specs in product_data["спецификации"].items():
-                        specs += f"- {category_name}:\n"
-                        for spec_name, spec_value in category_specs.items():
-                            specs += f"  * {spec_name}: {spec_value}\n"
+                # Автоматическое определение категории и подкатегории с предпочтением более специфичных категорий (с конца)
+                # Подкатегория - предпоследний или предпредпоследний элемент
+                # Категория - на один элемент раньше подкатегории
+                subcategory_index = len(relevant_breadcrumbs) - 2  # Предпоследний элемент
+                auto_subcategory = relevant_breadcrumbs[subcategory_index]
+                
+                category_index = max(1, subcategory_index - 1)  # Элемент перед подкатегорией, но не меньше 1
+                auto_category = relevant_breadcrumbs[category_index]
+                
+                # Проверяем, что категория не слишком общая
+                if category_index < 2 and len(relevant_breadcrumbs) > 3:
+                    # Если категория слишком общая (из начала списка), 
+                    # а список длинный, берем категорию из середины
+                    alt_category_index = max(2, len(relevant_breadcrumbs) // 2)
+                    alt_category = relevant_breadcrumbs[alt_category_index]
+                    
+                    # Предлагаем альтернативную категорию
+                    alt_suggestion = f"Альтернативная категория: {alt_category}"
+                else:
+                    alt_suggestion = ""
                 
                 # Формируем промпт для LLM
                 prompt = f"""
-                Ты эксперт по классификации товаров. Определи категорию и подкатегорию для товара на основе хлебных крошек Яндекс Маркета.
+                Определи категорию и подкатегорию товара на основе хлебных крошек Яндекс Маркета.
 
                 Товар: {name}
-                Хлебные крошки Яндекс Маркета: {breadcrumbs_str}
                 Описание: {description}
-                Характеристики:
-                {specs}
-
-                ТРЕБОВАНИЯ:
-                1. Используй хлебные крошки Яндекс Маркета для определения категории и подкатегории.
-                2. В качестве категории обычно используется второй элемент хлебных крошек (например, "Строительные инструменты").
-                3. В качестве подкатегории обычно используется третий или четвертый элемент хлебных крошек (например, "Ручные инструменты").
-                4. Проанализируй хлебные крошки и выбери наиболее подходящую категорию и подкатегорию.
-                5. Категория должна быть общей группой товаров, а подкатегория - конкретным типом товара.
-                6. Названия категории и подкатегории должны быть краткими и понятными.
-                7. ВСЕГДА ОТВЕЧАЙ ТОЛЬКО НА РУССКОМ ЯЗЫКЕ.
+                Хлебные крошки: {breadcrumbs_str}
                 
-                Ответь СТРОГО в формате JSON без комментариев:
-                {{"category": "Название категории", "subcategory": "Название подкатегории"}}
+                Предлагаемые варианты (требуют проверки):
+                Категория: {auto_category}
+                Подкатегория: {auto_subcategory}
+                {alt_suggestion}
+
+                СТРОГИЕ ТРЕБОВАНИЯ:
+                1. Ответ ТОЛЬКО на РУССКОМ языке, без английских слов.
+                2. Категория должна быть средне-специфичной (не слишком общей).
+                3. Подкатегория должна быть конкретным типом товара.
+                4. Предпочитай брать подкатегорию из предпоследних элементов хлебных крошек.
+                5. Предпочитай брать категорию из середины списка хлебных крошек.
+                6. Ответь ТОЛЬКО в формате JSON: {{"category": "Категория", "subcategory": "Подкатегория"}}
                 """
                 
                 # Получаем ответ от LLM
@@ -745,6 +760,11 @@ class ProductScraper:
                     # Если что-то не найдено, используем запасной метод
                     return self._detect_category_with_ai(product_data)
                 
+                # Проверяем, что категория и подкатегория на русском языке
+                if self._contains_latin_chars(category) or self._contains_latin_chars(subcategory):
+                    logging.warning(f"Категории содержат латинские символы: {category}, {subcategory}. Пробуем снова.")
+                    return self._detect_category_with_ai(product_data)
+                
                 # Нормализуем регистр (первая буква заглавная)
                 category = category.strip().title()
                 subcategory = subcategory.strip().title()
@@ -761,6 +781,19 @@ class ProductScraper:
             # В случае ошибки используем запасной метод
             logging.error(f"Ошибка при обработке ответа LLM для '{product_name}' на основе хлебных крошек: {e}")
             return self._detect_category_with_ai(product_data)
+    
+    def _contains_latin_chars(self, text: str) -> bool:
+        """
+        Проверяет наличие латинских символов в тексте.
+        
+        Args:
+            text: Строка для проверки
+            
+        Returns:
+            bool: True, если текст содержит латинские символы, иначе False
+        """
+        latin_chars = set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
+        return any(char in latin_chars for char in text)
             
     def _detect_category_with_ai(self, product_data: Dict) -> Tuple[str, str]:
         """
@@ -785,24 +818,20 @@ class ProductScraper:
         
         # Формируем промпт для LLM
         prompt = f"""
-        Ты эксперт по классификации товаров. Определи подходящую категорию и подкатегорию для следующего товара.
+        Определи категорию и подкатегорию для товара.
 
         Товар: {product_name}
         Описание: {description}
         Характеристики:
         {specs}
 
-        ТРЕБОВАНИЯ:
-        1. Проанализируй все данные и определи одну категорию и одну подкатегорию.
-        2. Категория должна быть общей группой товаров (например: Электроинструмент, Строительные материалы, Сантехника).
-        3. Подкатегория должна быть конкретным типом товара внутри категории.
-        4. Названия категории и подкатегории должны быть краткими (1-2 слова).
-        5. ВАЖНО: Подкатегория должна всегда быть уже категории и относиться к ней.
-        6. Не используй слишком общие категории типа "Товары для дома", "Товары для ремонта" или слишком конкретные модели.
-        7. ВСЕГДА ОТВЕЧАЙ ТОЛЬКО НА РУССКОМ ЯЗЫКЕ.
-        
-        Ответь СТРОГО в формате JSON без комментариев:
-        {{"category": "Название категории", "subcategory": "Название подкатегории"}}
+        СТРОГИЕ ТРЕБОВАНИЯ:
+        1. Ответ ТОЛЬКО на РУССКОМ ЯЗЫКЕ, без английских слов.
+        2. Категория - общая группа товаров (Электроинструмент, Сантехника и т.д.).
+        3. Подкатегория - конкретный тип товара внутри категории.
+        4. Категории должны быть на РУССКОМ языке, например "Электроинструмент", а НЕ "Power Tools".
+        5. Используй краткие названия (1-2 слова).
+        6. Ответь ТОЛЬКО в формате JSON: {{"category": "Категория", "subcategory": "Подкатегория"}}
         """
         
         # Получаем ответ от LLM
@@ -823,16 +852,20 @@ class ProductScraper:
                 subcategory = data.get("subcategory", "")
                 
                 # Проверка наличия категории и подкатегории
-                if not category or not subcategory:
-                    # Если что-то не найдено, повторяем запрос с более строгими инструкциями
-                    logging.warning(f"Неполный ответ LLM для '{product_name}': {response}")
+                if not category or not subcategory or self._contains_latin_chars(category) or self._contains_latin_chars(subcategory):
+                    # Если что-то не найдено или содержит английские символы, повторяем запрос
+                    logging.warning(f"Неполный ответ или английские символы в LLM для '{product_name}': {response}")
                     second_prompt = f"""
-                    ВАЖНО! Определи категорию и подкатегорию для товара: {product_name}.
+                    Определи категорию и подкатегорию для товара: {product_name}
+                    Описание: {description}
                     
-                    Ответь ТОЛЬКО в формате JSON, без пояснений:
-                    {{"category": "Название общей категории", "subcategory": "Название конкретной подкатегории"}}
+                    ТОЛЬКО НА РУССКОМ ЯЗЫКЕ!
                     
-                    Оба поля ОБЯЗАТЕЛЬНЫ, ответ только на РУССКОМ языке.
+                    СТРОГИЕ ТРЕБОВАНИЯ:
+                    1. Ответь ТОЛЬКО в формате JSON: {{"category": "Категория", "subcategory": "Подкатегория"}}
+                    2. Ответ ОБЯЗАТЕЛЬНО на РУССКОМ языке, без английских слов!
+                    3. Без пояснений и дополнительного текста.
+                    4. Например: {{"category": "Электроинструмент", "subcategory": "Перфораторы"}}
                     """
                     
                     response = self.llm.get_completion(second_prompt)
@@ -844,6 +877,11 @@ class ProductScraper:
                         data = json.loads(json_str)
                         category = data.get("category", "Другое")
                         subcategory = data.get("subcategory", "Разное")
+                        
+                        # Проверяем еще раз на английские символы
+                        if self._contains_latin_chars(category) or self._contains_latin_chars(subcategory):
+                            category = "Другое"
+                            subcategory = "Разное"
                     else:
                         category = "Другое"
                         subcategory = "Разное"
@@ -877,6 +915,11 @@ class ProductScraper:
                         category = line.split(":", 1)[1].strip().strip('"')
                     elif "subcategory:" in line.lower():
                         subcategory = line.split(":", 1)[1].strip().strip('"')
+                
+                # Проверяем на английские символы
+                if self._contains_latin_chars(category) or self._contains_latin_chars(subcategory):
+                    category = "Другое"
+                    subcategory = "Разное"
                 
                 # Если не удалось извлечь категорию или подкатегорию
                 if not category:
