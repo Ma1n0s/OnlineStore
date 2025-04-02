@@ -297,9 +297,7 @@ const toggleBrand = (brand) => {
         <div class="bg-white rounded-lg shadow-sm p-5 sticky top-4">
           <div class="mb-6">
             <div class="flex items-center text-gray-700 mb-2">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-              </svg>
+              <img src="~/public/arrow-left.svg" alt="left" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"/>
               <span>Инструмент</span>
             </div>
             <div class="bg-gray-50 p-3 rounded-lg">
@@ -387,9 +385,7 @@ const toggleBrand = (brand) => {
 
           <div class="space-y-3">
             <button @click="toggleFilters" class="w-full flex items-center justify-center space-x-2 border border-gray-300 rounded-xl py-2 px-4 hover:bg-gray-50 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-              </svg>
+              <img src="~/public/filter.svg" alt="filter" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" />
               <span>Все фильтры</span>
             </button>
             <button class="w-full bg-red-600 hover:bg-red-700 text-white rounded-xl py-2 px-4 transition-colors font-medium">
@@ -410,9 +406,7 @@ const toggleBrand = (brand) => {
 
               <BrandSwiper />
               <button class="absolute top-3 right-3 p-1 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 hover:text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
+                <img src="~/public/heart2.svg" alt="heart2" class="h-5 w-5 text-gray-600 hover:text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"/>
               </button>
               <div v-if="item.discount" class="absolute top-3 left-3 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">
                 -{{ item.discount }}%
@@ -448,9 +442,7 @@ const toggleBrand = (brand) => {
         </div>
 
         <div v-else class="bg-white rounded-lg shadow-sm p-8 text-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+          <img src="" alt="" class=""/>
           <h3 class="mt-4 text-lg font-medium text-gray-900">Товары не найдены</h3>
           <p class="mt-1 text-gray-500">Попробуйте изменить параметры фильтрации</p>
           <button 
@@ -486,9 +478,7 @@ const toggleBrand = (brand) => {
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-xl font-bold text-gray-900">Все фильтры</h2>
           <button @click="toggleFilters" class="text-gray-500 hover:text-gray-700 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <img src="~/public/Krestiks.svg" alt="x" class="h-10 w-10"/>
           </button>
         </div>
         
