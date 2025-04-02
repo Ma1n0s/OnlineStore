@@ -665,6 +665,15 @@ class ProductScraper:
         if product_name in self._category_cache:
             return self._category_cache[product_name]
         
+        # Пробуем определить подкатегорию эвристически из названия товара
+        heuristic_subcategory = self._extract_subcategory_from_name(product_name)
+        if heuristic_subcategory:
+            logging.info(f"Эвристически определена подкатегория для '{product_name}': {heuristic_subcategory}")
+        
+        # Собираем характеристики товара для всех методов
+        specs_text = self._prepare_specs_text(product_data)
+        description = product_data.get("описание", "")
+        
         # Проверяем, есть ли хлебные крошки
         breadcrumbs = product_data.get("хлебные_крошки", [])
         if breadcrumbs and len(breadcrumbs) > 2:  # Нужно минимум 3 элемента
@@ -684,10 +693,6 @@ class ProductScraper:
             if len(relevant_breadcrumbs) >= 3:
                 # Формируем промпт для ИИ с учетом хлебных крошек
                 breadcrumbs_str = " > ".join(relevant_breadcrumbs)
-                
-                # Подготавливаем данные для запроса к LLM
-                name = product_name
-                description = product_data.get("описание", "")
                 
                 # Автоматическое определение категории и подкатегории с предпочтением более специфичных категорий (с конца)
                 # Подкатегория - предпоследний или предпредпоследний элемент
@@ -710,60 +715,143 @@ class ProductScraper:
                 else:
                     alt_suggestion = ""
                 
+                # Добавляем эвристически определенную подкатегорию в промпт, если она есть
+                heuristic_suggestion = ""
+                if heuristic_subcategory:
+                    heuristic_suggestion = f"Эвристически определенная подкатегория: {heuristic_subcategory}"
+                
                 # Формируем промпт для LLM
                 prompt = f"""
-                Определи категорию и подкатегорию товара на основе хлебных крошек Яндекс Маркета.
+                Определи категорию и подкатегорию товара на основе информации.
 
-                Товар: {name}
+                Товар: {product_name}
                 Описание: {description}
                 Хлебные крошки: {breadcrumbs_str}
+                Характеристики:
+                {specs_text}
                 
-                Предлагаемые варианты (требуют проверки):
+                Предлагаемые варианты из хлебных крошек:
                 Категория: {auto_category}
                 Подкатегория: {auto_subcategory}
                 {alt_suggestion}
+                {heuristic_suggestion}
+
+                ОБРАТИ ВНИМАНИЕ: 
+                Часто подкатегория содержится прямо в названии товара. Например:
+                - "Перфоратор AEG KH24IE" - подкатегория "Перфораторы"
+                - "Шуруповерт Bosch GSR 18V" - подкатегория "Шуруповерты"
+                - "Щипцы для зачистки электропроводов GROSS" - подкатегория "Щипцы для зачистки"
 
                 СТРОГИЕ ТРЕБОВАНИЯ:
                 1. Ответ ТОЛЬКО на РУССКОМ языке, без английских слов.
                 2. Категория должна быть средне-специфичной (не слишком общей).
                 3. Подкатегория должна быть конкретным типом товара.
-                4. Предпочитай брать подкатегорию из предпоследних элементов хлебных крошек.
-                5. Предпочитай брать категорию из середины списка хлебных крошек.
+                4. Подкатегорию часто можно выделить из первых слов названия товара.
+                5. Хлебные крошки могут не содержать подходящей категории - в этом случае определи её по характеристикам товара.
                 6. Ответь ТОЛЬКО в формате JSON: {{"category": "Категория", "subcategory": "Подкатегория"}}
+                7. НЕ ВЫВОДИ никаких пояснений до или после JSON, ТОЛЬКО сам JSON!
+                8. НЕ ИСПОЛЬЗУЙ английский язык ни при каких условиях!
+                9. ПРИМЕР правильного ответа: {{"category": "Электроинструмент", "subcategory": "Перфораторы"}}
+                10. НЕ ОБЪЯСНЯЙ свой выбор, только JSON!
                 """
                 
                 # Получаем ответ от LLM
                 response = self.llm.get_completion(prompt)
                 logging.info(f"Ответ LLM для '{product_name}' на основе хлебных крошек: {response}")
-            else:
-                # Недостаточно хлебных крошек, используем ИИ для определения
-                return self._detect_category_with_ai(product_data)
-        else:
-            # Нет хлебных крошек, используем ИИ для определения
-            return self._detect_category_with_ai(product_data)
-        
-        # Извлекаем JSON из ответа
-        try:
-            # Находим JSON в ответе (иногда модель выдаёт текст до/после JSON)
-            json_start = response.find('{')
-            json_end = response.rfind('}') + 1
-            
-            if json_start != -1 and json_end != -1:
-                json_str = response[json_start:json_end]
-                data = json.loads(json_str)
                 
+                # Пытаемся извлечь категории из ответа
+                result = self._extract_categories_from_response(response, product_name)
+                if result:
+                    return result
+            
+            # Если мы дошли до этой точки, значит хлебные крошки не помогли
+            logging.warning(f"Не удалось определить категории по хлебным крошкам для '{product_name}', используем запасной метод")
+        
+        # Используем запасной метод определения по характеристикам товара
+        return self._detect_category_with_ai(product_data, heuristic_subcategory)
+    
+    def _prepare_specs_text(self, product_data: Dict) -> str:
+        """
+        Подготавливает текст характеристик товара для использования в промпте.
+        
+        Args:
+            product_data: Словарь с данными о товаре
+            
+        Returns:
+            str: Форматированный текст характеристик
+        """
+        specs_text = ""
+        if "спецификации" in product_data and product_data["спецификации"]:
+            for category_name, category_specs in product_data["спецификации"].items():
+                specs_text += f"- {category_name}:\n"
+                for spec_name, spec_value in category_specs.items():
+                    specs_text += f"  * {spec_name}: {spec_value}\n"
+        return specs_text
+    
+    def _extract_categories_from_response(self, response: str, product_name: str) -> Optional[Tuple[str, str]]:
+        """
+        Извлекает категорию и подкатегорию из ответа LLM.
+        
+        Args:
+            response: Ответ LLM
+            product_name: Название товара для логирования
+            
+        Returns:
+            Optional[Tuple[str, str]]: Категория и подкатегория или None в случае ошибки
+        """
+        try:
+            # Очищаем ответ от возможных кавычек или символов кода
+            cleaned_response = response.strip()
+            
+            # Логируем оригинальный ответ для отладки
+            logging.debug(f"Оригинальный ответ LLM: {cleaned_response}")
+            
+            # Находим JSON в ответе (любой текст между { и })
+            json_start = cleaned_response.find('{')
+            json_end = cleaned_response.rfind('}') + 1
+            
+            if json_start != -1 and json_end != -1 and json_end > json_start:
+                json_str = cleaned_response[json_start:json_end]
+                logging.debug(f"Извлеченный JSON: {json_str}")
+                
+                # Попытка преобразовать строку в JSON объект
+                try:
+                    data = json.loads(json_str)
+                except json.JSONDecodeError as e:
+                    # В случае ошибки декодирования, пробуем исправить некоторые распространенные проблемы
+                    logging.warning(f"Ошибка при декодировании JSON: {e}, пробуем исправить")
+                    
+                    # Заменяем одинарные кавычки на двойные
+                    json_str = json_str.replace("'", '"')
+                    # Заменяем экранированные двойные кавычки
+                    json_str = json_str.replace('\\"', '"')
+                    # Убираем экранирующие слеши
+                    json_str = json_str.replace('\\', '')
+                    
+                    try:
+                        data = json.loads(json_str)
+                    except json.JSONDecodeError:
+                        logging.error(f"Не удалось декодировать JSON даже после исправлений: {json_str}")
+                        return None
+                
+                # Получаем категорию и подкатегорию
                 category = data.get("category", "")
                 subcategory = data.get("subcategory", "")
                 
                 # Проверка наличия категории и подкатегории
                 if not category or not subcategory:
-                    # Если что-то не найдено, используем запасной метод
-                    return self._detect_category_with_ai(product_data)
+                    logging.warning(f"Неполный ответ LLM для '{product_name}': категория='{category}', подкатегория='{subcategory}'")
+                    return None
                 
                 # Проверяем, что категория и подкатегория на русском языке
                 if self._contains_latin_chars(category) or self._contains_latin_chars(subcategory):
-                    logging.warning(f"Категории содержат латинские символы: {category}, {subcategory}. Пробуем снова.")
-                    return self._detect_category_with_ai(product_data)
+                    logging.warning(f"Категории содержат латинские символы: {category}, {subcategory}")
+                    return None
+                
+                # Проверка на слишком общие или слишком специфичные категории
+                if not self._validate_categories(category, subcategory):
+                    logging.warning(f"Некорректные категории: категория='{category}', подкатегория='{subcategory}'")
+                    return None
                 
                 # Нормализуем регистр (первая буква заглавная)
                 category = category.strip().title()
@@ -771,16 +859,63 @@ class ProductScraper:
                 
                 # Сохраняем в кэш и возвращаем результат
                 self._category_cache[product_name] = (category, subcategory)
-                logging.info(f"Определены категории по хлебным крошкам для '{product_name}': категория='{category}', подкатегория='{subcategory}'")
+                logging.info(f"Определены категории для '{product_name}': категория='{category}', подкатегория='{subcategory}'")
                 return category, subcategory
             else:
-                # Если JSON не найден в ответе, используем запасной метод
-                return self._detect_category_with_ai(product_data)
+                logging.warning(f"JSON не найден в ответе LLM: {cleaned_response}")
+                return None
                 
         except Exception as e:
-            # В случае ошибки используем запасной метод
-            logging.error(f"Ошибка при обработке ответа LLM для '{product_name}' на основе хлебных крошек: {e}")
-            return self._detect_category_with_ai(product_data)
+            logging.error(f"Ошибка при обработке ответа LLM: {e}")
+            return None
+    
+    def _validate_categories(self, category: str, subcategory: str) -> bool:
+        """
+        Проверяет корректность категорий.
+        
+        Args:
+            category: Категория для проверки
+            subcategory: Подкатегория для проверки
+            
+        Returns:
+            bool: True, если категории корректны, иначе False
+        """
+        # Проверка на пустые значения
+        if not category or not subcategory:
+            return False
+            
+        # Проверка на слишком общие категории
+        too_general = ["товары", "товар", "все товары", "товары для дома", "товары для ремонта", 
+                      "разное", "другое", "прочее", "разные товары", "разные", "инструменты",
+                      "техника", "электроника", "аксессуары"]
+        
+        # Проверка на слишком длинные категории (скорее всего это описания)
+        if len(category) > 30 or len(subcategory) > 30:
+            return False
+        
+        # Проверка на слишком короткие категории
+        if len(category) < 3 or len(subcategory) < 3:
+            return False
+            
+        # Проверка на слишком общие категории
+        if category.lower() in too_general:
+            return False
+        
+        # Проверка на идентичность категории и подкатегории
+        if category.lower() == subcategory.lower():
+            return False
+            
+        # Проверка на английские слова в категориях
+        english_words = ["tool", "tools", "electronic", "electronics", "device", "devices", 
+                        "equipment", "gear", "hardware", "home", "kitchen", "bathroom",
+                        "garden", "outdoor", "indoor", "power", "hand", "soldering"]
+        
+        # Проверка на наличие английских слов
+        for word in english_words:
+            if word.lower() in category.lower() or word.lower() in subcategory.lower():
+                return False
+        
+        return True
     
     def _contains_latin_chars(self, text: str) -> bool:
         """
@@ -795,151 +930,225 @@ class ProductScraper:
         latin_chars = set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
         return any(char in latin_chars for char in text)
             
-    def _detect_category_with_ai(self, product_data: Dict) -> Tuple[str, str]:
+    def _detect_category_with_ai(self, product_data: Dict, heuristic_subcategory: Optional[str] = None) -> Tuple[str, str]:
         """
         Запасной метод определения категории и подкатегории с помощью ИИ без учета хлебных крошек.
         
         Args:
             product_data: Словарь с данными о товаре
+            heuristic_subcategory: Эвристически определенная подкатегория (если есть)
             
         Returns:
             Tuple[str, str]: Категория и подкатегория
         """
         product_name = product_data["название_товара"]
         description = product_data.get("описание", "")
+        specs_text = self._prepare_specs_text(product_data)
         
-        # Собираем характеристики товара из спецификаций
-        specs = ""
-        if "спецификации" in product_data and product_data["спецификации"]:
-            for category_name, category_specs in product_data["спецификации"].items():
-                specs += f"- {category_name}:\n"
-                for spec_name, spec_value in category_specs.items():
-                    specs += f"  * {spec_name}: {spec_value}\n"
+        # Добавляем информацию о эвристически определенной подкатегории
+        heuristic_suggestion = ""
+        if heuristic_subcategory:
+            heuristic_suggestion = f"\nЭвристически определенная подкатегория: {heuristic_subcategory}"
         
         # Формируем промпт для LLM
         prompt = f"""
-        Определи категорию и подкатегорию для товара.
+        Определи категорию и подкатегорию для товара на основе его характеристик.
 
         Товар: {product_name}
         Описание: {description}
         Характеристики:
-        {specs}
+        {specs_text}{heuristic_suggestion}
+        
+        ОБРАТИ ВНИМАНИЕ: 
+        Часто подкатегория содержится прямо в названии товара. Например:
+        - "Перфоратор AEG KH24IE" - подкатегория "Перфораторы"
+        - "Шуруповерт Bosch GSR 18V" - подкатегория "Шуруповерты"
+        - "Щипцы для зачистки электропроводов GROSS" - подкатегория "Щипцы для зачистки"
 
         СТРОГИЕ ТРЕБОВАНИЯ:
         1. Ответ ТОЛЬКО на РУССКОМ ЯЗЫКЕ, без английских слов.
         2. Категория - общая группа товаров (Электроинструмент, Сантехника и т.д.).
         3. Подкатегория - конкретный тип товара внутри категории.
-        4. Категории должны быть на РУССКОМ языке, например "Электроинструмент", а НЕ "Power Tools".
-        5. Используй краткие названия (1-2 слова).
-        6. Ответь ТОЛЬКО в формате JSON: {{"category": "Категория", "subcategory": "Подкатегория"}}
+        4. Подкатегорию часто можно выделить из первых слов названия товара.
+        5. Категории должны быть на РУССКОМ языке, например "Электроинструмент", а НЕ "Power Tools".
+        6. Используй краткие названия (1-2 слова).
+        7. Ответь ТОЛЬКО в формате JSON: {{"category": "Категория", "subcategory": "Подкатегория"}}
+        8. НЕ ВЫВОДИ никаких пояснений до или после JSON, ТОЛЬКО сам JSON!
+        9. ПРИМЕР правильного ответа: {{"category": "Электроинструмент", "subcategory": "Перфораторы"}}
+        10. НЕ ОБЪЯСНЯЙ свой выбор, только JSON!
+        11. ТОЛЬКО JSON и НИЧЕГО БОЛЬШЕ!
         """
         
         # Получаем ответ от LLM
         response = self.llm.get_completion(prompt)
         logging.info(f"Ответ LLM для '{product_name}' методом запаса: {response}")
         
-        # Извлекаем JSON из ответа
-        try:
-            # Находим JSON в ответе (иногда модель выдаёт текст до/после JSON)
-            json_start = response.find('{')
-            json_end = response.rfind('}') + 1
+        # Пытаемся извлечь категории из ответа
+        result = self._extract_categories_from_response(response, product_name)
+        if result:
+            return result
             
-            if json_start != -1 and json_end != -1:
-                json_str = response[json_start:json_end]
-                data = json.loads(json_str)
-                
-                category = data.get("category", "")
-                subcategory = data.get("subcategory", "")
-                
-                # Проверка наличия категории и подкатегории
-                if not category or not subcategory or self._contains_latin_chars(category) or self._contains_latin_chars(subcategory):
-                    # Если что-то не найдено или содержит английские символы, повторяем запрос
-                    logging.warning(f"Неполный ответ или английские символы в LLM для '{product_name}': {response}")
-                    second_prompt = f"""
-                    Определи категорию и подкатегорию для товара: {product_name}
-                    Описание: {description}
+        # Если первая попытка не удалась, пробуем еще раз с более строгими инструкциями
+        logging.warning(f"Неудачная первая попытка определения категорий для '{product_name}', пробуем еще раз")
+        second_prompt = f"""
+        Определи категорию и подкатегорию для товара: {product_name}
+        
+        Подсказка: подкатегория часто содержится в НАЧАЛЕ названия товара.
+        {heuristic_suggestion}
+        
+        ТОЛЬКО НА РУССКОМ ЯЗЫКЕ!
+        
+        СТРОГИЕ ТРЕБОВАНИЯ:
+        1. Ответь ТОЛЬКО в формате JSON: {{"category": "Категория", "subcategory": "Подкатегория"}}
+        2. Ответ ОБЯЗАТЕЛЬНО на РУССКОМ языке, без английских слов!
+        3. Без пояснений и дополнительного текста.
+        4. Например: {{"category": "Электроинструмент", "subcategory": "Перфораторы"}}
+        5. НЕ ВЫВОДИ никаких пояснений или объяснений!
+        6. ВЫВЕДИ ТОЛЬКО JSON и НИЧЕГО БОЛЬШЕ!
+        7. ПРИМЕР правильного ответа: {{"category": "Ручной инструмент", "subcategory": "Шуруповерты"}}
+        8. НЕПРАВИЛЬНО: "Я проанализировал товар и..." - не нужны вступления!
+        9. ПРАВИЛЬНО: {{"category": "Электроника", "subcategory": "Смартфоны"}}
+        """
+        
+        response = self.llm.get_completion(second_prompt)
+        logging.info(f"Повторный ответ LLM для '{product_name}': {response}")
+        
+        # Пытаемся извлечь категории из повторного ответа
+        result = self._extract_categories_from_response(response, product_name)
+        if result:
+            return result
+        
+        # Если все попытки не удались, возвращаем значения по умолчанию
+        logging.warning(f"Не удалось определить категории для '{product_name}', используем значения по умолчанию")
+        return "Другое", "Разное"
+
+    def _extract_subcategory_from_name(self, product_name: str) -> Optional[str]:
+        """
+        Пытается эвристически определить подкатегорию из названия товара.
+        
+        Args:
+            product_name: Название товара
+            
+        Returns:
+            Optional[str]: Предполагаемая подкатегория или None
+        """
+        # Словарь инструментов и техники, часто встречающихся в названиях товаров
+        # Ключ - слово в начале названия, значение - подкатегория
+        common_tools = {
+            "перфоратор": "Перфораторы",
+            "шуруповерт": "Шуруповерты",
+            "дрель": "Дрели",
+            "пила": "Пилы",
+            "лобзик": "Лобзики",
+            "фрезер": "Фрезеры",
+            "шлифмашин": "Шлифовальные машины",
+            "болгарка": "Угловые шлифмашины",
+            "триммер": "Триммеры",
+            "плиткорез": "Плиткорезы",
+            "отвертка": "Отвертки",
+            "ключ": "Ключи",
+            "набор": "Наборы инструментов",
+            "молоток": "Молотки",
+            "бормашина": "Бормашины",
+            "гравер": "Граверы",
+            "рубанок": "Рубанки",
+            "щипцы": "Щипцы",
+            "щипцы для зачистки": "Щипцы для зачистки",
+            "щипцы для электропроводов": "Щипцы для зачистки",
+            "клещи": "Клещи",
+            "плоскогубцы": "Плоскогубцы",
+            "ножницы": "Ножницы",
+            "пистолет": "Строительные пистолеты",
+            "степлер": "Степлеры",
+            "нож": "Ножи",
+            "стремянка": "Стремянки",
+            "лестница": "Лестницы",
+            "уровень": "Уровни",
+            "рулетка": "Рулетки",
+            "лазерный": "Лазерные инструменты",
+            "сварочный": "Сварочное оборудование",
+            "аппарат": "Аппараты",
+            "станок": "Станки",
+            "компрессор": "Компрессоры",
+            "пылесос": "Пылесосы",
+            "мойка": "Мойки высокого давления",
+            "стиральная": "Стиральные машины",
+            "холодильник": "Холодильники",
+            "телевизор": "Телевизоры",
+            "смартфон": "Смартфоны",
+            "планшет": "Планшеты",
+            "ноутбук": "Ноутбуки",
+            "компьютер": "Компьютеры",
+            "принтер": "Принтеры",
+            "сканер": "Сканеры",
+            "фотоаппарат": "Фотоаппараты",
+            "видеокамера": "Видеокамеры"
+        }
+        
+        # Выделить первое слово из названия товара (до первого пробела или цифры)
+        name_lower = product_name.lower()
+        
+        # Специальные случаи для предлогов "для", "по", "с" и т.д.
+        prepositions = ["для", "по", "с", "под", "от", "к"]
+        
+        for preposition in prepositions:
+            preposition_with_space = f" {preposition} "
+            if preposition_with_space in name_lower:
+                parts = name_lower.split(preposition_with_space, 1)
+                if len(parts) > 1:
+                    first_part = parts[0].strip()
+                    second_part = parts[1].strip().split()[0] if parts[1].strip() else ""
                     
-                    ТОЛЬКО НА РУССКОМ ЯЗЫКЕ!
+                    # Проверяем сначала полное совпадение с словарем
+                    combined_key = f"{first_part} {preposition} {second_part}"
+                    if combined_key in common_tools:
+                        return common_tools[combined_key]
                     
-                    СТРОГИЕ ТРЕБОВАНИЯ:
-                    1. Ответь ТОЛЬКО в формате JSON: {{"category": "Категория", "subcategory": "Подкатегория"}}
-                    2. Ответ ОБЯЗАТЕЛЬНО на РУССКОМ языке, без английских слов!
-                    3. Без пояснений и дополнительного текста.
-                    4. Например: {{"category": "Электроинструмент", "subcategory": "Перфораторы"}}
-                    """
+                    # Для случая "щипцы для зачистки электропроводов"
+                    if first_part == "щипцы" and second_part == "зачистки":
+                        return "Щипцы для зачистки"
                     
-                    response = self.llm.get_completion(second_prompt)
-                    json_start = response.find('{')
-                    json_end = response.rfind('}') + 1
-                    
-                    if json_start != -1 and json_end != -1:
-                        json_str = response[json_start:json_end]
-                        data = json.loads(json_str)
-                        category = data.get("category", "Другое")
-                        subcategory = data.get("subcategory", "Разное")
+                    # Пытаемся составить подкатегорию из первой части + предлог + второй части
+                    if first_part and second_part:
+                        # Преобразуем в именительный падеж множественного числа
+                        first_part_plural = first_part
+                        if first_part_plural.endswith("щи"):
+                            first_part_plural = first_part_plural[:-1] + "цы"
+                        elif first_part_plural.endswith("ок"):
+                            first_part_plural = first_part_plural[:-2] + "ки"
+                        elif not first_part_plural.endswith(("и", "ы")):
+                            first_part_plural += "ы"
                         
-                        # Проверяем еще раз на английские символы
-                        if self._contains_latin_chars(category) or self._contains_latin_chars(subcategory):
-                            category = "Другое"
-                            subcategory = "Разное"
-                    else:
-                        category = "Другое"
-                        subcategory = "Разное"
-                
-                # Если всё ещё нет категории или подкатегории, используем запасные значения
-                category = category or "Другое"
-                subcategory = subcategory or "Разное"
-                
-                # Нормализуем регистр (первая буква заглавная)
-                category = category.strip().title()
-                subcategory = subcategory.strip().title()
-                
-                # Сохраняем в кэш и возвращаем результат
-                self._category_cache[product_name] = (category, subcategory)
-                logging.info(f"Определены категории для '{product_name}': категория='{category}', подкатегория='{subcategory}'")
-                return category, subcategory
-            else:
-                # Если JSON не найден в ответе
-                logging.warning(f"Не найден JSON в ответе LLM для '{product_name}': {response}")
-                # Обрабатываем текстовый ответ
-                lines = response.strip().split('\n')
-                category = ""
-                subcategory = ""
-                
-                for line in lines:
-                    if "категория:" in line.lower():
-                        category = line.split(":", 1)[1].strip().strip('"')
-                    elif "подкатегория:" in line.lower():
-                        subcategory = line.split(":", 1)[1].strip().strip('"')
-                    elif "category:" in line.lower():
-                        category = line.split(":", 1)[1].strip().strip('"')
-                    elif "subcategory:" in line.lower():
-                        subcategory = line.split(":", 1)[1].strip().strip('"')
-                
-                # Проверяем на английские символы
-                if self._contains_latin_chars(category) or self._contains_latin_chars(subcategory):
-                    category = "Другое"
-                    subcategory = "Разное"
-                
-                # Если не удалось извлечь категорию или подкатегорию
-                if not category:
-                    category = "Другое"
-                if not subcategory:
-                    subcategory = "Разное"
-                
-                # Нормализуем регистр
-                category = category.strip().title()
-                subcategory = subcategory.strip().title()
-                
-                # Сохраняем в кэш и возвращаем результат
-                self._category_cache[product_name] = (category, subcategory)
-                logging.info(f"Определены категории для '{product_name}': категория='{category}', подкатегория='{subcategory}'")
-                return category, subcategory
-                
-        except Exception as e:
-            # В случае ошибки
-            logging.error(f"Ошибка при обработке ответа LLM для '{product_name}': {e}")
-            return "Другое", "Разное"
+                        return f"{first_part_plural.title()} {preposition} {second_part}"
+        
+        # Специальная проверка для "щипцы для зачистки" с любыми вариациями
+        if "щипцы" in name_lower and "зачистк" in name_lower:
+            return "Щипцы для зачистки"
+        
+        # Выделяем часть до первой цифры или служебного символа
+        first_word_end = len(name_lower)
+        for i, char in enumerate(name_lower):
+            if char.isdigit() or char in ",.;:()[]{}«»":
+                first_word_end = i
+                break
+        
+        # Получаем первое слово и проверяем его в словаре
+        first_part = name_lower[:first_word_end].strip()
+        
+        # Проверяем на полное совпадение с ключом
+        for key, value in common_tools.items():
+            if first_part == key:
+                return value
+        
+        # Проверяем на вхождение ключа в начало названия
+        for key, value in common_tools.items():
+            if first_part.startswith(key):
+                return value
+            if name_lower.startswith(key):
+                return value
+        
+        # Не удалось определить подкатегорию
+        return None
 
 def main():
     # Настройки API
