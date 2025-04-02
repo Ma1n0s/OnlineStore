@@ -141,16 +141,14 @@ const orderDate = computed(() => {
                 placeholder="Поиск товара..."
                 class="w-full pl-10 text-sm sm:text-base"
               >
-                <template #left>
-                  <Icon name="heroicons:magnifying-glass" class="text-gray-400" />
-                </template>
+              <img src="" alt="поиск" class=""/>
               </TextInput>
             </div>
           </div>
           
           <div v-if="isEmptyCart" class="bg-white rounded-xl p-6 mb-6 shadow-sm text-center">
             <div class="mx-auto max-w-md">
-              <Icon name="heroicons:shopping-bag" class="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" />
+              <img src="" alt="" class=""/>
               <h2 class="mt-3 sm:mt-4 text-lg sm:text-xl font-bold text-gray-800">Ваша корзина пока пуста</h2>
               <p class="mt-2 text-sm sm:text-base text-gray-600">
                 Акции и специальные предложения помогут вам определиться с выбором!
@@ -182,7 +180,7 @@ const orderDate = computed(() => {
                   :disabled="totalItemsCount === 0"
                   class="ml-3 text-sm"
                 >
-                  <Icon name="heroicons:trash" class="mr-1" />
+                  <img src="" alt="" class=""/>
                   Удалить
                 </Button>
               </div>
@@ -193,7 +191,7 @@ const orderDate = computed(() => {
                   size="small"
                   class="text-xs sm:text-sm text-gray-500 hover:text-gray-600 whitespace-nowrap"
                 >
-                  <Icon name="heroicons:share" class="mr-1" />
+                  <img src="" alt="" class=""/>
                   Поделиться
                 </Button>
                 <Button 
@@ -201,7 +199,7 @@ const orderDate = computed(() => {
                   size="small"
                   class="text-xs sm:text-sm text-gray-500 hover:text-gray-600 whitespace-nowrap"
                 >
-                  <Icon name="heroicons:arrow-down-tray" class="mr-1" />
+                  <img src="" alt="" class=""/>
                   Скачать
                 </Button>
                 <Button 
@@ -209,7 +207,7 @@ const orderDate = computed(() => {
                   size="small"
                   class="text-xs sm:text-sm text-gray-500 hover:text-gray-600 whitespace-nowrap"
                 >
-                  <Icon name="heroicons:printer" class="mr-1" />
+                  <img src="" alt="" class=""/>
                   Печать
                 </Button>
               </div>
@@ -269,7 +267,7 @@ const orderDate = computed(() => {
             
             <div class="flex items-center mb-4 sm:mb-6">              
               <div class="flex items-center text-xs sm:text-sm text-gray-500">
-                <Icon name="heroicons:information-circle" class="mr-1 w-4 h-4" />
+                <img src="" alt="" class=""/>
                 <span>Все поля обязательны</span>
               </div>
             </div>
