@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import Button from "~/shared/ui/Button/Button.vue";
+import Button from "~/components/ui/Button/Button.vue";
 
 type CatalogItem = { name: string; elements: any[] };
 

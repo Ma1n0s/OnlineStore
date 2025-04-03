@@ -7,7 +7,15 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "test:e2e": "start-server-and-test dev http://localhost:3000 cypress:run",
+    "test:e2e:open": "start-server-and-test dev http://localhost:3000 cypress:open",
+    "test:all": "npm run test && npm run test:e2e"
   },
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.16.8",
@@ -27,7 +35,17 @@
   },
   "devDependencies": {
     "@iconify-json/material-symbols": "^1.2.16",
+    "@nuxt/test-utils": "^3.17.2",
     "@nuxtjs/tailwindcss": "^6.13.2",
-    "fluid-tailwind": "^1.0.4"
+    "@percy/cli": "^1.30.7",
+    "@testing-library/cypress": "^10.0.3",
+    "@vitejs/plugin-vue": "^5.2.3",
+    "@vitest/coverage-v8": "^3.1.1",
+    "@vue/test-utils": "^2.4.6",
+    "cypress": "^14.2.1",
+    "fluid-tailwind": "^1.0.4",
+    "happy-dom": "^17.4.4",
+    "start-server-and-test": "^2.0.11",
+    "vitest": "^3.1.1"
   }
 }
