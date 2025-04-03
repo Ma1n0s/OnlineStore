@@ -31,7 +31,10 @@ export default {
           active: "#31918C",
         },
         white: "#E9F1F7",
-        danger: "#D62828",
+        danger: {
+          DEFAULT: "#D62828",
+          hover: "#B22222",
+        },
         dark: "#0D1B2A",
         gray: "#70798C",
       },
