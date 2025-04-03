@@ -1,54 +1,23 @@
-<script setup>
-import { ref } from "vue";
-
+<script setup lang="ts">
+import { ref, onMounted, reactive } from "vue";
+import { productData } from "~/shared/productData";
+import type { Product } from "~/types/product.types";
 const route = useRoute();
 
-const product = reactive({
-  title: "Бесщеточный аккумуляторный шуруповерт KEYANG DD18BL-W (Set)",
-  code: "24955389",
-  reviewsCount: 14,
-  questionsCount: 5,
-  warranty: "1 год",
-  brand: "KEYANG",
-  description: "Бесщеточный аккумуляторный шуруповерт KEYANG DD18BL-W (Set)",
-  price: {
-    original: 8990,
-    final: 7490,
-    savings: 1500,
-  },
-  images: [
-    "/products/keyang-dd18bl-w/main.jpg",
-    "/products/keyang-dd18bl-w/1.jpg",
-    "/products/keyang-dd18bl-w/2.jpg",
-    "/products/keyang-dd18bl-w/3.jpg",
-    "/products/keyang-dd18bl-w/4.jpg",
-  ],
-  specifications: {
-    maxTorque: "60 Н·м",
-    batteryType: "Li-Ion",
-    batteryVoltage: "18 В",
-    maxDrillDiameterMetal: "10 мм",
-    maxDrillDiameterWood: "25 мм",
-    chargerIncluded: "есть",
-    netWeight: "3.5 кг",
-  },
-  advantages: [
-    { parameter: "Тип", value: "Аккумуляторный шуруповерт" },
-    { parameter: "Макс. частота ударов", value: "0 ударов/мин" },
-    { parameter: "Количество скоростей", value: "2" },
-    { parameter: "Емкость аккумулятора", value: "2.0 А·ч" },
-    { parameter: "Время зарядки", value: "1 ч" },
-    { parameter: "Реверс", value: "есть" },
-    { parameter: "Патрон", value: "быстрозажимной" },
-    { parameter: "Диаметр патрона", value: "13 мм" },
-  ],
-  packagingDetails: {
-    weight: "3.5",
-    length: "350",
-    width: "250",
-    height: "100",
-  },
-});
+// @ts-ignore
+const product = reactive<Product>(productData);
+
+// const { data, status, error, refresh, clear } = await useFetch<Product>(
+//   `http://127.0.0.1:8000/api/products/${route.params.product_id}`
+// );
+
+// if (data.value) {
+//   Object.assign(product, data.value);
+//   console.log(JSON.stringify(product));
+// }
+
+// console.log(status.value);
+// console.log(error.value);
 
 // Вкладки
 const tabs = ref([
@@ -56,10 +25,19 @@ const tabs = ref([
   { id: "reviews", title: "ОТЗЫВЫ" },
   { id: "questions", title: "ВОПРОСЫ И ОТВЕТЫ" },
 ]);
+
 const activeTab = ref("description");
 const isFavorite = ref(false);
-const loading = ref(false);
-const activeImage = ref(product.images[0]);
+const loading = ref(true);
+const activeImage = ref(product?.images?.[0]?.src || "");
+
+onMounted(() => {
+  activeTab.value = "description";
+  isFavorite.value = false;
+  loading.value = false;
+
+  console.log(product.specifications);
+});
 
 const toggleFavorite = async () => {
   isFavorite.value = !isFavorite.value;
@@ -69,25 +47,16 @@ const toggleFavorite = async () => {
 <template>
   <div class="container mx-auto px-4 md:px-6 lg:px-8 py-8">
     <nav class="flex flex-wrap items-center gap-2 text-gray mb-4">
-      <NuxtLink to="#" class="hover:underline">Главная</NuxtLink>
+      <NuxtLink to="/" class="hover:underline">Главная</NuxtLink>
       <span>/</span>
-      <NuxtLink to="#" class="font-semibold">Инструменты</NuxtLink>
+      <NuxtLink to="#" class="font-semibold">{{ route.params.category }}</NuxtLink>
       <span>/</span>
-      <NuxtLink to="#" class="font-semibold">Шуруповерты</NuxtLink>
+      <NuxtLink to="#" class="font-semibold">{{ route.params.subcategory }}</NuxtLink>
       <span>/</span>
-      <NuxtLink to="#" class="font-semibold">Аккумуляторные дрели-шуруповерты</NuxtLink>
+      <NuxtLink to="#" class="font-semibold">{{ product.name }}</NuxtLink>
       <span>/</span>
-      <NuxtLink to="#" class="font-semibold">Безударные</NuxtLink>
-      <span>/</span>
-      <NuxtLink to="#" class="font-semibold">KEYANG</NuxtLink>
+      <NuxtLink to="#" class="font-semibold">{{ product.brand || "Назавние Бренда" }}</NuxtLink>
     </nav>
-
-    <div>
-      <h1>Category</h1>
-      <p class="text-2xl font-bold p-4">
-        {{ route.params.category }} - {{ route.params.subcategory }} - {{ route.params.product_name }}
-      </p>
-    </div>
 
     <div v-if="!loading">
       <h2 class="font-bold text-2xl mb-2">{{ product.title }}</h2>
@@ -96,9 +65,9 @@ const toggleFavorite = async () => {
         <div class="flex items-center gap-2" v-if="product.reviewsCount || product.questionsCount">
           <img src="" alt="Отзыв" class="w-4 h-4" />
           <p class="text-sm">
-            <span v-if="product.reviewsCount">{{ product.reviewsCount }} отзывов</span>
-            <span v-if="product.reviewsCount && product.questionsCount"> | </span>
-            <span v-if="product.questionsCount">{{ product.questionsCount }} вопросов</span>
+            <span>10 отзывов</span>
+            <span> | </span>
+            <span>5 вопросов</span>
           </p>
         </div>
 
@@ -116,16 +85,16 @@ const toggleFavorite = async () => {
       <div class="flex flex-col md:flex-row gap-8">
         <div class="w-full md:w-2/5">
           <div class="bg-white rounded-lg shadow-md p-4">
-            <NuxtImg :src="activeImage" :alt="product.title" class="w-full h-80 object-contain mb-4" />
+            <NuxtImg :src="activeImage" :alt="product.name" class="w-full h-80 object-contain mb-4" />
             <div class="flex gap-2 overflow-x-auto">
               <NuxtImg
                 v-for="(image, index) in product.images"
                 :key="index"
-                :src="image"
+                :src="image.src"
                 :alt="'Изображение ' + (index + 1)"
                 class="w-16 h-16 object-cover rounded cursor-pointer border"
-                :class="{ 'border-primary': image === activeImage }"
-                @click="activeImage = image"
+                :class="{ 'border-primary': image.src === activeImage }"
+                @click="activeImage = image.src"
               />
             </div>
           </div>
@@ -162,7 +131,7 @@ const toggleFavorite = async () => {
             </div>
           </div>
 
-          <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+          <!-- <div class="bg-white rounded-lg shadow-md p-6 mb-6">
             <h3 class="text-xl font-bold mb-4">Основные характеристики</h3>
             <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <li v-if="product.specifications.maxTorque" class="flex gap-2">
@@ -194,7 +163,7 @@ const toggleFavorite = async () => {
                 <span>{{ product.specifications.netWeight }}</span>
               </li>
             </ul>
-          </div>
+          </div> -->
         </div>
       </div>
 
@@ -221,13 +190,13 @@ const toggleFavorite = async () => {
             <div v-if="product.description" class="mb-8">
               <h3 class="text-xl font-bold mb-4">Описание</h3>
               <div>
-                {{ product.description }}
+                {{ product.description.slice(0, 600) }}
               </div>
             </div>
 
             <div class="mb-8">
               <h3 class="text-xl font-bold mb-4">Технические характеристики</h3>
-              <div class="overflow-x-auto">
+              <div class="overflow-x-auto w-full">
                 <table class="min-w-full divide-y divide-gray-200">
                   <thead>
                     <tr>
@@ -240,10 +209,17 @@ const toggleFavorite = async () => {
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-gray-200">
-                    <tr v-for="(desc, index) in product.advantages" :key="index">
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-dark">{{ desc.parameter }}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray">{{ desc.value }}</td>
-                    </tr>
+                    <template v-for="(category, name) in product?.specifications" :key="name">
+                      <tr class="bg-gray-50">
+                        <td colspan="2" class="px-6 py-3 text-sm uppercase font-bold text-gray-900">
+                          {{ name }}
+                        </td>
+                      </tr>
+                      <tr v-for="(title, value) in category" :key="title">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-dark">{{ value }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-dark">{{ title }}</td>
+                      </tr>
+                    </template>
                   </tbody>
                 </table>
               </div>
@@ -255,7 +231,7 @@ const toggleFavorite = async () => {
               <h3 class="text-xl font-bold mb-4">{{ product.brand }}</h3>
               <p class="text-gray mb-4">Все товары бренда</p>
 
-              <div v-if="product.brand" class="space-y-3">
+              <!-- <div v-if="product.brand" class="space-y-3">
                 <div class="flex items-center">
                   <img src="" alt="Южная Корея" class="w-5 h-5 mr-2" />
                   <span class="text-dark">Южная Корея — родина бренда</span>
@@ -264,7 +240,7 @@ const toggleFavorite = async () => {
                   <img src="" alt="Китай" class="w-5 h-5 mr-2" />
                   <span class="text-dark">Китай — страна производства</span>
                 </div>
-              </div>
+              </div> -->
             </div>
 
             <!-- <div v-if="packagingInfo.length" class="rounded-lg p-6 mb-6">
@@ -274,7 +250,7 @@ const toggleFavorite = async () => {
               </ul>
             </div> -->
 
-            <div class="rounded-lg p-6">
+            <!-- <div class="rounded-lg p-6">
               <h3 class="text-xl font-bold mb-4">Информация об упаковке</h3>
               <div class="space-y-2">
                 <p v-for="(value, key) in product.packagingDetails" :key="key" class="text-dark">
@@ -289,7 +265,7 @@ const toggleFavorite = async () => {
                   }}: {{ value }}
                 </p>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
 
