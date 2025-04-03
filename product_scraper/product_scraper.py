@@ -14,6 +14,8 @@ from urllib.parse import quote
 import concurrent.futures
 import threading
 from functools import lru_cache
+import psutil
+import re
 
 # Настройка логирования
 logging.basicConfig(
@@ -135,6 +137,13 @@ class ProductScraper:
         thread_id = threading.get_ident()
         driver, lock = self.get_driver(thread_id)
         
+        # Получаем номер ядра процессора для этого потока
+        try:
+            current_process = psutil.Process()
+            cpu_core = current_process.cpu_num()
+        except:
+            cpu_core = "N/A"
+            
         with lock:  # Блокировка для безопасного доступа к драйверу
             try:
                 market_query = quote(product_name)
@@ -170,7 +179,8 @@ class ProductScraper:
                             "поиск_маркет": market_url,
                             "товар": "",
                             "поиск_картинки": ""
-                        }
+                        },
+                        "_cpu_core": cpu_core,
                     }
                 
                 product_selectors = [
@@ -200,7 +210,8 @@ class ProductScraper:
                             "поиск_маркет": market_url,
                             "товар": "",
                             "поиск_картинки": ""
-                        }
+                        },
+                        "_cpu_core": cpu_core,
                     }
                 
                 logging.info(f"URL товара: {product_url}")
@@ -247,6 +258,71 @@ class ProductScraper:
                             continue
                 except Exception as e:
                     logging.warning(f"Не удалось нажать кнопку 'Все характеристики': {e}")
+                
+                # Нажимаем на кнопку "Показать полностью" в описании товара
+                try:
+                    # Попробуем прокрутить к разделу с описанием для лучшей видимости
+                    description_sections = driver.find_elements("css selector", 
+                        "[data-baobab-name='section_description'], " +
+                        "[data-zone-name='description'], " +
+                        ".cia-cs__description")
+                    
+                    if description_sections:
+                        driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", description_sections[0])
+                        time.sleep(0.5)
+                    
+                    # Ищем кнопку "Показать полностью" разными способами
+                    description_more_buttons = driver.find_elements("css selector", 
+                        "[data-zone-name='readMoreButton'] button, " +
+                        "button[data-auto='read-more-button'], " +
+                        ".cia-vs.cia-cs button, " +
+                        "button[class*='ds-button'], " +
+                        "button.WVIGO")
+                    
+                    button_clicked = False
+                    for button in description_more_buttons:
+                        try:
+                            # Проверяем, содержит ли кнопка текст "Показать полностью"
+                            button_text = button.text.lower()
+                            if "показать" in button_text and ("полностью" in button_text or "все" in button_text or "ещё" in button_text):
+                                logging.info(f"Нажимаю на кнопку '{button.text}'")
+                                
+                                # Прокручиваем к кнопке и пытаемся нажать разными способами
+                                driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", button)
+                                time.sleep(0.5)
+                                
+                                # Сначала пробуем нажать через JavaScript, который надежнее
+                                try:
+                                    driver.execute_script("arguments[0].click();", button)
+                                except:
+                                    # Если не получилось, пробуем обычный клик
+                                    button.click()
+                                
+                                time.sleep(1)  # Ждем раскрытия описания
+                                button_clicked = True
+                                logging.info("Кнопка 'Показать полностью' успешно нажата")
+                                break
+                        except Exception as click_err:
+                            logging.debug(f"Ошибка при нажатии на кнопку: {click_err}")
+                    
+                    # Если ни одна из кнопок не сработала, пробуем найти по атрибутам
+                    if not button_clicked:
+                        try:
+                            # Находим все кнопки и элементы, которые могут быть кнопкой "Показать полностью"
+                            all_buttons = driver.find_elements("css selector", "button, [role='button'], .ds-button")
+                            for button in all_buttons:
+                                if button.is_displayed() and "показать" in button.text.lower():
+                                    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", button)
+                                    time.sleep(0.5)
+                                    driver.execute_script("arguments[0].click();", button)
+                                    time.sleep(1)
+                                    logging.info(f"Нажата альтернативная кнопка: '{button.text}'")
+                                    break
+                        except Exception as e:
+                            logging.debug(f"Ошибка при поиске альтернативных кнопок: {e}")
+                
+                except Exception as e:
+                    logging.warning(f"Не удалось нажать кнопку 'Показать полностью': {e}")
                 
                 product_data = {
                     "спецификации": {},
@@ -331,16 +407,25 @@ class ProductScraper:
                         ".cia-cs__description",
                         "[data-zone-name='description']",
                         "._13m-c",
-                        ".xt_vL"
+                        ".xt_vL",
+                        "._2u6j9" # Добавляем селектор для описания в новом формате
                     ]
                     
                     for selector in description_selectors:
                         try:
-                            description = driver.find_element("css selector", selector).text.strip()
-                            if description:
-                                # Добавляем описание в отдельное поле
-                                product_data["описание"] = description
-                                break
+                            description_element = driver.find_element("css selector", selector)
+                            # Извлекаем текст описания
+                            description_elements = description_element.find_elements("css selector", "p, span, div")
+                            description_text = ""
+                            for desc_el in description_elements:
+                                if desc_el.text.strip():
+                                    description_text += desc_el.text.strip() + "\n"
+                            
+                            # Очищаем и сохраняем описание
+                            description = self._clean_description(description_text)
+                            product_data["описание"] = description
+                            logging.info(f"Найдено описание товара ({len(description)} символов)")
+                            break
                         except:
                             continue
                     
@@ -497,7 +582,8 @@ class ProductScraper:
                         "поиск_картинки": images_url
                     },
                     "время_запроса": time.strftime("%Y-%m-%d %H:%M:%S"),
-                    "хлебные_крошки": product_data.get("хлебные_крошки", [])
+                    "хлебные_крошки": product_data.get("хлебные_крошки", []),
+                    "_cpu_core": cpu_core,
                 }
                 
                 # Определяем категорию и подкатегорию
@@ -516,7 +602,8 @@ class ProductScraper:
                         "поиск_маркет": market_url if 'market_url' in locals() else "",
                         "товар": product_url if 'product_url' in locals() else "",
                         "поиск_картинки": images_url if 'images_url' in locals() else ""
-                    }
+                    },
+                    "_cpu_core": cpu_core,
                 }
 
     def process_product_list(self, products: List[str], output_file: str = "results.json", save_to_api: bool = False):
@@ -525,25 +612,59 @@ class ProductScraper:
         """
         results = []
         successful_api_saves = 0
+        start_time = time.time()
+        total_products = len(products)
         
         with concurrent.futures.ThreadPoolExecutor(max_workers=self.num_workers) as executor:
             # Запускаем обработку товаров в отдельных потоках
-            future_to_product = {executor.submit(self.search_product, product): product for product in products}
+            future_to_product = {executor.submit(self.search_product, product): (product, i) for i, product in enumerate(products, 1)}
             
             for future in concurrent.futures.as_completed(future_to_product):
-                product_name = future_to_product[future]
+                product_name, queue_position = future_to_product[future]
+                item_start_time = time.time()
+                
                 try:
                     product_data = future.result()
                     results.append(product_data)
                     
+                    # Получаем категорию и подкатегорию для вывода
+                    category = product_data.get("категория", "Не определена")
+                    subcategory = product_data.get("подкатегория", "Не определена")
+                    product_url = product_data.get("ссылки", {}).get("товар", "Нет ссылки")
+                    cpu_core = product_data.get("_cpu_core", "Неизвестно")
+                    
                     # Сохраняем в API, если нужно
+                    api_status = "Не сохранялось в API"
                     if save_to_api:
                         api_result = self.save_to_api(product_data)
                         if api_result.get("status") == "success":
                             successful_api_saves += 1
-                            logging.info(f"✓ Товар '{product_name}' успешно сохранен в API (ID: {api_result.get('id')})")
+                            api_status = f"✓ Сохранено в API (ID: {api_result.get('id')})"
                         else:
-                            logging.error(f"✗ Ошибка при сохранении товара '{product_name}' в API: {api_result.get('error', 'Неизвестная ошибка')}")
+                            api_status = f"✗ Ошибка API: {api_result.get('error', 'Неизвестная ошибка')}"
+                    
+                    # Вычисление времени и прогресса
+                    item_time = time.time() - item_start_time
+                    elapsed_total = time.time() - start_time
+                    completed = queue_position
+                    if completed > 0:
+                        avg_time_per_item = elapsed_total / completed
+                        remaining_items = total_products - completed
+                        estimated_remaining = avg_time_per_item * remaining_items
+                        remaining_time = f"{estimated_remaining:.1f} сек (~{estimated_remaining/60:.1f} мин)"
+                    else:
+                        remaining_time = "неизвестно"
+                    
+                    # Вывод информации в новом формате
+                    print("\n" + "="*70)
+                    print(f"Товар: {product_name} [№{queue_position}/{total_products}]")
+                    print(f"Категория: {category}, Подкатегория: {subcategory}")
+                    print(f"Ссылка: {product_url}")
+                    print(f"Сохранение: {api_status}")
+                    print(f"Время обработки: {item_time:.2f} сек")
+                    print(f"Осталось примерно: {remaining_time}")
+                    print(f"Номер ядра: {cpu_core}")
+                    print("="*70)
                     
                     # Сохраняем промежуточные результаты после каждого товара
                     with open(output_file, 'w', encoding='utf-8') as f:
@@ -551,8 +672,20 @@ class ProductScraper:
                 
                 except Exception as e:
                     logging.error(f"Ошибка при обработке '{product_name}': {str(e)}")
+                    print(f"\n❌ Ошибка при обработке товара '{product_name}': {str(e)}")
         
-        logging.info(f"Обработано {len(products)} товаров. Успешно сохранено в API: {successful_api_saves}")
+        # Итоговая статистика
+        total_time = time.time() - start_time
+        print("\n" + "="*70)
+        print(f"📊 ИТОГИ ОБРАБОТКИ:")
+        print(f"✓ Обработано товаров: {len(products)}")
+        print(f"✓ Успешно: {len([r for r in results if 'ошибка' not in r])}/{len(products)}")
+        if save_to_api:
+            print(f"✓ Сохранено в API: {successful_api_saves}/{len(products)}")
+        print(f"⏱️ Общее время: {total_time:.1f} сек (~{total_time/60:.1f} мин)")
+        print(f"⏱️ Среднее время на товар: {total_time/len(products):.1f} сек")
+        print("="*70)
+        
         return results
     
     def save_to_api(self, product_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -1039,9 +1172,21 @@ class ProductScraper:
             "шуруповерт": "Шуруповерты",
             "дрель": "Дрели",
             "пила": "Пилы",
+            "цепная пила": "Цепные пилы",
+            "бензопила": "Цепные пилы",
+            "электропила": "Цепные пилы",
+            "торцовочная пила": "Торцовочные пилы",
+            "циркулярная пила": "Циркулярные пилы",
+            "дисковая пила": "Дисковые пилы",
+            "сабельная пила": "Сабельные пилы",
             "лобзик": "Лобзики",
+            "электролобзик": "Лобзики",
             "фрезер": "Фрезеры",
             "шлифмашин": "Шлифовальные машины",
+            "эксцентриковая шлифмашина": "Эксцентриковые шлифмашины",
+            "вибрационная шлифмашина": "Вибрационные шлифмашины",
+            "ленточная шлифмашина": "Ленточные шлифмашины",
+            "угловая шлифмашина": "Угловые шлифмашины",
             "болгарка": "Угловые шлифмашины",
             "триммер": "Триммеры",
             "плиткорез": "Плиткорезы",
@@ -1052,25 +1197,46 @@ class ProductScraper:
             "бормашина": "Бормашины",
             "гравер": "Граверы",
             "рубанок": "Рубанки",
+            "электрорубанок": "Рубанки",
             "щипцы": "Щипцы",
             "щипцы для зачистки": "Щипцы для зачистки",
             "щипцы для электропроводов": "Щипцы для зачистки",
             "клещи": "Клещи",
+            "монтажные клещи": "Монтажные клещи",
             "плоскогубцы": "Плоскогубцы",
             "ножницы": "Ножницы",
             "пистолет": "Строительные пистолеты",
+            "монтажный пистолет": "Пистолеты для монтажной пены",
+            "клеевой пистолет": "Клеевые пистолеты",
+            "пистолет для герметика": "Пистолеты для герметика",
+            "пистолет для пены": "Пистолеты для монтажной пены",
             "степлер": "Степлеры",
             "нож": "Ножи",
             "стремянка": "Стремянки",
             "лестница": "Лестницы",
             "уровень": "Уровни",
+            "лазерный уровень": "Лазерные уровни",
+            "нивелир": "Нивелиры",
             "рулетка": "Рулетки",
             "лазерный": "Лазерные инструменты",
+            "лазерный дальномер": "Лазерные дальномеры",
             "сварочный": "Сварочное оборудование",
+            "сварочный аппарат": "Сварочные аппараты",
+            "маска сварщика": "Маски сварщика",
             "аппарат": "Аппараты",
             "станок": "Станки",
+            "рейсмусовый станок": "Рейсмусовые станки",
+            "штроборез": "Штроборезы",
+            "отбойный молоток": "Отбойные молотки",
+            "демонтажный молоток": "Демонтажные молотки",
+            "реноватор": "Реноваторы",
+            "мультитул": "Мультитулы",
             "компрессор": "Компрессоры",
+            "компрессор воздушный": "Воздушные компрессоры",
+            "компрессор автомобильный": "Автомобильные компрессоры",
             "пылесос": "Пылесосы",
+            "строительный пылесос": "Строительные пылесосы",
+            "промышленный пылесос": "Промышленные пылесосы",
             "мойка": "Мойки высокого давления",
             "стиральная": "Стиральные машины",
             "холодильник": "Холодильники",
@@ -1082,7 +1248,28 @@ class ProductScraper:
             "принтер": "Принтеры",
             "сканер": "Сканеры",
             "фотоаппарат": "Фотоаппараты",
-            "видеокамера": "Видеокамеры"
+            "видеокамера": "Видеокамеры",
+            "миксер": "Строительные миксеры",
+            "дрель-миксер": "Дрели-миксеры",
+            "бетоносмеситель": "Бетоносмесители",
+            "паяльник": "Паяльники",
+            "фен": "Строительные фены",
+            "промышленный фен": "Промышленные фены",
+            "строительный фен": "Строительные фены",
+            "тепловая пушка": "Тепловые пушки",
+            "газонокосилка": "Газонокосилки",
+            "струбцины": "Струбцины",
+            "шпатель": "Шпатели",
+            "заклепочник": "Заклепочники",
+            "верстак": "Верстаки",
+            "гайковерт": "Гайковерты",
+            "краскопульт": "Краскопульты",
+            "ящик для инструментов": "Ящики для инструментов",
+            "сумка для инструмента": "Сумки для инструментов",
+            "топор": "Топоры",
+            "топор-колун": "Топоры-колуны",
+            "тиски": "Тиски",
+            "винтоверт": "Винтоверты"
         }
         
         # Выделить первое слово из названия товара (до первого пробела или цифры)
@@ -1150,13 +1337,66 @@ class ProductScraper:
         # Не удалось определить подкатегорию
         return None
 
+    def _clean_description(self, description_text: str) -> str:
+        """
+        Очищает описание товара от лишних элементов, которые могут встречаться после раскрытия
+        полного описания.
+        
+        Args:
+            description_text: Исходный текст описания
+            
+        Returns:
+            Очищенный текст описания
+        """
+        if not description_text:
+            return ""
+        
+        # Удаляем лишние пробелы и переносы строк
+        clean_text = description_text.strip()
+        
+        # Удаляем повторяющиеся переносы строк
+        while "\n\n\n" in clean_text:
+            clean_text = clean_text.replace("\n\n\n", "\n\n")
+        
+        # Удаляем служебные фразы, которые могут быть добавлены скриптами
+        phrases_to_remove = [
+            "Показать полностью",
+            "Скрыть",
+            "Развернуть описание",
+            "Свернуть описание",
+            "Читать далее",
+            "Читать полностью"
+        ]
+        
+        for phrase in phrases_to_remove:
+            clean_text = clean_text.replace(phrase, "")
+        
+        # Удаляем текст после фраз, указывающих на конец основного описания
+        end_markers = [
+            "Характеристики:",
+            "Комплектация:",
+            "В комплекте:",
+            "Технические характеристики"
+        ]
+        
+        for marker in end_markers:
+            if marker in clean_text:
+                parts = clean_text.split(marker, 1)
+                if len(parts) > 1 and len(parts[0]) > 50:  # Проверяем, что до маркера есть достаточно текста
+                    clean_text = parts[0].strip()
+        
+        # Удаляем последовательности одинаковых символов (------, ======, *****)
+        clean_text = re.sub(r'([=\-*_]{3,})', '', clean_text)
+        
+        return clean_text.strip()
+
 def main():
     # Настройки API
     api_url = os.environ.get("API_URL", "http://localhost:8000")
     api_token = os.environ.get("API_TOKEN", "")
     
     # Определяем количество параллельных потоков
-    num_workers = int(os.environ.get("NUM_WORKERS", 2))
+    num_workers = int(os.environ.get("NUM_WORKERS", 2))  # Увеличено с 2 до 4
     
     # Создаем экземпляр парсера
     parser = ProductScraper(api_url=api_url, api_token=api_token, num_workers=num_workers)
