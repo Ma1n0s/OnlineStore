@@ -1,6 +1,8 @@
 <script setup>
 import { ref } from "vue";
 
+const route = useRoute();
+
 const product = reactive({
   title: "Бесщеточный аккумуляторный шуруповерт KEYANG DD18BL-W (Set)",
   code: "24955389",
@@ -80,10 +82,17 @@ const toggleFavorite = async () => {
       <NuxtLink to="#" class="font-semibold">KEYANG</NuxtLink>
     </nav>
 
+    <div>
+      <h1>Category</h1>
+      <p class="text-2xl font-bold p-4">
+        {{ route.params.category }} - {{ route.params.subcategory }} - {{ route.params.product_name }}
+      </p>
+    </div>
+
     <div v-if="!loading">
       <h2 class="font-bold text-2xl mb-2">{{ product.title }}</h2>
       <div class="flex flex-wrap gap-4 mb-6">
-        <p class="text-sm" v-if="productCode">Код товара: {{ product.code }}</p>
+        <p class="text-sm" v-if="product.code">Код товара: {{ product.code }}</p>
         <div class="flex items-center gap-2" v-if="product.reviewsCount || product.questionsCount">
           <img src="" alt="Отзыв" class="w-4 h-4" />
           <p class="text-sm">
@@ -258,12 +267,12 @@ const toggleFavorite = async () => {
               </div>
             </div>
 
-            <div v-if="packagingInfo.length" class="rounded-lg p-6 mb-6">
+            <!-- <div v-if="packagingInfo.length" class="rounded-lg p-6 mb-6">
               <h3 class="text-xl font-bold mb-4">Комплектация</h3>
               <ul class="list-disc pl-5 space-y-2">
                 <li v-for="(item, index) in packagingInfo" :key="index">{{ item }}</li>
               </ul>
-            </div>
+            </div> -->
 
             <div class="rounded-lg p-6">
               <h3 class="text-xl font-bold mb-4">Информация об упаковке</h3>

@@ -1,0 +1,1 @@
+<template>список категорий</template>
