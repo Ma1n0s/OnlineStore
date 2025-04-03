@@ -1,95 +1,63 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 
-const loading = ref(true);
-const productTitle = ref("Бесщеточный аккумуляторный шуруповерт KEYANG DD18BL-W (Set)");
-const productCode = ref("24955389");
-const reviewsCount = ref(14);
-const questionsCount = ref(5);
-const warranty = ref("1 год");
-const isFavorite = ref(false);
-
-// Цены
-const originalPrice = ref(8990);
-const finalPrice = ref(7490);
-const savings = ref(1500);
-
-// Изображения
-const mainImage = ref("/products/keyang-dd18bl-w/main.jpg");
-const images = ref([
-  "/products/keyang-dd18bl-w/1.jpg",
-  "/products/keyang-dd18bl-w/2.jpg",
-  "/products/keyang-dd18bl-w/3.jpg",
-  "/products/keyang-dd18bl-w/4.jpg",
-]);
-
-// Характеристики
-const specifications = ref({
-  maxTorque: "60 Н·м",
-  batteryType: "Li-Ion",
-  batteryVoltage: "18 В",
-  maxDrillDiameterMetal: "10 мм",
-  maxDrillDiameterWood: "25 мм",
-  chargerIncluded: "да",
-  netWeight: "1.3 кг",
+const product = reactive({
+  title: "Бесщеточный аккумуляторный шуруповерт KEYANG DD18BL-W (Set)",
+  code: "24955389",
+  reviewsCount: 14,
+  questionsCount: 5,
+  warranty: "1 год",
+  brand: "KEYANG",
+  description: "Бесщеточный аккумуляторный шуруповерт KEYANG DD18BL-W (Set)",
+  price: {
+    original: 8990,
+    final: 7490,
+    savings: 1500,
+  },
+  images: [
+    "/products/keyang-dd18bl-w/main.jpg",
+    "/products/keyang-dd18bl-w/1.jpg",
+    "/products/keyang-dd18bl-w/2.jpg",
+    "/products/keyang-dd18bl-w/3.jpg",
+    "/products/keyang-dd18bl-w/4.jpg",
+  ],
+  specifications: {
+    maxTorque: "60 Н·м",
+    batteryType: "Li-Ion",
+    batteryVoltage: "18 В",
+    maxDrillDiameterMetal: "10 мм",
+    maxDrillDiameterWood: "25 мм",
+    chargerIncluded: "есть",
+    netWeight: "3.5 кг",
+  },
+  advantages: [
+    { parameter: "Тип", value: "Аккумуляторный шуруповерт" },
+    { parameter: "Макс. частота ударов", value: "0 ударов/мин" },
+    { parameter: "Количество скоростей", value: "2" },
+    { parameter: "Емкость аккумулятора", value: "2.0 А·ч" },
+    { parameter: "Время зарядки", value: "1 ч" },
+    { parameter: "Реверс", value: "есть" },
+    { parameter: "Патрон", value: "быстрозажимной" },
+    { parameter: "Диаметр патрона", value: "13 мм" },
+  ],
+  packagingDetails: {
+    weight: "3.5",
+    length: "350",
+    width: "250",
+    height: "100",
+  },
 });
-
-// Преимущества
-const advantages = ref({
-  NameDescription: "Основные преимущества KEYANG DD18BL-W",
-  maxDescription1: "Бесщеточный двигатель для увеличенного срока службы",
-  maxDescription2: "2 скорости работы для различных задач",
-  maxDescription3: "Эргономичная рукоятка с мягкими накладками",
-  maxDescription4: "Индикатор уровня заряда батареи",
-  maxDescription5: "Компактные размеры для работы в труднодоступных местах",
-});
-
-// Описание
-const description = ref([
-  { parameter: "Тип", value: "Аккумуляторный шуруповерт" },
-  { parameter: "Макс. частота ударов", value: "0 ударов/мин" },
-  { parameter: "Количество скоростей", value: "2" },
-  { parameter: "Емкость аккумулятора", value: "2.0 А·ч" },
-  { parameter: "Время зарядки", value: "1 ч" },
-  { parameter: "Реверс", value: "есть" },
-  { parameter: "Патрон", value: "быстрозажимной" },
-  { parameter: "Диаметр патрона", value: "13 мм" },
-]);
-
-// Упаковка
-const packagingDetails = ref({
-  weight: "3.5",
-  length: "350",
-  width: "250",
-  height: "100",
-});
-
-const packagingInfo = ref([
-  "Шуруповерт KEYANG DD18BL-W",
-  "Аккумулятор 18V 2.0Ah",
-  "Зарядное устройство",
-  "Кейс для хранения",
-  "Набор бит",
-]);
-
-// Бренд
-const brandInfo = ref(false);
 
 // Вкладки
 const tabs = ref([
-  { id: 'description', title: 'ОПИСАНИЕ И ХАРАКТЕРИСТИКИ' },
-  { id: 'reviews', title: 'ОТЗЫВЫ' },
-  { id: 'questions', title: 'ВОПРОСЫ И ОТВЕТЫ' },
+  { id: "description", title: "ОПИСАНИЕ И ХАРАКТЕРИСТИКИ" },
+  { id: "reviews", title: "ОТЗЫВЫ" },
+  { id: "questions", title: "ВОПРОСЫ И ОТВЕТЫ" },
 ]);
-const activeTab = ref('description');
-
-onMounted(async () => {
-  // await fetchProductData();
-  
-  setTimeout(() => {
-    loading.value = false;
-  }, 1000);
-});
+const activeTab = ref("description");
+const isFavorite = ref(false);
+const loading = ref(false);
+const activeImage = ref(product.images[0]);
 
 const toggleFavorite = async () => {
   isFavorite.value = !isFavorite.value;
@@ -113,52 +81,42 @@ const toggleFavorite = async () => {
     </nav>
 
     <div v-if="!loading">
-      <h2 class="font-bold text-2xl mb-2">{{ productTitle }}</h2>
+      <h2 class="font-bold text-2xl mb-2">{{ product.title }}</h2>
       <div class="flex flex-wrap gap-4 mb-6">
-        <p class="text-sm" v-if="productCode">
-          Код товара: {{ productCode }}
-        </p>
-        <div class="flex items-center gap-2" v-if="reviewsCount || questionsCount">
+        <p class="text-sm" v-if="productCode">Код товара: {{ product.code }}</p>
+        <div class="flex items-center gap-2" v-if="product.reviewsCount || product.questionsCount">
           <img src="" alt="Отзыв" class="w-4 h-4" />
           <p class="text-sm">
-            <span v-if="reviewsCount">{{ reviewsCount }} отзывов</span>
-            <span v-if="reviewsCount && questionsCount"> | </span>
-            <span v-if="questionsCount">{{ questionsCount }} вопросов</span>
+            <span v-if="product.reviewsCount">{{ product.reviewsCount }} отзывов</span>
+            <span v-if="product.reviewsCount && product.questionsCount"> | </span>
+            <span v-if="product.questionsCount">{{ product.questionsCount }} вопросов</span>
           </p>
         </div>
 
-        <div class="flex items-center gap-2" v-if="warranty">
+        <div class="flex items-center gap-2" v-if="product.warranty">
           <img src="" alt="Гарантия" class="w-4 h-4" />
-          <p class="text-sm">Гарантия производителя {{ warranty }}</p>
+          <p class="text-sm">Гарантия производителя {{ product.warranty }}</p>
         </div>
 
         <div class="flex items-center gap-2 cursor-pointer" @click="toggleFavorite">
-          <img 
-            :src="isFavorite ? '' : ''" 
-            alt="Избранное" 
-            class="w-4 h-4" 
-          />
-          <p class="text-sm">{{ isFavorite ? 'В избранном' : 'В избранное' }}</p>
+          <img :src="isFavorite ? '' : ''" alt="Избранное" class="w-4 h-4" />
+          <p class="text-sm">{{ isFavorite ? "В избранном" : "В избранное" }}</p>
         </div>
       </div>
 
       <div class="flex flex-col md:flex-row gap-8">
         <div class="w-full md:w-2/5">
           <div class="bg-white rounded-lg shadow-md p-4">
-            <img 
-              :src="mainImage" 
-              :alt="productTitle" 
-              class="w-full h-80 object-contain mb-4"
-            />
+            <NuxtImg :src="activeImage" :alt="product.title" class="w-full h-80 object-contain mb-4" />
             <div class="flex gap-2 overflow-x-auto">
-              <img
-                v-for="(image, index) in images"
+              <NuxtImg
+                v-for="(image, index) in product.images"
                 :key="index"
                 :src="image"
                 :alt="'Изображение ' + (index + 1)"
                 class="w-16 h-16 object-cover rounded cursor-pointer border"
-                :class="{ 'border-primary': image === mainImage }"
-                @click="mainImage = image"
+                :class="{ 'border-primary': image === activeImage }"
+                @click="activeImage = image"
               />
             </div>
           </div>
@@ -171,25 +129,24 @@ const toggleFavorite = async () => {
               <div>
                 <h2 class="text-xl font-bold text-second mb-2">Сезон впереди</h2>
                 <div class="flex items-center gap-4">
-                  <p class="text-3xl font-bold">{{ finalPrice }} ₽</p>
-                  <p v-if="originalPrice && originalPrice !== finalPrice" class="text-lg line-through text-gray">
-                    {{ originalPrice }} ₽
+                  <p class="text-3xl font-bold">{{ product.price.final }} ₽</p>
+                  <p
+                    v-if="product.price.original && product.price.original !== product.price.final"
+                    class="text-lg line-through text-gray"
+                  >
+                    {{ product.price.original }} ₽
                   </p>
-                  <p v-if="savings" class="text-primary font-medium">
-                    Экономия {{ savings }} ₽
+                  <p v-if="product.price.savings" class="text-primary font-medium">
+                    Экономия {{ product.price.savings }} ₽
                   </p>
                 </div>
               </div>
 
               <div class="flex flex-col sm:flex-row gap-3">
-                <button 
-                  class="bg-second hover:bg-second-hover text-white py-3 px-6 rounded-lg font-medium transition"
-                >
+                <button class="bg-second hover:bg-second-hover text-white py-3 px-6 rounded-lg font-medium transition">
                   В корзину
                 </button>
-                <button 
-                  class="bg-gray-200 hover:bg-gray-300 text-dark py-3 px-6 rounded-lg font-medium transition"
-                >
+                <button class="bg-gray-200 hover:bg-gray-300 text-dark py-3 px-6 rounded-lg font-medium transition">
                   Быстрый заказ
                 </button>
               </div>
@@ -199,33 +156,33 @@ const toggleFavorite = async () => {
           <div class="bg-white rounded-lg shadow-md p-6 mb-6">
             <h3 class="text-xl font-bold mb-4">Основные характеристики</h3>
             <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <li v-if="specifications.maxTorque" class="flex gap-2">
+              <li v-if="product.specifications.maxTorque" class="flex gap-2">
                 <span class="font-medium text-gray">Макс. крутящий момент:</span>
-                <span>{{ specifications.maxTorque }}</span>
+                <span>{{ product.specifications.maxTorque }}</span>
               </li>
-              <li v-if="specifications.batteryType" class="flex gap-2">
+              <li v-if="product.specifications.batteryType" class="flex gap-2">
                 <span class="font-medium text-gray">Тип аккумулятора:</span>
-                <span>{{ specifications.batteryType }}</span>
+                <span>{{ product.specifications.batteryType }}</span>
               </li>
-              <li v-if="specifications.batteryVoltage" class="flex gap-2">
+              <li v-if="product.specifications.batteryVoltage" class="flex gap-2">
                 <span class="font-medium text-gray">Напряжение аккумулятора:</span>
-                <span>{{ specifications.batteryVoltage }}</span>
+                <span>{{ product.specifications.batteryVoltage }}</span>
               </li>
-              <li v-if="specifications.maxDrillDiameterMetal" class="flex gap-2">
+              <li v-if="product.specifications.maxDrillDiameterMetal" class="flex gap-2">
                 <span class="font-medium text-gray">Макс. диаметр сверления (металл):</span>
-                <span>{{ specifications.maxDrillDiameterMetal }}</span>
+                <span>{{ product.specifications.maxDrillDiameterMetal }}</span>
               </li>
-              <li v-if="specifications.maxDrillDiameterWood" class="flex gap-2">
+              <li v-if="product.specifications.maxDrillDiameterWood" class="flex gap-2">
                 <span class="font-medium text-gray">Макс. диаметр сверления (дерево):</span>
-                <span>{{ specifications.maxDrillDiameterWood }}</span>
+                <span>{{ product.specifications.maxDrillDiameterWood }}</span>
               </li>
-              <li v-if="specifications.chargerIncluded" class="flex gap-2">
+              <li v-if="product.specifications.chargerIncluded" class="flex gap-2">
                 <span class="font-medium text-gray">Зарядное устройство:</span>
-                <span>{{ specifications.chargerIncluded }}</span>
+                <span>{{ product.specifications.chargerIncluded }}</span>
               </li>
-              <li v-if="specifications.netWeight" class="flex gap-2">
+              <li v-if="product.specifications.netWeight" class="flex gap-2">
                 <span class="font-medium text-gray">Вес нетто:</span>
-                <span>{{ specifications.netWeight }}</span>
+                <span>{{ product.specifications.netWeight }}</span>
               </li>
             </ul>
           </div>
@@ -234,14 +191,14 @@ const toggleFavorite = async () => {
 
       <div class="border-b border-gray-200 mb-8">
         <nav class="flex space-x-6">
-          <button 
+          <button
             v-for="tab in tabs"
             :key="tab.id"
             @click="activeTab = tab.id"
             class="py-4 px-1 border-b-2 font-medium text-sm"
             :class="{
               'border-second text-second': activeTab === tab.id,
-              'border-transparent text-gray hover:text-dark hover:border-gray-300': activeTab !== tab.id
+              'border-transparent text-gray hover:text-dark hover:border-gray-300': activeTab !== tab.id,
             }"
           >
             {{ tab.title }}
@@ -252,29 +209,29 @@ const toggleFavorite = async () => {
       <div>
         <div v-show="activeTab === 'description'" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div class="lg:col-span-2">
-            <div v-if="advantages.NameDescription" class="mb-8">
-              <h3 class="text-xl font-bold mb-4">{{ advantages.NameDescription }}</h3>
-              <ul class="list-disc pl-5 space-y-2">
-                <li v-if="advantages.maxDescription1">{{ advantages.maxDescription1 }}</li>
-                <li v-if="advantages.maxDescription2">{{ advantages.maxDescription2 }}</li>
-                <li v-if="advantages.maxDescription3">{{ advantages.maxDescription3 }}</li>
-                <li v-if="advantages.maxDescription4">{{ advantages.maxDescription4 }}</li>
-                <li v-if="advantages.maxDescription5">{{ advantages.maxDescription5 }}</li>
-              </ul>
+            <div v-if="product.description" class="mb-8">
+              <h3 class="text-xl font-bold mb-4">Описание</h3>
+              <div>
+                {{ product.description }}
+              </div>
             </div>
-            
+
             <div class="mb-8">
               <h3 class="text-xl font-bold mb-4">Технические характеристики</h3>
               <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                   <thead>
                     <tr>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray uppercase tracking-wider">Параметр</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray uppercase tracking-wider">Значение</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray uppercase tracking-wider">
+                        Параметр
+                      </th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray uppercase tracking-wider">
+                        Значение
+                      </th>
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-gray-200">
-                    <tr v-for="(desc, index) in description" :key="index">
+                    <tr v-for="(desc, index) in product.advantages" :key="index">
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-dark">{{ desc.parameter }}</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray">{{ desc.value }}</td>
                     </tr>
@@ -286,10 +243,10 @@ const toggleFavorite = async () => {
 
           <div>
             <div class="rounded-lg p-6 mb-6">
-              <h3 class="text-xl font-bold mb-4">KEYANG</h3>
+              <h3 class="text-xl font-bold mb-4">{{ product.brand }}</h3>
               <p class="text-gray mb-4">Все товары бренда</p>
 
-              <div v-if="brandInfo" class="space-y-3">
+              <div v-if="product.brand" class="space-y-3">
                 <div class="flex items-center">
                   <img src="" alt="Южная Корея" class="w-5 h-5 mr-2" />
                   <span class="text-dark">Южная Корея — родина бренда</span>
@@ -311,10 +268,17 @@ const toggleFavorite = async () => {
             <div class="rounded-lg p-6">
               <h3 class="text-xl font-bold mb-4">Информация об упаковке</h3>
               <div class="space-y-2">
-                <p v-if="packagingDetails.weight" class="text-dark">Вес, кг: {{ packagingDetails.weight }}</p>
-                <p v-if="packagingDetails.length" class="text-dark">Длина, мм: {{ packagingDetails.length }}</p>
-                <p v-if="packagingDetails.width" class="text-dark">Ширина, мм: {{ packagingDetails.width }}</p>
-                <p v-if="packagingDetails.height" class="text-dark">Высота, мм: {{ packagingDetails.height }}</p>
+                <p v-for="(value, key) in product.packagingDetails" :key="key" class="text-dark">
+                  {{
+                    key === "weight"
+                      ? "Вес, кг"
+                      : key === "length"
+                      ? "Длина, мм"
+                      : key === "width"
+                      ? "Ширина, мм"
+                      : "Высота, мм"
+                  }}: {{ value }}
+                </p>
               </div>
             </div>
           </div>
