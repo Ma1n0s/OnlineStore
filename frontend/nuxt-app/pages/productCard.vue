@@ -99,17 +99,17 @@ const toggleFavorite = async () => {
 <template>
   <div class="container mx-auto px-4 md:px-6 lg:px-8 py-8">
     <nav class="flex flex-wrap items-center gap-2 text-gray mb-4">
-      <RouterLink to="#" class="hover:underline">Главная</RouterLink>
+      <NuxtLink to="#" class="hover:underline">Главная</NuxtLink>
       <span>/</span>
-      <RouterLink to="#" class="font-semibold">Инструменты</RouterLink>
+      <NuxtLink to="#" class="font-semibold">Инструменты</NuxtLink>
       <span>/</span>
-      <RouterLink to="#" class="font-semibold">Шуруповерты</RouterLink>
+      <NuxtLink to="#" class="font-semibold">Шуруповерты</NuxtLink>
       <span>/</span>
-      <RouterLink to="#" class="font-semibold">Аккумуляторные дрели-шуруповерты</RouterLink>
+      <NuxtLink to="#" class="font-semibold">Аккумуляторные дрели-шуруповерты</NuxtLink>
       <span>/</span>
-      <RouterLink to="#" class="font-semibold">Безударные</RouterLink>
+      <NuxtLink to="#" class="font-semibold">Безударные</NuxtLink>
       <span>/</span>
-      <RouterLink to="#" class="font-semibold">KEYANG</RouterLink>
+      <NuxtLink to="#" class="font-semibold">KEYANG</NuxtLink>
     </nav>
 
     <div v-if="!loading">

@@ -90,9 +90,9 @@ const products = ref([
   <div class="container mx-auto px-4 md:px-6 lg:px-8 py-8">
     <!-- Хлебные крошки -->
     <nav class="flex flex-wrap items-center gap-2 text-gray mb-4">
-      <RouterLink to="#" class="hover:underline">Главная</RouterLink>
+      <NuxtLink to="#" class="hover:underline">Главная</NuxtLink>
       <span>/</span>
-      <RouterLink to="#" class="font-semibold">Инструмент</RouterLink>
+      <NuxtLink to="#" class="font-semibold">Инструмент</NuxtLink>
     </nav>
 
     <div>
@@ -101,12 +101,12 @@ const products = ref([
         <div>
           <h1 class="text-2xl font-bold">Строительный инструмент</h1>
         </div>
-        <RouterLink to="#" class="text-primary hover:underline mt-2 md:mt-0">Как выбрать электроинструмент</RouterLink>
+        <NuxtLink to="#" class="text-primary hover:underline mt-2 md:mt-0">Как выбрать электроинструмент</NuxtLink>
       </div>
 
       <!-- Категории инструментов -->
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
-        <RouterLink 
+        <NuxtLink 
           v-for="(product, index) in products"
           :key="index"
           to="#"
@@ -118,27 +118,27 @@ const products = ref([
             :alt="product.name" 
             class="self-end h-10 w-10 mt-2 object-contain"
           />
-        </RouterLink>
+        </NuxtLink>
       </div>
 
       <!-- Популярные запросы -->
       <div class="mb-8">
         <h2 class="text-xl font-semibold mb-4">Часто ищут</h2>
         <div class="flex flex-wrap gap-2">
-          <RouterLink 
+          <NuxtLink 
             v-for="(tag, index) in popularTags"
             :key="index"
             to="#"
             class="bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm hover:bg-gray-300 transition duration-200 ease-in-out shadow-md"
           >
             {{ tag }}
-          </RouterLink>
-          <RouterLink 
+          </NuxtLink>
+          <NuxtLink 
             to="#"
             class="bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm hover:bg-gray-300 transition duration-200 ease-in-out shadow-md"
           >
             ... Показать ещё
-          </RouterLink>
+          </NuxtLink>
         </div>
       </div>
 
@@ -146,16 +146,16 @@ const products = ref([
       <div class="mb-8">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-xl font-bold">Статьи</h2>
-          <RouterLink 
+          <NuxtLink 
             to="#"
             class="bg-gray-200 hover:bg-gray-300 rounded-md px-4 py-2 transition duration-200 ease-in-out"
           >
             Все статьи
-          </RouterLink>
+          </NuxtLink>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <RouterLink 
+          <NuxtLink 
             v-for="article in articles"
             :key="article.id"
             to="#"
@@ -164,7 +164,7 @@ const products = ref([
             <h3 class="font-semibold text-lg mb-2">{{ article.title }}</h3>
             <p class="text-gray-600 mb-4">{{ article.excerpt }}</p>
             <p class="text-gray-400 text-sm">{{ article.date }}</p>
-          </RouterLink>
+          </NuxtLink>
         </div>
       </div>
     </div>
