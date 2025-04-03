@@ -156,7 +156,7 @@ const orders = [
         </div>
 
         <!-- Вторая строка карточек -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 sm:grid-cols-2 gap-4">
           <div 
             v-for="(card, index) in secondRowCards" 
             :key="index"
@@ -202,19 +202,7 @@ const orders = [
               </div>
             </div>
             
-            <div class="border-t border-gray-100 pt-4">
-              <h4 class="text-sm font-medium mb-3">Товары в заказе</h4>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div 
-                  v-for="(product, idx) in order.products" 
-                  :key="idx"
-                  class="flex items-center gap-3"
-                >
-                  <img :src="product.image" :alt="product.name" class="w-16 h-16 object-cover rounded">
-                  <p class="text-sm">{{ product.name }}</p>
-                </div>
-              </div>
-            </div>
+           
           </div>
         </div>
       </div>
