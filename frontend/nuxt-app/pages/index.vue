@@ -7,10 +7,14 @@ import ProductSwiper from "~/components/Swiper/ProductSwiper/ProductSwiper.vue";
   <div class="bg-white w-full ~text-sm/xs ~p-4/8 flex flex-col items-center">
     <div class="w-full xl:max-w-7xl">
       <div class="mb-16">
-        <CategorySwiper />
+        <WrapperHeader title="Кататегории товаров">
+          <CategorySwiper />
+        </WrapperHeader>
       </div>
       <div class="mb-8">
-        <ProductSwiper />
+        <WrapperHeader title="Акции">
+          <ProductSwiper />
+        </WrapperHeader>
       </div>
       <BrandSwiper />
     </div>

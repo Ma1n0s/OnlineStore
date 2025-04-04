@@ -11,7 +11,7 @@
       <div
         v-for="(item, index) in data.categories"
         :key="index"
-        class="flex items-center p-1 py-1 cursor-pointer first:rounded-t-xl hover:bg-slate-200"
+        class="flex items-center p-1 py-1 cursor-pointer first:rounded-t-xl hover:bg-red-100"
       >
         <NuxtImg :src="item.src" width="40" height="40" />
         <div class="p-1 pl-2">
@@ -23,7 +23,7 @@
       <div
         v-for="(item, index) in data.items"
         :key="index"
-        class="flex items-center p-1 py-1 cursor-pointer last:rounded-b-xl hover:bg-slate-200"
+        class="flex items-center p-1 py-1 cursor-pointer last:rounded-b-xl hover:bg-red-100"
       >
         <NuxtImg :src="item.src" width="60" height="60" />
         <div>

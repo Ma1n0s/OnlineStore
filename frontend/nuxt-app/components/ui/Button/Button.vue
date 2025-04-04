@@ -19,10 +19,9 @@ const { variant = "primary", ...props } = defineProps<{
 }>();
 
 const variantClasses = {
-  primary: "text-dark bg-primary hover:bg-primary-hover", // Голубой 1
-  secondary: "text-second bg-second hover:bg-second-hover", // Голубой 2
-  transparent:
-    "text-dark bg-transparent border border-dark hover:bg-white", // Прозрачный
+  primary: "text-white bg-primary hover:bg-primary-hover", // Голубой 1
+  secondary: "text-white bg-second hover:bg-second-hover", // Голубой 2
+  transparent: "text-dark bg-transparent border border-dark hover:bg-white", // Прозрачный
   warning: "text-white bg-danger hover:bg-danger-hover", // Красный
 };
 

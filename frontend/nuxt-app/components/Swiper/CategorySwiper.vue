@@ -14,14 +14,21 @@
         :key="idx"
         class="bg-white flex flex-col w-48 h-64 shadow-xl rounded-3xl overflow-hidden"
       >
-        <div
-          class="box-content h-14 p-1 pb-4 text-lg text-dark font-medium text-center flex items-center justify-center"
-        >
-          {{ category.name }}
-        </div>
-        <div class="flex-1 relative">
-          <NuxtImg :alt="category.name" :src="category.src" class="absolute h-full w-full object-cover" format="webp" />
-        </div>
+        <NuxtLink :to="category.path" class="bg-white flex flex-col w-48 h-64 overflow-hidden">
+          <div
+            class="box-content h-14 p-1 pb-4 text-lg text-dark font-medium text-center flex items-center justify-center"
+          >
+            {{ category.name }}
+          </div>
+          <div class="flex-1 relative">
+            <NuxtImg
+              :alt="category.name"
+              :src="category.src"
+              class="absolute h-full w-full object-cover"
+              format="webp"
+            />
+          </div>
+        </NuxtLink>
       </swiper-slide>
     </swiper-container>
   </ClientOnly>
@@ -30,27 +37,32 @@
 <script setup lang="ts">
 const containerRef = ref(null);
 const categories = ref([
-  { name: "Инструменты", src: "/Categories/Instruments.png" },
+  { name: "Инструменты", src: "/Categories/Instruments.png", path: "/category/instrument" },
   {
     name: "Электрика",
     src: "/Categories/Wire.png",
+    path: "/category/wire",
   },
   {
     name: "Крепеж и фурнитура",
     src: "/Categories/Dowel.png",
+    path: "/category/dowel",
   },
-  { name: "Станки", src: "/Categories/Schlefmachine.png" },
+  { name: "Станки", src: "/Categories/Schlefmachine.png", path: "/category/schlefmachine" },
   {
     name: "Строительный материалы",
     src: "/Categories/Board.png",
+    path: "/category/board",
   },
   {
     name: "Сантехника",
     src: "/Categories/Faucet.png",
+    path: "/category/faucet",
   },
   {
     name: "Строительное оборудование",
     src: "/Categories/ConcreteMixer.png",
+    path: "/category/concrete-mixer",
   },
 ]);
 </script>
