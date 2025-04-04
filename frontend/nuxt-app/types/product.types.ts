@@ -6,11 +6,36 @@ export type ProductPrice = {
   total: number | string;
 };
 
-export type Product = {
+export type Category = {
+  id: number | string;
   name: string;
-  price: ProductPrice;
+  slug: string;
+};
+
+export type Subcategory = {
+  id: number | string;
+  name: string;
+  slug: string;
+};
+
+export type Specification = {
+  [key: string]: {
+    [key: string]: string;
+  };
+};
+
+export type Product = {
+  id: number | string;
+  name: string;
+  description: string | null;
+  price: Record<string, any>;
   article: string | number;
   brand: string;
   raiting: number;
+  category: Category;
+  subcategory: Subcategory;
+  specifications: Specification;
   images: Img[];
+  created_at: string;
+  updated_at: string;
 };

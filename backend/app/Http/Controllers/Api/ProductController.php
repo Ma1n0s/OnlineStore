@@ -48,10 +48,16 @@ class ProductController extends Controller
                             return [$spec->name => $spec->value];
                         })];
                     }),
-                    'images' => [
-                        'market' => $product->images->where('source', 'market')->sortBy('position')->pluck('url')->toArray(),
-                        'yandex' => $product->images->where('source', 'yandex')->sortBy('position')->pluck('url')->toArray(),
-                    ],
+                    'images' => $product->images
+                        ->sortBy('position')
+                        ->map(function ($image) use ($product) {
+                            return [
+                                'src' => $image->url,
+                                'alt' => $product->name
+                            ];
+                        })
+                        ->values()
+                        ->toArray(),
                     'created_at' => $product->created_at,
                     'updated_at' => $product->updated_at,
                 ];
@@ -71,11 +77,24 @@ class ProductController extends Controller
         $product->load(['specificationCategories.specifications', 'images', 'category', 'subcategory']);
         
         return response()->json([
+            'price'=>[
+                'final'=>1000,
+                'original'=>1500,
+                'savings'=>500,
+            ],
+            'reviewsCount'=>10,
+            'questionsCount'=>5,
+            'warranty'=>'1 год',
+            'advantages'=>[
+                'parameter'=>'Макс. крутящий момент:',
+                'value'=>'1000 Нм',
+            ],
+
+            'brand' => 'Brand',
+
             'id' => $product->id,
             'name' => $product->name,
             'description' => $product->description,
-            'search_market_url' => $product->search_market_url,
-            'search_images_url' => $product->search_images_url,
             'category' => $product->category ? [
                 'id' => $product->category->id,
                 'name' => $product->category->name,
@@ -91,10 +110,16 @@ class ProductController extends Controller
                     return [$spec->name => $spec->value];
                 })];
             }),
-            'images' => [
-                'market' => $product->images->where('source', 'market')->sortBy('position')->pluck('url')->toArray(),
-                'yandex' => $product->images->where('source', 'yandex')->sortBy('position')->pluck('url')->toArray(),
-            ],
+            'images' => $product->images
+                ->sortBy('position')
+                ->map(function ($image) use ($product) {
+                    return [
+                        'src' => $image->url,
+                        'alt' => $product->name
+                    ];
+                })
+                ->values()
+                ->toArray(),
             'created_at' => $product->created_at,
             'updated_at' => $product->updated_at,
         ]);
@@ -267,10 +292,16 @@ class ProductController extends Controller
                             return [$spec->name => $spec->value];
                         })];
                     }),
-                    'images' => [
-                        'market' => $product->images->where('source', 'market')->sortBy('position')->pluck('url')->toArray(),
-                        'yandex' => $product->images->where('source', 'yandex')->sortBy('position')->pluck('url')->toArray(),
-                    ],
+                    'images' => $product->images
+                        ->sortBy('position')
+                        ->map(function ($image) use ($product) {
+                            return [
+                                'src' => $image->url,
+                                'alt' => $product->name
+                            ];
+                        })
+                        ->values()
+                        ->toArray(),
                     'created_at' => $product->created_at,
                     'updated_at' => $product->updated_at,
                 ];
