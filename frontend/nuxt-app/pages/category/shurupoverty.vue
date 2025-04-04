@@ -307,7 +307,7 @@ const toggleBrand = (brand) => {
           </button>
           <button @click="showList" :class="{'bg-gray-100 text-red-600': !state.ui.isGrid}" class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
             <NuxtImg
-              src="/icons/list-view.svg"
+              src=""
               alt="Список"
               width="20"
               height="20"
@@ -326,7 +326,7 @@ const toggleBrand = (brand) => {
           <div class="mb-6">
             <div class="flex items-center text-gray-700 mb-2">
               <NuxtImg
-                src="/icons/arrow-left.svg"
+                src="~/arrow-left.svg"
                 alt="Назад"
                 width="16"
                 height="16"
