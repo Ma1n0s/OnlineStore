@@ -22,8 +22,8 @@ const product = reactive<Product>(productData);
 // Вкладки
 const tabs = ref([
   { id: "description", title: "ОПИСАНИЕ И ХАРАКТЕРИСТИКИ" },
-  { id: "reviews", title: "ОТЗЫВЫ" },
-  { id: "questions", title: "ВОПРОСЫ И ОТВЕТЫ" },
+  // { id: "reviews", title: "ОТЗЫВЫ" },
+  // { id: "questions", title: "ВОПРОСЫ И ОТВЕТЫ" },
 ]);
 
 const activeTab = ref("description");
@@ -119,51 +119,73 @@ const toggleFavorite = async () => {
                   </p>
                 </div>
               </div>
-
+              
               <div class="flex flex-col sm:flex-row gap-3">
-                <button class="bg-second hover:bg-second-hover text-white py-3 px-6 rounded-lg font-medium transition">
+                <button class="bg-primary hover:bg-second-hover text-white py-3 px-6 rounded-lg font-medium transition">
                   В корзину
                 </button>
-                <button class="bg-gray-200 hover:bg-gray-300 text-dark py-3 px-6 rounded-lg font-medium transition">
+                <button class="bg-danger hover:bg-gray-300 text-white py-3 px-6 rounded-lg font-medium transition">
                   Быстрый заказ
                 </button>
               </div>
             </div>
           </div>
+          <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+  <h2 class="text-xl font-bold mb-4">Основные характеристики</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Первая колонка -->
+    <div class="space-y-6">
+      <div>
+        <h3 class="font-semibold text-gray-700 mb-2">Основные</h3>
+        <ul class="space-y-3">
+          <li class="flex justify-between">
+            <span class="text-gray-500">Модель</span>
+            <span class="font-medium">Galaxy S23 Ultra</span>
+          </li>
+          <li class="flex justify-between">
+            <span class="text-gray-500">Год выпуска</span>
+            <span class="font-medium">2023</span>
+          </li>
+          <li class="flex justify-between">
+            <span class="text-gray-500">Цвет</span>
+            <span class="font-medium">Черный</span>
+          </li>
+          <li class="flex justify-between">
+            <span class="text-gray-500">Материал корпуса</span>
+            <span class="font-medium">Стекло, алюминий</span>
+          </li>
+        </ul>
+      </div>
+    </div>
 
-          <!-- <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h3 class="text-xl font-bold mb-4">Основные характеристики</h3>
-            <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <li v-if="product.specifications.maxTorque" class="flex gap-2">
-                <span class="font-medium text-gray">Макс. крутящий момент:</span>
-                <span>{{ product.specifications.maxTorque }}</span>
-              </li>
-              <li v-if="product.specifications.batteryType" class="flex gap-2">
-                <span class="font-medium text-gray">Тип аккумулятора:</span>
-                <span>{{ product.specifications.batteryType }}</span>
-              </li>
-              <li v-if="product.specifications.batteryVoltage" class="flex gap-2">
-                <span class="font-medium text-gray">Напряжение аккумулятора:</span>
-                <span>{{ product.specifications.batteryVoltage }}</span>
-              </li>
-              <li v-if="product.specifications.maxDrillDiameterMetal" class="flex gap-2">
-                <span class="font-medium text-gray">Макс. диаметр сверления (металл):</span>
-                <span>{{ product.specifications.maxDrillDiameterMetal }}</span>
-              </li>
-              <li v-if="product.specifications.maxDrillDiameterWood" class="flex gap-2">
-                <span class="font-medium text-gray">Макс. диаметр сверления (дерево):</span>
-                <span>{{ product.specifications.maxDrillDiameterWood }}</span>
-              </li>
-              <li v-if="product.specifications.chargerIncluded" class="flex gap-2">
-                <span class="font-medium text-gray">Зарядное устройство:</span>
-                <span>{{ product.specifications.chargerIncluded }}</span>
-              </li>
-              <li v-if="product.specifications.netWeight" class="flex gap-2">
-                <span class="font-medium text-gray">Вес нетто:</span>
-                <span>{{ product.specifications.netWeight }}</span>
-              </li>
-            </ul>
-          </div> -->
+    <!-- Вторая колонка -->
+    <div class="space-y-6">
+      <div>
+        <h3 class="font-semibold text-gray-700 mb-2">Экран</h3>
+        <ul class="space-y-3">
+          <li class="flex justify-between">
+            <span class="text-gray-500">Диагональ</span>
+            <span class="font-medium">6.8"</span>
+          </li>
+          <li class="flex justify-between">
+            <span class="text-gray-500">Разрешение</span>
+            <span class="font-medium">3088 × 1440</span>
+          </li>
+          <li class="flex justify-between">
+            <span class="text-gray-500">Технология</span>
+            <span class="font-medium">Dynamic AMOLED 2X</span>
+          </li>
+          <li class="flex justify-between">
+            <span class="text-gray-500">Частота обновления</span>
+            <span class="font-medium">120 Гц</span>
+          </li>
+        </ul>
+      </div>
+
+
+    </div>
+  </div>
+</div>
         </div>
       </div>
 
@@ -185,98 +207,64 @@ const toggleFavorite = async () => {
       </div>
 
       <div>
-        <div v-show="activeTab === 'description'" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div class="lg:col-span-2">
-            <div v-if="product.description" class="mb-8">
-              <h3 class="text-xl font-bold mb-4">Описание</h3>
-              <div>
-                {{ product.description.slice(0, 600) }}
-              </div>
-            </div>
-
-            <div class="mb-8">
-              <h3 class="text-xl font-bold mb-4">Технические характеристики</h3>
-              <div class="overflow-x-auto w-full">
-                <table class="min-w-full divide-y divide-gray-200">
-                  <thead>
-                    <tr>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray uppercase tracking-wider">
-                        Параметр
-                      </th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray uppercase tracking-wider">
-                        Значение
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody class="divide-y divide-gray-200">
-                    <template v-for="(category, name) in product?.specifications" :key="name">
-                      <tr class="bg-gray-50">
-                        <td colspan="2" class="px-6 py-3 text-sm uppercase font-bold text-gray-900">
-                          {{ name }}
-                        </td>
-                      </tr>
-                      <tr v-for="(title, value) in category" :key="title">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-dark">{{ value }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-dark">{{ title }}</td>
-                      </tr>
-                    </template>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <div class="rounded-lg p-6 mb-6">
-              <h3 class="text-xl font-bold mb-4">{{ product.brand }}</h3>
-              <p class="text-gray mb-4">Все товары бренда</p>
-
-              <!-- <div v-if="product.brand" class="space-y-3">
-                <div class="flex items-center">
-                  <img src="" alt="Южная Корея" class="w-5 h-5 mr-2" />
-                  <span class="text-dark">Южная Корея — родина бренда</span>
-                </div>
-                <div class="flex items-center">
-                  <img src="" alt="Китай" class="w-5 h-5 mr-2" />
-                  <span class="text-dark">Китай — страна производства</span>
-                </div>
-              </div> -->
-            </div>
-
-            <!-- <div v-if="packagingInfo.length" class="rounded-lg p-6 mb-6">
-              <h3 class="text-xl font-bold mb-4">Комплектация</h3>
-              <ul class="list-disc pl-5 space-y-2">
-                <li v-for="(item, index) in packagingInfo" :key="index">{{ item }}</li>
-              </ul>
-            </div> -->
-
-            <!-- <div class="rounded-lg p-6">
-              <h3 class="text-xl font-bold mb-4">Информация об упаковке</h3>
-              <div class="space-y-2">
-                <p v-for="(value, key) in product.packagingDetails" :key="key" class="text-dark">
-                  {{
-                    key === "weight"
-                      ? "Вес, кг"
-                      : key === "length"
-                      ? "Длина, мм"
-                      : key === "width"
-                      ? "Ширина, мм"
-                      : "Высота, мм"
-                  }}: {{ value }}
-                </p>
-              </div>
-            </div> -->
-          </div>
-        </div>
-
-        <div v-show="activeTab === 'reviews'">
-          <p>Отзывы о товаре</p>
-        </div>
-
-        <div v-show="activeTab === 'questions'">
-          <p>Вопросы и ответы</p>
+  <div v-show="activeTab === 'description'" class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <!-- Основной контент (описание и характеристики) -->
+    <div class="lg:col-span-3">
+      <div v-if="product.description" class="mb-8">
+        <h3 class="text-2xl font-bold mb-4">Описание</h3>
+        <div class="text-xs leading-relaxed">
+          {{ product.description.slice(0, 1000) }}
         </div>
       </div>
+
+      <div class="mb-8">
+  <h3 class="text-xl font-bold mb-4">Технические характеристики</h3>
+  <div class="overflow-x-auto w-full">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead>
+        <tr>
+          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Параметр
+          </th>
+          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Значение
+          </th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200">
+        <template v-for="(category, name) in product?.specifications" :key="name">
+          <tr class="bg-gray-50">
+            <td colspan="2" class="px-4 py-2 text-xs uppercase font-bold text-gray-700">
+              {{ name }}
+            </td>
+          </tr>
+          <tr v-for="(title, value) in category" :key="title">
+            <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{{ value }}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ title }}</td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </div>
+</div>
+    </div>
+
+    <!-- Боковая панель с брендом -->
+    <div class="sticky top-4 h-fit">
+      <div class="rounded-lg p-6 bg-gray-50 ">
+        <h3 class="text-2xl font-bold mb-4">{{ product.brand }}</h3>
+        <p class="text-gray-600 mb-6 text-gray">Все товары бренда</p>
+        
+        <NuxtLink 
+          to="#" 
+          class="block w-full bg-second hover:bg-second-hover text-white py-3 px-6 rounded-lg font-medium text-center transition"
+        >
+          Смотреть все товары
+        </NuxtLink>
+      </div>
+    </div>
+  </div>
+</div>
     </div>
 
     <div v-else class="flex justify-center items-center h-64">
