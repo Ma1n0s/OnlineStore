@@ -19,8 +19,8 @@ const orders = [
     amount: '6 734 ₽',
     paid: false,
     products: [
-      { id: 1, name: 'Товар 1', image: 'https://via.placeholder.com/80' },
-      { id: 2, name: 'Товар 2', image: 'https://via.placeholder.com/80' }
+      { id: 1, name: 'Товар 1', image: 'Categories/Instruments.png' },
+      { id: 2, name: 'Товар 2', image: 'Categories/Instruments.png' }
     ]
   },
 ]

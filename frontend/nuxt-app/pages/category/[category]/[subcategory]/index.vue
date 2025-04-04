@@ -309,14 +309,14 @@ const toggleBrand = (brand) => {
             :class="{ 'bg-gray-100 text-red-600': state.ui.isGrid }"
             class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            <NuxtImg src="interface-design-structure-outline.svg" alt="Плитка" width="20" height="20" class="h-5 w-5" />
+            <NuxtImg src="four-squares-button-of-view-options.svg" alt="Плитка" width="20" height="20" class="h-5 w-5" />
           </button>
           <button
             @click="showList"
             :class="{ 'bg-gray-100 text-red-600': !state.ui.isGrid }"
             class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            <NuxtImg src="list-view.svg" alt="Список" width="20" height="20" class="h-5 w-5" />
+            <NuxtImg src="interface-design-structure-outline.svg" alt="Список" width="20" height="20" class="h-5 w-5" />
           </button>
         </div>
       </div>
@@ -564,7 +564,7 @@ const toggleBrand = (brand) => {
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-xl font-bold text-gray-900">Все фильтры</h2>
           <button @click="toggleFilters" class="text-gray-500 hover:text-gray-700 transition-colors">
-            <NuxtImg src="close.svg" alt="Закрыть" width="24" height="24" class="h-6 w-6" />
+            <NuxtImg src="Krestiks.svg" alt="Закрыть" width="24" height="24" class="h-6 w-6" />
           </button>
         </div>
 

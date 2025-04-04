@@ -19,8 +19,8 @@ const orders = [
     amount: '6 734 ₽',
     paid: false,
     products: [
-      { id: 1, name: 'Товар 1', image: 'https://via.placeholder.com/80' },
-      { id: 2, name: 'Товар 2', image: 'https://via.placeholder.com/80' }
+      { id: 1, name: 'Товар 1', image: 'Categories/Instruments.png' },
+      { id: 2, name: 'Товар 2', image: 'Categories/Instruments.png' }
     ]
   },
 ]
@@ -193,13 +193,13 @@ const orders = [
             </span>
             
             <div class="flex -space-x-2">
-              <img 
+              <NuxtImg 
                 v-for="product in order.products" 
                 :key="product.id" 
                 :src="product.image" 
                 :alt="product.name" 
                 class="w-10 h-10 rounded-full border-2 border-white object-cover"
-              >
+              />
             </div>
           </div>
           
