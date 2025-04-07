@@ -134,6 +134,7 @@ const breadcrumbs = ref([
 							</div>
 						</div>
 					</div>
+					<!-- Основные характеристики -->
 					<DescriptionBlock />
 				</div>
 			</div>
@@ -165,7 +166,7 @@ const breadcrumbs = ref([
 								{{ product.description.slice(0, 1000) }}
 							</div>
 						</div>
-
+						<!-- Техническое описание -->
 						<SpecificationsBlock />
 					</div>
 
