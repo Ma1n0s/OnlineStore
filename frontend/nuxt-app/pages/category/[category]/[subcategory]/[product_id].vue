@@ -2,6 +2,9 @@
 import { ref, onMounted, reactive } from 'vue'
 import { productData } from '~/shared/productData'
 import type { Product } from '~/types/product.types'
+
+import Breadcrumbs from '~/components/BreadCrumbs/Breadcrumbs.vue'
+
 const route = useRoute()
 
 // @ts-ignore
@@ -42,21 +45,23 @@ onMounted(() => {
 const toggleFavorite = async () => {
 	isFavorite.value = !isFavorite.value
 }
+
+const breadcrumbs = ref([
+	{
+		url: '/',
+		name: 'Главная',
+		color: '#',
+	},
+	{ url: '/catalog', name: 'Каталог', color: '#6b7280' },
+	{ url: `/catalog/${product.category?.slug}`, name: product.category?.name || 'Категория', color: '#6b7280' },
+	{ url: '', name: product.name || 'Товар', color: '#000000' },
+])
+//типы для typescr интерфейсы
 </script>
 
 <template>
 	<div class="container mx-auto px-4 md:px-6 lg:px-8 py-8">
-		<nav class="flex flex-wrap items-center gap-2 text-gray mb-4">
-			<NuxtLink to="/" class="hover:underline">Главная</NuxtLink>
-			<span>/</span>
-			<NuxtLink to="#" class="font-semibold">{{ route.params.category }}</NuxtLink>
-			<span>/</span>
-			<NuxtLink to="#" class="font-semibold">{{ route.params.subcategory }}</NuxtLink>
-			<span>/</span>
-			<NuxtLink to="#" class="font-semibold">{{ product.name }}</NuxtLink>
-			<span>/</span>
-			<NuxtLink to="#" class="font-semibold">{{ product.brand || 'Назавние Бренда' }}</NuxtLink>
-		</nav>
+		<Breadcrumbs :list="breadcrumbs" />
 
 		<div v-if="!loading">
 			<h2 class="font-bold text-2xl mb-2">{{ product.title }}</h2>
