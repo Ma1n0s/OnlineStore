@@ -1,4 +1,16 @@
 <script setup>
+const route = useRoute();
+
+useHead({
+  title: `${route.params.subsubcategory} | Абсолют техно`,
+  meta: [
+    {
+      name: "description",
+      content: `Инструменты для строительства и ремота, категория ${route.params.subsubcategory}`,
+    },
+  ],
+});
+
 import CategoryDescription from "~/components/CategoryItems/CategoryDescription/CategoryDescription.vue";
 import { catalogDescription } from "~/shared/mock/CatalogDescription";
 import { reactive, computed } from "vue";

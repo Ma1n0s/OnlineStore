@@ -35,6 +35,10 @@ export default defineNuxtConfig({
 
   app: {
     head: {
+      title: "Строительный магазин Абсолют техно",
+      htmlAttrs: {
+        lang: "ru",
+      },
       link: [{ rel: "icon", type: "image/x-icon", href: "/logo_test.svg" }],
     },
   },
