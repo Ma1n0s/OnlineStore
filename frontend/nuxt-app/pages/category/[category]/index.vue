@@ -106,24 +106,7 @@ const state = reactive({
         <NuxtLink to="#" class="text-primary hover:underline mt-2 md:mt-0">Как выбрать электроинструмент</NuxtLink>
       </div>
 
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
-        <NuxtLink
-          v-for="(product, index) in state.products"
-          :key="index"
-          to="/category/instuments/wire"
-          class="bg-gray-100 flex flex-col justify-between rounded-lg p-4 h-full hover:bg-gray-300 transition duration-200 ease-in-out shadow-md"
-        >
-          <div class="font-medium">{{ product.name }}</div>
-          <NuxtImg
-            :src="product.image"
-            :alt="product.name"
-            class="self-end mt-2 object-contain"
-            width="40"
-            height="40"
-            format="webp"
-          />
-        </NuxtLink>
-      </div>
+      <CategoryList class="mb-8" />
 
       <div class="mb-8">
         <h2 class="text-xl font-semibold mb-4">Часто ищут</h2>
