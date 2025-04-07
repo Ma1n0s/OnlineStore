@@ -125,7 +125,7 @@ const filteredItems = computed(() => {
 			:class="state.ui.isGrid ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5' : 'space-y-5'"
 		>
 			<div
-				v-for="item in visibleItems"
+				v-for="item in filteredItems.slice(0, state.ui.visibleItems)"
 				:key="item.id"
 				:class="
 					state.ui.isGrid
