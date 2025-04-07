@@ -3,7 +3,7 @@ import BrandSwiper from "~/components/Swiper/BrandSwiper.vue";
 import CategorySwiper from "~/components/Swiper/CategorySwiper.vue";
 import ProductSwiper from "~/components/Swiper/ProductSwiper/ProductSwiper.vue";
 import BigSwiper from "~/components/Swiper/BigSwiper.vue";
-import CategoryList from "~/components/CategoryList/CategoryList.vue";
+import CategoryList from "~/components/CategoryItems/CategoryList/CategoryList.vue";
 </script>
 <template>
   <div class="bg-white w-full ~text-sm/xs ~p-4/8 flex flex-col items-center">

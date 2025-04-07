@@ -1,4 +1,8 @@
 <script setup>
+import CategoryDescription from "~/components/CategoryItems/CategoryDescription/CategoryDescription.vue";
+import CategoryList from "~/components/CategoryItems/CategoryList/CategoryList.vue";
+import { catalogDescription } from "~/shared/mock/CatalogDescription";
+
 const state = reactive({
   popularTags: [
     "Пылесосы с розеткой для электроинструмента",
@@ -105,6 +109,8 @@ const state = reactive({
         </div>
         <NuxtLink to="#" class="text-primary hover:underline mt-2 md:mt-0">Как выбрать электроинструмент</NuxtLink>
       </div>
+
+      <CategoryDescription :data="catalogDescription" />
 
       <CategoryList class="mb-8" />
 

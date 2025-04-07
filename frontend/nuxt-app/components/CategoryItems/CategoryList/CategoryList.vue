@@ -24,12 +24,12 @@ const categories = ref([
   {
     name: "Электрика",
     src: "/Categories/Wire.png",
-    path: "/category/wire",
+    path: "category",
   },
   {
     name: "Крепеж и фурнитура",
     src: "/Categories/Dowel.png",
-    path: "/category/dowel",
+    path: "category/dowel",
   },
   { name: "Станки", src: "/Categories/Schlefmachine.png", path: "/category/schlefmachine" },
   {

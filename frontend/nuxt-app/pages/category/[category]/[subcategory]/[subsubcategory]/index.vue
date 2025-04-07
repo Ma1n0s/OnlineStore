@@ -494,7 +494,7 @@ const toggleBrand = (brand) => {
                 <span class="text-gray-500 text-xs">Код: {{ item.code }}</span>
               </div>
 
-              <NuxtLink to="/category/instrument/wire/1" class="block">
+              <NuxtLink to="1/1" class="block">
                 <h3
                   class="font-medium text-gray-900 hover:text-red-600 transition-colors line-clamp-2 mb-2 min-h-[2.5rem]"
                 >
