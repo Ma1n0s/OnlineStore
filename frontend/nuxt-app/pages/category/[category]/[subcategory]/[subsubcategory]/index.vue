@@ -17,7 +17,6 @@ import { reactive, computed } from "vue";
 import TextInput from "~/components/ui/Inputs/TextInput.vue";
 import Button from "~/components/ui/Button/Button.vue";
 
-// Состояние приложения
 const state = reactive({
   priceRange: {
     min: 0,
