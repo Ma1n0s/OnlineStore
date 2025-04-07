@@ -3,6 +3,8 @@ import { ref, onMounted, reactive } from 'vue'
 import { productData } from '~/shared/productData'
 import type { Product } from '~/types/product.types'
 
+import DescriptionBlock from '~/components/Product/DescriptionBlock.vue'
+import SpecificationsBlock from '~/components/Product/SpecificationsBlock.vue'
 import Breadcrumbs from '~/components/BreadCrumbs/Breadcrumbs.vue'
 
 const route = useRoute()
@@ -68,7 +70,7 @@ const breadcrumbs = ref([
 			<div class="flex flex-wrap gap-4 mb-6">
 				<p class="text-sm" v-if="product.code">Код товара: {{ product.code }}</p>
 				<div class="flex items-center gap-2" v-if="product.reviewsCount || product.questionsCount">
-					<Icon v-for="i in 5" :key="i" name="tabler:star" class="w-4 h-4" />
+					<Icon v-for="i in 5" :key="i" name="tabler:star" class="w-6 h-6" />
 					<p class="text-sm">
 						<span>10 отзывов</span>
 						<span> | </span>
@@ -77,12 +79,12 @@ const breadcrumbs = ref([
 				</div>
 
 				<div class="flex items-center gap-2" v-if="product.warranty">
-					<Icon name="tabler:clipboard-smile" class="w-4 h-4" />
+					<Icon name="tabler:clipboard-smile" class="w-6 h-6" />
 					<p class="text-sm">Гарантия производителя {{ product.warranty }}</p>
 				</div>
 
 				<div class="flex items-center gap-2 cursor-pointer" @click="toggleFavorite">
-					<Icon :name="isFavorite ? 'tabler:heart-filled' : 'tabler:heart'" class="w-4 h-4" />
+					<Icon :name="isFavorite ? 'tabler:heart-filled' : 'tabler:heart'" class="w-6 h-6" />
 					<p class="text-sm">{{ isFavorite ? 'В избранном' : 'В избранное' }}</p>
 				</div>
 			</div>
@@ -129,66 +131,10 @@ const breadcrumbs = ref([
 								<button class="bg-primary hover:bg-second-hover text-white py-3 px-6 rounded-lg font-medium transition">
 									В корзину
 								</button>
-								<button class="bg-danger hover:bg-gray-300 text-white py-3 px-6 rounded-lg font-medium transition">
-									Быстрый заказ
-								</button>
 							</div>
 						</div>
 					</div>
-					<div class="bg-white rounded-lg shadow-md p-6 mb-6">
-						<h2 class="text-xl font-bold mb-4">Основные характеристики</h2>
-						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-							<!-- Первая колонка -->
-							<div class="space-y-6">
-								<div>
-									<h3 class="font-semibold text-gray-700 mb-2">Основные</h3>
-									<ul class="space-y-3">
-										<li class="flex justify-between">
-											<span class="text-gray-500">Модель</span>
-											<span class="font-medium">Galaxy S23 Ultra</span>
-										</li>
-										<li class="flex justify-between">
-											<span class="text-gray-500">Год выпуска</span>
-											<span class="font-medium">2023</span>
-										</li>
-										<li class="flex justify-between">
-											<span class="text-gray-500">Цвет</span>
-											<span class="font-medium">Черный</span>
-										</li>
-										<li class="flex justify-between">
-											<span class="text-gray-500">Материал корпуса</span>
-											<span class="font-medium">Стекло, алюминий</span>
-										</li>
-									</ul>
-								</div>
-							</div>
-
-							<!-- Вторая колонка -->
-							<div class="space-y-6">
-								<div>
-									<h3 class="font-semibold text-gray-700 mb-2">Экран</h3>
-									<ul class="space-y-3">
-										<li class="flex justify-between">
-											<span class="text-gray-500">Диагональ</span>
-											<span class="font-medium">6.8"</span>
-										</li>
-										<li class="flex justify-between">
-											<span class="text-gray-500">Разрешение</span>
-											<span class="font-medium">3088 × 1440</span>
-										</li>
-										<li class="flex justify-between">
-											<span class="text-gray-500">Технология</span>
-											<span class="font-medium">Dynamic AMOLED 2X</span>
-										</li>
-										<li class="flex justify-between">
-											<span class="text-gray-500">Частота обновления</span>
-											<span class="font-medium">120 Гц</span>
-										</li>
-									</ul>
-								</div>
-							</div>
-						</div>
-					</div>
+					<DescriptionBlock />
 				</div>
 			</div>
 
@@ -220,36 +166,7 @@ const breadcrumbs = ref([
 							</div>
 						</div>
 
-						<div class="mb-8">
-							<h3 class="text-xl font-bold mb-4">Технические характеристики</h3>
-							<div class="overflow-x-auto w-full">
-								<table class="min-w-full divide-y divide-gray-200">
-									<thead>
-										<tr>
-											<th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-												Параметр
-											</th>
-											<th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-												Значение
-											</th>
-										</tr>
-									</thead>
-									<tbody class="divide-y divide-gray-200">
-										<template v-for="(category, name) in product?.specifications" :key="name">
-											<tr class="bg-gray-50">
-												<td colspan="2" class="px-4 py-2 text-xs uppercase font-bold text-gray-700">
-													{{ name }}
-												</td>
-											</tr>
-											<tr v-for="(title, value) in category" :key="title">
-												<td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{{ value }}</td>
-												<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ title }}</td>
-											</tr>
-										</template>
-									</tbody>
-								</table>
-							</div>
-						</div>
+						<SpecificationsBlock />
 					</div>
 
 					<!-- Боковая панель с брендом -->
