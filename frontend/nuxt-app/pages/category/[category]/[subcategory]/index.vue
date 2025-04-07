@@ -1,6 +1,6 @@
 <script setup>
-import CategoryDescription from "~/components/CategoryItems/CategoryDescription/CategoryDescription.vue";
 import CategoryList from "~/components/CategoryItems/CategoryList/CategoryList.vue";
+import CategoryDescription from "~/components/CategoryItems/CategoryDescription/CategoryDescription.vue";
 import { catalogDescription } from "~/shared/mock/CatalogDescription";
 
 const state = reactive({

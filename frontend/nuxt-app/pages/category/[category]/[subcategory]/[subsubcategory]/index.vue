@@ -1,4 +1,6 @@
 <script setup>
+import CategoryDescription from "~/components/CategoryItems/CategoryDescription/CategoryDescription.vue";
+import { catalogDescription } from "~/shared/mock/CatalogDescription";
 import { reactive, computed } from "vue";
 import TextInput from "~/components/ui/Inputs/TextInput.vue";
 import Button from "~/components/ui/Button/Button.vue";
@@ -260,27 +262,7 @@ const toggleBrand = (brand) => {
     </nav>
 
     <!-- Категории -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-8">
-      <div
-        v-for="i in 4"
-        :key="i"
-        class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 overflow-hidden group"
-      >
-        <div class="p-4">
-          <div class="font-bold text-gray-900 group-hover:text-red-600 transition-colors">Шуруповерты</div>
-          <p class="text-gray-500 text-sm mt-1">4 754 товара</p>
-          <NuxtImg
-            src="Categories/Instruments.png"
-            alt="Шуруповерты"
-            class="w-full h-32 object-contain mt-3"
-            width="300"
-            height="300"
-            loading="lazy"
-            format="webp"
-          />
-        </div>
-      </div>
-    </div>
+    <CategoryDescription :data="catalogDescription" />
 
     <!-- Заголовок результатов -->
     <div
