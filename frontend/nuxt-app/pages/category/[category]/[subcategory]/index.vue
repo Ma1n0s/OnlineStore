@@ -2,6 +2,7 @@
 import { reactive, computed } from 'vue'
 import TextInput from '~/components/ui/Inputs/TextInput.vue'
 import Button from '~/components/ui/Button/Button.vue'
+import Breadcrumbs from '~/components/BreadCrumbs/Breadcrumbs.vue'
 
 // Состояние приложения
 const state = reactive({
@@ -251,13 +252,7 @@ const toggleBrand = brand => {
 <template>
 	<div class="container mx-auto px-4 md:px-6 lg:px-8 py-6">
 		<!-- Хлебные крошки -->
-		<nav class="flex items-center text-sm text-gray-600 mb-6">
-			<NuxtLink to="/" class="hover:text-red-600 transition-colors">Главная</NuxtLink>
-			<span class="mx-2 text-gray-400">/</span>
-			<NuxtLink to="/category/troitelnyj-instrument" class="hover:text-red-600 transition-colors">Инструменты</NuxtLink>
-			<span class="mx-2 text-gray-400">/</span>
-			<NuxtLink to="" class="text-red-600 font-medium">Шуруповерты</NuxtLink>
-		</nav>
+		<Breadcrumbs :list="breadcrumbs" />
 
 		<!-- Категории -->
 		<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-8">
@@ -444,112 +439,6 @@ const toggleBrand = brand => {
 			</div>
 
 			<!-- Список товаров -->
-			<div class="w-full lg:w-3/4">
-				<div
-					v-if="filteredItems.length > 0"
-					:class="state.ui.isGrid ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5' : 'space-y-5'"
-				>
-					<div
-						v-for="item in visibleItems"
-						:key="item.id"
-						:class="
-							state.ui.isGrid
-								? 'bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 overflow-hidden flex flex-col h-full'
-								: 'bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 overflow-hidden flex'
-						"
-					>
-						<div :class="state.ui.isGrid ? 'relative h-48 flex-shrink-0' : 'relative w-1/3 flex-shrink-0'">
-							<NuxtImg
-								:src="item.image"
-								:alt="item.title"
-								:class="state.ui.isGrid ? 'w-full h-full object-contain p-4' : 'w-full h-full object-cover'"
-								width="300"
-								height="300"
-								loading="lazy"
-								format="webp"
-							/>
-							<button
-								:class="state.ui.isGrid ? 'absolute top-3 right-3' : 'absolute top-3 right-3'"
-								class="p-1 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors flex items-center justify-center"
-							>
-								<Icon name="tabler:heart" class="h-5 w-5" />
-							</button>
-							<div
-								v-if="item.discount"
-								:class="state.ui.isGrid ? 'absolute top-3 left-3' : 'absolute top-3 left-3'"
-								class="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded"
-							>
-								-{{ item.discount }}%
-							</div>
-						</div>
-
-						<div :class="state.ui.isGrid ? 'p-4 flex flex-col flex-grow' : 'w-2/3 p-4 flex flex-col'">
-							<div class="flex justify-between items-start mb-1">
-								<span class="text-gray-500 text-xs">Код: {{ item.code }}</span>
-							</div>
-
-							<NuxtLink to="/category/instrument/wire/1" class="block">
-								<h3
-									class="font-medium text-gray-900 hover:text-red-600 transition-colors line-clamp-2 mb-2 min-h-[2.5rem]"
-								>
-									{{ item.title }}
-								</h3>
-							</NuxtLink>
-
-							<p class="text-green-600 text-sm mb-3 flex items-center">В наличии > {{ item.stock }} шт.</p>
-
-							<div class="mb-3 flex-grow flex items-end">
-								<div>
-									<span class="text-gray-400 line-through text-sm mr-2">{{ item.oldPrice.toLocaleString() }} ₽</span>
-									<span class="text-red-600 font-bold text-lg">{{ item.price.toLocaleString() }} ₽</span>
-								</div>
-							</div>
-
-							<button
-								class="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors font-medium"
-							>
-								В корзину
-							</button>
-						</div>
-					</div>
-				</div>
-
-				<!-- Нет результатов -->
-				<div v-else class="bg-white rounded-lg shadow-sm p-8 text-center">
-					<NuxtImg src="/images/empty-state.png" alt="Товары не найдены" width="200" height="200" class="mx-auto" />
-					<h3 class="mt-4 text-lg font-medium text-gray-900">Товары не найдены</h3>
-					<p class="mt-1 text-gray-500">Попробуйте изменить параметры фильтрации</p>
-					<button
-						@click="resetPrice"
-						class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none"
-					>
-						Сбросить фильтры
-					</button>
-				</div>
-
-				<!-- Кнопка "Показать еще" -->
-				<div
-					class="flex justify-center mt-8"
-					v-if="state.ui.visibleItems < filteredItems.length && filteredItems.length > 0"
-				>
-					<button
-						@click="loadMoreItems"
-						:disabled="state.ui.isLoading"
-						class="bg-white border border-red-600 text-red-600 hover:bg-red-50 py-2 px-6 rounded-lg transition-colors font-medium flex items-center"
-					>
-						<span v-if="!state.ui.isLoading">Показать ещё</span>
-						<div
-							v-if="state.ui.isLoading"
-							class="animate-spin -ml-1 mr-2 h-5 w-5 text-red-600"
-							xmlns="http://www.w3.org/2000/svg"
-							fill="none"
-							viewBox="0 0 24 24"
-						>
-							4444444444
-						</div>
-					</button>
-				</div>
-			</div>
 		</div>
 
 		<transition name="fade">
