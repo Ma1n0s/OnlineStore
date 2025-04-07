@@ -1,14 +1,10 @@
+// интерфейс ICrumb
+
 <script setup>
 const { list } = defineProps({
 	list: {
 		type: Array,
-		default: () => [],
-		required: true,
-		validator: value => {
-			return value.every(
-				item => item.hasOwnProperty('url') && item.hasOwnProperty('name') && item.hasOwnProperty('color')
-			)
-		},
+		default: [],
 	},
 })
 </script>
