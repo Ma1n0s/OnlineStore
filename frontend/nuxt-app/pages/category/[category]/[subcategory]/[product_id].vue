@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive } from 'vue'
+import { ref, onMounted, reactive, computed } from 'vue'
 import { productData } from '~/shared/productData'
 import type { Product } from '~/types/product.types'
 
+// Импорты компонентов
 import DescriptionBlock from '~/components/Product/DescriptionBlock.vue'
 import SpecificationsBlock from '~/components/Product/SpecificationsBlock.vue'
 import Breadcrumbs from '~/components/BreadCrumbs/Breadcrumbs.vue'
@@ -14,20 +15,9 @@ import ActionsPanel from '~/components/Product/ActionsPanel.vue'
 
 const route = useRoute()
 
+// Данные продукта
 // @ts-ignore
 const product = reactive<Product>(productData)
-
-// const { data, status, error, refresh, clear } = await useFetch<Product>(
-//   `http://127.0.0.1:8000/api/products/${route.params.product_id}`
-// );
-
-// if (data.value) {
-//   Object.assign(product, data.value);
-//   console.log(JSON.stringify(product));
-// }
-
-// console.log(status.value);
-// console.log(error.value);
 
 // Вкладки
 const tabs = ref([
@@ -41,20 +31,26 @@ const isFavorite = ref(false)
 const loading = ref(true)
 const activeImage = ref(product?.images?.[0]?.src || '')
 
+// Хлебные крошки
+const breadcrumbs = computed(() => [
+	{ url: '/category', name: 'Каталог', color: '#6b7280' },
+	{
+		url: `/category/${product.category?.slug}`,
+		name: product.category?.name || 'Категория',
+		color: '#6b7280',
+	},
+	{
+		name: product.name || 'Товар',
+		color: '#000000',
+	},
+])
+
 onMounted(() => {
 	activeTab.value = 'description'
 	isFavorite.value = false
 	loading.value = false
-
 	console.log(product.specifications)
 })
-
-const breadcrumbs = ref([
-	{ url: '/category', name: 'Каталог', color: '#6b7280' },
-	{ url: `/category/${product.category?.slug}`, name: product.category?.name || 'Категория', color: '#6b7280' },
-	{ url: '', name: product.name || 'Товар', color: '#000000' },
-])
-//типы для typescr интерфейсы
 </script>
 
 <template>
