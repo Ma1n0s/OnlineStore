@@ -20,6 +20,7 @@ export default defineNuxtConfig({
     "@vueuse/nuxt",
     "nuxt-swiper",
     "@nuxtjs/google-fonts",
+    "nuxt-auth-sanctum",
   ],
 
   googleFonts: {
@@ -30,7 +31,24 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
-    public: {},
+    public: {
+      sanctum: {
+        baseUrl: import.meta.env.VITE_BACKEND || "http://localhost:8000", // Laravel API
+        mode: "cookie",
+        userStateKey: "sanctum.user.identity",
+        redirectIfAuthenticated: true,
+        redirectIfUnauthenticated: true,
+        endpoints: {
+          csrf: "/sanctum/csrf-cookie",
+          login: "/login",
+          logout: "/logout",
+        },
+        csrf: {
+          cookie: "XSRF-TOKEN",
+          header: "X-XSRF-TOKEN",
+        },
+      },
+    },
   },
 
   app: {
