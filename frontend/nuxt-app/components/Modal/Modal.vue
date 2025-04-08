@@ -1,5 +1,7 @@
+<!-- Заменить иконки из новой библиотеки и цвет на красный -->
+
 <script setup>
-import Button from "~/shared/ui/Button/Button.vue";
+import Button from "~/components/ui/Button/Button.vue";
 
 const props = defineProps({
   isOpen: {
