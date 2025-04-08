@@ -1,23 +1,29 @@
-// интерфейс ICrumb
+<script setup lang="ts">
+interface ICrumb {
+	name: string
+	url?: string
+	color?: string
+}
 
-<script setup>
-const { list } = defineProps({
-	list: {
-		type: Array,
-		default: [],
-	},
-})
+const { list } = defineProps<{ list: ICrumb }>()
 </script>
 
 <template>
-	<nav class="flex flex-wrap items-center gap-2 text-gray mb-4">
-		<template v-for="(item, index) in list" :key="index">
-			<div class="flex items-center gap-2">
-				<NuxtLink :to="item.url" :class="`text-${item.color}`" class="hover:underline">
-					{{ item.name }}
-				</NuxtLink>
-				<span v-if="index < list.length - 1">/</span>
-			</div>
+	<nav class="flex items-center gap-2 text-gray-600 dark:text-gray-400 mb-4 text-sm">
+		<NuxtLink to="/" class="hover:text-primary transition-colors" exact-active-class="text-primary font-medium">
+			Главная
+		</NuxtLink>
+
+		<template v-for="(crumb, index) in list" :key="index">
+			<Icon name="heroicons:chevron-right-20-solid" class="h-4 w-4 text-gray-400" />
+			<component
+				:is="crumb.url ? NuxtLink : div"
+				:to="crumb?.url"
+				:class="['transition-colors', crumb?.color ? `text-${crumb.color}` : 'hover:text-primary']"
+				exact-active-class="text-primary font-medium"
+			>
+				{{ crumb.name }}
+			</component>
 		</template>
 	</nav>
 </template>

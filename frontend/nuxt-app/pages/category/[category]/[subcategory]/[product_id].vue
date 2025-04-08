@@ -50,13 +50,8 @@ onMounted(() => {
 })
 
 const breadcrumbs = ref([
-	{
-		url: '/',
-		name: 'Главная',
-		color: '#',
-	},
-	{ url: '/catalog', name: 'Каталог', color: '#6b7280' },
-	{ url: `/catalog/${product.category?.slug}`, name: product.category?.name || 'Категория', color: '#6b7280' },
+	{ url: '/category', name: 'Каталог', color: '#6b7280' },
+	{ url: `/category/${product.category?.slug}`, name: product.category?.name || 'Категория', color: '#6b7280' },
 	{ url: '', name: product.name || 'Товар', color: '#000000' },
 ])
 //типы для typescr интерфейсы
