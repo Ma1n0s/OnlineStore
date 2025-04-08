@@ -1,44 +1,41 @@
-<template>
-  <div class="auth-form w-full max-w-md mx-auto p-4">
-    <!-- Переключатель между логином и телефоном -->
-    <div class="flex space-x-4 mb-4">
-      <button
-        @click="authType = 'login'"
-        :class="[
-          'focus:outline-none text-sm md:text-base',
-          authType === 'login' ? 'border-b-2 border-blue-500 font-semibold' : 'text-gray-700 hover:text-gray-900',
-        ]"
-      >
-        Обычный вход
-      </button>
-      <button
-        @click="authType = 'phone'"
-        :class="[
-          'focus:outline-none text-sm md:text-base',
-          authType === 'phone' ? 'border-b-2 border-blue-500 font-semibold' : 'text-gray-700 hover:text-gray-900',
-        ]"
-      >
-        Вход по телефону
-      </button>
-    </div>
-
-    <!-- Динамическое отображение формы -->
-    <component :is="authType === 'login' ? LoginForm : PhoneLoginForm" />
-  </div>
-</template>
-
 <script setup>
-import { ref } from 'vue';
-import LoginForm from './LoginForm.vue';
-import PhoneLoginForm from './PhoneLoginForm.vue';
+import { ref, computed } from 'vue'
+import LoginForm from './LoginForm.vue'
+import PhoneLoginForm from './PhoneLoginForm.vue'
 
-// Тип авторизации: 'login' или 'phone'
-const authType = ref('login');
+const authType = ref('login')
+
+const currentFormComponent = computed(() => {
+	return authType.value === 'login' ? LoginForm : PhoneLoginForm
+})
 </script>
 
-<style scoped>
-.auth-form {
-  max-width: 100%;
-  padding: 1rem;
-}
-</style>
+<template>
+	<div class="mx-auto p-8 bg-white rounded-2xl shadow-sm">
+		<div class="relative mb-8 flex bg-gray-100 p-1 rounded-lg">
+			<button
+				@click="authType = 'login'"
+				class="flex-1 py-2 px-4 text-sm font-medium text-center transition-colors"
+				:class="{
+					'text-primary bg-white rounded-md shadow-xs': authType === 'login',
+					'text-gray-500 hover:text-gray-700': authType !== 'login',
+				}"
+			>
+				Обычный вход
+			</button>
+
+			<button
+				@click="authType = 'phone'"
+				class="flex-1 py-2 px-4 text-sm font-medium text-center transition-colors"
+				:class="{
+					'text-primary bg-white rounded-md shadow-xs': authType === 'phone',
+					'text-gray-500 hover:text-gray-700': authType !== 'phone',
+				}"
+			>
+				Вход по коду
+			</button>
+		</div>
+
+		<component :is="currentFormComponent" />
+	</div>
+</template>
