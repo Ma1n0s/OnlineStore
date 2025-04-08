@@ -6,7 +6,7 @@ useHead({
 	meta: [
 		{
 			name: 'description',
-			content: `Инструменты для строительства и ремота, категория ${route.params.subsubcategory}`,
+			content: `Инструменты для строительства и ремонта, категория ${route.params.subsubcategory}`,
 		},
 	],
 })
@@ -15,6 +15,9 @@ import { ref, reactive, computed } from 'vue'
 import TextInput from '~/components/ui/Inputs/TextInput.vue'
 import Button from '~/components/ui/Button/Button.vue'
 import Breadcrumbs from '~/components/BreadCrumbs/Breadcrumbs.vue'
+import CategoryDescription from '~/components/CategoryItems/CategoryDescription/CategoryDescription.vue'
+import Filter from '~/components/ProductRibbon/Filter.vue'
+import ProductCartRibbon from '~/components/ProductRibbon/ProductCartRibbon.vue'
 
 const state = reactive({
 	priceRange: {
@@ -30,7 +33,7 @@ const state = reactive({
 	ui: {
 		showFilters: false,
 		isGrid: true,
-		visibleItems: 8,
+		visibleItems: 10,
 		isLoading: false,
 	},
 	filters: {
@@ -125,54 +128,43 @@ const state = reactive({
 			stock: 40,
 			brand: 'Black+Decker',
 		},
+		{
+			id: 9,
+			code: '15640690',
+			title: 'Шуруповерт Hilti SF 6H-A22',
+			image: 'Categories/Instruments.png',
+			price: 24990,
+			oldPrice: 28990,
+			discount: 14,
+			stock: 5,
+			brand: 'Hilti',
+		},
+		{
+			id: 10,
+			code: '15640691',
+			title: 'Шуруповерт Milwaukee M18 BPS-0',
+			image: 'Categories/Instruments.png',
+			price: 21990,
+			oldPrice: 25990,
+			discount: 15,
+			stock: 8,
+			brand: 'Milwaukee',
+		},
 	],
 })
 
-// Вычисляемые свойства
-const filteredItems = computed(() => {
-	return state.items.filter(item => {
-		const priceMatch = item.price >= state.priceRange.currentMin && item.price <= state.priceRange.currentMax
-		const brandMatch = state.filters.selectedBrands.length === 0 || state.filters.selectedBrands.includes(item.brand)
-		return priceMatch && brandMatch
-	})
+const visibleItems = computed(() => {
+	return state.items
+		.filter(item => {
+			const priceMatch = item.price >= state.priceRange.currentMin && item.price <= state.priceRange.currentMax
+			const brandMatch = state.filters.selectedBrands.length === 0 || state.filters.selectedBrands.includes(item.brand)
+			return priceMatch && brandMatch
+		})
+		.slice(0, state.ui.visibleItems)
 })
 
-const visibleItems = computed(() => filteredItems.value.slice(0, state.ui.visibleItems))
-
-// Методы
 const loadMoreItems = () => {
-	if (state.ui.isLoading) return
-	state.ui.isLoading = true
-
-	setTimeout(() => {
-		const newItems = [
-			{
-				id: state.items.length + 1,
-				code: '15640690',
-				title: 'Шуруповерт Hilti SF 6H-A22',
-				image: 'Categories/Instruments.png',
-				price: 24990,
-				oldPrice: 28990,
-				discount: 14,
-				stock: 5,
-				brand: 'Hilti',
-			},
-			{
-				id: state.items.length + 2,
-				code: '15640691',
-				title: 'Шуруповерт Milwaukee M18 BPS-0',
-				image: 'Categories/Instruments.png',
-				price: 21990,
-				oldPrice: 25990,
-				discount: 15,
-				stock: 8,
-				brand: 'Milwaukee',
-			},
-		]
-		state.items = [...state.items, ...newItems]
-		state.ui.visibleItems += 2
-		state.ui.isLoading = false
-	}, 1000)
+	state.ui.visibleItems += 10
 }
 
 const toggleFilters = () => {
@@ -260,22 +252,35 @@ const toggleBrand = brand => {
 		state.filters.selectedBrands = [...state.filters.selectedBrands, brand]
 	}
 }
+
+const catalogDescription = ref({
+	title: 'Шуруповерты',
+	description: 'Широкий выбор шуруповертов от ведущих производителей',
+})
 </script>
 
 <template>
 	<div class="container mx-auto px-4 md:px-6 lg:px-8 py-6">
-		<!-- Хлебные крошки -->
 		<Breadcrumbs :list="breadcrumbs" />
 
-		<!-- Категории -->
 		<CategoryDescription :data="catalogDescription" />
 
-		<!-- Заголовок результатов -->
 		<div
 			class="flex flex-col md:flex-row items-start md:items-center justify-between bg-white rounded-lg shadow-sm p-4 mb-6"
 		>
 			<p class="text-gray-700 mb-3 md:mb-0">
-				Найдено <span class="font-semibold">{{ filteredItems.length }} товара</span>
+				Найдено
+				<span class="font-semibold"
+					>{{
+						state.items.filter(item => {
+							const priceMatch = item.price >= state.priceRange.currentMin && item.price <= state.priceRange.currentMax
+							const brandMatch =
+								state.filters.selectedBrands.length === 0 || state.filters.selectedBrands.includes(item.brand)
+							return priceMatch && brandMatch
+						}).length
+					}}
+					товара</span
+				>
 			</p>
 
 			<div class="flex items-center space-x-4">
@@ -297,164 +302,33 @@ const toggleBrand = brand => {
 						:class="{ 'bg-gray-100 text-red-600': state.ui.isGrid }"
 						class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
 					>
-						<NuxtImg
-							src="four-squares-button-of-view-options.svg"
-							alt="Плитка"
-							width="20"
-							height="20"
-							class="h-5 w-5"
-						/>
+						<Icon name="tabler:layout-grid-filled" class="h-5 w-5" />
 					</button>
 					<button
 						@click="showList"
 						:class="{ 'bg-gray-100 text-red-600': !state.ui.isGrid }"
 						class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
 					>
-						<NuxtImg src="interface-design-structure-outline.svg" alt="Список" width="20" height="20" class="h-5 w-5" />
+						<Icon name="tabler:layout-list-filled" class="h-5 w-5" />
 					</button>
 				</div>
 			</div>
 		</div>
 
-      <div class="mb-8">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-xl font-bold">Статьи</h2>
-          <NuxtLink
-            to="#"
-            class="bg-gray-200 hover:bg-gray-300 rounded-md px-4 py-2 transition duration-200 ease-in-out"
-          >
-            Все статьи
-          </NuxtLink>
-        </div>
+		<div class="flex flex-col lg:flex-row gap-6">
+			<Filter
+				:state="state"
+				@toggleFilters="toggleFilters"
+				@resetPrice="resetPrice"
+				@toggleBrand="toggleBrand"
+				@handleMinPriceInput="handleMinPriceInput"
+				@handleMaxPriceInput="handleMaxPriceInput"
+				@updateMinPriceFromInput="updateMinPriceFromInput"
+				@updateMaxPriceFromInput="updateMaxPriceFromInput"
+				@handleSliderChange="handleSliderChange"
+			/>
 
-					<!-- Кнопки фильтров -->
-					<div class="space-y-3">
-						<button
-							@click="toggleFilters"
-							class="w-full flex items-center justify-center space-x-2 border border-gray-300 rounded-xl py-2 px-4 hover:bg-gray-50 transition-colors"
-						>
-							<NuxtImg src="filter.svg" alt="Фильтры" width="20" height="20" class="h-5 w-5" />
-							<span>Все фильтры</span>
-						</button>
-						<button
-							class="w-full bg-red-600 hover:bg-red-700 text-white rounded-xl py-2 px-4 transition-colors font-medium"
-						>
-							Показать {{ filteredItems.length }} товаров
-						</button>
-					</div>
-				</div>
-			</div>
-
-			<!-- Список товаров -->
-			<div class="w-full lg:w-3/4">
-				<div
-					v-if="filteredItems.length > 0"
-					:class="state.ui.isGrid ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5' : 'space-y-5'"
-				>
-					<div
-						v-for="item in visibleItems"
-						:key="item.id"
-						:class="
-							state.ui.isGrid
-								? 'bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 overflow-hidden flex flex-col h-full'
-								: 'bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 overflow-hidden flex'
-						"
-					>
-						<div :class="state.ui.isGrid ? 'relative h-48 flex-shrink-0' : 'relative w-1/3 flex-shrink-0'">
-							<NuxtImg
-								:src="item.image"
-								:alt="item.title"
-								:class="state.ui.isGrid ? 'w-full h-full object-contain p-4' : 'w-full h-full object-cover'"
-								width="300"
-								height="300"
-								loading="lazy"
-								format="webp"
-							/>
-							<button
-								:class="state.ui.isGrid ? 'absolute top-3 right-3' : 'absolute top-3 right-3'"
-								class="p-1 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
-							>
-								<NuxtImg src="heart2.svg" alt="В избранное" width="20" height="20" class="h-5 w-5" />
-							</button>
-							<div
-								v-if="item.discount"
-								:class="state.ui.isGrid ? 'absolute top-3 left-3' : 'absolute top-3 left-3'"
-								class="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded"
-							>
-								-{{ item.discount }}%
-							</div>
-						</div>
-
-						<div :class="state.ui.isGrid ? 'p-4 flex flex-col flex-grow' : 'w-2/3 p-4 flex flex-col'">
-							<div class="flex justify-between items-start mb-1">
-								<span class="text-gray-500 text-xs">Код: {{ item.code }}</span>
-							</div>
-
-							<NuxtLink to="1/1" class="block">
-								<h3
-									class="font-medium text-gray-900 hover:text-red-600 transition-colors line-clamp-2 mb-2 min-h-[2.5rem]"
-								>
-									{{ item.title }}
-								</h3>
-							</NuxtLink>
-
-							<p class="text-green-600 text-sm mb-3 flex items-center">
-								<NuxtImg src="check.svg" alt="В наличии" width="16" height="16" class="h-4 w-4 inline mr-1" />
-								В наличии > {{ item.stock }} шт.
-							</p>
-
-							<div class="mb-3 flex-grow flex items-end">
-								<div>
-									<span class="text-gray-400 line-through text-sm mr-2">{{ item.oldPrice.toLocaleString() }} ₽</span>
-									<span class="text-red-600 font-bold text-lg">{{ item.price.toLocaleString() }} ₽</span>
-								</div>
-							</div>
-
-							<button
-								class="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors font-medium"
-							>
-								В корзину
-							</button>
-						</div>
-					</div>
-				</div>
-
-				<!-- Нет результатов -->
-				<div v-else class="bg-white rounded-lg shadow-sm p-8 text-center">
-					<NuxtImg src="/images/empty-state.png" alt="Товары не найдены" width="200" height="200" class="mx-auto" />
-					<h3 class="mt-4 text-lg font-medium text-gray-900">Товары не найдены</h3>
-					<p class="mt-1 text-gray-500">Попробуйте изменить параметры фильтрации</p>
-					<button
-						@click="resetPrice"
-						class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none"
-					>
-						Сбросить фильтры
-					</button>
-				</div>
-
-				<!-- Кнопка "Показать еще" -->
-				<div
-					class="flex justify-center mt-8"
-					v-if="state.ui.visibleItems < filteredItems.length && filteredItems.length > 0"
-				>
-					<button
-						@click="loadMoreItems"
-						:disabled="state.ui.isLoading"
-						class="bg-white border border-red-600 text-red-600 hover:bg-red-50 py-2 px-6 rounded-lg transition-colors font-medium flex items-center"
-					>
-						<span v-if="!state.ui.isLoading">Показать ещё</span>
-						<div
-							v-if="state.ui.isLoading"
-							class="animate-spin -ml-1 mr-2 h-5 w-5 text-red-600"
-							xmlns="http://www.w3.org/2000/svg"
-							fill="none"
-							viewBox="0 0 24 24"
-						>
-							4444444444
-						</div>
-					</button>
-				</div>
-			</div>
+			<ProductCartRibbon :items="visibleItems" :isGrid="state.ui.isGrid" @loadMore="loadMoreItems" />
 		</div>
 
 		<transition name="fade">
@@ -530,7 +404,18 @@ const toggleBrand = brand => {
 						<h3 class="font-semibold text-gray-900 mb-3">Производители</h3>
 						<div class="space-y-2 max-h-60 overflow-y-auto pr-2">
 							<label
-								v-for="brand in ['Ryobi', 'Bosch', 'Makita', 'DeWalt', 'Metabo', 'Hitachi', 'AEG', 'Black+Decker']"
+								v-for="brand in [
+									'Ryobi',
+									'Bosch',
+									'Makita',
+									'DeWalt',
+									'Metabo',
+									'Hitachi',
+									'AEG',
+									'Black+Decker',
+									'Hilti',
+									'Milwaukee',
+								]"
 								:key="brand"
 								class="flex items-center space-x-2 py-1 hover:bg-gray-50 px-2 rounded cursor-pointer"
 								@click="toggleBrand(brand)"
@@ -549,7 +434,17 @@ const toggleBrand = brand => {
 						@click="toggleFilters"
 						class="w-full bg-red-600 hover:bg-red-700 text-white rounded-xl py-3 px-4 transition-colors duration-200 font-medium shadow-md hover:shadow-lg active:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
 					>
-						Показать {{ filteredItems.length }} товаров
+						Показать
+						{{
+							state.items.filter(item => {
+								const priceMatch =
+									item.price >= state.priceRange.currentMin && item.price <= state.priceRange.currentMax
+								const brandMatch =
+									state.filters.selectedBrands.length === 0 || state.filters.selectedBrands.includes(item.brand)
+								return priceMatch && brandMatch
+							}).length
+						}}
+						товаров
 					</button>
 				</div>
 			</div>

@@ -110,6 +110,14 @@ const state = reactive({
 		},
 	],
 })
+
+const showGrid = () => {
+	state.ui.isGrid = true
+}
+
+const showList = () => {
+	state.ui.isGrid = false
+}
 const filteredItems = computed(() => {
 	return state.items.filter(item => {
 		const priceMatch = item.price >= state.priceRange.currentMin && item.price <= state.priceRange.currentMax
@@ -117,6 +125,36 @@ const filteredItems = computed(() => {
 		return priceMatch && brandMatch
 	})
 })
+const visibleItems = computed(() => filteredItems.value.slice(0, state.ui.visibleItems))
+setTimeout(() => {
+	const newItems = [
+		{
+			id: state.items.length + 1,
+			code: '15640690',
+			title: 'Шуруповерт Hilti SF 6H-A22',
+			image: 'Categories/Instruments.png',
+			price: 24990,
+			oldPrice: 28990,
+			discount: 14,
+			stock: 5,
+			brand: 'Hilti',
+		},
+		{
+			id: state.items.length + 2,
+			code: '15640691',
+			title: 'Шуруповерт Milwaukee M18 BPS-0',
+			image: 'Categories/Instruments.png',
+			price: 21990,
+			oldPrice: 25990,
+			discount: 15,
+			stock: 8,
+			brand: 'Milwaukee',
+		},
+	]
+	state.items = [...state.items, ...newItems]
+	state.ui.visibleItems += 2
+	state.ui.isLoading = false
+}, 1000)
 </script>
 <template>
 	<div class="w-full lg:w-3/4">

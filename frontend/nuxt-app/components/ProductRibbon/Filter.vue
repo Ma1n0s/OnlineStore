@@ -1,123 +1,3 @@
-<script setup>
-const state = reactive({
-	priceRange: {
-		min: 0,
-		max: 30000,
-		currentMin: 0,
-		currentMax: 30000,
-		inputMin: 0,
-		inputMax: 30000,
-		minTimeout: null,
-		maxTimeout: null,
-	},
-	ui: {
-		showFilters: false,
-		isGrid: true,
-		visibleItems: 8,
-		isLoading: false,
-	},
-	filters: {
-		selectedBrands: [],
-	},
-	items: [
-		{
-			id: 1,
-			code: '15640682',
-			title: 'Дрель-шуруповерт Ryobi ONE+ R18DD3-220S 5133003348',
-			image: 'Categories/Instruments.png',
-			price: 13290,
-			oldPrice: 15990,
-			discount: 17,
-			stock: 100,
-			brand: 'Ryobi',
-		},
-		{
-			id: 2,
-			code: '15640683',
-			title: 'Дрель-шуруповерт Bosch GSR 12V-15 06019A8021',
-			image: 'Categories/Instruments.png',
-			price: 14290,
-			oldPrice: 16990,
-			discount: 16,
-			stock: 50,
-			brand: 'Bosch',
-		},
-		{
-			id: 3,
-			code: '15640684',
-			title: 'Шуруповерт Makita DF457DWE 165024-8',
-			image: 'Categories/Instruments.png',
-			price: 15290,
-			oldPrice: 17990,
-			discount: 15,
-			stock: 30,
-			brand: 'Makita',
-		},
-		{
-			id: 4,
-			code: '15640685',
-			title: 'Шуруповерт DeWalt DCD771C2',
-			image: 'Categories/Instruments.png',
-			price: 18990,
-			oldPrice: 21990,
-			discount: 14,
-			stock: 25,
-			brand: 'DeWalt',
-		},
-		{
-			id: 5,
-			code: '15640686',
-			title: 'Шуруповерт Metabo BS 18 LTX 600129700',
-			image: 'Categories/Instruments.png',
-			price: 16290,
-			oldPrice: 18990,
-			discount: 14,
-			stock: 20,
-			brand: 'Metabo',
-		},
-		{
-			id: 6,
-			code: '15640687',
-			title: 'Шуруповерт Hitachi DS18DSAL',
-			image: 'Categories/Instruments.png',
-			price: 13990,
-			oldPrice: 16990,
-			discount: 18,
-			stock: 15,
-			brand: 'Hitachi',
-		},
-		{
-			id: 7,
-			code: '15640688',
-			title: 'Шуруповерт AEG BSB 12C2-120X',
-			image: 'Categories/Instruments.png',
-			price: 14990,
-			oldPrice: 17990,
-			discount: 17,
-			stock: 10,
-			brand: 'AEG',
-		},
-		{
-			id: 8,
-			code: '15640689',
-			title: 'Шуруповерт Black+Decker BDCDD12K',
-			image: 'Categories/Instruments.png',
-			price: 8990,
-			oldPrice: 11990,
-			discount: 25,
-			stock: 40,
-			brand: 'Black+Decker',
-		},
-	],
-})
-const filteredItems = computed(() => {
-	return state.items.filter(item => {
-		const priceMatch = item.price >= state.priceRange.currentMin && item.price <= state.priceRange.currentMax
-		const brandMatch = state.filters.selectedBrands.length === 0 || state.filters.selectedBrands.includes(item.brand)
-		return priceMatch && brandMatch
-	})
-})
-</script>
 <template>
 	<div>
 		<!-- Фильтр по цене -->
@@ -191,7 +71,7 @@ const filteredItems = computed(() => {
 			<h3 class="font-semibold text-gray-900 mb-3">Производители</h3>
 			<div class="space-y-2 max-h-60 overflow-y-auto pr-2">
 				<label
-					v-for="brand in ['Ryobi', 'Bosch', 'Makita', 'DeWalt', 'Metabo', 'Hitachi', 'AEG', 'Black+Decker']"
+					v-for="brand in brands"
 					:key="brand"
 					class="flex items-center space-x-2 py-1 hover:bg-gray-50 px-2 rounded cursor-pointer"
 					@click="toggleBrand(brand)"
@@ -217,11 +97,55 @@ const filteredItems = computed(() => {
 				<span>Все фильтры</span>
 			</button>
 			<button class="w-full bg-red-600 hover:bg-red-700 text-white rounded-xl py-2 px-4 transition-colors font-medium">
-				Показать {{ filteredItems.length }} товаров
+				Показать {{ filteredItemsCount }} товаров
 			</button>
 		</div>
 	</div>
 </template>
+
+<script setup>
+import { computed } from 'vue'
+
+const props = defineProps({
+	state: {
+		type: Object,
+		required: true,
+	},
+})
+
+const emit = defineEmits([
+	'toggleFilters',
+	'resetPrice',
+	'toggleBrand',
+	'handleMinPriceInput',
+	'handleMaxPriceInput',
+	'updateMinPriceFromInput',
+	'updateMaxPriceFromInput',
+	'handleSliderChange',
+])
+
+const brands = ['Ryobi', 'Bosch', 'Makita', 'DeWalt', 'Metabo', 'Hitachi', 'AEG', 'Black+Decker', 'Hilti', 'Milwaukee']
+
+const filteredItemsCount = computed(() => {
+	return props.state.items.filter(item => {
+		const priceMatch =
+			item.price >= props.state.priceRange.currentMin && item.price <= props.state.priceRange.currentMax
+		const brandMatch =
+			props.state.filters.selectedBrands.length === 0 || props.state.filters.selectedBrands.includes(item.brand)
+		return priceMatch && brandMatch
+	}).length
+})
+
+// Методы, которые просто пробрасывают события
+const toggleFilters = () => emit('toggleFilters')
+const resetPrice = () => emit('resetPrice')
+const toggleBrand = brand => emit('toggleBrand', brand)
+const handleMinPriceInput = value => emit('handleMinPriceInput', value)
+const handleMaxPriceInput = value => emit('handleMaxPriceInput', value)
+const updateMinPriceFromInput = () => emit('updateMinPriceFromInput', props.state.priceRange.inputMin)
+const updateMaxPriceFromInput = () => emit('updateMaxPriceFromInput', props.state.priceRange.inputMax)
+const handleSliderChange = type => emit('handleSliderChange', type)
+</script>
 
 <style scoped>
 input[type='range']::-webkit-slider-thumb {
@@ -289,30 +213,5 @@ input[type='range']:first-of-type::-webkit-slider-thumb {
 
 input[type='range']:last-of-type::-webkit-slider-thumb {
 	z-index: 15;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-	transition: opacity 0.3s;
-}
-.fade-enter,
-.fade-leave-to {
-	opacity: 0;
-}
-
-.slide-enter-active,
-.slide-leave-active {
-	transition: transform 0.3s ease;
-}
-.slide-enter,
-.slide-leave-to {
-	transform: translateX(-100%);
-}
-
-.line-clamp-2 {
-	display: -webkit-box;
-	-webkit-line-clamp: 2;
-	-webkit-box-orient: vertical;
-	overflow: hidden;
 }
 </style>
