@@ -16,7 +16,6 @@ import ActionsPanel from '~/components/Product/ActionsPanel.vue'
 const route = useRoute()
 
 // Данные продукта
-// @ts-ignore
 const product = reactive<Product>(productData)
 
 // Вкладки
@@ -103,6 +102,18 @@ onMounted(() => {
 					<div class="sticky top-4 h-fit">
 						<BrandBlock />
 					</div>
+				</div>
+			</div>
+			<div class="border border-orange-200 bg-orange-50 p-4 rounded-lg">
+				<div class="flex items-center gap-4">
+					<div class="text-orange-800 font-medium">Спецпредложение! Набор инструментов со скидкой 15%</div>
+					<div class="w-52 h-10 bg-orange-600 flex items-center justify-center text-white font-bold rounded">-15%</div>
+				</div>
+				<div class="flex items-center gap-4 mt-4">
+					<div class="w-52 h-10 bg-orange-600 flex items-center justify-center text-white font-bold rounded">
+						Рассрочка 0%
+					</div>
+					<div class="text-orange-800 font-medium">Покупка в рассрочку без переплат</div>
 				</div>
 			</div>
 		</div>

@@ -136,7 +136,6 @@ const filteredItemsCount = computed(() => {
 	}).length
 })
 
-// Методы, которые просто пробрасывают события
 const toggleFilters = () => emit('toggleFilters')
 const resetPrice = () => emit('resetPrice')
 const toggleBrand = brand => emit('toggleBrand', brand)
