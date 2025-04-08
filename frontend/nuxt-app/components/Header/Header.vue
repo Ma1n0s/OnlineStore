@@ -13,11 +13,14 @@
       <Button v-if="isAuth" class="flex items-center gap-2 h-full"
         >{{ phone || name }} <Icon name="solar:user-outline" class="h-6 w-6"
       /></Button>
-      <Button class="flex items-center gap-2 h-full" v-else
+      <Button class="flex items-center gap-2 h-full" @click="openModal" v-else
         >Войти <Icon name="material-symbols:login-rounded" class="h-6 w-6"
       /></Button>
     </div>
   </div>
+  <Modal :isOpen="isModalOpen" @close="closeModal" @confirm="handleConfirm" title="">
+    <AuthForm />
+  </Modal>
 </template>
 
 <script setup lang="ts">
@@ -25,5 +28,22 @@ import Button from "~/components/ui/Button/Button.vue";
 import { useUserStore } from "~/stores/user";
 import CatalogButton from "../CatalogButton/CatalogButton.vue";
 import Search from "../Search/Search.vue";
+import Modal from "../Modal/Modal.vue";
+import AuthForm from "../Forms/AuthForm.vue";
+
 const { name, phone, isAuth } = useUserStore();
+
+const isModalOpen = ref(false);
+
+const openModal = () => {
+  isModalOpen.value = true;
+};
+
+const closeModal = () => {
+  isModalOpen.value = false;
+};
+
+const handleConfirm = () => {
+  closeModal();
+};
 </script>
