@@ -5,7 +5,7 @@ interface ICrumb {
 	color?: string
 }
 
-const { list } = defineProps<{ list: ICrumb }>()
+const props = defineProps<{ list: ICrumb[] }>() // Обратите внимание, что list должен быть массивом
 </script>
 
 <template>
@@ -14,12 +14,12 @@ const { list } = defineProps<{ list: ICrumb }>()
 			Главная
 		</NuxtLink>
 
-		<template v-for="(crumb, index) in list" :key="index">
+		<template v-for="(crumb, index) in props.list" :key="index">
 			<Icon name="heroicons:chevron-right-20-solid" class="h-4 w-4 text-gray-400" />
 			<component
-				:is="crumb.url ? NuxtLink : div"
-				:to="crumb?.url"
-				:class="['transition-colors', crumb?.color ? `text-${crumb.color}` : 'hover:text-primary']"
+				:is="crumb.url ? NuxtLink : 'div'"
+				:to="crumb.url"
+				:class="['transition-colors', crumb.color ? `text-${crumb.color}` : 'hover:text-primary']"
 				exact-active-class="text-primary font-medium"
 			>
 				{{ crumb.name }}
