@@ -1,14 +1,25 @@
-<script></script>
+<script setup lang="ts">
+useHead({
+  title: "О нас | Абсолют техно",
+  meta: [
+    {
+      name: "description",
+      content:
+        "Абсолют техно - ведущий поставщик строительных инструментов и товаров с 2023 года. Узнайте о нашей истории, миссии, команде и преимуществах для клиентов. Более 10 тысяч товаров в ассортименте.",
+    },
+  ],
+});
+</script>
 <template>
-<div class="flex mb-2">
-  <div class="bg-primary text-white w-10 h-10 ml-2 flex items-center justify-center">1</div>
-  <div class="bg-second text-white w-10 h-10 ml-2 flex items-center justify-center">2</div>
-  <div class="bg-danger text-white w-10 h-10 ml-2 flex items-center justify-center">3</div>
-  <div class="bg-white text-black w-10 h-10 ml-2 flex items-center justify-center">4</div>
-  <div class="bg-danger text-white w-10 h-10 ml-2 flex items-center justify-center">5</div>
-  <div class="bg-dark text-white w-10 h-10 ml-2 flex items-center justify-center">6</div>
-  <div class="bg-gray text-white w-10 h-10 ml-2 flex items-center justify-center">7</div>
-</div>
+  <div class="flex mb-2">
+    <div class="bg-primary text-white w-10 h-10 ml-2 flex items-center justify-center">1</div>
+    <div class="bg-second text-white w-10 h-10 ml-2 flex items-center justify-center">2</div>
+    <div class="bg-danger text-white w-10 h-10 ml-2 flex items-center justify-center">3</div>
+    <div class="bg-white text-black w-10 h-10 ml-2 flex items-center justify-center">4</div>
+    <div class="bg-danger text-white w-10 h-10 ml-2 flex items-center justify-center">5</div>
+    <div class="bg-dark text-white w-10 h-10 ml-2 flex items-center justify-center">6</div>
+    <div class="bg-gray text-white w-10 h-10 ml-2 flex items-center justify-center">7</div>
+  </div>
 
   <div class="bg-white text-dark min-h-screen">
     <!-- Main Content -->
@@ -17,9 +28,8 @@
       <section class="mb-8">
         <h2 class="text-2xl font-semibold mb-4">Наша история</h2>
         <p class="text-gray-700 leading-relaxed">
-          Мы начали свой путь в 2010 году с небольшого магазина инструментов в центре города. 
-          С тех пор мы выросли в крупную сеть, предлагающую широкий ассортимент качественных инструментов 
-          для профессионалов и любителей.
+          Мы начали свой путь в 2010 году с небольшого магазина инструментов в центре города. С тех пор мы выросли в
+          крупную сеть, предлагающую широкий ассортимент качественных инструментов для профессионалов и любителей.
         </p>
       </section>
 
@@ -27,8 +37,8 @@
       <section class="mb-8">
         <h2 class="text-2xl font-semibold mb-4">Наша миссия</h2>
         <p class="text-gray-700 leading-relaxed">
-          Наша миссия - предоставлять нашим клиентам лучшие инструменты по доступным ценам, 
-          помогая им воплощать свои проекты в жизнь.
+          Наша миссия - предоставлять нашим клиентам лучшие инструменты по доступным ценам, помогая им воплощать свои
+          проекты в жизнь.
         </p>
       </section>
 
@@ -73,9 +83,7 @@
           </div>
           <div class="bg-white border border-gray-200 p-6 rounded-lg shadow-sm">
             <h3 class="text-xl font-semibold mb-2">Удобство и поддержка</h3>
-            <p class="text-gray-700">
-              Быстрая доставка, удобная оплата и профессиональная поддержка 24/7.
-            </p>
+            <p class="text-gray-700">Быстрая доставка, удобная оплата и профессиональная поддержка 24/7.</p>
           </div>
         </div>
       </section>
@@ -99,10 +107,7 @@
         </div>
       </section>
 
-      <section>
-
-      </section>
+      <section></section>
     </main>
-
   </div>
 </template>
