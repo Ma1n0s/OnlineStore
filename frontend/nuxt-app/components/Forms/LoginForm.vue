@@ -2,6 +2,7 @@
 import { reactive } from "vue";
 import TextInput from "~/components/ui/Inputs/TextInput.vue";
 import Button from "~/components/ui/Button/Button.vue";
+import { emailRegex } from "~/shared/regexp";
 
 const form = reactive({
   email: "",
@@ -15,10 +16,12 @@ const form = reactive({
 const validate = () => {
   let valid = true;
 
+  const isValidEmail = emailRegex.test(form.email);
+
   if (!form.email) {
     form.emailError = "Пожалуйста, введите email";
     valid = false;
-  } else if (test(form.email)) {
+  } else if (!isValidEmail) {
     form.emailError = "Введите корректный email";
     valid = false;
   } else {
@@ -43,6 +46,28 @@ const handleLogin = async () => {
 
   try {
     form.isLoading = true;
+
+    await useSanctumFetch("/sanctum/csrf-cookie", {
+      method: "GET",
+      credentials: "include",
+    });
+
+    const { data } = await useSanctumFetch("/api/auth/email-password", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: form.email,
+        password: form.password,
+      }),
+    });
+
+    if (data.value && data.value.status === "success") {
+      setUser(data.value.user);
+      emit("close");
+      emit("login-success");
+    }
   } catch (error) {
     console.error("Login error:", error);
   } finally {
