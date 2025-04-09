@@ -7,6 +7,7 @@ import vuePlugin from 'eslint-plugin-vue'
 export default [
   js.configs.recommended,
   {
+    ignores: ['**/node_modules/**', '**/.output/**', '**/.nuxt/**'],
     files: ['**/*.{js,ts,vue}'],
     languageOptions: {
       parser: vueParser,

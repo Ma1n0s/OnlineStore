@@ -17,11 +17,11 @@
     "test:e2e:open": "start-server-and-test dev http://localhost:3000 cypress:open",
     "test:all": "npm run test && npm run test:e2e",
     "prepare": "husky",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint . --ext js,ts,vue --ignore-pattern .nuxt --ignore-pattern .output --report-unused-disable-directives --max-warnings 0"
   },
   "lint-staged": {
     "*.{js,ts,vue}": [
-      "eslint --fix",
+      "eslint --fix --ignore-pattern .nuxt --ignore-pattern .output",
       "prettier --write"
     ],
     "*.{json,md}": [
