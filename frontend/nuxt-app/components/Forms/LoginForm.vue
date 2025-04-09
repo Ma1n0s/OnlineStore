@@ -4,7 +4,7 @@ import TextInput from "~/components/ui/Inputs/TextInput.vue";
 import Button from "~/components/ui/Button/Button.vue";
 import { emailRegex } from "~/shared/regexp";
 
-const { user, isAuth, setUser } = useUserStore();
+const { setUser } = useUserStore();
 
 const form = reactive({
   email: "",
@@ -67,6 +67,8 @@ const handleLogin = async () => {
 
     if (data.value && data.value.status === "success") {
       setUser(data.value.user);
+      const { user } = useSanctumAuth();
+      user.value = data.value.user;
     }
   } catch (error) {
     console.error("Login error:", error);

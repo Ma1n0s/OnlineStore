@@ -4,7 +4,7 @@ import TextInput from "~/components/ui/Inputs/TextInput.vue";
 import Button from "~/components/ui/Button/Button.vue";
 import { useUserStore } from "~/stores/user";
 import { emailRegex } from "~/shared/regexp";
-const { user, isAuth, setUser } = useUserStore();
+const { setUser } = useUserStore();
 
 const isSend = ref(false);
 
@@ -59,6 +59,8 @@ const authorize = async () => {
 
     if (data.value && data.value.status === "verified") {
       setUser(data.value.user);
+      const { user } = useSanctumAuth();
+      user.value = data.value.user;
 
       emit("code-sent");
     }
