@@ -16,7 +16,8 @@
     "test:e2e": "start-server-and-test dev http://localhost:3000 cypress:run",
     "test:e2e:open": "start-server-and-test dev http://localhost:3000 cypress:open",
     "test:all": "npm run test && npm run test:e2e",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "lint-staged": {
     "*.{js,ts,vue}": [
