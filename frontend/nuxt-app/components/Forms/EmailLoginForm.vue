@@ -58,6 +58,8 @@ const authorize = async () => {
       }),
     })
 
+    console.log('123123')
+
     if (data.value && data.value.status === 'verified') {
       setUser(data.value.user)
       const { user } = useSanctumAuth()
