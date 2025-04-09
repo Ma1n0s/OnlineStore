@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: "2024-11-01",
+  compatibilityDate: '2024-11-01',
   devtools: {
     enabled: true,
 
@@ -10,46 +10,46 @@ export default defineNuxtConfig({
   },
   sourcemap: false,
   modules: [
-    "@pinia/nuxt",
-    "@nuxt/image",
-    "@nuxtjs/sitemap",
-    "@nuxtjs/seo",
-    "@nuxtjs/robots",
-    "@nuxt/icon",
-    "@nuxtjs/tailwindcss",
-    "@vueuse/nuxt",
-    "nuxt-swiper",
-    "@nuxtjs/google-fonts",
-    "nuxt-auth-sanctum",
+    '@pinia/nuxt',
+    '@nuxt/image',
+    '@nuxtjs/sitemap',
+    '@nuxtjs/seo',
+    '@nuxtjs/robots',
+    '@nuxt/icon',
+    '@nuxtjs/tailwindcss',
+    '@vueuse/nuxt',
+    'nuxt-swiper',
+    '@nuxtjs/google-fonts',
+    'nuxt-auth-sanctum',
   ],
 
   googleFonts: {
     families: {
       Montserrat: [400, 500, 600, 700, 800],
     },
-    display: "swap",
+    display: 'swap',
   },
 
   runtimeConfig: {
     public: {
       sanctum: {
-        baseUrl: import.meta.env.VITE_BACKEND || "http://localhost:8000",
-        mode: "cookie",
-        userStateKey: "sanctum.user.identity",
+        baseUrl: import.meta.env.VITE_BACKEND || 'http://localhost:8000',
+        mode: 'cookie',
+        userStateKey: 'sanctum.user.identity',
         endpoints: {
-          csrf: "/sanctum/csrf-cookie",
-          login: "/api/auth/verify-code",
-          logout: "/api/auth/logout",
-          user: "/api/user",
+          csrf: '/sanctum/csrf-cookie',
+          login: '/api/auth/verify-code',
+          logout: '/api/auth/logout',
+          user: '/api/user',
         },
         csrf: {
-          cookie: "XSRF-TOKEN",
-          header: "X-XSRF-TOKEN",
+          cookie: 'XSRF-TOKEN',
+          header: 'X-XSRF-TOKEN',
         },
         redirect: {
-          onLogin: "/",
-          onLogout: "/",
-          home: "/",
+          onLogin: '/',
+          onLogout: '/',
+          home: '/',
         },
       },
     },
@@ -57,11 +57,11 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: "Строительный магазин Абсолют техно",
+      title: 'Строительный магазин Абсолют техно',
       htmlAttrs: {
-        lang: "ru",
+        lang: 'ru',
       },
-      link: [{ rel: "icon", type: "image/x-icon", href: "/logo_test.svg" }],
+      link: [{ rel: 'icon', type: 'image/x-icon', href: '/logo_test.svg' }],
     },
   },
-});
+})
