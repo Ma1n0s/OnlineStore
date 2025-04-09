@@ -4,6 +4,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\VerificationCodeMail;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +25,103 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// Authentication routes with CSRF protection disabled
+Route::group(['middleware' => [ 'guest']], function() {
+    // Запрос кода верификации по email
+    Route::post('/auth/request-code', function(Request $request) {
+        $request->validate([
+            'email' => 'required|email'
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+        
+        if (!$user) {
+            // Создаем нового пользователя
+            $verificationCode = Str::random(6);
+            $user = User::create([
+                'email' => $request->email,
+                'password' => Hash::make(Str::random(10)), // Генерируем случайный пароль
+                'verification_code' => $verificationCode,
+                'name' => explode('@', $request->email)[0]
+            ]);
+        } else {
+            // Генерируем новый код для существующего пользователя
+            $verificationCode = Str::random(6);
+            $user->verification_code = $verificationCode;
+            $user->save();
+        }
+        
+        // Отправляем код на email
+        Mail::to($user->email)->send(new VerificationCodeMail($verificationCode));
+
+        return response()->json([
+            'message' => 'Verification code sent to your email',
+            'status' => 'pending_verification'
+        ]);
+    });
+
+    // Верификация кода и авторизация
+    Route::post('/auth/verify-code', function(Request $request) {
+        $request->validate([
+            'email' => 'required|email',
+            'code' => 'required|string|size:6'
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+        
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found',
+                'status' => 'error'
+            ], 404);
+        }
+
+        if ($user->verification_code === $request->code) {
+            $user->email_verified_at = now();
+            $user->verification_code = null;
+            $user->save();
+            
+            // Авторизуем пользователя через сессию
+            auth()->login($user);
+            
+            return response()->json([
+                'user' => $user,
+                'status' => 'verified'
+            ]);
+        }
+        
+        return response()->json([
+            'message' => 'Invalid verification code',
+            'status' => 'error'
+        ], 422);
+    });
+
+    // Авторизация по email и паролю
+    Route::post('/auth/email-password', function(Request $request) {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string'
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'message' => 'Invalid credentials',
+                'status' => 'error'
+            ], 401);
+        }
+
+        // Авторизуем пользователя через сессию
+        auth()->login($user);
+
+        return response()->json([
+            'user' => $user,
+            'status' => 'success'
+        ]);
+    });
+});
+
 // Специальные маршруты для продуктов
 Route::get('/products/by-category', [ProductController::class, 'getProductsByCategory']);
 
@@ -34,3 +136,22 @@ Route::get('categories/{category}/subcategories', [CategoryController::class, 's
 Route::post('categories/{category}/subcategories', [CategoryController::class, 'storeSubcategory']);
 Route::put('categories/{category}/subcategories/{subcategory}', [CategoryController::class, 'updateSubcategory']);
 Route::delete('categories/{category}/subcategories/{subcategory}', [CategoryController::class, 'destroySubcategory']);
+
+// Получение всех пользователей
+Route::get('/users', function() {
+    return User::all();
+});
+
+// Маршрут для выхода из системы
+Route::post('/auth/logout', function(Request $request) {
+    if (auth()->check()) {
+        auth()->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+    }
+    
+    return response()->json([
+        'message' => 'Logged out successfully',
+        'status' => 'success'
+    ]);
+});
