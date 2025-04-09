@@ -18,7 +18,7 @@
       /></Button>
     </div>
   </div>
-  <Modal :isOpen="isModalOpen" @close="closeModal" @confirm="handleConfirm" title="">
+  <Modal class="min-h-[427px]" :isOpen="isModalOpen" @close="closeModal" @confirm="handleConfirm" title="">
     <AuthForm />
   </Modal>
 </template>
