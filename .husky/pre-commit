@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "Running pre-commit hook..."
+echo "Current directory: $(pwd)"
+
+# Проверяем, есть ли измененные файлы во frontend
+if git diff --cached --name-only | grep -q "^frontend/"; then
+  echo "Checking frontend files..."
+  cd frontend/nuxt-app && npx lint-staged --debug
+else
+  echo "No frontend files changed, skipping lint-staged"
+fi 

@@ -25,3 +25,6 @@ products.csv
 
 # Logs
 *.log
+
+node_modules
+.vscode
