@@ -4,7 +4,7 @@ import TextInput from "~/components/ui/Inputs/TextInput.vue";
 import Button from "~/components/ui/Button/Button.vue";
 import { useUserStore } from "~/stores/user";
 import { emailRegex } from "~/shared/regexp";
-const { user, isAuth, setUser } = useUserStore();
+const { setUser } = useUserStore();
 
 const isSend = ref(false);
 
@@ -13,6 +13,7 @@ const form = reactive({
   code: "",
   isLoading: false,
   emailError: "",
+  authError: "",
 });
 
 const validateEmail = () => {
@@ -32,7 +33,7 @@ const validateEmail = () => {
   return true;
 };
 
-const emit = defineEmits(["code-sent"]);
+const emit = defineEmits(["close"]);
 
 const authorize = async () => {
   try {
@@ -57,15 +58,17 @@ const authorize = async () => {
       }),
     });
 
-    // If verification succeeded, update user state
     if (data.value && data.value.status === "verified") {
       setUser(data.value.user);
+      const { user } = useSanctumAuth();
+      user.value = data.value.user;
       emit("close");
-      emit("code-sent");
+    } else {
+      form.authError = "Неверный код подтверждения";
     }
   } catch (error) {
     console.error("Verification error:", error);
-    form.emailError = "Ошибка при проверке кода. Попробуйте позже.";
+    form.authError = "Ошибка при проверке кода. Попробуйте позже.";
   } finally {
     form.isLoading = false;
   }
@@ -131,7 +134,10 @@ const handleEmailLogin = async () => {
       <span v-else>Отправка...</span>
     </Button>
 
-    <p class="text-xs text-gray-500 mt-2">На ваш email будет отправлен код подтверждения для входа</p>
+    <div class="space-y-2">
+      <p class="text-xs text-gray-500">На ваш email будет отправлен код подтверждения для входа</p>
+      <p class="text-xs text-gray-500">Чтобы зарегистрироваться, введите email и нажмите "Получить код"</p>
+    </div>
     <div v-show="isSend" class="space-y-4">
       <div class="space-y-1">
         <label for="code" class="block text-sm font-medium text-gray-700">Код подтверждения</label>
@@ -143,6 +149,7 @@ const handleEmailLogin = async () => {
           class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:bg-white focus:border-transparent transition"
           @keyup.enter="authorize"
         />
+        <p v-if="form.authError" class="text-primary text-xs mt-1">{{ form.authError }}</p>
       </div>
 
       <Button

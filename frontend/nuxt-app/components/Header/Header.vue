@@ -18,8 +18,8 @@
       /></Button>
     </div>
   </div>
-  <Modal :isOpen="isModalOpen" @close="closeModal" @confirm="handleConfirm" title="">
-    <AuthForm />
+  <Modal class="min-h-[427px]" :isOpen="isModalOpen" @close="closeModal" @confirm="handleConfirm" title="">
+    <AuthForm @close="closeModal" />
   </Modal>
 </template>
 
@@ -62,8 +62,6 @@ const handleLogout = async () => {
   try {
     const { logout } = useSanctumAuth();
     await logout();
-
-    // Очищаем данные пользователя в store
     clearUser();
   } catch (error) {
     console.error("Logout error:", error);

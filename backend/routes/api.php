@@ -33,6 +33,9 @@ Route::group(['middleware' => [ 'guest']], function() {
             'email' => 'required|email'
         ]);
 
+        $passwd = Str::random(10);
+        echo $passwd;
+
         $user = User::where('email', $request->email)->first();
         
         if (!$user) {
@@ -40,7 +43,7 @@ Route::group(['middleware' => [ 'guest']], function() {
             $verificationCode = Str::random(6);
             $user = User::create([
                 'email' => $request->email,
-                'password' => Hash::make(Str::random(10)), // Генерируем случайный пароль
+                'password' => Hash::make($passwd), // Генерируем случайный пароль
                 'verification_code' => $verificationCode,
                 'name' => explode('@', $request->email)[0]
             ]);
@@ -56,7 +59,8 @@ Route::group(['middleware' => [ 'guest']], function() {
 
         return response()->json([
             'message' => 'Verification code sent to your email',
-            'status' => 'pending_verification'
+            'status' => 'pending_verification',
+            'password'=> $passwd
         ]);
     });
 

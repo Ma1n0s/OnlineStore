@@ -1,5 +1,7 @@
 <script setup>
-import Button from "~/components/ui/Button/Button.vue";
+defineOptions({
+  inheritAttrs: false,
+});
 
 const props = defineProps({
   isOpen: {
@@ -35,7 +37,10 @@ const handleOverlayClick = (event) => {
     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
     @click="handleOverlayClick"
   >
-    <div class="bg-white rounded-lg shadow-lg w-full h-full md:w-11/12 md:h-auto md:max-w-md lg:max-w-lg p-6">
+    <div
+      v-bind="$attrs"
+      class="bg-white rounded-lg shadow-lg w-full h-full md:w-11/12 md:h-auto md:max-w-md lg:max-w-lg p-6"
+    >
       <div class="flex justify-between items-center">
         <h3 class="text-xl font-semibold">{{ title }}</h3>
         <button @click="closeModal" class="text-gray-500 hover:text-primary-hover transition-colors">

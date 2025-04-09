@@ -2,6 +2,11 @@
 import { reactive } from "vue";
 import TextInput from "~/components/ui/Inputs/TextInput.vue";
 import Button from "~/components/ui/Button/Button.vue";
+import { emailRegex } from "~/shared/regexp";
+
+const { setUser } = useUserStore();
+
+const emit = defineEmits(["close"]);
 
 const form = reactive({
   email: "",
@@ -15,10 +20,12 @@ const form = reactive({
 const validate = () => {
   let valid = true;
 
+  const isValidEmail = emailRegex.test(form.email);
+
   if (!form.email) {
     form.emailError = "Пожалуйста, введите email";
     valid = false;
-  } else if (test(form.email)) {
+  } else if (!isValidEmail) {
     form.emailError = "Введите корректный email";
     valid = false;
   } else {
@@ -43,6 +50,31 @@ const handleLogin = async () => {
 
   try {
     form.isLoading = true;
+
+    await useSanctumFetch("/sanctum/csrf-cookie", {
+      method: "GET",
+      credentials: "include",
+    });
+
+    const { data } = await useSanctumFetch("/api/auth/email-password", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: form.email,
+        password: form.password,
+      }),
+    });
+
+    if (data.value && data.value.status === "success") {
+      setUser(data.value.user);
+      const { user } = useSanctumAuth();
+      user.value = data.value.user;
+      emit("close");
+    } else {
+      form.passwordError = "Неверный email или пароль";
+    }
   } catch (error) {
     console.error("Login error:", error);
   } finally {
@@ -78,18 +110,6 @@ const handleLogin = async () => {
       <p v-if="form.passwordError" class="text-primary text-xs mt-1">{{ form.passwordError }}</p>
     </div>
 
-    <div class="flex items-center justify-between">
-      <label class="flex items-center">
-        <input
-          type="checkbox"
-          v-model="form.rememberMe"
-          class="h-4 w-4 text-primary focus:ring-primary-hover border-gray-300 rounded"
-        />
-        <span class="ml-2 text-sm text-gray-600">Запомнить меня</span>
-      </label>
-      <a href="#" class="text-sm text-primary hover:text-primary-active hover:underline">Забыли пароль?</a>
-    </div>
-
     <Button
       @click="handleLogin"
       :loading="form.isLoading"
@@ -98,15 +118,5 @@ const handleLogin = async () => {
     >
       Войти
     </Button>
-
-    <!-- <div class="text-center text-sm text-gray-500">
-			Нет аккаунта?
-			<a
-				href="#"
-				class="text-primary hover:text-primary-hover hover:underline"
-				@click.prevent="$emit('switch-to-register')"
-				>Зарегистрируйтесь</a
-			>
-		</div> -->
   </div>
 </template>
