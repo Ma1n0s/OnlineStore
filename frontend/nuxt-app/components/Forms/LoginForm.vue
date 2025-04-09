@@ -4,6 +4,8 @@ import TextInput from "~/components/ui/Inputs/TextInput.vue";
 import Button from "~/components/ui/Button/Button.vue";
 import { emailRegex } from "~/shared/regexp";
 
+const { user, isAuth, setUser } = useUserStore();
+
 const form = reactive({
   email: "",
   password: "",
@@ -65,8 +67,6 @@ const handleLogin = async () => {
 
     if (data.value && data.value.status === "success") {
       setUser(data.value.user);
-      emit("close");
-      emit("login-success");
     }
   } catch (error) {
     console.error("Login error:", error);
@@ -103,18 +103,6 @@ const handleLogin = async () => {
       <p v-if="form.passwordError" class="text-primary text-xs mt-1">{{ form.passwordError }}</p>
     </div>
 
-    <div class="flex items-center justify-between">
-      <label class="flex items-center">
-        <input
-          type="checkbox"
-          v-model="form.rememberMe"
-          class="h-4 w-4 text-primary focus:ring-primary-hover border-gray-300 rounded"
-        />
-        <span class="ml-2 text-sm text-gray-600">Запомнить меня</span>
-      </label>
-      <a href="#" class="text-sm text-primary hover:text-primary-active hover:underline">Забыли пароль?</a>
-    </div>
-
     <Button
       @click="handleLogin"
       :loading="form.isLoading"
@@ -123,15 +111,5 @@ const handleLogin = async () => {
     >
       Войти
     </Button>
-
-    <!-- <div class="text-center text-sm text-gray-500">
-			Нет аккаунта?
-			<a
-				href="#"
-				class="text-primary hover:text-primary-hover hover:underline"
-				@click.prevent="$emit('switch-to-register')"
-				>Зарегистрируйтесь</a
-			>
-		</div> -->
   </div>
 </template>

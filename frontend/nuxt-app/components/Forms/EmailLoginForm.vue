@@ -57,10 +57,9 @@ const authorize = async () => {
       }),
     });
 
-    // If verification succeeded, update user state
     if (data.value && data.value.status === "verified") {
       setUser(data.value.user);
-      emit("close");
+
       emit("code-sent");
     }
   } catch (error) {
@@ -131,7 +130,10 @@ const handleEmailLogin = async () => {
       <span v-else>Отправка...</span>
     </Button>
 
-    <p class="text-xs text-gray-500 mt-2">На ваш email будет отправлен код подтверждения для входа</p>
+    <div class="space-y-2">
+      <p class="text-xs text-gray-500">На ваш email будет отправлен код подтверждения для входа</p>
+      <p class="text-xs text-gray-500">Чтобы зарегистрироваться, введите email и нажмите "Получить код"</p>
+    </div>
     <div v-show="isSend" class="space-y-4">
       <div class="space-y-1">
         <label for="code" class="block text-sm font-medium text-gray-700">Код подтверждения</label>

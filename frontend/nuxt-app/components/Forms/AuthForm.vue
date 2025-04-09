@@ -11,7 +11,12 @@ const currentFormComponent = computed(() => {
 </script>
 
 <template>
-  <div class="mx-auto p-8 bg-white rounded-2xl shadow-sm">
+  <div class="mx-auto p-4 bg-white rounded-2xl shadow-sm">
+    <div class="flex justify-between">
+      <div class="text-xl font-bold text-center w-full">
+        {{ authType === "email" ? "Вход / Регистрация" : "Вход по паролю" }}
+      </div>
+    </div>
     <div class="relative mb-4 flex bg-gray-100 p-1 rounded-lg">
       <button
         @click="authType = 'email'"
@@ -21,7 +26,7 @@ const currentFormComponent = computed(() => {
           'text-gray-500 hover:text-gray-700': authType !== 'email',
         }"
       >
-        Вход по коду
+        Вход по почте
       </button>
 
       <button
@@ -32,7 +37,7 @@ const currentFormComponent = computed(() => {
           'text-gray-500 hover:text-gray-700': authType !== 'login',
         }"
       >
-        Обычный вход
+        Вход по паролю
       </button>
     </div>
 
