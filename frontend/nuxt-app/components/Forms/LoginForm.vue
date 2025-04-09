@@ -6,6 +6,8 @@ import { emailRegex } from "~/shared/regexp";
 
 const { setUser } = useUserStore();
 
+const emit = defineEmits(["close"]);
+
 const form = reactive({
   email: "",
   password: "",
@@ -69,6 +71,9 @@ const handleLogin = async () => {
       setUser(data.value.user);
       const { user } = useSanctumAuth();
       user.value = data.value.user;
+      emit("close");
+    } else {
+      form.passwordError = "Неверный email или пароль";
     }
   } catch (error) {
     console.error("Login error:", error);

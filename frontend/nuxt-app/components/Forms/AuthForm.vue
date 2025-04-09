@@ -5,6 +5,8 @@ import PhoneLoginForm from "./EmailLoginForm.vue";
 
 const authType = ref("email");
 
+const emit = defineEmits(["close"]);
+
 const currentFormComponent = computed(() => {
   return authType.value === "login" ? LoginForm : PhoneLoginForm;
 });
@@ -41,6 +43,6 @@ const currentFormComponent = computed(() => {
       </button>
     </div>
 
-    <component :is="currentFormComponent" />
+    <component :is="currentFormComponent" @close="emit('close')" />
   </div>
 </template>
