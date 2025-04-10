@@ -7,61 +7,49 @@ const articles = [
     id: 1,
     title: 'Создание странички',
     excerpt: 'Небольшой тестовый текст по проверка внешнего вида.',
-    category: 'Статья',
     date: 'Апреля 10, 2025',
     image:
       'https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
-    author: 'Кирилл Ф',
   },
   {
     id: 2,
     title: 'Создание странички',
     excerpt: 'Небольшой тестовый текст по проверка внешнего вида.',
-    category: 'Статья',
     date: 'Апреля 10, 2025',
     image:
       'https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
-    author: 'Кирилл Ф',
   },
   {
     id: 3,
     title: 'Создание странички',
     excerpt: 'Небольшой тестовый текст по проверка внешнего вида.',
-    category: 'Статья',
     date: 'Апреля 10, 2025',
     image:
       'https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
-    author: 'Кирилл Ф',
   },
   {
     id: 4,
     title: 'Создание странички',
     excerpt: 'Небольшой тестовый текст по проверка внешнего вида.',
-    category: 'Статья',
     date: 'Апреля 10, 2025',
     image:
       'https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
-    author: 'Кирилл Ф',
   },
   {
     id: 5,
     title: 'Создание странички',
     excerpt: 'Небольшой тестовый текст по проверка внешнего вида.',
-    category: 'Статья',
     date: 'Апреля 10, 2025',
     image:
       'https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
-    author: 'Кирилл Ф',
   },
   {
     id: 6,
     title: 'Создание странички',
     excerpt: 'Небольшой тестовый текст по проверка внешнего вида.',
-    category: 'Статья',
     date: 'Апреля 10, 2025',
     image:
       'https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
-    author: 'Кирилл Ф',
   },
 ]
 </script>
