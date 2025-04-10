@@ -29,9 +29,9 @@
   </div>
 </template>
 <script setup lang="ts">
-import type { Product } from "@/types/product.types";
-import Button from "~/components/ui/Button/Button.vue";
+import type { Product } from '@/types/product.types'
+import Button from '~/components/ui/Button/Button.vue'
 defineProps<{
-  product: Product;
-}>();
+  product: Product
+}>()
 </script>

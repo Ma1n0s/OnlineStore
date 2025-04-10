@@ -1,22 +1,22 @@
 <script setup>
 useHead({
-  title: "Бонусы | Абсолют техно",
+  title: 'Бонусы | Абсолют техно',
   meta: [
     {
-      name: "description",
+      name: 'description',
       content:
-        "Бонусная программа Абсолют техно. Узнайте о ваших накопленных бонусах, способах их получения и использования. Получайте скидки и специальные предложения за покупки.",
+        'Бонусная программа Абсолют техно. Узнайте о ваших накопленных бонусах, способах их получения и использования. Получайте скидки и специальные предложения за покупки.',
     },
   ],
-});
+})
 
 const transactions = [
-  { id: 1, date: "15.03.2023", operation: "Начисление бонусов", amount: 150, status: "Завершено" },
-  { id: 2, date: "10.03.2023", operation: "Списание бонусов", amount: -50, status: "Завершено" },
-  { id: 3, date: "05.03.2023", operation: "Начисление бонусов", amount: 200, status: "Завершено" },
-  { id: 4, date: "28.02.2023", operation: "Начисление бонусов", amount: 100, status: "Завершено" },
-  { id: 5, date: "25.02.2023", operation: "Списание бонусов", amount: -75, status: "Завершено" },
-];
+  { id: 1, date: '15.03.2023', operation: 'Начисление бонусов', amount: 150, status: 'Завершено' },
+  { id: 2, date: '10.03.2023', operation: 'Списание бонусов', amount: -50, status: 'Завершено' },
+  { id: 3, date: '05.03.2023', operation: 'Начисление бонусов', amount: 200, status: 'Завершено' },
+  { id: 4, date: '28.02.2023', operation: 'Начисление бонусов', amount: 100, status: 'Завершено' },
+  { id: 5, date: '25.02.2023', operation: 'Списание бонусов', amount: -75, status: 'Завершено' },
+]
 </script>
 <template>
   <div class="space-y-6">
@@ -50,7 +50,7 @@ const transactions = [
                 class="px-6 py-4 whitespace-nowrap text-sm"
                 :class="transaction.amount > 0 ? 'text-green-600' : 'text-red-600'"
               >
-                {{ transaction.amount > 0 ? "+" : "" }}{{ transaction.amount }}
+                {{ transaction.amount > 0 ? '+' : '' }}{{ transaction.amount }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span

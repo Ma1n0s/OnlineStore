@@ -81,7 +81,7 @@ const toggleSelectedCategory = (item: CatalogItem) => {
 }
 
 const target = useTemplateRef<HTMLElement>('target')
-onClickOutside(target, event => {
+onClickOutside(target, () => {
   console.log(showMenu.value)
   showMenu.value = false
 })

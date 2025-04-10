@@ -16,9 +16,9 @@
 <script setup lang="ts">
 defineOptions({
   inheritAttrs: false,
-});
+})
 
-const model = defineModel();
+const model = defineModel()
 </script>
 
 <style>

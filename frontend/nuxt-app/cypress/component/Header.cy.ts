@@ -1,8 +1,8 @@
-import { mount } from "cypress/vue";
-import Header from "../../components/Header/Header.vue";
+import { mount } from 'cypress/vue'
+import Header from '../../components/Header/Header.vue'
 
-describe("Header компонент", () => {
-  it("отображается корректно", () => {
+describe('Header компонент', () => {
+  it('отображается корректно', () => {
     // Монтируем компонент Header
     mount(Header, {
       global: {
@@ -12,13 +12,13 @@ describe("Header компонент", () => {
           Icon: true,
         },
       },
-    });
+    })
 
     // Проверяем, что заголовок сайта отображается
-    cy.contains("Абсолют Техно").should("be.visible");
-  });
+    cy.contains('Абсолют Техно').should('be.visible')
+  })
 
-  it("содержит ссылку на главную страницу", () => {
+  it('содержит ссылку на главную страницу', () => {
     mount(Header, {
       global: {
         stubs: {
@@ -27,9 +27,9 @@ describe("Header компонент", () => {
           Icon: true,
         },
       },
-    });
+    })
 
     // Ищем ссылку на главную (стабированный NuxtLink)
-    cy.get('NuxtLink[to="/"]').should("exist");
-  });
-});
+    cy.get('NuxtLink[to="/"]').should('exist')
+  })
+})

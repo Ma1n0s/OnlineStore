@@ -8,12 +8,12 @@ export default defineConfig({
     globals: true,
     environment: 'happy-dom',
     include: ['tests/**/*.spec.ts', 'tests/**/*.test.ts'],
-    exclude: ['tests/e2e/**', 'node_modules/**']
+    exclude: ['tests/e2e/**', 'node_modules/**'],
   },
   resolve: {
     alias: {
       '~': fileURLToPath(new URL('./', import.meta.url)),
-      '@': fileURLToPath(new URL('./', import.meta.url))
-    }
-  }
-}) 
+      '@': fileURLToPath(new URL('./', import.meta.url)),
+    },
+  },
+})

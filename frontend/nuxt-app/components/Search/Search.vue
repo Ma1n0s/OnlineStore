@@ -38,49 +38,49 @@
 </template>
 
 <script setup lang="ts">
-import TextInput from "~/components/ui/Inputs/TextInput.vue";
-import { onClickOutside } from "@vueuse/core";
+import TextInput from '~/components/ui/Inputs/TextInput.vue'
+import { onClickOutside } from '@vueuse/core'
 
 const data = ref({
   categories: [
     {
-      subcategory: "Шуруповерты",
-      category: "Инструменты",
-      src: "https://fi.makitamedia.com/images/3_Makita/301_machines/3011_a_GS1/30118_PNG_web/M8301D002_C2L0.png",
+      subcategory: 'Шуруповерты',
+      category: 'Инструменты',
+      src: 'https://fi.makitamedia.com/images/3_Makita/301_machines/3011_a_GS1/30118_PNG_web/M8301D002_C2L0.png',
     },
     {
-      subcategory: "Шурупы",
-      category: "Крепеж",
-      src: "https://princefastener.com/wp-content/uploads/2022/03/figure-1.-screws-300x300.png",
+      subcategory: 'Шурупы',
+      category: 'Крепеж',
+      src: 'https://princefastener.com/wp-content/uploads/2022/03/figure-1.-screws-300x300.png',
     },
   ],
   items: [
     {
-      name: "Шуруповерт Makita",
-      category: "Инструменты",
-      subcategory: "Шуруповерты",
-      src: "https://fi.makitamedia.com/images/3_Makita/301_machines/3011_a_GS1/30118_PNG_web/M8301D002_C2L0.png",
+      name: 'Шуруповерт Makita',
+      category: 'Инструменты',
+      subcategory: 'Шуруповерты',
+      src: 'https://fi.makitamedia.com/images/3_Makita/301_machines/3011_a_GS1/30118_PNG_web/M8301D002_C2L0.png',
       price: 10000,
     },
     {
-      name: "Шуруповерт Ingersoll Rand L5110-K1",
-      category: "Инструменты",
-      subcategory: "Шуруповерты",
-      src: "https://hotech-ms.com/wp-content/uploads/2020/11/W7150EU-WEB-01-300x300.png",
+      name: 'Шуруповерт Ingersoll Rand L5110-K1',
+      category: 'Инструменты',
+      subcategory: 'Шуруповерты',
+      src: 'https://hotech-ms.com/wp-content/uploads/2020/11/W7150EU-WEB-01-300x300.png',
       price: 7000,
     },
   ],
-});
-const showSearch = ref(false);
+})
+const showSearch = ref(false)
 
 const search = () => {
-  showSearch.value = true;
-  console.log(showSearch.value);
-};
+  showSearch.value = true
+  console.log(showSearch.value)
+}
 
-const target = useTemplateRef<HTMLElement>("target");
-onClickOutside(target, (event) => {
-  console.log(showSearch.value);
-  showSearch.value = false;
-});
+const target = useTemplateRef<HTMLElement>('target')
+onClickOutside(target, () => {
+  console.log(showSearch.value)
+  showSearch.value = false
+})
 </script>
