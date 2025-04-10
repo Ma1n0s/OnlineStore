@@ -20,14 +20,15 @@ const product = reactive<Product>(productData)
 				</thead>
 				<tbody class="divide-y divide-gray-200">
 					<template v-for="(category, name) in product?.specifications" :key="name">
-						<tr class="bg-gray-50">
-							<td colspan="2" class="px-4 py-2 text-xs uppercase font-bold text-gray-700">
+						<tr class="bg-gray-100">
+							<td class="px-4 py-3 font-bold text-gray-900 text-sm uppercase border-b border-gray-200">
 								{{ name }}
 							</td>
+							<td class="px-4 py-3 border-b border-gray-200"></td>
 						</tr>
 						<tr v-for="(title, value) in category" :key="title">
-							<td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{{ value }}</td>
-							<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ title }}</td>
+							<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">{{ value }}</td>
+							<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 font-medium">{{ title }}</td>
 						</tr>
 					</template>
 				</tbody>

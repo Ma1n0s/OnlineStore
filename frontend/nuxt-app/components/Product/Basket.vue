@@ -12,11 +12,12 @@ const isRentalModalOpen = ref(false)
 const rentalDays = ref(1)
 const rentalPrice = ref(product.price.final)
 
-// Добавляем состояния для календаря
 const dateRange = ref({
 	start: new Date(),
 	end: new Date(new Date().setDate(new Date().getDate() + 1)),
 })
+
+const showCalendar = ref(false)
 
 const openRentalModal = () => {
 	isRentalModalOpen.value = true
@@ -24,12 +25,13 @@ const openRentalModal = () => {
 
 const closeRentalModal = () => {
 	isRentalModalOpen.value = false
+	showCalendar.value = false
 }
 
 const calculateRentalPrice = () => {
 	if (dateRange.value.start && dateRange.value.end) {
-		const diffTime = Math.abs(dateRange.value.end.getTime() - dateRange.value.start.getTime())
-		rentalDays.value = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1
+		const diffTime = dateRange.value.end.getTime() - dateRange.value.start.getTime()
+		rentalDays.value = Math.ceil(diffTime / (product.price.final * 60 * 60 * 24)) + 1
 		rentalPrice.value = product.price.final * rentalDays.value
 	}
 }
@@ -41,6 +43,10 @@ const confirmRental = () => {
 		} days, total price: ${rentalPrice.value} ₽`
 	)
 	closeRentalModal()
+}
+
+const toggleCalendar = () => {
+	showCalendar.value = !showCalendar.value
 }
 </script>
 
@@ -88,9 +94,10 @@ const confirmRental = () => {
 					:columns="1"
 					:masks="{ input: 'DD.MM.YYYY' }"
 					locale="ru"
+					:popover="{ visibility: 'click' }"
 				>
-					<template #default="{ inputValue, inputEvents }">
-						<div class="flex flex-col sm:flex-row gap-2">
+					<template #default="{ inputValue, inputEvents, isDragging }">
+						<div class="flex flex-col sm:flex-row gap-2 relative">
 							<div class="w-full">
 								<label class="block text-xs text-gray-500 mb-1">Начало</label>
 								<TextInput
@@ -98,6 +105,8 @@ const confirmRental = () => {
 									:value="inputValue.start"
 									v-on="inputEvents.start"
 									placeholder="Дата начала"
+									@click="toggleCalendar"
+									readonly
 								/>
 							</div>
 							<div class="w-full">
@@ -107,6 +116,8 @@ const confirmRental = () => {
 									:value="inputValue.end"
 									v-on="inputEvents.end"
 									placeholder="Дата окончания"
+									@click="toggleCalendar"
+									readonly
 								/>
 							</div>
 						</div>
@@ -131,3 +142,27 @@ const confirmRental = () => {
 		</template>
 	</Modal>
 </template>
+
+<style>
+.vc-container {
+	--vc-font-family: inherit;
+	--vc-border-radius: 0.5rem;
+	--vc-accent-50: #f0f9ff;
+	--vc-accent-100: #e0f2fe;
+	--vc-accent-200: #bae6fd;
+	--vc-accent-300: #7dd3fc;
+	--vc-accent-400: #38bdf8;
+	--vc-accent-500: #0ea5e9;
+	--vc-accent-600: #0284c7;
+	--vc-accent-700: #0369a1;
+	--vc-accent-800: #075985;
+	--vc-accent-900: #0c4a6e;
+}
+
+.vc-popover-content {
+	width: 100%;
+	max-width: 320px;
+	margin-top: 0.5rem;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+</style>
