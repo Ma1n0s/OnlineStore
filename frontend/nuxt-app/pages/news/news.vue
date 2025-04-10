@@ -77,7 +77,6 @@ const articles = [
           class="hover:scale-105 transition-transform duration-200"
         />
       </div>
-      <EditorsPick />
     </div>
   </div>
 </template>
