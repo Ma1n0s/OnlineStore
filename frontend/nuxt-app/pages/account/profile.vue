@@ -1,23 +1,23 @@
 <script setup>
 useHead({
-  title: "Личные данные | Абсолют техно",
+  title: 'Личные данные | Абсолют техно',
   meta: [
     {
-      name: "description",
+      name: 'description',
       content:
-        "Личные данные в личном кабинете Абсолют техно. Управление данными, просмотр и редактирование личных данных.",
+        'Личные данные в личном кабинете Абсолют техно. Управление данными, просмотр и редактирование личных данных.',
     },
   ],
-});
+})
 
 const profile = ref({
-  lastname: "Иванов",
-  firstname: "Иван",
-  middlename: "Иванович",
+  lastname: 'Иванов',
+  firstname: 'Иван',
+  middlename: 'Иванович',
   company: 'ООО "ТехноПром"',
-  email: "ivanov@example.com",
-  phone: "+7 (999) 123-45-67",
-});
+  email: 'ivanov@example.com',
+  phone: '+7 (999) 123-45-67',
+})
 </script>
 <template>
   <div class="space-y-6">

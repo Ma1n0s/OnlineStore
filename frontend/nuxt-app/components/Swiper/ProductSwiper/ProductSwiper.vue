@@ -18,138 +18,138 @@
 </template>
 
 <script setup lang="ts">
-import type { Product } from "@/types/product.types";
-import ProductSlide from "./ProductSlide.vue";
+import type { Product } from '@/types/product.types'
+import ProductSlide from './ProductSlide.vue'
 
-const containerRef = ref(null);
+const containerRef = ref(null)
 const products = ref<Product[]>([
   {
-    name: "Шуруповерт",
-    brand: "Makita",
+    name: 'Шуруповерт',
+    brand: 'Makita',
     article: 6234232,
     price: {
-      total: "7 000",
-      discount: "50",
-      sum: "14 000",
+      total: '7 000',
+      discount: '50',
+      sum: '14 000',
     },
     raiting: 5,
     images: [
       {
-        alt: "Шуруповерт makita вид сбоку",
-        src: "https://fi.makitamedia.com/images/3_Makita/301_machines/3011_a_GS1/30118_PNG_web/M8301D002_C2L0.png",
+        alt: 'Шуруповерт makita вид сбоку',
+        src: 'https://fi.makitamedia.com/images/3_Makita/301_machines/3011_a_GS1/30118_PNG_web/M8301D002_C2L0.png',
       },
     ],
   },
   {
-    name: "Шуруповерт",
-    brand: "Makita",
+    name: 'Шуруповерт',
+    brand: 'Makita',
     article: 6234232,
     price: {
-      total: "7 000",
-      discount: "50",
-      sum: "14 000",
+      total: '7 000',
+      discount: '50',
+      sum: '14 000',
     },
     raiting: 5,
     images: [
       {
-        alt: "Шуруповерт makita вид сбоку",
-        src: "https://fi.makitamedia.com/images/3_Makita/301_machines/3011_a_GS1/30118_PNG_web/M8301D002_C2L0.png",
+        alt: 'Шуруповерт makita вид сбоку',
+        src: 'https://fi.makitamedia.com/images/3_Makita/301_machines/3011_a_GS1/30118_PNG_web/M8301D002_C2L0.png',
       },
     ],
   },
   {
-    name: "Шуруповерт",
-    brand: "Makita",
+    name: 'Шуруповерт',
+    brand: 'Makita',
     article: 6234232,
     price: {
-      total: "7 000",
-      discount: "50",
-      sum: "14 000",
+      total: '7 000',
+      discount: '50',
+      sum: '14 000',
     },
     raiting: 5,
     images: [
       {
-        alt: "Шуруповерт makita вид сбоку",
-        src: "https://fi.makitamedia.com/images/3_Makita/301_machines/3011_a_GS1/30118_PNG_web/M8301D002_C2L0.png",
+        alt: 'Шуруповерт makita вид сбоку',
+        src: 'https://fi.makitamedia.com/images/3_Makita/301_machines/3011_a_GS1/30118_PNG_web/M8301D002_C2L0.png',
       },
     ],
   },
   {
-    name: "Шуруповерт",
-    brand: "Makita",
+    name: 'Шуруповерт',
+    brand: 'Makita',
     article: 6234232,
     price: {
-      total: "7 000",
-      discount: "50",
-      sum: "14 000",
+      total: '7 000',
+      discount: '50',
+      sum: '14 000',
     },
     raiting: 5,
     images: [
       {
-        alt: "Шуруповерт makita вид сбоку",
-        src: "https://fi.makitamedia.com/images/3_Makita/301_machines/3011_a_GS1/30118_PNG_web/M8301D002_C2L0.png",
+        alt: 'Шуруповерт makita вид сбоку',
+        src: 'https://fi.makitamedia.com/images/3_Makita/301_machines/3011_a_GS1/30118_PNG_web/M8301D002_C2L0.png',
       },
     ],
   },
   {
-    name: "Шуруповерт",
-    brand: "Makita",
+    name: 'Шуруповерт',
+    brand: 'Makita',
     article: 6234232,
     price: {
-      total: "7 000",
-      discount: "50",
-      sum: "14 000",
+      total: '7 000',
+      discount: '50',
+      sum: '14 000',
     },
     raiting: 5,
     images: [
       {
-        alt: "Шуруповерт makita вид сбоку",
-        src: "https://fi.makitamedia.com/images/3_Makita/301_machines/3011_a_GS1/30118_PNG_web/M8301D002_C2L0.png",
+        alt: 'Шуруповерт makita вид сбоку',
+        src: 'https://fi.makitamedia.com/images/3_Makita/301_machines/3011_a_GS1/30118_PNG_web/M8301D002_C2L0.png',
       },
     ],
   },
   {
-    name: "Шуруповерт",
-    brand: "Makita",
+    name: 'Шуруповерт',
+    brand: 'Makita',
     article: 6234232,
     price: {
-      total: "7 000",
-      discount: "50",
-      sum: "14 000",
+      total: '7 000',
+      discount: '50',
+      sum: '14 000',
     },
     raiting: 5,
     images: [
       {
-        alt: "Шуруповерт makita вид сбоку",
-        src: "https://fi.makitamedia.com/images/3_Makita/301_machines/3011_a_GS1/30118_PNG_web/M8301D002_C2L0.png",
+        alt: 'Шуруповерт makita вид сбоку',
+        src: 'https://fi.makitamedia.com/images/3_Makita/301_machines/3011_a_GS1/30118_PNG_web/M8301D002_C2L0.png',
       },
     ],
   },
   {
-    name: "Шуруповерт",
-    brand: "Makita",
+    name: 'Шуруповерт',
+    brand: 'Makita',
     article: 6234232,
     price: {
-      total: "7 000",
-      discount: "50",
-      sum: "14 000",
+      total: '7 000',
+      discount: '50',
+      sum: '14 000',
     },
     raiting: 5,
     images: [
       {
-        alt: "Шуруповерт makita вид сбоку",
-        src: "https://fi.makitamedia.com/images/3_Makita/301_machines/3011_a_GS1/30118_PNG_web/M8301D002_C2L0.png",
+        alt: 'Шуруповерт makita вид сбоку',
+        src: 'https://fi.makitamedia.com/images/3_Makita/301_machines/3011_a_GS1/30118_PNG_web/M8301D002_C2L0.png',
       },
     ],
   },
-]);
+])
 </script>
 
 <style scoped>
-@import "swiper/css";
-@import "swiper/css/navigation";
-@import "swiper/css/pagination";
-@import "swiper/css/effect-creative";
+@import 'swiper/css';
+@import 'swiper/css/navigation';
+@import 'swiper/css/pagination';
+@import 'swiper/css/effect-creative';
 
 swiper-container {
   --swiper-navigation-color: rgb(38, 56, 58);

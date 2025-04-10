@@ -1,109 +1,109 @@
 <script setup>
-const route = useRoute();
+const route = useRoute()
 
 useHead({
   title: `${route.params.category} | Абсолют техно`,
   meta: [
     {
-      name: "description",
+      name: 'description',
       content: `Инструменты для строительства и ремота, категория ${route.params.category}`,
     },
   ],
-});
+})
 
-import CategoryDescription from "~/components/CategoryItems/CategoryDescription/CategoryDescription.vue";
-import CategoryList from "~/components/CategoryItems/CategoryList/CategoryList.vue";
-import { catalogDescription } from "~/shared/mock/CatalogDescription";
+import CategoryDescription from '~/components/CategoryItems/CategoryDescription/CategoryDescription.vue'
+import CategoryList from '~/components/CategoryItems/CategoryList/CategoryList.vue'
+import { catalogDescription } from '~/shared/mock/CatalogDescription'
 
 const state = reactive({
   popularTags: [
-    "Пылесосы с розеткой для электроинструмента",
-    "Дрели-шуруповерты для женщин",
-    "Дрели-шуруповерты для мебели",
-    "Противопожарное оборудование и Inventar",
-    "Зеленые дрели-шуруповерты аккумуляторные",
-    "Синие дрели-шуруповерты аккумуляторные",
-    "Желтые дрели-шуруповерты аккумуляторные",
+    'Пылесосы с розеткой для электроинструмента',
+    'Дрели-шуруповерты для женщин',
+    'Дрели-шуруповерты для мебели',
+    'Противопожарное оборудование и Inventar',
+    'Зеленые дрели-шуруповерты аккумуляторные',
+    'Синие дрели-шуруповерты аккумуляторные',
+    'Желтые дрели-шуруповерты аккумуляторные',
   ],
 
   articles: [
     {
       id: 1,
-      title: "Советы по выбору электроинструмента",
-      excerpt: "Хорошие результаты получать не просто. Различные ситуации требуют...",
-      date: "05.09.2024",
+      title: 'Советы по выбору электроинструмента',
+      excerpt: 'Хорошие результаты получать не просто. Различные ситуации требуют...',
+      date: '05.09.2024',
     },
     {
       id: 2,
-      title: "Электроинструмент - как правильно работать",
-      excerpt: "Каждый, кто хоть раз держал в руке электроинструмент, непременно должен знать...",
-      date: "05.09.2024",
+      title: 'Электроинструмент - как правильно работать',
+      excerpt: 'Каждый, кто хоть раз держал в руке электроинструмент, непременно должен знать...',
+      date: '05.09.2024',
     },
     {
       id: 3,
-      title: "Электроинструмент нужен в каждом доме",
-      excerpt: "Вряд ли найдутся люди, готовые поспорить с тем, что мелкий домашний ремонт...",
-      date: "07.06.2023",
+      title: 'Электроинструмент нужен в каждом доме',
+      excerpt: 'Вряд ли найдутся люди, готовые поспорить с тем, что мелкий домашний ремонт...',
+      date: '07.06.2023',
     },
     {
       id: 4,
-      title: "Всегда ли работает традиционная схема выбора?",
-      excerpt: "Все рекомендации по вопросу выбора электроинструмента начинаются с...",
-      date: "07.06.2023",
+      title: 'Всегда ли работает традиционная схема выбора?',
+      excerpt: 'Все рекомендации по вопросу выбора электроинструмента начинаются с...',
+      date: '07.06.2023',
     },
   ],
 
   products: [
     {
-      name: "Шуруповерты",
-      image: "Categories/Instruments.png",
+      name: 'Шуруповерты',
+      image: 'Categories/Instruments.png',
     },
     {
-      name: "Дрели",
-      image: "Categories/Instruments.png",
+      name: 'Дрели',
+      image: 'Categories/Instruments.png',
     },
     {
-      name: "Перфораторы",
-      image: "Categories/Instruments.png",
+      name: 'Перфораторы',
+      image: 'Categories/Instruments.png',
     },
     {
-      name: "Болгарки",
-      image: "Categories/Instruments.png",
+      name: 'Болгарки',
+      image: 'Categories/Instruments.png',
     },
     {
-      name: "Пилы",
-      image: "Categories/Instruments.png",
+      name: 'Пилы',
+      image: 'Categories/Instruments.png',
     },
     {
-      name: "Фрезеры",
-      image: "Categories/Instruments.png",
+      name: 'Фрезеры',
+      image: 'Categories/Instruments.png',
     },
     {
-      name: "Шлифмашины",
-      image: "Categories/Instruments.png",
+      name: 'Шлифмашины',
+      image: 'Categories/Instruments.png',
     },
     {
-      name: "Лобзики",
-      image: "Categories/Instruments.png",
+      name: 'Лобзики',
+      image: 'Categories/Instruments.png',
     },
     {
-      name: "Строительные пылесосы",
-      image: "Categories/Instruments.png",
+      name: 'Строительные пылесосы',
+      image: 'Categories/Instruments.png',
     },
     {
-      name: "Измерительные инструменты",
-      image: "Categories/Instruments.png",
+      name: 'Измерительные инструменты',
+      image: 'Categories/Instruments.png',
     },
     {
-      name: "Краскопульты",
-      image: "Categories/Instruments.png",
+      name: 'Краскопульты',
+      image: 'Categories/Instruments.png',
     },
     {
-      name: "Тепловые пушки",
-      image: "Categories/Instruments.png",
+      name: 'Тепловые пушки',
+      image: 'Categories/Instruments.png',
     },
   ],
-});
+})
 </script>
 
 <template>

@@ -9,10 +9,9 @@
 
 <script setup lang="ts">
 defineProps<{
-  label?: string;
-}>();
+  label?: string
+}>()
 </script>
-
 
 <!-- <FormField label="Пример метки">
    Слот по умолчанию 

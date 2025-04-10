@@ -18,55 +18,53 @@
       /></Button>
     </div>
   </div>
-  <Modal :isOpen="isModalOpen" @close="closeModal" @confirm="handleConfirm" title="">
-    <AuthForm />
+  <Modal class="min-h-[427px]" :isOpen="isModalOpen" @close="closeModal" @confirm="handleConfirm" title="">
+    <AuthForm @close="closeModal" />
   </Modal>
 </template>
 
 <script setup lang="ts">
-import Button from "~/components/ui/Button/Button.vue";
-import { useUserStore } from "~/stores/user";
-import CatalogButton from "../CatalogButton/CatalogButton.vue";
-import Search from "../Search/Search.vue";
-import Modal from "../Modal/Modal.vue";
-import AuthForm from "../Forms/AuthForm.vue";
+import Button from '~/components/ui/Button/Button.vue'
+import { useUserStore } from '~/stores/user'
+import CatalogButton from '../CatalogButton/CatalogButton.vue'
+import Search from '../Search/Search.vue'
+import Modal from '../Modal/Modal.vue'
+import AuthForm from '../Forms/AuthForm.vue'
 
-const userStore = useUserStore();
-const { clearUser } = userStore;
+const userStore = useUserStore()
+const { clearUser } = userStore
 
 // Используем computed для доступа к реактивным свойствам store
-const isAuth = computed(() => userStore.isAuth);
-const user = computed(() => userStore.user);
+const isAuth = computed(() => userStore.isAuth)
+const user = computed(() => userStore.user)
 
 // Вычисляемое свойство для отображения имени пользователя
 const userDisplayName = computed(() => {
-  if (!user.value) return "Пользователь";
-  return user.value.name || user.value.email || "Пользователь";
-});
+  if (!user.value) return 'Пользователь'
+  return user.value.name || user.value.email || 'Пользователь'
+})
 
-const isModalOpen = ref(false);
+const isModalOpen = ref(false)
 
 const openModal = () => {
-  isModalOpen.value = true;
-};
+  isModalOpen.value = true
+}
 
 const closeModal = () => {
-  isModalOpen.value = false;
-};
+  isModalOpen.value = false
+}
 
 const handleConfirm = () => {
-  closeModal();
-};
+  closeModal()
+}
 
 const handleLogout = async () => {
   try {
-    const { logout } = useSanctumAuth();
-    await logout();
-
-    // Очищаем данные пользователя в store
-    clearUser();
+    const { logout } = useSanctumAuth()
+    await logout()
+    clearUser()
   } catch (error) {
-    console.error("Logout error:", error);
+    console.error('Logout error:', error)
   }
-};
+}
 </script>

@@ -3,7 +3,7 @@ import { reactive } from 'vue'
 import { productData } from '~/shared/productData'
 import type { Product } from '~/types/product.types'
 
-const product = reactive<Product>(productData)
+const product = reactive<Partial<Product>>(productData)
 </script>
 
 <template>

@@ -13,12 +13,13 @@
       <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
         <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
       </svg>
-    </div>z
+    </div>
+    z
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref } from 'vue'
 
 const props = defineProps({
   options: {
@@ -27,17 +28,17 @@ const props = defineProps({
   },
   modelValue: {
     type: String,
-    default: "",
+    default: '',
   },
-});
+})
 
-const selectedValue = ref(props.modelValue);
+const selectedValue = ref(props.modelValue)
 
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits(['update:modelValue'])
 
 function handleChange(event: Event) {
-  const target = event.target as HTMLSelectElement; 
-  selectedValue.value = target.value;
-  emit("update:modelValue", target.value);
+  const target = event.target as HTMLSelectElement
+  selectedValue.value = target.value
+  emit('update:modelValue', target.value)
 }
 </script>

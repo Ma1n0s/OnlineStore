@@ -1,21 +1,20 @@
 <script setup>
-const route = useRoute();
+const route = useRoute()
 
 useHead({
   title: `${route.params.subsubcategory} | Абсолют техно`,
   meta: [
     {
-      name: "description",
+      name: 'description',
       content: `Инструменты для строительства и ремота, категория ${route.params.subsubcategory}`,
     },
   ],
-});
+})
 
-import CategoryDescription from "~/components/CategoryItems/CategoryDescription/CategoryDescription.vue";
-import { catalogDescription } from "~/shared/mock/CatalogDescription";
-import { reactive, computed } from "vue";
-import TextInput from "~/components/ui/Inputs/TextInput.vue";
-import Button from "~/components/ui/Button/Button.vue";
+import CategoryDescription from '~/components/CategoryItems/CategoryDescription/CategoryDescription.vue'
+import { catalogDescription } from '~/shared/mock/CatalogDescription'
+import { reactive, computed } from 'vue'
+import TextInput from '~/components/ui/Inputs/TextInput.vue'
 
 const state = reactive({
   priceRange: {
@@ -40,225 +39,215 @@ const state = reactive({
   items: [
     {
       id: 1,
-      code: "15640682",
-      title: "Дрель-шуруповерт Ryobi ONE+ R18DD3-220S 5133003348",
-      image: "Categories/Instruments.png",
+      code: '15640682',
+      title: 'Дрель-шуруповерт Ryobi ONE+ R18DD3-220S 5133003348',
+      image: 'Categories/Instruments.png',
       price: 13290,
       oldPrice: 15990,
       discount: 17,
       stock: 100,
-      brand: "Ryobi",
+      brand: 'Ryobi',
     },
     {
       id: 2,
-      code: "15640683",
-      title: "Дрель-шуруповерт Bosch GSR 12V-15 06019A8021",
-      image: "Categories/Instruments.png",
+      code: '15640683',
+      title: 'Дрель-шуруповерт Bosch GSR 12V-15 06019A8021',
+      image: 'Categories/Instruments.png',
       price: 14290,
       oldPrice: 16990,
       discount: 16,
       stock: 50,
-      brand: "Bosch",
+      brand: 'Bosch',
     },
     {
       id: 3,
-      code: "15640684",
-      title: "Шуруповерт Makita DF457DWE 165024-8",
-      image: "Categories/Instruments.png",
+      code: '15640684',
+      title: 'Шуруповерт Makita DF457DWE 165024-8',
+      image: 'Categories/Instruments.png',
       price: 15290,
       oldPrice: 17990,
       discount: 15,
       stock: 30,
-      brand: "Makita",
+      brand: 'Makita',
     },
     {
       id: 4,
-      code: "15640685",
-      title: "Шуруповерт DeWalt DCD771C2",
-      image: "Categories/Instruments.png",
+      code: '15640685',
+      title: 'Шуруповерт DeWalt DCD771C2',
+      image: 'Categories/Instruments.png',
       price: 18990,
       oldPrice: 21990,
       discount: 14,
       stock: 25,
-      brand: "DeWalt",
+      brand: 'DeWalt',
     },
     {
       id: 5,
-      code: "15640686",
-      title: "Шуруповерт Metabo BS 18 LTX 600129700",
-      image: "Categories/Instruments.png",
+      code: '15640686',
+      title: 'Шуруповерт Metabo BS 18 LTX 600129700',
+      image: 'Categories/Instruments.png',
       price: 16290,
       oldPrice: 18990,
       discount: 14,
       stock: 20,
-      brand: "Metabo",
+      brand: 'Metabo',
     },
     {
       id: 6,
-      code: "15640687",
-      title: "Шуруповерт Hitachi DS18DSAL",
-      image: "Categories/Instruments.png",
+      code: '15640687',
+      title: 'Шуруповерт Hitachi DS18DSAL',
+      image: 'Categories/Instruments.png',
       price: 13990,
       oldPrice: 16990,
       discount: 18,
       stock: 15,
-      brand: "Hitachi",
+      brand: 'Hitachi',
     },
     {
       id: 7,
-      code: "15640688",
-      title: "Шуруповерт AEG BSB 12C2-120X",
-      image: "Categories/Instruments.png",
+      code: '15640688',
+      title: 'Шуруповерт AEG BSB 12C2-120X',
+      image: 'Categories/Instruments.png',
       price: 14990,
       oldPrice: 17990,
       discount: 17,
       stock: 10,
-      brand: "AEG",
+      brand: 'AEG',
     },
     {
       id: 8,
-      code: "15640689",
-      title: "Шуруповерт Black+Decker BDCDD12K",
-      image: "Categories/Instruments.png",
+      code: '15640689',
+      title: 'Шуруповерт Black+Decker BDCDD12K',
+      image: 'Categories/Instruments.png',
       price: 8990,
       oldPrice: 11990,
       discount: 25,
       stock: 40,
-      brand: "Black+Decker",
+      brand: 'Black+Decker',
     },
   ],
-});
+})
 
 // Вычисляемые свойства
 const filteredItems = computed(() => {
-  return state.items.filter((item) => {
-    const priceMatch = item.price >= state.priceRange.currentMin && item.price <= state.priceRange.currentMax;
-    const brandMatch = state.filters.selectedBrands.length === 0 || state.filters.selectedBrands.includes(item.brand);
-    return priceMatch && brandMatch;
-  });
-});
+  return state.items.filter(item => {
+    const priceMatch = item.price >= state.priceRange.currentMin && item.price <= state.priceRange.currentMax
+    const brandMatch = state.filters.selectedBrands.length === 0 || state.filters.selectedBrands.includes(item.brand)
+    return priceMatch && brandMatch
+  })
+})
 
-const visibleItems = computed(() => filteredItems.value.slice(0, state.ui.visibleItems));
+const visibleItems = computed(() => filteredItems.value.slice(0, state.ui.visibleItems))
 
 // Методы
 const loadMoreItems = () => {
-  if (state.ui.isLoading) return;
-  state.ui.isLoading = true;
+  if (state.ui.isLoading) return
+  state.ui.isLoading = true
 
   setTimeout(() => {
     const newItems = [
       {
         id: state.items.length + 1,
-        code: "15640690",
-        title: "Шуруповерт Hilti SF 6H-A22",
-        image: "Categories/Instruments.png",
+        code: '15640690',
+        title: 'Шуруповерт Hilti SF 6H-A22',
+        image: 'Categories/Instruments.png',
         price: 24990,
         oldPrice: 28990,
         discount: 14,
         stock: 5,
-        brand: "Hilti",
+        brand: 'Hilti',
       },
       {
         id: state.items.length + 2,
-        code: "15640691",
-        title: "Шуруповерт Milwaukee M18 BPS-0",
-        image: "Categories/Instruments.png",
+        code: '15640691',
+        title: 'Шуруповерт Milwaukee M18 BPS-0',
+        image: 'Categories/Instruments.png',
         price: 21990,
         oldPrice: 25990,
         discount: 15,
         stock: 8,
-        brand: "Milwaukee",
+        brand: 'Milwaukee',
       },
-    ];
-    state.items = [...state.items, ...newItems];
-    state.ui.visibleItems += 2;
-    state.ui.isLoading = false;
-  }, 1000);
-};
+    ]
+    state.items = [...state.items, ...newItems]
+    state.ui.visibleItems += 2
+    state.ui.isLoading = false
+  }, 1000)
+}
 
 const toggleFilters = () => {
-  state.ui.showFilters = !state.ui.showFilters;
-};
+  state.ui.showFilters = !state.ui.showFilters
+}
 
 const showGrid = () => {
-  state.ui.isGrid = true;
-};
+  state.ui.isGrid = true
+}
 
 const showList = () => {
-  state.ui.isGrid = false;
-};
+  state.ui.isGrid = false
+}
 
-const updateMinPrice = (value) => {
-  state.priceRange.currentMin = Math.min(Number(value), state.priceRange.currentMax - 1);
-  state.priceRange.inputMin = state.priceRange.currentMin;
-};
-
-const updateMaxPrice = (value) => {
-  state.priceRange.currentMax = Math.max(Number(value), state.priceRange.currentMin + 1);
-  state.priceRange.inputMax = state.priceRange.currentMax;
-};
-
-const handleMinPriceInput = (value) => {
+const handleMinPriceInput = value => {
   if (!isNaN(value)) {
-    state.priceRange.inputMin = value;
+    state.priceRange.inputMin = value
 
-    if (state.priceRange.minTimeout) clearTimeout(state.priceRange.minTimeout);
+    if (state.priceRange.minTimeout) clearTimeout(state.priceRange.minTimeout)
 
     state.priceRange.minTimeout = setTimeout(() => {
-      state.priceRange.currentMin = Math.min(Math.max(value, state.priceRange.min), state.priceRange.currentMax - 1);
-    }, 500);
+      state.priceRange.currentMin = Math.min(Math.max(value, state.priceRange.min), state.priceRange.currentMax - 1)
+    }, 500)
   }
-};
+}
 
-const handleMaxPriceInput = (value) => {
+const handleMaxPriceInput = value => {
   if (!isNaN(value)) {
-    state.priceRange.inputMax = value;
+    state.priceRange.inputMax = value
 
-    if (state.priceRange.maxTimeout) clearTimeout(state.priceRange.maxTimeout);
+    if (state.priceRange.maxTimeout) clearTimeout(state.priceRange.maxTimeout)
 
     state.priceRange.maxTimeout = setTimeout(() => {
-      state.priceRange.currentMax = Math.max(Math.min(value, state.priceRange.max), state.priceRange.currentMin + 1);
-    }, 500);
+      state.priceRange.currentMax = Math.max(Math.min(value, state.priceRange.max), state.priceRange.currentMin + 1)
+    }, 500)
   }
-};
+}
 
-const updateMinPriceFromInput = (value) => {
+const updateMinPriceFromInput = value => {
   if (!isNaN(value)) {
-    state.priceRange.currentMin = Math.min(Math.max(value, state.priceRange.min), state.priceRange.currentMax - 1);
-    state.priceRange.inputMin = value;
+    state.priceRange.currentMin = Math.min(Math.max(value, state.priceRange.min), state.priceRange.currentMax - 1)
+    state.priceRange.inputMin = value
   }
-};
+}
 
-const updateMaxPriceFromInput = (value) => {
+const updateMaxPriceFromInput = value => {
   if (!isNaN(value)) {
-    state.priceRange.currentMax = Math.max(Math.min(value, state.priceRange.max), state.priceRange.currentMin + 1);
-    state.priceRange.inputMax = value;
+    state.priceRange.currentMax = Math.max(Math.min(value, state.priceRange.max), state.priceRange.currentMin + 1)
+    state.priceRange.inputMax = value
   }
-};
+}
 
-const handleSliderChange = (type) => {
-  if (type === "min") {
-    state.priceRange.inputMin = state.priceRange.currentMin;
-  } else if (type === "max") {
-    state.priceRange.inputMax = state.priceRange.currentMax;
+const handleSliderChange = type => {
+  if (type === 'min') {
+    state.priceRange.inputMin = state.priceRange.currentMin
+  } else if (type === 'max') {
+    state.priceRange.inputMax = state.priceRange.currentMax
   }
-};
+}
 
 const resetPrice = () => {
-  state.priceRange.currentMin = state.priceRange.min;
-  state.priceRange.currentMax = state.priceRange.max;
-  state.priceRange.inputMin = state.priceRange.min;
-  state.priceRange.inputMax = state.priceRange.max;
-  state.filters.selectedBrands = [];
-};
+  state.priceRange.currentMin = state.priceRange.min
+  state.priceRange.currentMax = state.priceRange.max
+  state.priceRange.inputMin = state.priceRange.min
+  state.priceRange.inputMax = state.priceRange.max
+  state.filters.selectedBrands = []
+}
 
-const toggleBrand = (brand) => {
+const toggleBrand = brand => {
   if (state.filters.selectedBrands.includes(brand)) {
-    state.filters.selectedBrands = state.filters.selectedBrands.filter((b) => b !== brand);
+    state.filters.selectedBrands = state.filters.selectedBrands.filter(b => b !== brand)
   } else {
-    state.filters.selectedBrands = [...state.filters.selectedBrands, brand];
+    state.filters.selectedBrands = [...state.filters.selectedBrands, brand]
   }
-};
+}
 </script>
 
 <template>
@@ -655,7 +644,7 @@ const toggleBrand = (brand) => {
 </template>
 
 <style scoped>
-input[type="range"]::-webkit-slider-thumb {
+input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 18px;
@@ -667,7 +656,7 @@ input[type="range"]::-webkit-slider-thumb {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-input[type="range"]::-moz-range-thumb {
+input[type='range']::-moz-range-thumb {
   width: 18px;
   height: 18px;
   background: #dc2626;
@@ -677,7 +666,7 @@ input[type="range"]::-moz-range-thumb {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-input[type="range"] {
+input[type='range'] {
   -webkit-appearance: none;
   appearance: none;
   height: 8px;
@@ -689,11 +678,11 @@ input[type="range"] {
   pointer-events: none;
 }
 
-input[type="range"]::-webkit-slider-runnable-track {
+input[type='range']::-webkit-slider-runnable-track {
   @apply bg-transparent h-1 rounded-full;
 }
 
-input[type="range"]::-webkit-slider-thumb {
+input[type='range']::-webkit-slider-thumb {
   @apply bg-red-600 w-5 h-5 rounded-full appearance-none cursor-pointer pointer-events-auto;
   transform: translateY(-50%);
   position: relative;
@@ -702,11 +691,11 @@ input[type="range"]::-webkit-slider-thumb {
   margin-top: 8px;
 }
 
-input[type="range"]::-moz-range-track {
+input[type='range']::-moz-range-track {
   @apply bg-transparent h-1 rounded-full;
 }
 
-input[type="range"]::-moz-range-thumb {
+input[type='range']::-moz-range-thumb {
   @apply bg-red-600 w-5 h-5 rounded-full appearance-none cursor-pointer pointer-events-auto;
   position: relative;
   z-index: 10;
@@ -714,11 +703,11 @@ input[type="range"]::-moz-range-thumb {
   margin-top: 2px;
 }
 
-input[type="range"]:first-of-type::-webkit-slider-thumb {
+input[type='range']:first-of-type::-webkit-slider-thumb {
   z-index: 20;
 }
 
-input[type="range"]:last-of-type::-webkit-slider-thumb {
+input[type='range']:last-of-type::-webkit-slider-thumb {
   z-index: 15;
 }
 

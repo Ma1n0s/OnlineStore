@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive } from "vue";
-import { productData } from "~/shared/productData";
-import type { Product } from "~/types/product.types";
-const route = useRoute();
+import { ref, onMounted, reactive } from 'vue'
+import { productData } from '~/shared/productData'
+import type { Product } from '~/types/product.types'
+const route = useRoute()
 
 // @ts-ignore
-const product = reactive<Product>(productData);
+const product = reactive<Product>(productData)
 
 // const { data, status, error, refresh, clear } = await useFetch<Product>(
 //   `http://127.0.0.1:8000/api/products/${route.params.product_id}`
@@ -21,37 +21,37 @@ const product = reactive<Product>(productData);
 
 // Вкладки
 const tabs = ref([
-  { id: "description", title: "ОПИСАНИЕ И ХАРАКТЕРИСТИКИ" },
+  { id: 'description', title: 'ОПИСАНИЕ И ХАРАКТЕРИСТИКИ' },
   // { id: "reviews", title: "ОТЗЫВЫ" },
   // { id: "questions", title: "ВОПРОСЫ И ОТВЕТЫ" },
-]);
+])
 
-const activeTab = ref("description");
-const isFavorite = ref(false);
-const loading = ref(true);
-const activeImage = ref(product?.images?.[0]?.src || "");
+const activeTab = ref('description')
+const isFavorite = ref(false)
+const loading = ref(true)
+const activeImage = ref(product?.images?.[0]?.src || '')
 
 useHead({
   title: `${product.name} ${product.brand} | Абсолют техно`,
   meta: [
     {
-      name: "description",
+      name: 'description',
       content: `Покупка ${product.name} ${product.brand} или аренда в Абсолют техно, доставка по всей России.`,
     },
   ],
-});
+})
 
 onMounted(() => {
-  activeTab.value = "description";
-  isFavorite.value = false;
-  loading.value = false;
+  activeTab.value = 'description'
+  isFavorite.value = false
+  loading.value = false
 
-  console.log(product.specifications);
-});
+  console.log(product.specifications)
+})
 
 const toggleFavorite = async () => {
-  isFavorite.value = !isFavorite.value;
-};
+  isFavorite.value = !isFavorite.value
+}
 </script>
 
 <template>
@@ -65,7 +65,7 @@ const toggleFavorite = async () => {
       <span>/</span>
       <NuxtLink to="#" class="font-semibold">{{ product.name }}</NuxtLink>
       <span>/</span>
-      <NuxtLink to="#" class="font-semibold">{{ product.brand || "Назавние Бренда" }}</NuxtLink>
+      <NuxtLink to="#" class="font-semibold">{{ product.brand || 'Назавние Бренда' }}</NuxtLink>
     </nav>
 
     <div v-if="!loading">
@@ -88,7 +88,7 @@ const toggleFavorite = async () => {
 
         <div class="flex items-center gap-2 cursor-pointer" @click="toggleFavorite">
           <Icon :name="isFavorite ? 'tabler:heart-filled' : 'tabler:heart'" class="w-4 h-4" />
-          <p class="text-sm">{{ isFavorite ? "В избранном" : "В избранное" }}</p>
+          <p class="text-sm">{{ isFavorite ? 'В избранном' : 'В избранное' }}</p>
         </div>
       </div>
 

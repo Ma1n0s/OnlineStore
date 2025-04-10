@@ -1,6 +1,6 @@
 import type { Product } from '~/types/product.types'
 
-export const productData = {
+export const productData : Partial<Product>= {
 	code: 100000,
 	price: { final: 1000, original: 1500, savings: 500 },
 	reviewsCount: 10,
