@@ -21,12 +21,12 @@ const { variant = 'primary', ...props } = defineProps<{
 const variantClasses = {
   primary: 'text-white bg-primary hover:bg-primary-hover', // Голубой 1
   secondary: 'text-white bg-second hover:bg-second-hover', // Голубой 2
-  transparent: 'text-dark bg-transparent border border-dark hover:bg-white', // Прозрачный
+  transparent: 'text-dark bg-transparent border-2 border-dark hover:bg-white', // Прозрачный
   warning: 'text-white bg-danger hover:bg-danger-hover', // Красный
 }
 
 const buttonClasses = computed(() => [
-  'px-6 py-2 rounded-xl hover:transition duration-300',
+  'px-6 py-2 rounded-xl hover:transition duration-300 border-2 border-transparent',
   variantClasses[variant],
   props.disabled ? 'opacity-50 cursor-not-allowed' : '',
 ])
