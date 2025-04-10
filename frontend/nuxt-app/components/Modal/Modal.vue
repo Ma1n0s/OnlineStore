@@ -19,7 +19,6 @@ const closeModal = () => {
   emit('close')
 }
 
-// Функция для закрытия при клике на оверлей
 const handleOverlayClick = event => {
   if (event.target === event.currentTarget) {
     closeModal()
@@ -40,7 +39,7 @@ const handleOverlayClick = event => {
       <div class="flex justify-between items-center">
         <h3 class="text-xl font-semibold">{{ title }}</h3>
         <button @click="closeModal" class="text-gray-500 hover:text-primary-hover transition-colors">
-          <Icon name="tabler:xbox-x" class="w-7 h-7" />
+          <Icon name="material-symbols:close-rounded" class="w-8 h-8" />
         </button>
       </div>
       <div class="">

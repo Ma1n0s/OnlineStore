@@ -17,6 +17,8 @@ results.json
 products.csv
 .cursor
 
+node_modules
+
 # IDE specific files
 .idea/
 .vscode/
