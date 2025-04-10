@@ -5,7 +5,7 @@
         v-for="(item, index) in catalog"
         :key="index"
         :class="[
-          '~p-4/2 cursor-pointer box-border border-b border-transparent hover:border-dark',
+          '~p-4/2 cursor-pointer box-border border-b border-transparent hover:border-dark overflow-auto',
           { '!border-dark': item.name === selectedCategory?.name },
         ]"
         @mouseenter="toggleSelectedCategory(item)"
@@ -13,7 +13,7 @@
         {{ item.name }}
       </div>
     </div>
-    <div v-show="!!selectedCategory" class="grid grid-cols-3 p-2 w-[800px]">
+    <div v-show="!!selectedCategory" class="grid grid-cols-2 xl:grid-cols-3 p-2 xl:max-w-[800px] w-max overflow-auto">
       <div
         v-for="(elements, index) in selectedCategory?.elements"
         :key="`${index}-catalog`"

@@ -1,5 +1,5 @@
 <template>
-  <div class="relative w-full" ref="target">
+  <div class="relative w-full h-full" ref="target">
     <TextInput @input="search" @click="search">
       <template v-slot:right>
         <div class="cursor-pointer h-full flex justify-center">

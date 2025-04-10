@@ -1,15 +1,17 @@
 <template>
-  <div class="bg-white flex justify-center w-full border-b border-blue-200 px-2">
+  <div class="bg-white hidden justify-center w-full border-b border-blue-200 px-2 md:flex">
     <div class="flex justify-around items-center gap-4 py-2 w-full max-w-screen-xl">
       <div>
         <NuxtLink to="/" class="flex items-center gap-2 w-[210px]">
-          <NuxtImg src="logo_test.svg" width="40" height="40" />
-          <div class="text-nowrap text-xl text-primary font-bold">Абсолют Техно</div>
+          <NuxtImg src="logo_test.svg" class="h-[50px] w-[50px]" />
+          <p class="text-nowrap text-xl text-primary font-bold leading-4">Абсолют Техно</p>
         </NuxtLink>
       </div>
 
       <CatalogButton />
-      <Search />
+      <div class="w-full">
+        <Search />
+      </div>
       <Button class="flex items-center gap-2 h-full"
         ><Icon name="material-symbols:shopping-cart-rounded" class="h-6 w-6"
       /></Button>
@@ -17,10 +19,40 @@
         >{{ userDisplayName }} <Icon name="solar:user-outline" class="h-6 w-6"
       /></Button>
       <Button class="flex items-center gap-2 h-full" @click="openModal" v-else
-        >Войти <Icon name="material-symbols:login-rounded" class="h-6 w-6"
+        ><span class="hidden lg:inline"> Вход </span> <Icon name="material-symbols:login-rounded" class="h-6 w-6"
       /></Button>
     </div>
   </div>
+
+  <div class="bg-white flex justify-center w-full border-b border-blue-200 px-2 md:hidden">
+    <div class="flex justify-around flex-col md:flex-row items-center gap-4 py-2 w-full max-w-screen-xl">
+      <div class="w-full h-full flex items-center gap-2" v-if="isMenuOpen">
+        <Button class="flex items-center gap-2 h-full !px-2" @click="isMenuOpen = false"
+          ><Icon name="material-symbols:close-rounded" class="h-6 w-6"
+        /></Button>
+        <div class="w-full">
+          <Search @close="isMenuOpen = false" />
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between gap-4 w-full" v-else>
+        <div>
+          <NuxtLink to="/" class="flex items-center gap-2 w-full">
+            <NuxtImg src="logo_test.svg" class="h-[40px] w-[40px]" />
+            <p class="text-lg sm:text-xl text-primary font-bold ~w-[4em/8em] leading-5">Абсолют Техно</p>
+          </NuxtLink>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <Button class="flex items-center gap-2 h-full" @click="isMenuOpen = true"
+            ><Icon name="material-symbols:search-rounded" class="h-6 w-6"
+          /></Button>
+          <Button class="flex items-center gap-2 h-full"><Icon name="material-symbols:menu" class="h-6 w-6" /></Button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <Modal class="min-h-[427px]" :isOpen="isModalOpen" @close="closeModal" @confirm="handleConfirm" title="">
     <AuthForm @close="closeModal" />
   </Modal>
@@ -46,6 +78,8 @@ const userDisplayName = computed(() => {
   if (!user.value) return 'Пользователь'
   return user.value.name || user.value.email || 'Пользователь'
 })
+
+const isMenuOpen = ref(false)
 
 const isModalOpen = ref(false)
 

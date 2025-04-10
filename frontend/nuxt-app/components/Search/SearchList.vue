@@ -64,9 +64,12 @@ const { target } = defineProps<{
   target: HTMLElement
 }>()
 
+const emit = defineEmits(['close'])
+
 const showSearch = defineModel<boolean>('showSearch', { required: true })
 
 onClickOutside(target, () => {
   showSearch.value = false
+  emit('close')
 })
 </script>
