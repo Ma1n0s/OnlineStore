@@ -1,4 +1,5 @@
 <script setup>
+import TextInput from '~/components/ui/Inputs/TextInput.vue'
 useHead({
   title: 'Контакты | Абсолют техно',
   meta: [
@@ -18,7 +19,7 @@ useHead({
       <div class="text-center mb-12">
         <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4 relative inline-block">
           <span class="relative z-10">Наши контакты</span>
-          <span class="absolute -bottom-2 left-0 w-full h-2 bg-blue-100 z-0"></span>
+          <span class="absolute -bottom-2 left-0 w-full h-2 bg-primary z-0"></span>
         </h1>
         <p class="text-lg text-gray-600 max-w-2xl mx-auto">
           Свяжитесь с нами удобным для вас способом. Мы всегда рады помочь и ответить на ваши вопросы.
@@ -32,7 +33,7 @@ useHead({
           <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-100">
             <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
               <svg
-                class="w-6 h-6 text-blue-500 mr-2"
+                class="w-6 h-6 text-primary mr-2"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -50,9 +51,9 @@ useHead({
 
             <ul class="space-y-5">
               <li class="flex items-start">
-                <div class="flex-shrink-0 bg-blue-50 p-2 rounded-lg">
+                <div class="flex-shrink-0 bg-primary p-2 rounded-lg">
                   <svg
-                    class="w-6 h-6 text-blue-600"
+                    class="w-6 h-6 text-white"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -70,16 +71,16 @@ useHead({
                   <h3 class="text-sm font-medium text-gray-500">Email</h3>
                   <a
                     href="mailto:info@absolyut-tehno.ru"
-                    class="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors"
+                    class="text-lg font-semibold text-gray-900 hover:text-primary-active transition-colors"
                     >info@absolyut-tehno.ru</a
                   >
                 </div>
               </li>
 
               <li class="flex items-start">
-                <div class="flex-shrink-0 bg-blue-50 p-2 rounded-lg">
+                <div class="flex-shrink-0 bg-primary p-2 rounded-lg">
                   <svg
-                    class="w-6 h-6 text-blue-600"
+                    class="w-6 h-6 text-white"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -97,16 +98,16 @@ useHead({
                   <h3 class="text-sm font-medium text-gray-500">Телефон</h3>
                   <a
                     href="tel:+78001234567"
-                    class="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors"
+                    class="text-lg font-semibold text-gray-900 hover:text-primary-active transition-colors"
                     >+7 (800) 123-45-67</a
                   >
                 </div>
               </li>
 
               <li class="flex items-start">
-                <div class="flex-shrink-0 bg-blue-50 p-2 rounded-lg">
+                <div class="flex-shrink-0 bg-primary p-2 rounded-lg">
                   <svg
-                    class="w-6 h-6 text-blue-600"
+                    class="w-6 h-6 text-white"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -133,9 +134,9 @@ useHead({
               </li>
 
               <li class="flex items-start">
-                <div class="flex-shrink-0 bg-blue-50 p-2 rounded-lg">
+                <div class="flex-shrink-0 bg-primary p-2 rounded-lg">
                   <svg
-                    class="w-6 h-6 text-blue-600"
+                    class="w-6 h-6 text-white"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -162,7 +163,7 @@ useHead({
           <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-100">
             <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
               <svg
-                class="w-6 h-6 text-blue-500 mr-2"
+                class="w-6 h-6 text-white mr-2"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -222,7 +223,7 @@ useHead({
         <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-100 h-fit">
           <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
             <svg
-              class="w-6 h-6 text-blue-500 mr-2"
+              class="w-6 h-6 text-primary mr-2"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -241,47 +242,27 @@ useHead({
           <form class="space-y-5">
             <div>
               <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Ваше имя</label>
-              <input
-                type="text"
-                id="name"
-                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-                placeholder="Иван Иванов"
-              />
+              <TextInput type="text" id="name" class="w-full px-4 py-3" placeholder="Иван Иванов" />
             </div>
 
             <div>
               <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-              <input
-                type="email"
-                id="email"
-                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-                placeholder="example@mail.ru"
-              />
+              <TextInput type="email" id="email" class="w-full px-4 py-3" placeholder="example@mail.ru" />
             </div>
 
             <div>
               <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Телефон</label>
-              <input
-                type="tel"
-                id="phone"
-                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-                placeholder="+7 (___) ___-__-__"
-              />
+              <TextInput type="tel" id="phone" class="w-full px-4 py-3" placeholder="+7 (___) ___-__-__" />
             </div>
 
             <div>
               <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Сообщение</label>
-              <textarea
-                id="message"
-                rows="4"
-                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-                placeholder="Ваше сообщение..."
-              ></textarea>
+              <Textarea id="message" rows="4" class="w-full px-4 py-3" placeholder="Ваше сообщение..."></Textarea>
             </div>
 
             <button
               type="submit"
-              class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-300"
+              class="w-full bg-primary hover:bg-primary-hover text-white font-medium py-3 px-4 rounded-lg transition-colors duration-300"
             >
               Отправить сообщение
             </button>
@@ -293,7 +274,7 @@ useHead({
       <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 w-full">
         <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
           <svg
-            class="w-6 h-6 text-blue-500 mr-2"
+            class="w-6 h-6 text-primary mr-2"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
