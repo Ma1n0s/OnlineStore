@@ -12,6 +12,8 @@ import BasicDescriptionBlock from '~/components/Product/BasicDescriptionBlock.vu
 import BrandBlock from '~/components/Product/BrandBlock.vue'
 import Basket from '~/components/Product/Basket.vue'
 import ActionsPanel from '~/components/Product/ActionsPanel.vue'
+import InformationCart from '~/components/Product/InformationCart.vue'
+import Reviews from '~/components/Product/Reviews.vue'
 
 // Данные продукта
 const product = reactive<Partial<Product>>(productData)
@@ -60,11 +62,11 @@ onMounted(() => {
         <!-- Свой Свайпер по img -->
         <ImageBlock />
 
-        <!-- Характеристики и описание -->
+        <!-- Основные характеристики и блок с покупкой -->
         <div class="w-full md:w-3/5">
           <Basket />
           <!-- Основные характеристики -->
-          <DescriptionBlock />
+          <!-- <DescriptionBlock /> -->
         </div>
       </div>
 
@@ -93,6 +95,7 @@ onMounted(() => {
             <BasicDescriptionBlock />
             <!-- Техническое описание -->
             <SpecificationsBlock />
+            <InformationCart />
           </div>
 
           <!-- Боковая панель с брендом -->
@@ -101,18 +104,7 @@ onMounted(() => {
           </div>
         </div>
       </div>
-      <div class="border border-orange-200 bg-orange-50 p-4 rounded-lg">
-        <div class="flex items-center gap-4">
-          <div class="text-orange-800 font-medium">Спецпредложение! Набор инструментов со скидкой 15%</div>
-          <div class="w-52 h-10 bg-orange-600 flex items-center justify-center text-white font-bold rounded">-15%</div>
-        </div>
-        <div class="flex items-center gap-4 mt-4">
-          <div class="w-52 h-10 bg-orange-600 flex items-center justify-center text-white font-bold rounded">
-            Рассрочка 0%
-          </div>
-          <div class="text-orange-800 font-medium">Покупка в рассрочку без переплат</div>
-        </div>
-      </div>
+      <Reviews />
     </div>
 
     <div v-else class="flex justify-center items-center h-64">
