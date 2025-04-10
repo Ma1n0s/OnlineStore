@@ -1,0 +1,12 @@
+# Nuxt build directories
+.nuxt
+.output
+node_modules
+dist
+
+# Generated files
+*.min.js
+*.d.ts
+
+# Test coverage
+coverage 

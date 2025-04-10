@@ -1,14 +1,14 @@
 <script setup lang="ts">
 const links = [
-  { link: "contacts", name: "Контакты" },
-  { link: "about", name: "О компании" },
-];
+  { link: 'contacts', name: 'Контакты' },
+  { link: 'about', name: 'О компании' },
+]
 
 const socialLinks = [
-  { icon: "i-mdi-vk", link: "#" },
-  { icon: "i-mdi-telegram", link: "#" },
-  { icon: "i-mdi-whatsapp", link: "#" },
-];
+  { icon: 'i-mdi-vk', link: '#' },
+  { icon: 'i-mdi-telegram', link: '#' },
+  { icon: 'i-mdi-whatsapp', link: '#' },
+]
 </script>
 
 <template>
@@ -25,30 +25,34 @@ const socialLinks = [
             <p class="text-neutral-DEFAULT text-sm mt-1">Пн-Пт: 9:00 - 18:00</p>
           </div>
         </div>
-        
+
         <div class="flex items-start">
           <div class="text-primary mr-4 mt-1">
             <i class="i-mdi-phone text-3xl"></i>
           </div>
           <div>
             <h4 class="text-white text-lg font-semibold mb-1">Телефон</h4>
-            <a href="tel:+79008005533" class="text-neutral-DEFAULT hover:text-primary transition-colors">+7 (900) 800 555 33-55</a>
+            <a href="tel:+79008005533" class="text-neutral-DEFAULT hover:text-primary transition-colors"
+              >+7 (900) 800 555 33-55</a
+            >
             <p class="text-neutral-DEFAULT text-sm mt-1">Бесплатная консультация</p>
           </div>
         </div>
-        
+
         <div class="flex items-start">
           <div class="text-primary mr-4 mt-1">
             <i class="i-mdi-email text-3xl"></i>
           </div>
           <div>
             <h4 class="text-white text-lg font-semibold mb-1">Почта</h4>
-            <a href="mailto:mail@gmail.com" class="text-neutral-DEFAULT hover:text-primary transition-colors">mail@gmail.com</a>
+            <a href="mailto:mail@gmail.com" class="text-neutral-DEFAULT hover:text-primary transition-colors"
+              >mail@gmail.com</a
+            >
             <p class="text-neutral-DEFAULT text-sm mt-1">Ответим в течение дня</p>
           </div>
         </div>
       </div>
-      
+
       <div class="grid grid-cols-1 md:grid-cols-3 gap-10 pt-10">
         <div class="space-y-6">
           <NuxtLink to="#" class="inline-block">
@@ -58,19 +62,19 @@ const socialLinks = [
             Мы предлагаем широкий ассортимент качественного оборудования. У нас вы найдете всё необходимое для
             строительства, ремонта, садовых работ и многого другого. Мы гарантируем надежность и доступные цены.
           </p>
-          
+
           <div class="flex space-x-4">
-            <a 
-              v-for="(social, index) in socialLinks" 
-              :key="index" 
-              :href="social.link" 
+            <a
+              v-for="(social, index) in socialLinks"
+              :key="index"
+              :href="social.link"
               class="text-neutral-DEFAULT hover:text-primary text-2xl transition-colors"
             >
               <i :class="social.icon"></i>
             </a>
           </div>
         </div>
-        
+
         <div>
           <h3 class="text-white text-lg font-semibold mb-6 pb-2 relative inline-block">
             Полезные ссылки
@@ -78,8 +82,8 @@ const socialLinks = [
           </h3>
           <ul class="space-y-3">
             <li v-for="(item, index) in links" :key="index">
-              <NuxtLink 
-                :to="item.link || '#'" 
+              <NuxtLink
+                :to="item.link || '#'"
                 class="text-neutral-DEFAULT hover:text-primary transition-colors flex items-center"
               >
                 <i class="i-mdi-chevron-right mr-1 text-xs"></i>
@@ -88,7 +92,7 @@ const socialLinks = [
             </li>
           </ul>
         </div>
-        
+
         <div>
           <h3 class="text-white text-lg font-semibold mb-6 pb-2 relative inline-block">
             Подписка на новости
@@ -98,13 +102,13 @@ const socialLinks = [
             Подпишитесь на наши новости и получите скидку 10% на первый заказ
           </p>
           <form class="flex">
-            <input 
-              type="email" 
-              placeholder="Ваш email" 
+            <input
+              type="email"
+              placeholder="Ваш email"
               class="px-4 py-2 w-full text-black focus:outline-none focus:ring-2 focus:ring-primary rounded-l"
-            >
-            <button 
-              type="submit" 
+            />
+            <button
+              type="submit"
               class="bg-primary hover:bg-primary-hover px-4 py-2 text-white font-medium rounded-r transition-colors"
             >
               <i class="i-mdi-send"></i>
@@ -112,7 +116,7 @@ const socialLinks = [
           </form>
         </div>
       </div>
-      
+
       <div class="border-t border-neutral-dark mt-12 pt-6 text-center text-neutral-DEFAULT text-sm">
         <p>© 2025 Все права защищены.<i class="i-mdi-heart text-primary"></i></p>
       </div>

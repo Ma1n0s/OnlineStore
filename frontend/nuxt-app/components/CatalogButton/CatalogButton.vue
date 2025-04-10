@@ -27,7 +27,7 @@
           :key="`${index}-catalog`"
           class="~p-4/2 h-fit cursor-pointer hover:bg-dark/20"
         >
-          {{ elements?.name || "Error" }}
+          {{ elements?.name || 'Error' }}
         </div>
       </div>
     </div>
@@ -35,54 +35,54 @@
 </template>
 
 <script setup lang="ts">
-import Button from "~/components/ui/Button/Button.vue";
+import Button from '~/components/ui/Button/Button.vue'
 
-type CatalogItem = { name: string; elements: any[] };
+type CatalogItem = { name: string; elements: any[] }
 
 const catalog: CatalogItem[] = [
   {
-    name: "Инструменты",
+    name: 'Инструменты',
     elements: [
-      { name: "Шуруповерты" },
-      { name: "Дрели" },
-      { name: "Болгарки" },
-      { name: "Бороздоделы" },
-      { name: "Гайковерты" },
-      { name: "Гвоздезабиватели" },
-      { name: "Дрели" },
-      { name: "Граверы" },
-      { name: "Заклепочники" },
-      { name: "Измерительный инструмент" },
-      { name: "Лабораторное оборудование" },
-      { name: "Лобзики" },
-      { name: "Ножницы по металлу" },
-      { name: "Отбойные молотки" },
-      { name: "Паяльное оборудование" },
-      { name: "Перфораторы" },
-      { name: "Пилы" },
-      { name: "Пистолеты" },
-      { name: "Пневмоинструмент" },
-      { name: "Пневмошуруповерты" },
-      { name: "Сварочное оборудование" },
-      { name: "Строительные пылесосы" },
-      { name: "Шлифмашинки" },
-      { name: "Электрорубанки" },
+      { name: 'Шуруповерты' },
+      { name: 'Дрели' },
+      { name: 'Болгарки' },
+      { name: 'Бороздоделы' },
+      { name: 'Гайковерты' },
+      { name: 'Гвоздезабиватели' },
+      { name: 'Дрели' },
+      { name: 'Граверы' },
+      { name: 'Заклепочники' },
+      { name: 'Измерительный инструмент' },
+      { name: 'Лабораторное оборудование' },
+      { name: 'Лобзики' },
+      { name: 'Ножницы по металлу' },
+      { name: 'Отбойные молотки' },
+      { name: 'Паяльное оборудование' },
+      { name: 'Перфораторы' },
+      { name: 'Пилы' },
+      { name: 'Пистолеты' },
+      { name: 'Пневмоинструмент' },
+      { name: 'Пневмошуруповерты' },
+      { name: 'Сварочное оборудование' },
+      { name: 'Строительные пылесосы' },
+      { name: 'Шлифмашинки' },
+      { name: 'Электрорубанки' },
     ],
   },
-  { name: "Другое", elements: [{ name: "1" }, { name: "2" }] },
-];
+  { name: 'Другое', elements: [{ name: '1' }, { name: '2' }] },
+]
 
-const showMenu = ref(false);
-const toggleMenu = () => (showMenu.value = !showMenu.value);
+const showMenu = ref(false)
+const toggleMenu = () => (showMenu.value = !showMenu.value)
 
-const selectedCategory = ref<CatalogItem>(catalog[0] || null);
+const selectedCategory = ref<CatalogItem>(catalog[0] || null)
 const toggleSelectedCategory = (item: CatalogItem) => {
-  selectedCategory.value = item;
-};
+  selectedCategory.value = item
+}
 
-const target = useTemplateRef<HTMLElement>("target");
-onClickOutside(target, (event) => {
-  console.log(showMenu.value);
-  showMenu.value = false;
-});
+const target = useTemplateRef<HTMLElement>('target')
+onClickOutside(target, () => {
+  console.log(showMenu.value)
+  showMenu.value = false
+})
 </script>

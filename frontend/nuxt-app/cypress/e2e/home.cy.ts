@@ -1,31 +1,31 @@
-describe("Домашняя страница", () => {
+describe('Домашняя страница', () => {
   beforeEach(() => {
     // Посещаем домашнюю страницу перед каждым тестом
-    cy.visit("/");
-  });
+    cy.visit('/')
+  })
 
-  it("загружается и отображает заголовок сайта", () => {
+  it('загружается и отображает заголовок сайта', () => {
     // Проверяем наличие заголовка сайта
-    cy.contains("Абсолют Техно").should("be.visible");
-  });
+    cy.contains('Абсолют Техно').should('be.visible')
+  })
 
-  it("имеет работающую навигацию", () => {
+  it('имеет работающую навигацию', () => {
     // Проверяем наличие ссылки на главную страницу
-    cy.get('a[href="/"]').should("exist");
+    cy.get('a[href="/"]').should('exist')
 
     // Переходим на страницу "О нас" и проверяем URL
-    cy.contains("a", "О нас").click();
-    cy.url().should("include", "/about");
+    cy.contains('a', 'О нас').click()
+    cy.url().should('include', '/about')
 
     // Проверяем загрузку содержимого страницы "О нас"
-    cy.contains("О компании").should("be.visible");
-  });
+    cy.contains('О компании').should('be.visible')
+  })
 
-  it("отображает компоненты слайдеров на главной странице", () => {
-    cy.visit("/");
+  it('отображает компоненты слайдеров на главной странице', () => {
+    cy.visit('/')
 
     // Проверяем наличие слайдеров (в зависимости от реальной структуры DOM)
-    cy.get(".swiper-container").should("exist");
-    cy.get(".swiper-slide").should("have.length.at.least", 1);
-  });
-});
+    cy.get('.swiper-container').should('exist')
+    cy.get('.swiper-slide').should('have.length.at.least', 1)
+  })
+})

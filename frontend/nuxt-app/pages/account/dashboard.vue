@@ -1,40 +1,40 @@
 <script setup>
 useHead({
-  title: "Личный кабинет | Абсолют техно",
+  title: 'Личный кабинет | Абсолют техно',
   meta: [
     {
-      name: "description",
+      name: 'description',
       content:
-        "Личный кабинет Абсолют техно. Управление заказами, избранными товарами, просмотренными товарами и другими функциями.",
+        'Личный кабинет Абсолют техно. Управление заказами, избранными товарами, просмотренными товарами и другими функциями.',
     },
   ],
-});
+})
 
 const firstRowCards = [
-  { icon: "", alt: "but1", title: "Мои заказы", description: "Пока нет заказов" },
-  { icon: "", alt: "but2", title: "Промокоды", description: "Покупать с выгодой" },
-  { icon: "", alt: "but1", title: "Купленное", description: "Заказать снова" },
-  { icon: "", alt: "but1", title: "Просмотренное", description: "Легко найти" },
-];
+  { icon: '', alt: 'but1', title: 'Мои заказы', description: 'Пока нет заказов' },
+  { icon: '', alt: 'but2', title: 'Промокоды', description: 'Покупать с выгодой' },
+  { icon: '', alt: 'but1', title: 'Купленное', description: 'Заказать снова' },
+  { icon: '', alt: 'but1', title: 'Просмотренное', description: 'Легко найти' },
+]
 
 const secondRowCards = [
-  { icon: "", alt: "favorites", title: "Избранное", count: 0 },
-  { icon: "", alt: "comparison", title: "Сравнение", count: 0 },
-];
+  { icon: '', alt: 'favorites', title: 'Избранное', count: 0 },
+  { icon: '', alt: 'comparison', title: 'Сравнение', count: 0 },
+]
 
-const orders = [
-  {
-    id: "2503-211902-06296",
-    status: "Отказ от заказа",
-    date: "3 марта 2024",
-    amount: "6 734 ₽",
-    paid: false,
-    products: [
-      { id: 1, name: "Товар 1", image: "Categories/Instruments.png" },
-      { id: 2, name: "Товар 2", image: "Categories/Instruments.png" },
-    ],
-  },
-];
+// const orders = [
+//   {
+//     id: '2503-211902-06296',
+//     status: 'Отказ от заказа',
+//     date: '3 марта 2024',
+//     amount: '6 734 ₽',
+//     paid: false,
+//     products: [
+//       { id: 1, name: 'Товар 1', image: 'Categories/Instruments.png' },
+//       { id: 2, name: 'Товар 2', image: 'Categories/Instruments.png' },
+//     ],
+//   },
+// ]
 </script>
 
 <template>

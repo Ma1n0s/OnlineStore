@@ -1,36 +1,36 @@
-import { defineStore } from "pinia";
-import type { User } from "~/types/user.types";
+import { defineStore } from 'pinia'
+import type { User } from '~/types/user.types'
 
-export const useUserStore = defineStore("user", () => {
-  const user = ref<User | null>(null);
-  const isAuth = ref(false);
+export const useUserStore = defineStore('user', () => {
+  const user = ref<User | null>(null)
+  const isAuth = ref(false)
 
   const setUser = (userData: User) => {
-    user.value = userData;
-    isAuth.value = true;
-  };
+    user.value = userData
+    isAuth.value = true
+  }
 
   const clearUser = () => {
-    user.value = null;
-    isAuth.value = false;
-  };
+    user.value = null
+    isAuth.value = false
+  }
 
   const fetchUser = async () => {
     try {
-      const { data } = await useSanctumFetch("/api/user", {
-        credentials: "include",
-      });
+      const { data } = await useSanctumFetch('/api/user', {
+        credentials: 'include',
+      })
 
       if (data.value) {
-        user.value = data.value;
-        isAuth.value = true;
+        user.value = data.value
+        isAuth.value = true
       }
     } catch (error) {
-      console.error("Error fetching user:", error);
-      user.value = null;
-      isAuth.value = false;
+      console.error('Error fetching user:', error)
+      user.value = null
+      isAuth.value = false
     }
-  };
+  }
 
-  return { user, isAuth, fetchUser, setUser, clearUser };
-});
+  return { user, isAuth, fetchUser, setUser, clearUser }
+})
