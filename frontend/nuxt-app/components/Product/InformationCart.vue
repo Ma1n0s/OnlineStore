@@ -1,6 +1,5 @@
 <template>
   <div class="border border-orange-200 bg-orange-50 p-4 rounded-lg">
-    <!-- Первая строка: Технология экрана -->
     <div class="flex items-center gap-4">
       <div class="text-orange-800 font-medium">
         <p class="font-bold text-lg mb-2">Dynamic AMOLED 2X с адаптивной частотой 1–120 Гц</p>
@@ -24,7 +23,6 @@
       </div>
     </div>
 
-    <!-- Вторая строка: S Pen -->
     <div class="flex items-center gap-4 mt-4">
       <div class="w-52 h-10 bg-orange-600 flex items-center justify-center text-white font-bold rounded">
         S Pen с задержкой 2.8 мс
@@ -44,7 +42,6 @@
       </div>
     </div>
 
-    <!-- Третья строка: Дополнительные функции -->
     <div class="flex items-center gap-4 mt-4">
       <div class="text-orange-800 font-medium">
         <p class="font-bold text-lg mb-2">Оптимизация для мультимедиа</p>
