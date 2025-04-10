@@ -104,6 +104,8 @@
 </template>
 
 <script setup>
+import TextInput from '~/components/ui/Inputs/TextInput.vue'
+import Button from '~/components/ui/Button/Button.vue'
 import { computed } from 'vue'
 
 const props = defineProps({
