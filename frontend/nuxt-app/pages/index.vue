@@ -6,13 +6,13 @@ import BigSwiper from '~/components/Swiper/BigSwiper.vue'
 import CategoryList from '~/components/CategoryItems/CategoryList/CategoryList.vue'
 </script>
 <template>
-  <div class="bg-white w-full ~text-sm/xs ~p-4/8 flex flex-col items-center">
+  <div class="bg-white w-full ~text-sm/xs ~py-4/8 lg:~px-4/8 flex flex-col items-center">
     <div class="w-full xl:max-w-7xl">
       <div class="mb-16">
         <BigSwiper />
       </div>
 
-      <div class="mb-16">
+      <div class="mb-16 md:px-2">
         <WrapperHeader title="Кататегории товаров">
           <CategoryList />
         </WrapperHeader>

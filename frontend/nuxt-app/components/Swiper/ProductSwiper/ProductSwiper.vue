@@ -10,7 +10,7 @@
       :space-between="30"
       class="w-full"
     >
-      <swiper-slide v-for="(product, idx) in products" :key="idx" class="w-fit pb-8">
+      <swiper-slide v-for="(product, idx) in products" :key="idx" class="w-fit pb-8 px-2 lg:px-0">
         <ProductSlide :product="product" />
       </swiper-slide>
     </swiper-container>

@@ -11,7 +11,7 @@
       <swiper-slide
         v-for="(slide, idx) in slides"
         :key="idx"
-        class="bg-white flex items-center justify-center text-2xl font-bold w-full h-full rounded-3xl"
+        class="bg-white flex items-center justify-center text-2xl font-bold w-full h-full rounded-3xl px-2 lg:px-0"
       >
         <NuxtImg :alt="slide.brand" :src="slide.src" format="webp" class="w-full h-full object-cover rounded-3xl" />
       </swiper-slide>
