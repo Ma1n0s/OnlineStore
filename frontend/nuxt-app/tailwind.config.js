@@ -34,7 +34,7 @@ export default {
           DEFAULT: '#0077C8',
           hover: '#0062A3',
         },
-        white: '#E9F1F7',
+        white: '#FFFFFF',
         danger: {
           DEFAULT: '#D62828',
           hover: '#B22222',
