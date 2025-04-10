@@ -15,8 +15,12 @@ const product = reactive<Product>(productData)
 				<div>
 					<h3 class="font-semibold text-gray-700 mb-2">Основные</h3>
 					<ul class="space-y-3">
-						<li v-for="(value, key) in product.specificationsВ.Основное" :key="key" class="flex justify-between">
-							<span class="text-gray-500">{{ key.replace('_', ' ') }}</span>
+						<li
+							v-for="(value, key) in product.specifications['Основны характеристики']"
+							:key="key"
+							class="flex justify-between"
+						>
+							<span class="text-gray-500">{{ key.replace(' ', ' ') }}</span>
 							<span class="font-medium">{{ value }}</span>
 						</li>
 					</ul>
@@ -28,10 +32,14 @@ const product = reactive<Product>(productData)
 				<div>
 					<h3 class="font-semibold text-gray-700 mb-2">Экран</h3>
 					<ul class="space-y-3">
-						<li v-for="(value, key) in product.specificationsВ.Экран" :key="key" class="flex justify-between">
-							<span class="text-gray-500">{{ key.replace('_', ' ') }}</span>
-							<span class="font-medium">{{ value }}</span>
-						</li>
+						<template v-for="key in ['Диагональ', 'Разрешение', 'Тип', 'Тип матрицы']">
+							<li v-if="product.specifications['экран'][key]" :key="key" class="flex justify-between">
+								<span class="text-gray-500">{{ key }}</span>
+								<span class="font-medium">
+									{{ product.specifications['экран'][key] }}
+								</span>
+							</li>
+						</template>
 					</ul>
 				</div>
 			</div>
