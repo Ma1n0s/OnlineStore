@@ -92,29 +92,6 @@ const socialLinks = [
             </li>
           </ul>
         </div>
-
-        <div>
-          <h3 class="text-white text-lg font-semibold mb-6 pb-2 relative inline-block">
-            Подписка на новости
-            <span class="absolute bottom-0 left-0 w-full h-0.5 bg-primary"></span>
-          </h3>
-          <p class="text-neutral-DEFAULT text-sm mb-4">
-            Подпишитесь на наши новости и получите скидку 10% на первый заказ
-          </p>
-          <form class="flex">
-            <input
-              type="email"
-              placeholder="Ваш email"
-              class="px-4 py-2 w-full text-black focus:outline-none focus:ring-2 focus:ring-primary rounded-l"
-            />
-            <button
-              type="submit"
-              class="bg-primary hover:bg-primary-hover px-4 py-2 text-white font-medium rounded-r transition-colors"
-            >
-              <i class="i-mdi-send"></i>
-            </button>
-          </form>
-        </div>
       </div>
 
       <div class="border-t border-neutral-dark mt-12 pt-6 text-center text-neutral-DEFAULT text-sm">
