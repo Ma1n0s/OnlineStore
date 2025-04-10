@@ -1,40 +1,40 @@
 <script setup>
 useHead({
-  title: "Мои заказы | Абсолют техно",
+  title: 'Мои заказы | Абсолют техно',
   meta: [
     {
-      name: "description",
+      name: 'description',
       content:
-        "История заказов в Абсолют техно. Просматривайте все ваши заказы, отслеживайте их статус и детали. Удобный доступ к информации о доставке, оплате и составе заказов.",
+        'История заказов в Абсолют техно. Просматривайте все ваши заказы, отслеживайте их статус и детали. Удобный доступ к информации о доставке, оплате и составе заказов.',
     },
   ],
-});
+})
 
-const firstRowCards = [
-  { icon: "", alt: "but1", title: "Мои заказы", description: "Пока нет заказов" },
-  { icon: "", alt: "but2", title: "Промокоды", description: "Покупать с выгодой" },
-  { icon: "", alt: "but1", title: "Купленное", description: "Заказать снова" },
-  { icon: "", alt: "but1", title: "Просмотренное", description: "Легко найти" },
-];
+// const firstRowCards = [
+//   { icon: '', alt: 'but1', title: 'Мои заказы', description: 'Пока нет заказов' },
+//   { icon: '', alt: 'but2', title: 'Промокоды', description: 'Покупать с выгодой' },
+//   { icon: '', alt: 'but1', title: 'Купленное', description: 'Заказать снова' },
+//   { icon: '', alt: 'but1', title: 'Просмотренное', description: 'Легко найти' },
+// ]
 
-const secondRowCards = [
-  { icon: "", alt: "favorites", title: "Избранное", count: 0 },
-  { icon: "", alt: "comparison", title: "Сравнение", count: 0 },
-];
+// const secondRowCards = [
+//   { icon: '', alt: 'favorites', title: 'Избранное', count: 0 },
+//   { icon: '', alt: 'comparison', title: 'Сравнение', count: 0 },
+// ]
 
 const orders = [
   {
-    id: "2503-211902-06296",
-    status: "Отказ от заказа",
-    date: "3 марта 2024",
-    amount: "6 734 ₽",
+    id: '2503-211902-06296',
+    status: 'Отказ от заказа',
+    date: '3 марта 2024',
+    amount: '6 734 ₽',
     paid: false,
     products: [
-      { id: 1, name: "Товар 1", image: "Categories/Instruments.png" },
-      { id: 2, name: "Товар 2", image: "Categories/Instruments.png" },
+      { id: 1, name: 'Товар 1', image: 'Categories/Instruments.png' },
+      { id: 2, name: 'Товар 2', image: 'Categories/Instruments.png' },
     ],
   },
-];
+]
 </script>
 
 <template>
@@ -333,7 +333,7 @@ const orders = [
             </div>
             <div class="flex items-center gap-2">
               <span :class="{ 'text-red-600': !order.paid, 'text-green-600': order.paid }" class="font-medium">
-                {{ order.paid ? "Оплачен" : "Не оплачен" }} {{ order.amount }}
+                {{ order.paid ? 'Оплачен' : 'Не оплачен' }} {{ order.amount }}
               </span>
             </div>
           </div>

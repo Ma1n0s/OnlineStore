@@ -1,86 +1,86 @@
 <script setup>
-import { reactive } from "vue";
-import TextInput from "~/components/ui/Inputs/TextInput.vue";
-import Button from "~/components/ui/Button/Button.vue";
-import { emailRegex } from "~/shared/regexp";
+import { reactive } from 'vue'
+import TextInput from '~/components/ui/Inputs/TextInput.vue'
+import Button from '~/components/ui/Button/Button.vue'
+import { emailRegex } from '~/shared/regexp'
 
-const { setUser } = useUserStore();
+const { setUser } = useUserStore()
 
-const emit = defineEmits(["close"]);
+const emit = defineEmits(['close'])
 
 const form = reactive({
-  email: "",
-  password: "",
+  email: '',
+  password: '',
   rememberMe: false,
   isLoading: false,
-  emailError: "",
-  passwordError: "",
-});
+  emailError: '',
+  passwordError: '',
+})
 
 const validate = () => {
-  let valid = true;
+  let valid = true
 
-  const isValidEmail = emailRegex.test(form.email);
+  const isValidEmail = emailRegex.test(form.email)
 
   if (!form.email) {
-    form.emailError = "Пожалуйста, введите email";
-    valid = false;
+    form.emailError = 'Пожалуйста, введите email'
+    valid = false
   } else if (!isValidEmail) {
-    form.emailError = "Введите корректный email";
-    valid = false;
+    form.emailError = 'Введите корректный email'
+    valid = false
   } else {
-    form.emailError = "";
+    form.emailError = ''
   }
 
   if (!form.password) {
-    form.passwordError = "Пожалуйста, введите пароль";
-    valid = false;
+    form.passwordError = 'Пожалуйста, введите пароль'
+    valid = false
   } else if (form.password.length < 6) {
-    form.passwordError = "Пароль должен быть не менее 6 символов";
-    valid = false;
+    form.passwordError = 'Пароль должен быть не менее 6 символов'
+    valid = false
   } else {
-    form.passwordError = "";
+    form.passwordError = ''
   }
 
-  return valid;
-};
+  return valid
+}
 
 const handleLogin = async () => {
-  if (!validate()) return;
+  if (!validate()) return
 
   try {
-    form.isLoading = true;
+    form.isLoading = true
 
-    await useSanctumFetch("/sanctum/csrf-cookie", {
-      method: "GET",
-      credentials: "include",
-    });
+    await useSanctumFetch('/sanctum/csrf-cookie', {
+      method: 'GET',
+      credentials: 'include',
+    })
 
-    const { data } = await useSanctumFetch("/api/auth/email-password", {
-      method: "POST",
+    const { data } = await useSanctumFetch('/api/auth/email-password', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         email: form.email,
         password: form.password,
       }),
-    });
+    })
 
-    if (data.value && data.value.status === "success") {
-      setUser(data.value.user);
-      const { user } = useSanctumAuth();
-      user.value = data.value.user;
-      emit("close");
+    if (data.value && data.value.status === 'success') {
+      setUser(data.value.user)
+      const { user } = useSanctumAuth()
+      user.value = data.value.user
+      emit('close')
     } else {
-      form.passwordError = "Неверный email или пароль";
+      form.passwordError = 'Неверный email или пароль'
     }
   } catch (error) {
-    console.error("Login error:", error);
+    console.error('Login error:', error)
   } finally {
-    form.isLoading = false;
+    form.isLoading = false
   }
-};
+}
 </script>
 <template>
   <div class="w-full space-y-4">

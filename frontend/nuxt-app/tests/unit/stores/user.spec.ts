@@ -1,22 +1,22 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi } from 'vitest'
 
 // Мокирую хранилище напрямую
-vi.mock("~/stores/user", () => ({
+vi.mock('~/stores/user', () => ({
   useUserStore: vi.fn(() => ({
     isAuth: false,
-    name: "",
-    phone: "",
+    name: '',
+    phone: '',
   })),
-}));
+}))
 
-import { useUserStore } from "~/stores/user";
+import { useUserStore } from '~/stores/user'
 
-describe("User Store", () => {
-  it("инициализируется с корректными значениями по умолчанию", () => {
-    const store = useUserStore();
+describe('User Store', () => {
+  it('инициализируется с корректными значениями по умолчанию', () => {
+    const store = useUserStore()
 
-    expect(store.isAuth).toBe(false);
-    expect(store.name).toBe("");
-    expect(store.phone).toBe("");
-  });
-});
+    expect(store.isAuth).toBe(false)
+    expect(store.name).toBe('')
+    expect(store.phone).toBe('')
+  })
+})

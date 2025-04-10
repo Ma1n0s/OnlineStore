@@ -1,40 +1,40 @@
 <script setup>
 useHead({
-  title: "История заказов | Абсолют техно",
+  title: 'История заказов | Абсолют техно',
   meta: [
     {
-      name: "description",
+      name: 'description',
       content:
-        "Активные заказы в личном кабинете Абсолют техно. Отслеживайте статус ваших текущих заказов, историю покупок и управляйте своими заказами онлайн.",
+        'Активные заказы в личном кабинете Абсолют техно. Отслеживайте статус ваших текущих заказов, историю покупок и управляйте своими заказами онлайн.',
     },
   ],
-});
+})
 
 const firstRowCards = [
-  { icon: "", alt: "but1", title: "Мои заказы", description: "Пока нет заказов" },
-  { icon: "", alt: "but2", title: "Промокоды", description: "Покупать с выгодой" },
-  { icon: "", alt: "but1", title: "Купленное", description: "Заказать снова" },
-  { icon: "", alt: "but1", title: "Просмотренное", description: "Легко найти" },
-];
+  { icon: '', alt: 'but1', title: 'Мои заказы', description: 'Пока нет заказов' },
+  { icon: '', alt: 'but2', title: 'Промокоды', description: 'Покупать с выгодой' },
+  { icon: '', alt: 'but1', title: 'Купленное', description: 'Заказать снова' },
+  { icon: '', alt: 'but1', title: 'Просмотренное', description: 'Легко найти' },
+]
 
 const secondRowCards = [
-  { icon: "", alt: "favorites", title: "Избранное", count: 0 },
-  { icon: "", alt: "comparison", title: "Сравнение", count: 0 },
-];
+  { icon: '', alt: 'favorites', title: 'Избранное', count: 0 },
+  { icon: '', alt: 'comparison', title: 'Сравнение', count: 0 },
+]
 
 const orders = [
   {
-    id: "2503-211902-06296",
-    status: "Отказ от заказа",
-    date: "3 марта 2024",
-    amount: "6 734 ₽",
+    id: '2503-211902-06296',
+    status: 'Отказ от заказа',
+    date: '3 марта 2024',
+    amount: '6 734 ₽',
     paid: false,
     products: [
-      { id: 1, name: "Товар 1", image: "https://via.placeholder.com/80" },
-      { id: 2, name: "Товар 2", image: "https://via.placeholder.com/80" },
+      { id: 1, name: 'Товар 1', image: 'https://via.placeholder.com/80' },
+      { id: 2, name: 'Товар 2', image: 'https://via.placeholder.com/80' },
     ],
   },
-];
+]
 </script>
 
 <template>

@@ -1,9 +1,9 @@
 <script setup>
 defineOptions({
   inheritAttrs: false,
-});
+})
 
-const props = defineProps({
+defineProps({
   isOpen: {
     type: Boolean,
     required: true,
@@ -11,24 +11,20 @@ const props = defineProps({
   title: {
     type: String,
   },
-});
+})
 
-const emit = defineEmits(["close", "confirm"]);
+const emit = defineEmits(['close'])
 
 const closeModal = () => {
-  emit("close");
-};
-
-const confirmAction = () => {
-  emit("confirm");
-};
+  emit('close')
+}
 
 // Функция для закрытия при клике на оверлей
-const handleOverlayClick = (event) => {
+const handleOverlayClick = event => {
   if (event.target === event.currentTarget) {
-    closeModal();
+    closeModal()
   }
-};
+}
 </script>
 
 <template>

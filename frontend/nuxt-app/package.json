@@ -17,7 +17,8 @@
     "test:e2e:open": "start-server-and-test dev http://localhost:3000 cypress:open",
     "test:all": "npm run test && npm run test:e2e",
     "prepare": "husky",
-    "lint": "eslint . --ext js,ts,vue --ignore-pattern .nuxt --ignore-pattern .output --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint . --ext js,ts,vue --ignore-pattern .nuxt --ignore-pattern .output --report-unused-disable-directives --max-warnings 0",
+    "format": "prettier --write \"**/*.{js,ts,vue,json,md}\" --ignore-path .gitignore"
   },
   "lint-staged": {
     "*.{js,ts,vue}": [
@@ -29,7 +30,6 @@
     ]
   },
   "dependencies": {
-    "@googlemaps/js-api-loader": "^1.16.8",
     "@nuxt/icon": "^1.11.0",
     "@nuxt/image": "^1.10.0",
     "@nuxtjs/google-fonts": "^3.2.0",

@@ -35,42 +35,42 @@
 </template>
 
 <script setup lang="ts">
-const containerRef = ref(null);
+const containerRef = ref(null)
 const categories = ref([
-  { name: "Инструменты", src: "/Categories/Instruments.png", path: "/category/instrument" },
+  { name: 'Инструменты', src: '/Categories/Instruments.png', path: '/category/instrument' },
   {
-    name: "Электрика",
-    src: "/Categories/Wire.png",
-    path: "/category/wire",
+    name: 'Электрика',
+    src: '/Categories/Wire.png',
+    path: '/category/wire',
   },
   {
-    name: "Крепеж и фурнитура",
-    src: "/Categories/Dowel.png",
-    path: "/category/dowel",
+    name: 'Крепеж и фурнитура',
+    src: '/Categories/Dowel.png',
+    path: '/category/dowel',
   },
-  { name: "Станки", src: "/Categories/Schlefmachine.png", path: "/category/schlefmachine" },
+  { name: 'Станки', src: '/Categories/Schlefmachine.png', path: '/category/schlefmachine' },
   {
-    name: "Строительный материалы",
-    src: "/Categories/Board.png",
-    path: "/category/board",
-  },
-  {
-    name: "Сантехника",
-    src: "/Categories/Faucet.png",
-    path: "/category/faucet",
+    name: 'Строительный материалы',
+    src: '/Categories/Board.png',
+    path: '/category/board',
   },
   {
-    name: "Строительное оборудование",
-    src: "/Categories/ConcreteMixer.png",
-    path: "/category/concrete-mixer",
+    name: 'Сантехника',
+    src: '/Categories/Faucet.png',
+    path: '/category/faucet',
   },
-]);
+  {
+    name: 'Строительное оборудование',
+    src: '/Categories/ConcreteMixer.png',
+    path: '/category/concrete-mixer',
+  },
+])
 </script>
 
 <style scoped>
-@import "swiper/css";
-@import "swiper/css/navigation";
-@import "swiper/css/effect-creative";
+@import 'swiper/css';
+@import 'swiper/css/navigation';
+@import 'swiper/css/effect-creative';
 
 swiper-container {
   --swiper-navigation-color: rgb(38, 56, 58);
