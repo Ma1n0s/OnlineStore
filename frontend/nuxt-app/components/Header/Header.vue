@@ -1,6 +1,6 @@
 <template>
-  <div class="bg-white hidden justify-center w-full border-b border-blue-200 px-2 lg:flex">
-    <div class="flex justify-around items-center gap-4 py-2 w-full max-w-screen-xl">
+  <div class="bg-white hidden justify-center w-full border-b border-blue-200 px-2 lg:flex fixed z-50">
+    <div class="flex justify-around items-center gap-4 py-2 w-full max-w-screen-2xl xl:px-8">
       <div>
         <NuxtLink to="/" class="flex items-center gap-2 w-[210px]">
           <NuxtImg src="logo_test.svg" class="h-[50px] w-[50px]" />
@@ -12,7 +12,7 @@
       <div class="w-full">
         <Search />
       </div>
-      <Button class="flex items-center gap-2 h-full"
+      <Button class="flex items-center gap-2 h-full" to="/account/cart-checkout"
         ><Icon name="material-symbols:shopping-cart-rounded" class="h-6 w-6"
       /></Button>
       <Button v-if="isAuth" class="flex items-center gap-2 h-full" @click="handleLogout"
@@ -24,7 +24,7 @@
     </div>
   </div>
 
-  <div class="bg-white flex justify-center w-full border-b border-blue-200 px-2 lg:hidden">
+  <div class="bg-white flex justify-center w-full border-b border-blue-200 px-2 lg:hidden fixed z-50">
     <div class="flex justify-around flex-col md:flex-row items-center gap-4 py-2 w-full max-w-screen-xl">
       <div class="w-full h-full flex items-center gap-2" v-if="isMenuOpen">
         <Button class="flex items-center gap-2 h-full !px-2" @click="isMenuOpen = false"
@@ -52,6 +52,8 @@
       </div>
     </div>
   </div>
+
+  <div class="pb-[61px]"></div>
 
   <Modal class="min-h-[427px]" :isOpen="isModalOpen" @close="closeModal" @confirm="handleConfirm" title="">
     <AuthForm @close="closeModal" />
