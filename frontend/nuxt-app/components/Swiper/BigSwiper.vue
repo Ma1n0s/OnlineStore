@@ -14,7 +14,12 @@
           :key="idx"
           class="bg-white flex items-center justify-center text-2xl font-bold w-full h-full lg:px-0"
         >
-          <NuxtImg :alt="slide.brand" :src="slide.src" format="webp" class="w-full h-full object-cover" />
+          <NuxtImg
+            :alt="slide.brand"
+            :src="slide.src"
+            format="webp"
+            class="w-full h-full object-cover lg:rounded-2xl"
+          />
         </swiper-slide>
       </swiper-container>
 
