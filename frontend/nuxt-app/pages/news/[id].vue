@@ -1,11 +1,12 @@
-// можно без обертки чтобы были элементы title картинка и текст
 <script setup>
-import ArticleCard from '~/components/News/ArticleCard.vue'
+const route = useRoute()
+const { id } = route.params
 
 const articles = [
   {
     id: 1,
     title: 'Создание странички',
+    content: 'Полный текст статьи 1...',
     excerpt: 'Небольшой тестовый текст по проверка внешнего вида.',
     date: 'Апреля 10, 2025',
     image:
@@ -14,6 +15,7 @@ const articles = [
   {
     id: 2,
     title: 'Создание странички',
+    content: 'Полный текст статьи 2...',
     excerpt: 'Небольшой тестовый текст по проверка внешнего вида.',
     date: 'Апреля 10, 2025',
     image:
@@ -22,6 +24,7 @@ const articles = [
   {
     id: 3,
     title: 'Создание странички',
+    content: 'Полный текст статьи 3...',
     excerpt: 'Небольшой тестовый текст по проверка внешнего вида.',
     date: 'Апреля 10, 2025',
     image:
@@ -30,6 +33,7 @@ const articles = [
   {
     id: 4,
     title: 'Создание странички',
+    content: 'Полный текст статьи 4...',
     excerpt: 'Небольшой тестовый текст по проверка внешнего вида.',
     date: 'Апреля 10, 2025',
     image:
@@ -38,6 +42,7 @@ const articles = [
   {
     id: 5,
     title: 'Создание странички',
+    content: 'Полный текст статьи 5...',
     excerpt: 'Небольшой тестовый текст по проверка внешнего вида.',
     date: 'Апреля 10, 2025',
     image:
@@ -46,25 +51,37 @@ const articles = [
   {
     id: 6,
     title: 'Создание странички',
+    content: 'Полный текст статьи 6...',
     excerpt: 'Небольшой тестовый текст по проверка внешнего вида.',
     date: 'Апреля 10, 2025',
     image:
       'https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
   },
 ]
+
+const article = articles.find(article => article.id === Number(id))
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <div class="container mx-auto px-4 py-8">
-      <div class="grid grid-cols-1 mx-6 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <ArticleCard
-          v-for="article in articles"
-          :key="article.id"
-          :article="article"
-          class="hover:scale-105 transition-transform duration-200"
-        />
-      </div>
+  <div class="min-h-screen bg-gray-50 py-12">
+    <div class="container mx-auto px-4 max-w-4xl">
+      <article class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <img :src="article.image" :alt="article.title" class="w-full h-96 object-cover" />
+
+        <div class="p-8">
+          <div class="flex items-center text-gray-500 mb-4">
+            <span>{{ article.date }}</span>
+          </div>
+
+          <h1 class="text-3xl font-bold text-gray-900 mb-6">
+            {{ article.title }}
+          </h1>
+
+          <div class="prose max-w-none">
+            <p>{{ article.content }}</p>
+          </div>
+        </div>
+      </article>
     </div>
   </div>
 </template>

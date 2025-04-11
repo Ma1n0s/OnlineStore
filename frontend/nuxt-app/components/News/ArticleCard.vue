@@ -1,5 +1,5 @@
 <template>
-  <NuxtLink :to="`/news/news/${article.id}`" class="block group">
+  <NuxtLink :to="`/news/${article.id}`" class="block group">
     <div
       class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-200 h-full flex flex-col"
     >
