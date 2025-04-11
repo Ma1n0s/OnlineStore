@@ -95,7 +95,7 @@ onMounted(() => {
             <BasicDescriptionBlock />
             <!-- Техническое описание -->
             <SpecificationsBlock />
-            <InformationCart />
+            <!-- <InformationCart /> -->
           </div>
 
           <!-- Боковая панель с брендом -->
