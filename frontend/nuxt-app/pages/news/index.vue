@@ -1,7 +1,6 @@
 // можно без обертки чтобы были элементы title картинка и текст
 <script setup>
 import ArticleCard from '~/components/News/ArticleCard.vue'
-import EditorsPick from '~/components/News/EditorsPick.vue'
 
 const articles = [
   {
