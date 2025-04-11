@@ -12,7 +12,7 @@
       <swiper-slide
         v-for="(category, idx) in categories"
         :key="idx"
-        class="bg-white flex flex-col w-48 h-64 shadow-xl rounded-3xl overflow-hidden"
+        class="bg-white flex flex-col w-48 h-64 shadow-xl rounded-3xl overflow-hidden px-2 lg:px-0"
       >
         <NuxtLink :to="category.path" class="bg-white flex flex-col w-48 h-64 overflow-hidden">
           <div

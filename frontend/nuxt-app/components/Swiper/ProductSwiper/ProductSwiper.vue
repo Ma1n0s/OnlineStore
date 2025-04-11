@@ -7,10 +7,10 @@
       :loop="true"
       :autoplay-delay="5000"
       slides-per-view="auto"
-      :space-between="30"
+      :space-between="10"
       class="w-full"
     >
-      <swiper-slide v-for="(product, idx) in products" :key="idx" class="w-fit pb-8">
+      <swiper-slide v-for="(product, idx) in products" :key="idx" class="w-fit pb-8 lg:px-0">
         <ProductSlide :product="product" />
       </swiper-slide>
     </swiper-container>

@@ -1,22 +1,19 @@
 <template>
-  <component
-    :is="props.to ? 'NuxtLink' : 'button'"
-    :disabled="props.disabled"
-    :to="props.disabled ? '#' : props.to"
-    :class="buttonClasses"
-  >
+  <component :is="asComponents" :disabled="props.disabled" :to="props.disabled ? '#' : props.to" :class="buttonClasses">
     <slot></slot>
   </component>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-
+import { NuxtLink } from '#components'
 const { variant = 'primary', ...props } = defineProps<{
   variant?: 'primary' | 'secondary' | 'transparent' | 'warning'
   disabled?: boolean
   to?: string
 }>()
+
+const asComponents = computed(() => (props.to ? NuxtLink : 'button'))
 
 const variantClasses = {
   primary: 'text-white bg-primary hover:bg-primary-hover', // Голубой 1

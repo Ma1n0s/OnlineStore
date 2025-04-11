@@ -1,5 +1,5 @@
 <template>
-  <div class="text-2xl font-bold mb-4">{{ title }}</div>
+  <div class="text-2xl font-bold mb-4" v-bind="$attrs">{{ title }}</div>
   <slot></slot>
 </template>
 

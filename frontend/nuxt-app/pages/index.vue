@@ -1,34 +1,35 @@
 <script setup lang="ts">
-import BrandSwiper from '~/components/Swiper/BrandSwiper.vue'
-import CategorySwiper from '~/components/Swiper/CategorySwiper.vue'
+// import BrandSwiper from '~/components/Swiper/BrandSwiper.vue'
+// import CategorySwiper from '~/components/Swiper/CategorySwiper.vue'
 import ProductSwiper from '~/components/Swiper/ProductSwiper/ProductSwiper.vue'
 import BigSwiper from '~/components/Swiper/BigSwiper.vue'
 import CategoryList from '~/components/CategoryItems/CategoryList/CategoryList.vue'
+import WrapperHeader from '~/components/Wrapper/WrapperHeader.vue'
 </script>
 <template>
-  <div class="bg-white w-full ~text-sm/xs ~p-4/8 flex flex-col items-center">
-    <div class="w-full xl:max-w-7xl">
+  <div class="bg-white w-full ~text-sm/xs ~pb-4/8 flex flex-col items-center">
+    <div class="w-full xl:container lg:px-8 py-4">
       <div class="mb-16">
         <BigSwiper />
       </div>
 
-      <div class="mb-16">
+      <div class="mb-16 px-2 lg:px-0">
         <WrapperHeader title="Кататегории товаров">
           <CategoryList />
         </WrapperHeader>
       </div>
 
-      <div class="mb-16">
-        <WrapperHeader title="Кататегории товаров">
+      <!-- <div class="mb-16">
+        <WrapperHeader title="Кататегории товаров" class="px-2">
           <CategorySwiper />
         </WrapperHeader>
-      </div>
+      </div> -->
       <div class="mb-8">
-        <WrapperHeader title="Акции">
+        <WrapperHeader title="Акции" class="px-2 lg:px-0">
           <ProductSwiper />
         </WrapperHeader>
       </div>
-      <BrandSwiper />
+      <!-- <BrandSwiper /> -->
     </div>
   </div>
 </template>
