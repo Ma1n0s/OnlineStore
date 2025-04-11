@@ -1,5 +1,5 @@
 <template>
-  <div class="box-border absolute mt-1 w-full bg-white shadow-2xl p-1 rounded-xl z-10">
+  <div class="box-border absolute mt-1 w-full bg-white shadow-2xl p-1 rounded-xl z-20">
     <div
       v-for="(item, index) in data.categories"
       :key="index"

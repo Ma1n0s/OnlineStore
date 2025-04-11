@@ -253,12 +253,16 @@ const toggleBrand = brand => {
 <template>
   <div class="container mx-auto px-4 md:px-6 lg:px-8 py-6">
     <!-- Хлебные крошки -->
-    <nav class="flex items-center text-sm text-gray-600 mb-6">
-      <NuxtLink to="/" class="hover:text-red-600 transition-colors">Главная</NuxtLink>
-      <span class="mx-2 text-gray-400">/</span>
-      <NuxtLink to="/category/troitelnyj-instrument" class="hover:text-red-600 transition-colors">Инструменты</NuxtLink>
-      <span class="mx-2 text-gray-400">/</span>
-      <NuxtLink to="" class="text-red-600 font-medium">Шуруповерты</NuxtLink>
+    <nav class="flex flex-wrap items-center gap-2 text-gray mb-4">
+      <NuxtLink to="#" class="hover:underline">Главная</NuxtLink>
+      <span>/</span>
+      <NuxtLink to="#" class="font-semibold">Категория</NuxtLink>
+      <span>/</span>
+      <NuxtLink to="#" class="font-semibold">Подкатегория</NuxtLink>
+      <span>/</span>
+      <NuxtLink to="#" class="font-semibold">Подподкатегория</NuxtLink>
+      <span>/</span>
+      <NuxtLink to="#" class="font-semibold">Список товаров</NuxtLink>
     </nav>
 
     <!-- Категории -->
