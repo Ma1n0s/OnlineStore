@@ -2,6 +2,7 @@
 const links = [
   { link: 'contacts', name: 'Контакты' },
   { link: 'about', name: 'О компании' },
+  { link: 'news', name: 'Статьи' },
 ]
 
 const socialLinks = [
