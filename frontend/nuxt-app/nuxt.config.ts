@@ -20,7 +20,7 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     'nuxt-swiper',
     '@nuxtjs/google-fonts',
-    'nuxt-auth-sanctum',
+    // 'nuxt-auth-sanctum',
     '@samk-dev/nuxt-vcalendar',
   ],
 
@@ -33,26 +33,26 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      sanctum: {
-        baseUrl: import.meta.env.VITE_BACKEND || 'http://localhost:8000',
-        mode: 'cookie',
-        userStateKey: 'sanctum.user.identity',
-        endpoints: {
-          csrf: '/sanctum/csrf-cookie',
-          login: '/api/auth/verify-code',
-          logout: '/api/auth/logout',
-          user: '/api/user',
-        },
-        csrf: {
-          cookie: 'XSRF-TOKEN',
-          header: 'X-XSRF-TOKEN',
-        },
-        redirect: {
-          onLogin: '/',
-          onLogout: '/',
-          home: '/',
-        },
-      },
+      // sanctum: {
+      //   baseUrl: import.meta.env.VITE_BACKEND || 'http://localhost:8000',
+      //   mode: 'cookie',
+      //   userStateKey: 'sanctum.user.identity',
+      //   endpoints: {
+      //     csrf: '/sanctum/csrf-cookie',
+      //     login: '/api/auth/verify-code',
+      //     logout: '/api/auth/logout',
+      //     user: '/api/user',
+      //   },
+      //   csrf: {
+      //     cookie: 'XSRF-TOKEN',
+      //     header: 'X-XSRF-TOKEN',
+      //   },
+      //   redirect: {
+      //     onLogin: '/',
+      //     onLogout: '/',
+      //     home: '/',
+      //   },
+      // },
     },
   },
 
