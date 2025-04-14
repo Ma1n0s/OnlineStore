@@ -15,11 +15,18 @@
           </div>
 
           <div class="flex items-center justify-between gap-8">
-            <div>
-              <NuxtLink to="tel:+79169999999" class="text-primary font-bold text-nowrap text-sm"
-                >+7 (916) 999-99-99</NuxtLink
+            <div class="flex flex-col items-start">
+              <NuxtLink
+                to="tel:+79169999999"
+                class="text-primary font-bold text-nowrap text-sm text-center flex items-center gap-1"
               >
-              <p class="text-gray font-bold text-nowrap text-sm">с 9:00 до 18:00 (Пн-Пт)</p>
+                <Icon name="material-symbols:phone-android-rounded" class="h-4 w-4" />
+                +7 (916) 999-99-99</NuxtLink
+              >
+              <p class="text-gray font-bold text-nowrap text-sm flex items-center gap-1">
+                <Icon name="material-symbols:nest-clock-farsight-analog-outline-rounded" class="h-4 w-4" />
+                с 9:00 до 18:00 (Пн-Пт)
+              </p>
             </div>
 
             <div>
