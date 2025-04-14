@@ -106,5 +106,21 @@ const categories = ref([
     src: '/Categories/ConcreteMixer.png',
     path: '/category/concrete-mixer',
   },
+  {
+    name: 'Крепеж и фурнитура',
+    src: '/Categories/Dowel.png',
+    path: '/category/dowel',
+  },
+  { name: 'Станки', src: '/Categories/Schlefmachine.png', path: '/category/schlefmachine' },
+  {
+    name: 'Строительный материалы',
+    src: '/Categories/Board.png',
+    path: '/category/board',
+  },
+  {
+    name: 'Сантехника',
+    src: '/Categories/Faucet.png',
+    path: '/category/faucet',
+  },
 ])
 </script>
