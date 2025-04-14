@@ -1,6 +1,6 @@
 <template>
   <ClientOnly>
-    <div class="button-atrr">
+    <div class="button-atrr shadow-xl lg:rounded-2xl">
       <swiper-container
         :loop="true"
         :autoplay-delay="5000"
@@ -12,7 +12,7 @@
         <swiper-slide
           v-for="(slide, idx) in slides"
           :key="idx"
-          class="bg-white flex items-center justify-center text-2xl font-bold w-full h-full lg:px-0"
+          class="bg-white flex items-center justify-center text-2xl font-bold w-full h-full lg:px-0 lg:rounded-2xl"
         >
           <NuxtImg
             :alt="slide.brand"
