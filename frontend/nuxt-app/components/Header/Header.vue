@@ -92,7 +92,9 @@
           <Button class="flex items-center gap-2 h-full" @click="isMenuOpen = true"
             ><Icon name="material-symbols:search-rounded" class="h-6 w-6"
           /></Button>
-          <Button class="flex items-center gap-2 h-full"><Icon name="material-symbols:menu" class="h-6 w-6" /></Button>
+          <Button class="flex items-center gap-2 h-full" @click="menuOpen = true"
+            ><Icon name="material-symbols:menu" class="h-6 w-6"
+          /></Button>
         </div>
       </div>
     </div>
@@ -103,6 +105,94 @@
   <Modal class="min-h-[427px]" :isOpen="isModalOpen" @close="closeModal" @confirm="handleConfirm" title="">
     <AuthForm @close="closeModal" />
   </Modal>
+
+  <Modal :isOpen="menuOpen" @close="closeMenu" @confirm="handleConfirm" title="">
+    <div class="flex flex-col gap-4">
+      <div>
+        <NuxtLink to="/" class="flex items-center gap-2 w-[210px]">
+          <NuxtImg src="logo_test.svg" class="h-[50px] w-[50px]" />
+          <p class="text-nowrap text-xl text-primary font-bold leading-4">Абсолют Техно</p>
+        </NuxtLink>
+      </div>
+
+      <Button v-if="isAuth" class="flex items-center gap-2 h-full" @click="handleLogout">
+        <Icon name="solar:user-outline" class="h-8 w-8" />
+        <span class="text-lg font-bold">{{ userDisplayName }}</span>
+      </Button>
+
+      <Button
+        class="flex items-center gap-2 h-full w-full"
+        @click="
+          () => {
+            closeMenu()
+            openModal()
+          }
+        "
+        v-else
+      >
+        <Icon name="material-symbols:login-rounded" class="h-8 w-8" />
+        <span class="text-lg font-bold"> Вход </span>
+      </Button>
+
+      <Button to="/category" class="flex items-center gap-2 h-full" @click="closeMenu">
+        <Icon name="material-symbols:view-list-rounded" class="h-8 w-8" />
+        <span class="text-lg font-bold">Каталог</span>
+      </Button>
+
+      <Button class="flex items-center gap-2 h-full w-full" to="/account/cart-checkout" @click="closeMenu">
+        <Icon name="material-symbols:shopping-cart-rounded" class="h-8 w-8" />
+        <span class="text-lg font-bold">Корзина</span>
+      </Button>
+
+      <div class="flex flex-col gap-2">
+        <Button to="/contacts" class="flex items-center gap-2 h-full w-full" @click="closeMenu">
+          <Icon name="material-symbols:contact-phone-rounded" class="h-8 w-8" />
+          <span class="text-lg font-bold">Контакты</span>
+        </Button>
+        <Button to="/about" class="flex items-center gap-2 h-full w-full" @click="closeMenu">
+          <Icon name="material-symbols:move-location-rounded" class="h-8 w-8" />
+          <span class="text-lg font-bold">О компании</span>
+        </Button>
+        <Button to="/about" class="flex items-center gap-2 h-full w-full" @click="closeMenu">
+          <Icon name="material-symbols:passkey-rounded" class="h-8 w-8" />
+          <span class="text-lg font-bold">Условия аренды</span>
+        </Button>
+        <Button to="/about" class="flex items-center gap-2 h-full w-full" @click="closeMenu">
+          <Icon name="material-symbols:shield-rounded" class="h-8 w-8" />
+          <span class="text-lg font-bold">Гарантия</span>
+        </Button>
+        <Button to="/about" class="flex items-center gap-2 h-full w-full" @click="closeMenu">
+          <Icon name="material-symbols:local-shipping-rounded" class="h-8 w-8" />
+          <span class="text-lg font-bold">Оплата и доставка</span>
+        </Button>
+      </div>
+
+      <div class="flex items-center justify-around gap-2 w-full py-2">
+        <div class="flex flex-wrap items-center justify-center sm:justify-between gap-8 w-full">
+          <div class="flex flex-col items-start">
+            <NuxtLink
+              to="tel:+79169999999"
+              class="text-primary font-bold text-nowrap text-sm text-center flex items-center gap-1"
+            >
+              <Icon name="material-symbols:phone-android-rounded" class="h-4 w-4" />
+              +7 (916) 999-99-99</NuxtLink
+            >
+            <p class="text-gray font-bold text-nowrap text-sm flex items-center gap-1">
+              <Icon name="material-symbols:nest-clock-farsight-analog-outline-rounded" class="h-4 w-4" />
+              с 9:00 до 18:00 (Пн-Пт)
+            </p>
+          </div>
+
+          <div>
+            <p class="text-gray font-bold text-nowrap text-sm">
+              Нижний Тагил, <br />
+              ул. Аганичева 101а
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Modal>
 </template>
 
 <script setup lang="ts">
@@ -112,6 +202,11 @@ import CatalogButton from '../CatalogButton/CatalogButton.vue'
 import Search from '../Search/Search.vue'
 import Modal from '../Modal/Modal.vue'
 import AuthForm from '../Forms/AuthForm.vue'
+
+const menuOpen = ref(false)
+const closeMenu = () => {
+  menuOpen.value = false
+}
 
 const userStore = useUserStore()
 const { clearUser } = userStore
