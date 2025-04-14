@@ -7,7 +7,12 @@ import Button from '~/components/ui/Button/Button.vue'
 import { DatePicker } from 'v-calendar'
 import 'v-calendar/dist/style.css'
 
-const product = reactive<Product>(productData)
+const product = reactive<Product>({
+  ...productData,
+  availableForRent: true, // Добавляем флаг доступности для аренды
+  availableForPurchase: true // Добавляем флаг доступности для покупки
+})
+
 const isRentalModalOpen = ref(false)
 const rentalDays = ref(1)
 const rentalPrice = ref(product.price.final)
@@ -41,10 +46,27 @@ const confirmRental = () => {
   )
   closeRentalModal()
 }
+
+const addToCart = () => {
+  console.log('Product added to cart')
+}
 </script>
 
 <template>
   <div class="space-y-6">
+    <!-- Информационный блок -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-xl font-bold text-second mb-4">Волна выгоды</h2>
+      <div class="flex items-center gap-4 mb-2">
+        <p class="text-3xl font-bold">1 859 ₽</p>
+        <p class="text-lg line-through text-gray">2 516 ₽</p>
+        <p class="text-primary font-medium">Выгода 657 ₽</p>
+      </div>
+      <p class="text-lg font-bold mb-2">1 202 ₽</p>
+      <p class="text-gray-600">301 ₽ x 4 платежа в рассрочку</p>
+    </div>
+
+    <!-- Блок с кнопками -->
     <div class="bg-white rounded-lg shadow-md p-6">
       <div class="flex flex-col gap-4">
         <div>
@@ -62,109 +84,83 @@ const confirmRental = () => {
         </div>
 
         <div class="flex flex-col sm:flex-row gap-3">
-          <button class="bg-primary hover:bg-second-hover text-white py-3 px-6 rounded-lg font-medium transition">
+          <button 
+            v-if="product.availableForPurchase"
+            @click="addToCart"
+            class="bg-primary hover:bg-second-hover text-white py-3 px-6 rounded-lg font-medium transition"
+          >
             В корзину
           </button>
           <button
+            v-if="product.availableForRent"
             @click="openRentalModal"
             class="bg-primary hover:bg-second-hover text-white py-3 px-6 rounded-lg font-medium transition"
           >
             В аренду
           </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="bg-white rounded-lg shadow-md p-6">
-      <h2 class="text-xl font-bold mb-4">Основные характеристики</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="space-y-6">
-          <div>
-            <h3 class="font-semibold text-gray-700 mb-2">Основные</h3>
-            <ul class="space-y-3">
-              <li
-                v-for="(value, key) in product.specifications['Основны характеристики']"
-                :key="key"
-                class="flex justify-between"
-              >
-                <span class="text-gray-500">{{ key.replace(' ', ' ') }}</span>
-                <span class="font-medium">{{ value }}</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="space-y-6">
-          <div>
-            <h3 class="font-semibold text-gray-700 mb-2">Экран</h3>
-            <ul class="space-y-3">
-              <li
-                v-for="(value, key) in product.specifications['Вторичные характеристики']"
-                :key="key"
-                class="flex justify-between"
-              >
-                <span class="text-gray-500">{{ key.replace(' ', ' ') }}</span>
-                <span class="font-medium">{{ value }}</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <Modal :isOpen="isRentalModalOpen" title="Аренда товара" @close="closeRentalModal" @confirm="confirmRental">
-      <div class="mt-6 space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Выберите даты аренды</label>
-          <DatePicker
-            v-model.range="dateRange"
-            @update:modelValue="calculateRentalPrice"
-            :min-date="new Date()"
-            is-range
-            :columns="1"
-            :masks="{ input: 'DD.MM.YYYY' }"
-            locale="ru"
+          <div 
+            v-if="!product.availableForPurchase && !product.availableForRent"
+            class="text-gray-500 py-3 px-6"
           >
-            <template #default="{ inputValue, inputEvents }">
-              <div class="flex flex-col sm:flex-row gap-2">
-                <div class="w-full">
-                  <label class="block text-xs text-gray-500 mb-1">Начало</label>
-                  <TextInput
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                    :value="inputValue.start"
-                    v-on="inputEvents.start"
-                    placeholder="Дата начала"
-                  />
-                </div>
-                <div class="w-full">
-                  <label class="block text-xs text-gray-500 mb-1">Конец</label>
-                  <TextInput
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                    :value="inputValue.end"
-                    v-on="inputEvents.end"
-                    placeholder="Дата окончания"
-                  />
-                </div>
-              </div>
-            </template>
-          </DatePicker>
-        </div>
-
-        <div class="pt-2">
-          <p class="text-lg font-semibold">Итоговая стоимость:</p>
-          <p class="text-2xl font-bold text-primary">{{ rentalPrice }} ₽</p>
-          <p class="text-sm text-gray-500">
-            Цена за день: {{ product.price.final }} ₽ × {{ rentalDays }} {{ rentalDays === 1 ? 'день' : 'дней' }}
-          </p>
+            Товар временно недоступен
+          </div>
         </div>
       </div>
+    </div>
 
-      <template #footer>
-        <div class="flex justify-end gap-3 mt-6">
-          <Button variant="outline" @click="closeRentalModal">Отмена</Button>
-          <Button @click="confirmRental">Подтвердить аренду</Button>
-        </div>
-      </template>
-    </Modal>
   </div>
+  <Modal :isOpen="isRentalModalOpen" title="Аренда товара" @close="closeRentalModal" @confirm="confirmRental">
+    <div class="mt-6 space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Выберите даты аренды</label>
+        <DatePicker
+          v-model.range="dateRange"
+          @update:modelValue="calculateRentalPrice"
+          :min-date="new Date()"
+          is-range
+          :columns="1"
+          :masks="{ input: 'DD.MM.YYYY' }"
+          locale="ru"
+        >
+          <template #default="{ inputValue, inputEvents }">
+            <div class="flex flex-col sm:flex-row gap-2">
+              <div class="w-full">
+                <label class="block text-xs text-gray-500 mb-1">Начало</label>
+                <TextInput
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                  :value="inputValue.start"
+                  v-on="inputEvents.start"
+                  placeholder="Дата начала"
+                />
+              </div>
+              <div class="w-full">
+                <label class="block text-xs text-gray-500 mb-1">Конец</label>
+                <TextInput
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                  :value="inputValue.end"
+                  v-on="inputEvents.end"
+                  placeholder="Дата окончания"
+                />
+              </div>
+            </div>
+          </template>
+        </DatePicker>
+      </div>
+
+      <div class="pt-2">
+        <p class="text-lg font-semibold">Итоговая стоимость:</p>
+        <p class="text-2xl font-bold text-primary">{{ rentalPrice }} ₽</p>
+        <p class="text-sm text-gray-500">
+          Цена за день: {{ product.price.final }} ₽ × {{ rentalDays }} {{ rentalDays === 1 ? 'день' : 'дней' }}
+        </p>
+      </div>
+    </div>
+
+    <template #footer>
+      <div class="flex justify-end gap-3 mt-6">
+        <Button variant="outline" @click="closeRentalModal">Отмена</Button>
+        <Button @click="confirmRental">Подтвердить аренду</Button>
+      </div>
+    </template>
+  </Modal>
 </template>
