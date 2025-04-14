@@ -1,5 +1,35 @@
 <template>
-  <div class="bg-white hidden justify-center w-full border-b border-blue-200 px-2 lg:flex fixed z-50">
+  <div
+    class="bg-white hidden justify-center items-center flex-col w-full border-b border-blue-200 px-2 lg:flex fixed z-50"
+  >
+    <div class="flex justify-center items-center gap-2 w-full max-w-screen-2xl xl:px-8">
+      <div class="flex items-center justify-around gap-2 w-full py-2">
+        <div class="flex items-center gap-16 justify-start w-full">
+          <NuxtLink to="/contacts" class="text-dark hover:text-primary font-bold text-sm">Контакты</NuxtLink>
+          <NuxtLink to="/about" class="text-dark hover:text-primary font-bold text-sm">О компании</NuxtLink>
+          <NuxtLink to="/about" class="text-dark hover:text-primary font-bold text-sm">Условия аренды</NuxtLink>
+          <NuxtLink to="/about" class="text-dark hover:text-primary font-bold text-sm">Гарантия</NuxtLink>
+          <NuxtLink to="/about" class="text-dark hover:text-primary font-bold text-sm">Оплата и доставка</NuxtLink>
+        </div>
+
+        <div class="flex items-center justify-between gap-8">
+          <div>
+            <NuxtLink to="tel:+79169999999" class="text-primary font-bold text-nowrap text-sm"
+              >+7 (916) 999-99-99</NuxtLink
+            >
+            <p class="text-gray font-bold text-nowrap text-sm">с 9:00 до 18:00 (Пн-Пт)</p>
+          </div>
+
+          <div>
+            <p class="text-gray font-bold text-nowrap text-sm">
+              Нижний Тагил, <br />
+              ул. Аганичева 101а
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="flex justify-around items-center gap-4 py-2 w-full max-w-screen-2xl xl:px-8">
       <div>
         <NuxtLink to="/" class="flex items-center gap-2 w-[210px]">
@@ -53,7 +83,7 @@
     </div>
   </div>
 
-  <div class="pb-[61px]"></div>
+  <div class="pb-[120px]"></div>
 
   <Modal class="min-h-[427px]" :isOpen="isModalOpen" @close="closeModal" @confirm="handleConfirm" title="">
     <AuthForm @close="closeModal" />
