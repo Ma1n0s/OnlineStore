@@ -12,14 +12,21 @@ const toggleFavorite = async () => {
 
 onMounted(() => {
   isFavorite.value = false
-
   console.log(product.specifications)
 })
 </script>
+
 <template>
+  <div class="mb-2">
+    <h1 class="text-3xl font-bold text-gray-900 px-2 ">{{ product.name }}</h1>
+    <div v-if="product.shortDescription" class="text-lg text-gray-600">
+      {{ product.shortDescription }}
+    </div>
+  </div>
+
   <div class="flex flex-wrap items-center gap-6 mb-8">
     <!-- Код товара -->
-    <div v-if="product.code" class="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg">
+    <div v-if="product.code" class="flex items-center gap-2  py-2 bg-gray-50 rounded-lg">
       <p class="text-sm text-gray-600">
         Код: <span class="font-medium text-gray-800">{{ product.code }}</span>
       </p>
