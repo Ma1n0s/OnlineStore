@@ -1,56 +1,64 @@
 <template>
-  <div
-    class="bg-white hidden justify-center items-center flex-col w-full border-b border-blue-200 px-2 lg:flex fixed z-50"
-  >
-    <div class="flex justify-center items-center gap-2 w-full max-w-screen-2xl xl:px-8">
-      <div class="flex items-center justify-around gap-2 w-full py-2">
-        <div class="flex items-center gap-16 justify-start w-full">
-          <NuxtLink to="/contacts" class="text-dark hover:text-primary font-bold text-sm">Контакты</NuxtLink>
-          <NuxtLink to="/about" class="text-dark hover:text-primary font-bold text-sm">О компании</NuxtLink>
-          <NuxtLink to="/about" class="text-dark hover:text-primary font-bold text-sm">Условия аренды</NuxtLink>
-          <NuxtLink to="/about" class="text-dark hover:text-primary font-bold text-sm">Гарантия</NuxtLink>
-          <NuxtLink to="/about" class="text-dark hover:text-primary font-bold text-sm">Оплата и доставка</NuxtLink>
-        </div>
-
-        <div class="flex items-center justify-between gap-8">
-          <div>
-            <NuxtLink to="tel:+79169999999" class="text-primary font-bold text-nowrap text-sm"
-              >+7 (916) 999-99-99</NuxtLink
-            >
-            <p class="text-gray font-bold text-nowrap text-sm">с 9:00 до 18:00 (Пн-Пт)</p>
+  <div class="fixed z-50 w-full">
+    <div
+      class="bg-white justify-center items-center flex-col w-full px-2 lg:flex transition-all duration-300"
+      :class="{ 'opacity-0 h-0 overflow-hidden': isScrolled }"
+    >
+      <div class="flex justify-center items-center gap-2 w-full max-w-screen-2xl xl:px-8">
+        <div class="flex items-center justify-around gap-2 w-full py-2">
+          <div class="flex items-center gap-8 xl:gap-16 justify-start w-full">
+            <NuxtLink to="/contacts" class="text-dark hover:text-primary font-bold text-sm">Контакты</NuxtLink>
+            <NuxtLink to="/about" class="text-dark hover:text-primary font-bold text-sm">О компании</NuxtLink>
+            <NuxtLink to="/about" class="text-dark hover:text-primary font-bold text-sm">Условия аренды</NuxtLink>
+            <NuxtLink to="/about" class="text-dark hover:text-primary font-bold text-sm">Гарантия</NuxtLink>
+            <NuxtLink to="/about" class="text-dark hover:text-primary font-bold text-sm">Оплата и доставка</NuxtLink>
           </div>
 
-          <div>
-            <p class="text-gray font-bold text-nowrap text-sm">
-              Нижний Тагил, <br />
-              ул. Аганичева 101а
-            </p>
+          <div class="flex items-center justify-between gap-8">
+            <div>
+              <NuxtLink to="tel:+79169999999" class="text-primary font-bold text-nowrap text-sm"
+                >+7 (916) 999-99-99</NuxtLink
+              >
+              <p class="text-gray font-bold text-nowrap text-sm">с 9:00 до 18:00 (Пн-Пт)</p>
+            </div>
+
+            <div>
+              <p class="text-gray font-bold text-nowrap text-sm">
+                Нижний Тагил, <br />
+                ул. Аганичева 101а
+              </p>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="flex justify-around items-center gap-4 py-2 w-full max-w-screen-2xl xl:px-8">
-      <div>
-        <NuxtLink to="/" class="flex items-center gap-2 w-[210px]">
-          <NuxtImg src="logo_test.svg" class="h-[50px] w-[50px]" />
-          <p class="text-nowrap text-xl text-primary font-bold leading-4">Абсолют Техно</p>
-        </NuxtLink>
-      </div>
+    <div
+      class="bg-white hidden lg:flex justify-center items-center gap-4 py-2 w-full border-b border-blue-200 px-2 transition-all duration-300"
+      :class="{ '!py-4': isScrolled }"
+    >
+      <div class="flex justify-around items-center gap-4 w-full max-w-screen-2xl xl:px-8">
+        <div>
+          <NuxtLink to="/" class="flex items-center gap-2 w-[210px]">
+            <NuxtImg src="logo_test.svg" class="h-[50px] w-[50px]" />
+            <p class="text-nowrap text-xl text-primary font-bold leading-4">Абсолют Техно</p>
+          </NuxtLink>
+        </div>
 
-      <CatalogButton />
-      <div class="w-full">
-        <Search />
+        <CatalogButton />
+        <div class="w-full">
+          <Search />
+        </div>
+        <Button class="flex items-center gap-2 h-full" to="/account/cart-checkout"
+          ><Icon name="material-symbols:shopping-cart-rounded" class="h-6 w-6"
+        /></Button>
+        <Button v-if="isAuth" class="flex items-center gap-2 h-full" @click="handleLogout"
+          >{{ userDisplayName }} <Icon name="solar:user-outline" class="h-6 w-6"
+        /></Button>
+        <Button class="flex items-center gap-2 h-full" @click="openModal" v-else
+          ><span class="hidden lg:inline"> Вход </span> <Icon name="material-symbols:login-rounded" class="h-6 w-6"
+        /></Button>
       </div>
-      <Button class="flex items-center gap-2 h-full" to="/account/cart-checkout"
-        ><Icon name="material-symbols:shopping-cart-rounded" class="h-6 w-6"
-      /></Button>
-      <Button v-if="isAuth" class="flex items-center gap-2 h-full" @click="handleLogout"
-        >{{ userDisplayName }} <Icon name="solar:user-outline" class="h-6 w-6"
-      /></Button>
-      <Button class="flex items-center gap-2 h-full" @click="openModal" v-else
-        ><span class="hidden lg:inline"> Вход </span> <Icon name="material-symbols:login-rounded" class="h-6 w-6"
-      /></Button>
     </div>
   </div>
 
@@ -83,7 +91,7 @@
     </div>
   </div>
 
-  <div class="pb-[120px]"></div>
+  <div class="pb-[60px] lg:pb-[120px]"></div>
 
   <Modal class="min-h-[427px]" :isOpen="isModalOpen" @close="closeModal" @confirm="handleConfirm" title="">
     <AuthForm @close="closeModal" />
@@ -115,6 +123,20 @@ const isMenuOpen = ref(false)
 
 const isModalOpen = ref(false)
 
+const isScrolled = ref(false)
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
+
+const handleScroll = () => {
+  isScrolled.value = window.scrollY > 50
+}
+
 const openModal = () => {
   isModalOpen.value = true
 }
@@ -137,3 +159,9 @@ const handleLogout = async () => {
   }
 }
 </script>
+
+<style scoped>
+.opacity-0 {
+  opacity: 0;
+}
+</style>
