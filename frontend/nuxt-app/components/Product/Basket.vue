@@ -9,8 +9,8 @@ import 'v-calendar/dist/style.css'
 
 const product = reactive<Product>({
   ...productData,
-  availableForRent: true, // Добавляем флаг доступности для аренды
-  availableForPurchase: true // Добавляем флаг доступности для покупки
+  availableForRent: true, 
+  availableForPurchase: true 
 })
 
 const isRentalModalOpen = ref(false)
