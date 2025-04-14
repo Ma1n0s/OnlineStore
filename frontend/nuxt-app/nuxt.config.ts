@@ -22,6 +22,7 @@ export default defineNuxtConfig({
     '@nuxtjs/google-fonts',
     'nuxt-auth-sanctum',
     '@samk-dev/nuxt-vcalendar',
+    'nuxt-aos',
   ],
 
   googleFonts: {

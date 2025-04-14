@@ -41,6 +41,7 @@
     "@samk-dev/nuxt-vcalendar": "^1.0.4",
     "@vueuse/nuxt": "^13.0.0",
     "nuxt": "^3.16.0",
+    "nuxt-aos": "^1.2.5",
     "nuxt-auth-sanctum": "^0.6.3",
     "nuxt-swiper": "^2.0.0",
     "pinia": "^3.0.1",
