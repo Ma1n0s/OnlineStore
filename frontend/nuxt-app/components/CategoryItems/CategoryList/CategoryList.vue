@@ -1,18 +1,23 @@
 <template>
-  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-4">
     <NuxtLink
       v-for="(category, index) in categories"
       :to="category.path"
       :key="index + category.name"
-      class="h-fit sm:h-64 shadow-xl rounded-3xl overflow-hidden cursor-pointer"
+      class="bg-gray/10 border h-fit sm:h-64 overflow-hidden cursor-pointer border-dark/20 hover:bg-gray/20 rounded-2xl shadow-xl hover:shadow-2xl"
     >
       <div class="relative h-32 sm:h-48 w-full">
         <NuxtImg :alt="category.name" :src="category.src" class="absolute h-full w-full object-cover" format="webp" />
       </div>
-      <div
-        class="box-content h-14 p-1 pb-4 ~text-sm/xs md:text-lg text-dark font-medium text-center flex items-center justify-center"
-      >
-        {{ category.name }}
+      <div class="flex items-center justify-start">
+        <div class="flex items-center justify-center bg-primary text-white">
+          <Icon name="material-symbols:navigate-before" class="w-8 h-8" />
+        </div>
+        <div
+          class="w-full box-content h-14 p-1 pb-4 ~text-sm/xs md:text-lg text-dark font-medium text-center flex items-center justify-center"
+        >
+          {{ category.name }}
+        </div>
       </div>
     </NuxtLink>
   </div>
@@ -100,6 +105,22 @@ const categories = ref([
     name: 'Строительное оборудование',
     src: '/Categories/ConcreteMixer.png',
     path: '/category/concrete-mixer',
+  },
+  {
+    name: 'Крепеж и фурнитура',
+    src: '/Categories/Dowel.png',
+    path: '/category/dowel',
+  },
+  { name: 'Станки', src: '/Categories/Schlefmachine.png', path: '/category/schlefmachine' },
+  {
+    name: 'Строительный материалы',
+    src: '/Categories/Board.png',
+    path: '/category/board',
+  },
+  {
+    name: 'Сантехника',
+    src: '/Categories/Faucet.png',
+    path: '/category/faucet',
   },
 ])
 </script>

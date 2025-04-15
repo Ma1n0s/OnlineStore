@@ -98,11 +98,42 @@ const addToCart = () => {
           >
             В аренду
           </button>
-          <div 
-            v-if="!product.availableForPurchase && !product.availableForRent"
-            class="text-gray-500 py-3 px-6"
-          >
-            Товар временно недоступен
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-xl font-bold mb-4">Основные характеристики</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-6">
+          <div>
+            <h3 class="font-semibold text-gray-700 mb-2">Основные</h3>
+            <ul class="space-y-3">
+              <li
+                v-for="(value, key) in product.specifications['Основны характеристики']"
+                :key="key"
+                class="flex justify-between"
+              >
+                <span class="text-gray-500">{{ key.replace(' ', ' ') }}</span>
+                <span class="font-medium">{{ value }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <div>
+            <h3 class="font-semibold text-gray-700 mb-2">Экран</h3>
+            <ul class="space-y-3">
+              <li
+                v-for="(value, key) in product.specifications['Вторичные характеристики']"
+                :key="key"
+                class="flex justify-between"
+              >
+                <span class="text-gray-500">{{ key.replace(' ', ' ') }}</span>
+                <span class="font-medium">{{ value }}</span>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
@@ -155,7 +186,22 @@ const addToCart = () => {
         </p>
       </div>
     </div>
+      <div class="pt-2">
+        <p class="text-lg font-semibold">Итоговая стоимость:</p>
+        <p class="text-2xl font-bold text-primary">{{ rentalPrice }} ₽</p>
+        <p class="text-sm text-gray-500">
+          Цена за день: {{ product.price.final }} ₽ × {{ rentalDays }} {{ rentalDays === 1 ? 'день' : 'дней' }}
+        </p>
+      </div>
+    </div>
 
+    <template #footer>
+      <div class="flex justify-end gap-3 mt-6">
+        <Button variant="outline" @click="closeRentalModal">Отмена</Button>
+        <Button @click="confirmRental">Подтвердить аренду</Button>
+      </div>
+    </template>
+  </Modal>
     <template #footer>
       <div class="flex justify-end gap-3 mt-6">
         <Button variant="outline" @click="closeRentalModal">Отмена</Button>

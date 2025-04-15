@@ -3,10 +3,10 @@ import fluid, { extract, screens, fontSize } from 'fluid-tailwind'
 export default {
   content: {
     files: [
-      './components//*.{js,vue,ts}',
-      './layouts//*.vue',
-      './pages//*.vue',
-      './plugins//*.{js,ts}',
+      './components/*.{js,vue,ts}',
+      './layouts/*.vue',
+      './pages/*.vue',
+      './plugins/*.{js,ts}',
       './shared/**/*.{js,vue,ts}',
       './nuxt.config.{js,ts}',
       './app.vue',
