@@ -32,8 +32,9 @@ const closeRentalModal = () => {
 
 const calculateRentalPrice = () => {
   if (dateRange.value.start && dateRange.value.end) {
-    const diffTime = dateRange.value.end.getTime() - dateRange.value.start.getTime()
-    rentalDays.value = Math.ceil(diffTime / (product.price.final * 60 * 60 * 24)) + 1
+    const diffTime = Math.abs(dateRange.value.end.getTime() - dateRange.value.start.getTime())
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    rentalDays.value = diffDays > 0 ? diffDays : 1
     rentalPrice.value = product.price.final * rentalDays.value
   }
 }
@@ -138,8 +139,8 @@ const addToCart = () => {
         </div>
       </div>
     </div>
-
   </div>
+
   <Modal :isOpen="isRentalModalOpen" title="Аренда товара" @close="closeRentalModal" @confirm="confirmRental">
     <div class="mt-6 space-y-4">
       <div>
@@ -186,22 +187,7 @@ const addToCart = () => {
         </p>
       </div>
     </div>
-      <div class="pt-2">
-        <p class="text-lg font-semibold">Итоговая стоимость:</p>
-        <p class="text-2xl font-bold text-primary">{{ rentalPrice }} ₽</p>
-        <p class="text-sm text-gray-500">
-          Цена за день: {{ product.price.final }} ₽ × {{ rentalDays }} {{ rentalDays === 1 ? 'день' : 'дней' }}
-        </p>
-      </div>
-    </div>
 
-    <template #footer>
-      <div class="flex justify-end gap-3 mt-6">
-        <Button variant="outline" @click="closeRentalModal">Отмена</Button>
-        <Button @click="confirmRental">Подтвердить аренду</Button>
-      </div>
-    </template>
-  </Modal>
     <template #footer>
       <div class="flex justify-end gap-3 mt-6">
         <Button variant="outline" @click="closeRentalModal">Отмена</Button>
