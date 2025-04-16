@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Orchid\Filters\Filterable;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, Filterable;
 
     /**
      * Атрибуты, которые можно массово присваивать.
@@ -24,7 +25,7 @@ class Product extends Model
         'article',
         'brand',
         'rating',
-        'category_id',
+        // 'category_id',
         'subcategory_id',
         'specifications',
         'images',
@@ -43,6 +44,12 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function getContent()
+    {
+        return $this->description; 
+    }
+    
 
     /**
      * Получить подкатегорию продукта.

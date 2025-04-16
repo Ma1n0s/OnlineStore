@@ -4,6 +4,7 @@ namespace App\Orchid\Screens;
 
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Subcategory;
 use Orchid\Screen\Screen;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Select;
@@ -17,6 +18,7 @@ use Orchid\Screen\Fields\Matrix;
 use Orchid\Screen\Fields\Picture;
 use Orchid\Support\Facades\Alert;
 use Illuminate\Http\Request;
+use Orchid\Attachment\Models\Attachment;
 
 class ProductScreen extends Screen
 {
@@ -32,8 +34,11 @@ class ProductScreen extends Screen
      */
     public function query(Product $product): array
     {
+        $product->load('subcategory', 'images');
+        
         return [
             'product' => $product,
+            'images' => $product->images,
         ];
     }
 
@@ -107,14 +112,21 @@ class ProductScreen extends Screen
                     ->title('Brand')
                     ->required(),
 
-                Select::make('product.category_id')
-                    ->title('Category')
-                    ->fromModel(Category::class, 'name')
-                    ->required(),
+                Input::make('product.rating')
+                    ->title('Rating')
+                    ->type('number')
+                    ->step('0.1')
+                    ->min(0)
+                    ->max(5),
+
+                // Select::make('product.category_id')
+                //     ->title('Category')
+                //     ->fromModel(Category::class, 'name')
+                //     ->required(),
 
                 Select::make('product.subcategory_id')
                     ->title('Subcategory')
-                    ->fromModel(Category::class, 'name')
+                    ->fromModel(Subcategory::class, 'name')
                     ->empty('No subcategory'),
 
                 Matrix::make('product.specifications')
@@ -128,8 +140,8 @@ class ProductScreen extends Screen
                         'Value' => Input::make(),
                     ]),
 
-                Upload::make('product.images')
-                    ->title('Images')
+                Upload::make('images')
+                    ->title('Product Images')
                     ->multiple()
                     ->maxFiles(10)
                     ->acceptedFiles('image/*'),
@@ -177,16 +189,30 @@ class ProductScreen extends Screen
         $data['advantages'] = $data['advantages'] ?? [];
         $data['specificationsB'] = $data['specificationsB'] ?? [];
         
-        // Handle images upload
-        if ($request->has('product.images')) {
-            $data['images'] = $request->input('product.images');
-        }
-
         $product->fill($data)->save();
+
+        // Handle image uploads
+        if ($request->has('images')) {
+            // Delete old images if needed
+            $product->images()->delete();
+            
+            // Attach new images
+            foreach ($request->input('images') as $imageId) {
+                $attachment = Attachment::find($imageId);
+                if ($attachment) {
+                    $product->images()->create([
+                        'path' => $attachment->path,
+                        'name' => $attachment->name,
+                        'original_name' => $attachment->original_name,
+                    ]);
+                    $attachment->delete(); // Remove from attachments table if using separate images table
+                }
+            }
+        }
 
         Alert::info('Product was saved');
 
-        return redirect()->route('platform.product.edit', $product);
+        return redirect()->route('platform.product.list');
     }
 
     /**
@@ -197,6 +223,9 @@ class ProductScreen extends Screen
      */
     public function remove(Product $product)
     {
+        // Delete associated images
+        $product->images()->delete();
+        
         $product->delete();
 
         Alert::info('Product was removed');
