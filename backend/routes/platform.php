@@ -1,7 +1,7 @@
 <?php
 
 declare(strict_types=1);
-
+namespace App\Orchid\Screens\Product;
 use App\Orchid\Screens\Examples\ExampleActionsScreen;
 use App\Orchid\Screens\Examples\ExampleCardsScreen;
 use App\Orchid\Screens\Examples\ExampleChartsScreen;
@@ -17,6 +17,8 @@ use App\Orchid\Screens\Role\RoleListScreen;
 use App\Orchid\Screens\User\UserEditScreen;
 use App\Orchid\Screens\User\UserListScreen;
 use App\Orchid\Screens\User\UserProfileScreen;
+use App\Orchid\Screens\ProductScreen;
+use App\Orchid\Screens\ProductListScreen;
 use Illuminate\Support\Facades\Route;
 use Tabuna\Breadcrumbs\Trail;
 
@@ -30,8 +32,26 @@ use Tabuna\Breadcrumbs\Trail;
 | contains the need "dashboard" middleware group. Now create something great!
 |
 */
-
 // Main
+
+Route::screen('product/{product}/edit', ProductScreen::class)
+    ->name('platform.product.edit');
+
+Route::screen('product/create', ProductScreen::class)
+    ->name('platform.product.create');
+
+Route::screen('products', ProductListScreen::class)
+    ->name('platform.product.list');
+
+Route::screen('product/{product}/edit', ProductScreen::class)
+    ->name('platform.product.edit');
+
+Route::screen('product/create', ProductScreen::class)
+    ->name('platform.product.create');
+
+Route::screen('products', ProductListScreen::class)
+    ->name('platform.product.list');
+
 Route::screen('/main', PlatformScreen::class)
     ->name('platform.main');
 

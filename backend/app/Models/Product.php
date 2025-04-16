@@ -17,14 +17,23 @@ class Product extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'code',
         'name',
         'description',
-        'product_url',
-        'search_market_url',
-        'search_images_url',
-        'created_at',
+        'price',
+        'article',
+        'brand',
+        'rating',
         'category_id',
         'subcategory_id',
+        'specifications',
+        'images',
+        'warranty',
+        'advantages',
+        'specificationsB',
+        'reviews_count',
+        'questions_count',
+
     ];
 
     /**
@@ -75,4 +84,14 @@ class Product extends Model
         
         return $result;
     }
+    
+    protected $casts = [
+        'price' => 'array',
+        'specifications' => 'array',
+        'images' => 'array',
+        'advantages' => 'array',
+        'specificationsB' => 'array',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 } 

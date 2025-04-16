@@ -1,0 +1,206 @@
+<?php
+
+namespace App\Orchid\Screens;
+
+use App\Models\Product;
+use App\Models\Category;
+use Orchid\Screen\Screen;
+use Orchid\Screen\Fields\Input;
+use Orchid\Screen\Fields\Select;
+use Orchid\Screen\Fields\Quill;
+use Orchid\Screen\Fields\TextArea;
+use Orchid\Screen\Fields\Upload;
+use Orchid\Support\Facades\Layout;
+use Orchid\Screen\Actions\Button;
+use Orchid\Screen\Fields\Group;
+use Orchid\Screen\Fields\Matrix;
+use Orchid\Screen\Fields\Picture;
+use Orchid\Support\Facades\Alert;
+use Illuminate\Http\Request;
+
+class ProductScreen extends Screen
+{
+    /**
+     * @var Product
+     */
+    public $product;
+
+    /**
+     * Query data.
+     *
+     * @return array
+     */
+    public function query(Product $product): array
+    {
+        return [
+            'product' => $product,
+        ];
+    }
+
+    /**
+     * The name of the screen displayed in the header.
+     *
+     * @return string|null
+     */
+    public function name(): ?string
+    {
+        return $this->product->exists ? 'Edit Product' : 'Create Product';
+    }
+
+    /**
+     * The screen's action buttons.
+     *
+     * @return \Orchid\Screen\Action[]
+     */
+    public function commandBar(): array
+    {
+        return [
+            Button::make('Create')
+                ->icon('plus')
+                ->method('createOrUpdate')
+                ->canSee(!$this->product->exists),
+
+            Button::make('Update')
+                ->icon('note')
+                ->method('createOrUpdate')
+                ->canSee($this->product->exists),
+
+            Button::make('Remove')
+                ->icon('trash')
+                ->method('remove')
+                ->canSee($this->product->exists),
+        ];
+    }
+
+    /**
+     * The screen's layout elements.
+     *
+     * @return \Orchid\Screen\Layout[]|string[]
+     */
+    public function layout(): array
+    {
+        return [
+            Layout::rows([
+                Input::make('product.code')
+                    ->title('Code')
+                    ->required(),
+
+                Input::make('product.name')
+                    ->title('Name')
+                    ->required(),
+
+                TextArea::make('product.description')
+                    ->title('Description')
+                    ->rows(3),
+
+                Input::make('product.price')
+                    ->title('Price')
+                    ->type('number')
+                    ->step('0.01')
+                    ->required(),
+
+                Input::make('product.article')
+                    ->title('Article')
+                    ->required(),
+
+                Input::make('product.brand')
+                    ->title('Brand')
+                    ->required(),
+
+                Select::make('product.category_id')
+                    ->title('Category')
+                    ->fromModel(Category::class, 'name')
+                    ->required(),
+
+                Select::make('product.subcategory_id')
+                    ->title('Subcategory')
+                    ->fromModel(Category::class, 'name')
+                    ->empty('No subcategory'),
+
+                Matrix::make('product.specifications')
+                    ->title('Specifications')
+                    ->columns([
+                        'Key',
+                        'Value',
+                    ])
+                    ->fields([
+                        'Key' => Input::make(),
+                        'Value' => Input::make(),
+                    ]),
+
+                Upload::make('product.images')
+                    ->title('Images')
+                    ->multiple()
+                    ->maxFiles(10)
+                    ->acceptedFiles('image/*'),
+
+                Input::make('product.warranty')
+                    ->title('Warranty'),
+
+                Matrix::make('product.advantages')
+                    ->title('Advantages')
+                    ->columns([
+                        'Title',
+                        'Description',
+                    ])
+                    ->fields([
+                        'Title' => Input::make(),
+                        'Description' => Input::make(),
+                    ]),
+
+                Matrix::make('product.specificationsB')
+                    ->title('Additional Specifications')
+                    ->columns([
+                        'Name',
+                        'Value',
+                    ])
+                    ->fields([
+                        'Name' => Input::make(),
+                        'Value' => Input::make(),
+                    ]),
+            ]),
+        ];
+    }
+
+    /**
+     * @param Product $product
+     * @param Request $request
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function createOrUpdate(Product $product, Request $request)
+    {
+        $data = $request->get('product');
+        
+        // Handle JSON fields
+        $data['specifications'] = $data['specifications'] ?? [];
+        $data['advantages'] = $data['advantages'] ?? [];
+        $data['specificationsB'] = $data['specificationsB'] ?? [];
+        
+        // Handle images upload
+        if ($request->has('product.images')) {
+            $data['images'] = $request->input('product.images');
+        }
+
+        $product->fill($data)->save();
+
+        Alert::info('Product was saved');
+
+        return redirect()->route('platform.product.edit', $product);
+    }
+
+    /**
+     * @param Product $product
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Exception
+     */
+    public function remove(Product $product)
+    {
+        $product->delete();
+
+        Alert::info('Product was removed');
+
+        return redirect()->route('platform.product.list');
+    }
+}

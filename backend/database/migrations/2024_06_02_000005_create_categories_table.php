@@ -29,11 +29,18 @@ return new class extends Migration
             $table->timestamps();
         });
         
-        // Добавляем колонки с внешними ключами в таблицу products
-        Schema::table('products', function (Blueprint $table) {
-            $table->foreignId('category_id')->nullable()->constrained();
-            $table->foreignId('subcategory_id')->nullable()->constrained('subcategories');
-        });
+        // Проверяем существование колонок перед добавлением
+        if (!Schema::hasColumn('products', 'category_id')) {
+            Schema::table('products', function (Blueprint $table) {
+                $table->foreignId('category_id')->nullable()->constrained();
+            });
+        }
+        
+        if (!Schema::hasColumn('products', 'subcategory_id')) {
+            Schema::table('products', function (Blueprint $table) {
+                $table->foreignId('subcategory_id')->nullable()->constrained('subcategories');
+            });
+        }
     }
 
     /**
@@ -42,12 +49,18 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->dropForeign(['subcategory_id']);
-            $table->dropForeign(['category_id']);
-            $table->dropColumn(['subcategory_id', 'category_id']);
+            if (Schema::hasColumn('products', 'subcategory_id')) {
+                $table->dropForeign(['subcategory_id']);
+                $table->dropColumn('subcategory_id');
+            }
+            
+            if (Schema::hasColumn('products', 'category_id')) {
+                $table->dropForeign(['category_id']);
+                $table->dropColumn('category_id');
+            }
         });
         
         Schema::dropIfExists('subcategories');
         Schema::dropIfExists('categories');
     }
-}; 
+};
