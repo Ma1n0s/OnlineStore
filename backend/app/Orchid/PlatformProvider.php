@@ -35,7 +35,7 @@ class PlatformProvider extends OrchidServiceProvider
             Menu::make('Products')
             ->icon('bag')
             ->route('platform.product.list')
-            ->canSee(true), // Принудительно показываем
+            ->canSee(true), 
                 
             Menu::make('Cards')
                 ->icon('bs.card-text')
