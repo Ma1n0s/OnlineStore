@@ -185,20 +185,18 @@ class ProductScreen extends Screen
     {
         $data = $request->get('product');
         
-        // Устанавливаем значения по умолчанию
         $data['rating'] = $data['rating'] ?? 0;
         $data['specifications'] = $data['specifications'] ?? [];
         $data['advantages'] = $data['advantages'] ?? [];
         $data['specificationsB'] = $data['specificationsB'] ?? [];
         $data['images'] = [];
         
-        // Обработка загруженных изображений
         if ($request->has('images')) {
             foreach ($request->input('images', []) as $imageId) {
                 $attachment = Attachment::find($imageId);
                 
                 if ($attachment) {
-                    // Сохраняем данные о файле
+
                     $data['images'][] = [
                         'url' => $attachment->url,
                         'path' => str_replace('public/', '', $attachment->physicalPath()),
@@ -208,12 +206,10 @@ class ProductScreen extends Screen
                         'size' => $attachment->size,
                     ];
                     
-                    // Не удаляем attachment, чтобы файл оставался в хранилище
                 }
             }
         }
         
-        // Сохраняем продукт
         $product->fill($data)->save();
         
         Alert::info('Product was saved');
@@ -228,7 +224,6 @@ class ProductScreen extends Screen
      */
     public function remove(Product $product)
     {
-        // Удаляем связанные изображения из хранилища
         if (!empty($product->images)) {
             foreach ($product->images as $image) {
                 if (isset($image['path'])) {

@@ -144,7 +144,6 @@ class ProductListScreen extends Screen
     {
         $product = Product::findOrFail($request->get('id'));
         
-        // Delete associated images
         $product->images()->delete();
         
         $product->delete();
