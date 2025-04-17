@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Orchid\Filters\Filterable;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, Filterable;
 
     /**
      * Атрибуты, которые можно массово присваивать.
@@ -17,14 +18,23 @@ class Product extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'code',
         'name',
         'description',
-        'product_url',
-        'search_market_url',
-        'search_images_url',
-        'created_at',
-        'category_id',
+        'price',
+        'article',
+        'brand',
+        'rating',
+        // 'category_id',
         'subcategory_id',
+        'specifications',
+        'images',
+        'warranty',
+        'advantages',
+        'specificationsB',
+        'reviews_count',
+        'questions_count',
+
     ];
 
     /**
@@ -34,6 +44,12 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function getContent()
+    {
+        return $this->description; 
+    }
+    
 
     /**
      * Получить подкатегорию продукта.
@@ -75,4 +91,14 @@ class Product extends Model
         
         return $result;
     }
+    
+    protected $casts = [
+        'price' => 'array',
+        'specifications' => 'array',
+        'images' => 'array',
+        'advantages' => 'array',
+        'specificationsB' => 'array',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 } 

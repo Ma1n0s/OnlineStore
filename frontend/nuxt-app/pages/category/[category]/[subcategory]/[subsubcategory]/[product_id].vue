@@ -14,6 +14,7 @@ import Basket from '~/components/Product/Basket.vue'
 import ActionsPanel from '~/components/Product/ActionsPanel.vue'
 // import InformationCart from '~/components/Product/InformationCart.vue'
 import Reviews from '~/components/Product/Reviews.vue'
+import DescriptionBlock from '~/components/Product/DescriptionBlock.vue'
 
 // Данные продукта
 const product = reactive<Partial<Product>>(productData)
@@ -56,17 +57,15 @@ onMounted(() => {
     <Breadcrumbs :list="breadcrumbs" />
 
     <div v-if="!loading">
-      <h2 class="font-bold text-2xl mb-2">{{ product.title }}</h2>
       <ActionsPanel />
       <div class="flex flex-col md:flex-row gap-8">
         <!-- Свой Свайпер по img -->
         <ImageBlock />
 
-        <!-- Основные характеристики и блок с покупкой -->
-        <div class="w-full md:w-3/5">
-          <Basket />
+        <div class="grid grid-cols-2 gap-4">
           <!-- Основные характеристики -->
-          <!-- <DescriptionBlock /> -->
+          <DescriptionBlock />
+          <Basket />
         </div>
       </div>
 
@@ -104,7 +103,7 @@ onMounted(() => {
           </div>
         </div>
       </div>
-      <Reviews />
+      <!-- <Reviews /> -->
     </div>
 
     <div v-else class="flex justify-center items-center h-64">

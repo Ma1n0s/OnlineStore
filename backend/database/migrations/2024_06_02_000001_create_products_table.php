@@ -13,13 +13,23 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
+            $table->string('code');
             $table->string('name');
             $table->text('description')->nullable();
-            $table->string('product_url')->nullable();
-            $table->string('search_market_url')->nullable();
-            $table->string('search_images_url')->nullable();
-            $table->timestamp('created_at')->nullable();
-            $table->timestamp('updated_at')->nullable();
+            $table->decimal('price', 10, 2);
+            $table->string('article');
+            $table->string('brand');
+            $table->decimal('rating', 3, 1)->default(0);
+            // $table->foreignId('category_id')->constrained()->onDelete('cascade');
+            $table->foreignId('subcategory_id')->nullable()->constrained('categories')->onDelete('set null');
+            $table->json('specifications')->nullable();
+            $table->json('images')->nullable();
+            $table->string('warranty')->nullable();
+            $table->json('advantages')->nullable();
+            $table->json('specificationsB')->nullable();
+            $table->integer('reviews_count')->default(0);
+            $table->integer('questions_count')->default(0);
+            $table->timestamps();
         });
     }
 

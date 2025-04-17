@@ -7,7 +7,12 @@ import Button from '~/components/ui/Button/Button.vue'
 import { DatePicker } from 'v-calendar'
 import 'v-calendar/dist/style.css'
 
-const product = reactive<Product>(productData)
+const product = reactive<Product>({
+  ...productData,
+  availableForRent: true, 
+  availableForPurchase: true 
+})
+
 const isRentalModalOpen = ref(false)
 const rentalDays = ref(1)
 const rentalPrice = ref(product.price.final)
@@ -27,8 +32,9 @@ const closeRentalModal = () => {
 
 const calculateRentalPrice = () => {
   if (dateRange.value.start && dateRange.value.end) {
-    const diffTime = dateRange.value.end.getTime() - dateRange.value.start.getTime()
-    rentalDays.value = Math.ceil(diffTime / (product.price.final * 60 * 60 * 24)) + 1
+    const diffTime = Math.abs(dateRange.value.end.getTime() - dateRange.value.start.getTime())
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    rentalDays.value = diffDays > 0 ? diffDays : 1
     rentalPrice.value = product.price.final * rentalDays.value
   }
 }
@@ -41,10 +47,27 @@ const confirmRental = () => {
   )
   closeRentalModal()
 }
+
+const addToCart = () => {
+  console.log('Product added to cart')
+}
 </script>
 
 <template>
   <div class="space-y-6">
+    <!-- Информационный блок -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-xl font-bold text-second mb-4">Волна выгоды</h2>
+      <div class="flex items-center gap-4 mb-2">
+        <p class="text-3xl font-bold">1 859 ₽</p>
+        <p class="text-lg line-through text-gray">2 516 ₽</p>
+        <p class="text-primary font-medium">Выгода 657 ₽</p>
+      </div>
+      <p class="text-lg font-bold mb-2">1 202 ₽</p>
+      <p class="text-gray-600">301 ₽ x 4 платежа в рассрочку</p>
+    </div>
+
+    <!-- Блок с кнопками -->
     <div class="bg-white rounded-lg shadow-md p-6">
       <div class="flex flex-col gap-4">
         <div>
@@ -62,10 +85,15 @@ const confirmRental = () => {
         </div>
 
         <div class="flex flex-col sm:flex-row gap-3">
-          <button class="bg-primary hover:bg-second-hover text-white py-3 px-6 rounded-lg font-medium transition">
+          <button 
+            v-if="product.availableForPurchase"
+            @click="addToCart"
+            class="bg-primary hover:bg-second-hover text-white py-3 px-6 rounded-lg font-medium transition"
+          >
             В корзину
           </button>
           <button
+            v-if="product.availableForRent"
             @click="openRentalModal"
             class="bg-primary hover:bg-second-hover text-white py-3 px-6 rounded-lg font-medium transition"
           >

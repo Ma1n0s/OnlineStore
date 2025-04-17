@@ -35,7 +35,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       sanctum: {
-        baseUrl: import.meta.env.VITE_BACKEND || 'http://localhost:8000',
+        baseUrl: process.env.BACKEND_URL || 'http://localhost:8000',
         mode: 'cookie',
         userStateKey: 'sanctum.user.identity',
         endpoints: {
@@ -56,6 +56,38 @@ export default defineNuxtConfig({
       },
     },
   },
+
+  // Добавляем настройки для axios и fetch
+  nitro: {
+    devProxy: {
+      '/api': {
+        target: process.env.BACKEND_URL || 'http://localhost:8000',
+        changeOrigin: true,
+        cookieDomainRewrite: {
+          '*': '',
+        },
+        headers: {
+          'X-Forwarded-Host': 'localhost:3000',
+          'X-Forwarded-Proto': 'http',
+        },
+        secure: false,
+      },
+      '/sanctum': {
+        target: process.env.BACKEND_URL || 'http://localhost:8000',
+        changeOrigin: true,
+        cookieDomainRewrite: {
+          '*': '',
+        },
+        secure: false,
+      },
+    },
+  },
+
+  // Отключение vite.config.ts, чтобы избежать предупреждений
+  vite: {},
+
+  // Настройка cookie для SSR
+  ssr: true,
 
   app: {
     head: {
