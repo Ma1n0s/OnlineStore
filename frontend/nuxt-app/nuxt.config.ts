@@ -20,7 +20,7 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     'nuxt-swiper',
     '@nuxtjs/google-fonts',
-    // 'nuxt-auth-sanctum',
+    'nuxt-auth-sanctum',
     '@samk-dev/nuxt-vcalendar',
     'nuxt-aos',
   ],
@@ -34,28 +34,60 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      // sanctum: {
-      //   baseUrl: import.meta.env.VITE_BACKEND || 'http://localhost:8000',
-      //   mode: 'cookie',
-      //   userStateKey: 'sanctum.user.identity',
-      //   endpoints: {
-      //     csrf: '/sanctum/csrf-cookie',
-      //     login: '/api/auth/verify-code',
-      //     logout: '/api/auth/logout',
-      //     user: '/api/user',
-      //   },
-      //   csrf: {
-      //     cookie: 'XSRF-TOKEN',
-      //     header: 'X-XSRF-TOKEN',
-      //   },
-      //   redirect: {
-      //     onLogin: '/',
-      //     onLogout: '/',
-      //     home: '/',
-      //   },
-      // },
+      sanctum: {
+        baseUrl: process.env.BACKEND_URL || 'http://localhost:8000',
+        mode: 'cookie',
+        userStateKey: 'sanctum.user.identity',
+        endpoints: {
+          csrf: '/sanctum/csrf-cookie',
+          login: '/api/auth/verify-code',
+          logout: '/api/auth/logout',
+          user: '/api/user',
+        },
+        csrf: {
+          cookie: 'XSRF-TOKEN',
+          header: 'X-XSRF-TOKEN',
+        },
+        redirect: {
+          onLogin: '/',
+          onLogout: '/',
+          home: '/',
+        },
+      },
     },
   },
+
+  // Добавляем настройки для axios и fetch
+  nitro: {
+    devProxy: {
+      '/api': {
+        target: process.env.BACKEND_URL || 'http://localhost:8000',
+        changeOrigin: true,
+        cookieDomainRewrite: {
+          '*': '',
+        },
+        headers: {
+          'X-Forwarded-Host': 'localhost:3000',
+          'X-Forwarded-Proto': 'http',
+        },
+        secure: false,
+      },
+      '/sanctum': {
+        target: process.env.BACKEND_URL || 'http://localhost:8000',
+        changeOrigin: true,
+        cookieDomainRewrite: {
+          '*': '',
+        },
+        secure: false,
+      },
+    },
+  },
+
+  // Отключение vite.config.ts, чтобы избежать предупреждений
+  vite: {},
+
+  // Настройка cookie для SSR
+  ssr: true,
 
   app: {
     head: {
