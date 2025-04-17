@@ -19,6 +19,7 @@ use Orchid\Screen\Fields\Picture;
 use Orchid\Support\Facades\Alert;
 use Illuminate\Http\Request;
 use Orchid\Attachment\Models\Attachment;
+use Illuminate\Support\Facades\Storage;
 
 class ProductScreen extends Screen
 {
@@ -34,7 +35,7 @@ class ProductScreen extends Screen
      */
     public function query(Product $product): array
     {
-        $product->load('subcategory', 'images');
+        $product->load('subcategory','images');
         
         return [
             'product' => $product,
@@ -184,34 +185,38 @@ class ProductScreen extends Screen
     {
         $data = $request->get('product');
         
-        // Handle JSON fields
+        // Устанавливаем значения по умолчанию
+        $data['rating'] = $data['rating'] ?? 0;
         $data['specifications'] = $data['specifications'] ?? [];
         $data['advantages'] = $data['advantages'] ?? [];
         $data['specificationsB'] = $data['specificationsB'] ?? [];
+        $data['images'] = [];
         
-        $product->fill($data)->save();
-
-        // Handle image uploads
+        // Обработка загруженных изображений
         if ($request->has('images')) {
-            // Delete old images if needed
-            $product->images()->delete();
-            
-            // Attach new images
-            foreach ($request->input('images') as $imageId) {
+            foreach ($request->input('images', []) as $imageId) {
                 $attachment = Attachment::find($imageId);
+                
                 if ($attachment) {
-                    $product->images()->create([
-                        'path' => $attachment->path,
+                    // Сохраняем данные о файле
+                    $data['images'][] = [
+                        'url' => $attachment->url,
+                        'path' => str_replace('public/', '', $attachment->physicalPath()),
                         'name' => $attachment->name,
                         'original_name' => $attachment->original_name,
-                    ]);
-                    $attachment->delete(); // Remove from attachments table if using separate images table
+                        'mime_type' => $attachment->mime_type,
+                        'size' => $attachment->size,
+                    ];
+                    
+                    // Не удаляем attachment, чтобы файл оставался в хранилище
                 }
             }
         }
-
+        
+        // Сохраняем продукт
+        $product->fill($data)->save();
+        
         Alert::info('Product was saved');
-
         return redirect()->route('platform.product.list');
     }
 
@@ -223,13 +228,19 @@ class ProductScreen extends Screen
      */
     public function remove(Product $product)
     {
-        // Delete associated images
-        $product->images()->delete();
+        // Удаляем связанные изображения из хранилища
+        if (!empty($product->images)) {
+            foreach ($product->images as $image) {
+                if (isset($image['path'])) {
+                    Storage::disk('public')->delete($image['path']);
+                }
+            }
+        }
         
         $product->delete();
 
         Alert::info('Product was removed');
-
         return redirect()->route('platform.product.list');
     }
+    
 }
