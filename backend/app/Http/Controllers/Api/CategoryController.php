@@ -55,6 +55,7 @@ class CategoryController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
+            'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'slug' => 'nullable|string|max:255|unique:categories',
             'parent_id' => 'nullable|exists:categories,id',
@@ -67,7 +68,12 @@ class CategoryController extends Controller
         }
         
         try {
-            $categoryData = $request->only(['name', 'description', 'parent_id']);
+            $categoryData = $request->only(['name', 'title', 'description', 'parent_id']);
+            
+            // Если title не указан, используем name
+            if (!isset($categoryData['title']) || empty($categoryData['title'])) {
+                $categoryData['title'] = $categoryData['name'];
+            }
             
             // Если slug не указан, генерируем его из названия
             if (!$request->has('slug')) {
@@ -127,6 +133,7 @@ class CategoryController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|required|string|max:255',
+            'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'slug' => 'nullable|string|max:255',
             'parent_id' => 'nullable|exists:categories,id',
@@ -141,7 +148,12 @@ class CategoryController extends Controller
         }
         
         try {
-            $categoryData = $request->only(['name', 'description', 'parent_id']);
+            $categoryData = $request->only(['name', 'title', 'description', 'parent_id']);
+            
+            // Если name изменился, а title не указан явно, обновляем title
+            if ($request->has('name') && !$request->has('title') && $request->input('name') !== $category->name) {
+                $categoryData['title'] = $request->input('name');
+            }
             
             // Проверяем, не является ли родитель потомком данной категории
             if ($request->has('parent_id')) {
