@@ -24,9 +24,15 @@ class CategoryEditScreen extends Screen
             'parentCategories' => Category::where('id', '!=', $category->id)
                 ->where(function($query) use ($category) {
                     $query->whereNull('parent_id')
-                          ->orWhere('parent_id', '!=', $category->id);
+                        ->orWhere('parent_id', '!=', $category->id);
                 })
-                ->get(),
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'name' => $item->name,
+                    ];
+                }),
         ];
     }
 
