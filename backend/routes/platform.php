@@ -57,7 +57,7 @@ Route::screen('product/create', ProductScreen::class)
 Route::screen('products', ProductListScreen::class)
     ->name('platform.product.list');
 
-oute::screen('categories', CategoryListScreen::class)
+Route::screen('categories', CategoryListScreen::class)
     ->name('platform.category.list')
     ->breadcrumbs(fn (Trail $trail) => $trail
         ->parent('platform.index')
