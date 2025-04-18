@@ -1,6 +1,5 @@
 <script setup>
 const route = useRoute()
-
 const { data: category } = await useFetch(() => `http://127.0.0.1:8000/api/categories`)
 console.log(category.value)
 
@@ -127,9 +126,9 @@ const state = reactive({
         <NuxtLink to="#" class="text-primary hover:underline mt-2 md:mt-0">Как выбрать электроинструмент</NuxtLink>
       </div>
 
-      <CategoryDescription :data="category.value" />
+      <CategoryDescription :data="category" />
 
-      <CategoryList :categories="category.value" class="mb-8" />
+      <CategoryList :categories="category" class="mb-8" />
 
       <div class="mb-8">
         <h2 class="text-xl font-semibold mb-4">Часто ищут</h2>

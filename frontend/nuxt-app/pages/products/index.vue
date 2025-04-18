@@ -1,6 +1,11 @@
 <script setup>
 const route = useRoute()
 
+const { slug } = route.params
+console.log(slug)
+
+const { data: category } = await useFetch(() => `http://127.0.0.1:8000/api/categories/${slug.at(-1)}`)
+
 useHead({
   title: `${route.params.subsubcategory} | Абсолют техно`,
   meta: [
@@ -12,7 +17,6 @@ useHead({
 })
 
 import CategoryDescription from '~/components/CategoryItems/CategoryDescription/CategoryDescription.vue'
-import { catalogDescription } from '~/shared/mock/CatalogDescription'
 import { reactive, computed } from 'vue'
 import TextInput from '~/components/ui/Inputs/TextInput.vue'
 
@@ -270,7 +274,7 @@ const toggleBrand = brand => {
     </div>
 
     <!-- Категории -->
-    <CategoryDescription :data="catalogDescription" />
+    <CategoryDescription :data="category" />
 
     <!-- Заголовок результатов -->
     <div
