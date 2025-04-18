@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Category;
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -312,5 +313,113 @@ class ProductController extends Controller
                 $this->collectDescendantIds($child, $categoryIds);
             }
         }
+    }
+
+    /**
+     * Получить продукты по ID категории
+     *
+     * @param Request $request
+     * @param Category $category
+     * @return JsonResponse
+     */
+    public function getProductsByCategoryId(Request $request, Category $category): JsonResponse
+    {
+        // Валидируем входные данные
+        $request->validate([
+            'page' => 'nullable|integer|min:1',
+            'limit' => 'nullable|integer|min:1|max:50',
+            'sort' => 'nullable|string|in:price_asc,price_desc,newest,oldest,name_asc,name_desc',
+        ]);
+        
+        $page = $request->input('page', 1);
+        $limit = $request->input('limit', 12);
+        $sort = $request->input('sort', 'newest');
+        
+        // Получаем все ID категорий-потомков, включая текущую категорию
+        $categoryIds = [$category->id];
+        
+        // Загружаем всех потомков
+        $category->load('descendants');
+        
+        // Рекурсивно собираем всех потомков
+        $this->collectDescendantIds($category, $categoryIds);
+        
+        // Фильтруем продукты по всем категориям
+        $query = Product::with(['category', 'images'])
+            ->whereIn('category_id', $categoryIds);
+            
+        // Применяем сортировку
+        switch ($sort) {
+            case 'price_asc':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'newest':
+                $query->orderBy('created_at', 'desc');
+                break;
+            case 'name_asc':
+                $query->orderBy('name', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('name', 'desc');
+                break;
+        }
+        
+        $products = $query->paginate($limit, ['*'], 'page', $page);
+        
+        // Форматируем данные для каждого продукта
+        $formattedProducts = collect($products->items())->map(function($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => $product->price,
+                'old_price' => $product->old_price,
+                'description' => $product->description,
+                'short_description' => $product->short_description,
+                'in_stock' => (bool)$product->in_stock,
+                'rating' => $product->rating,
+                'category' => $product->category ? [
+                    'id' => $product->category->id,
+                    'name' => $product->category->name,
+                    'title' => $product->category->title,
+                    'slug' => $product->category->slug,
+                ] : null,
+                'images' => $product->images->map(function($image) {
+                    return [
+                        'id' => $image->id,
+                        'url' => $image->url,
+                        'alt' => $image->alt,
+                    ];
+                }),
+                'slug' => $product->slug ?: Str::slug($product->name),
+            ];
+        });
+        
+        return response()->json([
+            'category' => [
+                'id' => $category->id,
+                'name' => $category->name,
+                'title' => $category->title,
+                'slug' => $category->slug,
+                'description' => $category->description,
+                'image_url' => $category->image_url,
+                'description_image_url' => $category->description_image_url,
+            ],
+            'products' => $formattedProducts,
+            'pagination' => [
+                'total' => $products->total(),
+                'per_page' => $products->perPage(),
+                'current_page' => $products->currentPage(),
+                'last_page' => $products->lastPage(),
+                'from' => $products->firstItem(),
+                'to' => $products->lastItem(),
+                'has_more' => $products->hasMorePages(),
+            ],
+        ]);
     }
 } 

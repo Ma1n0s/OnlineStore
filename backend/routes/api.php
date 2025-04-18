@@ -128,6 +128,7 @@ Route::group(['middleware' => [ 'guest']], function() {
 
 // Специальные маршруты для продуктов
 Route::get('/products/by-category', [ProductController::class, 'getProductsByCategory']);
+Route::get('/products/category/{category}', [ProductController::class, 'getProductsByCategoryId']);
 
 // Маршруты для продуктов
 Route::apiResource('products', ProductController::class);

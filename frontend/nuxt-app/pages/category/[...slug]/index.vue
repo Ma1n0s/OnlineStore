@@ -34,7 +34,6 @@ useHead({
 
 import CategoryDescription from '~/components/CategoryItems/CategoryDescription/CategoryDescription.vue'
 import CategoryList from '~/components/CategoryItems/CategoryList/CategoryList.vue'
-import { catalogDescription } from '~/shared/mock/CatalogDescription'
 
 const state = reactive({
   popularTags: [
@@ -145,9 +144,9 @@ const state = reactive({
         <NuxtLink to="#" class="text-primary hover:underline mt-2 md:mt-0">Как выбрать электроинструмент</NuxtLink>
       </div>
 
-      <CategoryDescription :data="catalogDescription" />
+      <CategoryDescription :data="category" />
 
-      <CategoryList class="mb-8" />
+      <CategoryList :categories="category.children" :path-prefix="`/category/${slug.join('/')}/`" class="mb-8" />
 
       <div class="mb-8">
         <h2 class="text-xl font-semibold mb-4">Часто ищут</h2>
