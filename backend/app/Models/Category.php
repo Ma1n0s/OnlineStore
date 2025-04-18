@@ -4,13 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Orchid\Attachment\Attachable;
+use Orchid\Filters\Filterable;
+use Orchid\Screen\AsSource;
 use Illuminate\Support\Str;
 
 class Category extends Model
 {
-    use HasFactory;
+    use HasFactory, AsSource, Filterable, Attachable;
 
     /**
      * Атрибуты, которые можно массово присваивать.
@@ -35,7 +38,6 @@ class Category extends Model
         parent::boot();
 
         static::creating(function ($category) {
-            // Автоматически генерируем slug из названия, если он не был указан
             if (empty($category->slug)) {
                 $category->slug = Str::slug($category->name);
             }
@@ -44,6 +46,8 @@ class Category extends Model
 
     /**
      * Получить родительскую категорию.
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function parent(): BelongsTo
     {
@@ -52,6 +56,8 @@ class Category extends Model
 
     /**
      * Получить прямые дочерние категории.
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function children(): HasMany
     {
@@ -60,6 +66,8 @@ class Category extends Model
 
     /**
      * Получить все дочерние категории (рекурсивно).
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function descendants(): HasMany
     {
@@ -68,6 +76,8 @@ class Category extends Model
 
     /**
      * Получить все родительские категории (рекурсивно).
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function ancestors(): BelongsTo
     {
@@ -76,12 +86,13 @@ class Category extends Model
 
     /**
      * Получить продукты в этой категории.
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
     }
-
     /**
      * Получить корневые категории (без родителя).
      * 
