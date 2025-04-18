@@ -1,5 +1,26 @@
 <script setup>
 const route = useRoute()
+// const router = useRouter()
+const { slug } = route.params
+console.log(slug)
+
+const { data: category } = await useFetch(() => `http://127.0.0.1:8000/api/categories/${slug.at(-1)}`)
+// const { data: childCategories } = await useFetch(() => `/api/categories/${category.value.id}/children`)
+
+// if (!category.value) {
+//   throw createError({ statusCode: 404, message: 'Категория не найдена' })
+// }
+
+onMounted(async () => {
+  // Проверяем есть ли дочерние категории
+  if (!category.value.children || category.value.children.length === 0) {
+    // Если нет, перенаправляем на страницу товаров
+    await navigateTo(`/products/category/${route.params.slug.join('/')}`)
+  }
+
+  // console.log(childCategories.value)
+  console.log(category.value)
+})
 
 useHead({
   title: `${route.params.category} | Абсолют техно`,

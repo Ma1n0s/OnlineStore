@@ -13,7 +13,7 @@ import BrandBlock from '~/components/Product/BrandBlock.vue'
 import Basket from '~/components/Product/Basket.vue'
 import ActionsPanel from '~/components/Product/ActionsPanel.vue'
 // import InformationCart from '~/components/Product/InformationCart.vue'
-import Reviews from '~/components/Product/Reviews.vue'
+// import Reviews from '~/components/Product/Reviews.vue'
 import DescriptionBlock from '~/components/Product/DescriptionBlock.vue'
 
 // Данные продукта
