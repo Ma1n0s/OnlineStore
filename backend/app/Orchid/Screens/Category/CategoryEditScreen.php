@@ -11,6 +11,7 @@ use Orchid\Screen\Fields\TextArea;
 use Orchid\Screen\Fields\Upload;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Alert;
+use Illuminate\Support\Facades\Validator;
 use Orchid\Support\Facades\Layout;
 
 class CategoryEditScreen extends Screen
@@ -99,12 +100,35 @@ class CategoryEditScreen extends Screen
     {
         $data = $request->get('category');
         
-        // Преобразуем '0' обратно в null для parent_id
+        // Проверка на уникальность имени
+        $exists = Category::where('name', $data['name'])
+            ->where('id', '!=', $category->id ?? null)
+            ->exists();
+            
+        if ($exists) {
+            Alert::error('Category name already exists!');
+            return back();
+        }
+        
+        // Обработка parent_id
         if (isset($data['parent_id']) && $data['parent_id'] === '0') {
             $data['parent_id'] = null;
         }
         
-        // Обработка загрузки изображений
+        // Генерация slug если не указан
+        if (empty($data['slug'])) {
+            $data['slug'] = Str::slug($data['name']);
+        }
+        
+        // Проверка уникальности slug
+        $slugExists = Category::where('slug', $data['slug'])
+            ->where('id', '!=', $category->id ?? null)
+            ->exists();
+            
+        if ($slugExists) {
+            $data['slug'] = $data['slug'] . '-' . uniqid();
+        }
+        
         if ($request->hasFile('category.image_url')) {
             $data['image_url'] = $request->file('category.image_url')->store('categories', 'public');
         }
@@ -116,7 +140,24 @@ class CategoryEditScreen extends Screen
         $category->fill($data)->save();
 
         Alert::success('Category was saved');
-
         return redirect()->route('platform.category.list');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($category) {
+            if (empty($category->slug)) {
+                $baseSlug = $slug = Str::slug($category->name);
+                $count = 1;
+                
+                while (Category::where('slug', $slug)->exists()) {
+                    $slug = $baseSlug . '-' . $count++;
+                }
+                
+                $category->slug = $slug;
+            }
+        });
     }
 }
