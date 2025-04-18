@@ -2,7 +2,7 @@
   <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-4">
     <NuxtLink
       v-for="(category, index) in categories"
-      :to="category.path"
+      :to="category.children"
       :key="index + category.name"
       class="bg-gray/10 border h-fit sm:h-64 overflow-hidden cursor-pointer border-dark/20 hover:bg-gray/20 rounded-2xl shadow-xl hover:shadow-2xl"
     >
@@ -24,103 +24,110 @@
 </template>
 
 <script lang="ts" setup>
-const categories = ref([
-  { name: 'Инструменты', src: '/Categories/Instruments.png', path: '/category/instrument' },
-  {
-    name: 'Электрика',
-    src: '/Categories/Wire.png',
-    path: 'category',
+const { categories } = defineProps({
+  categories: {
+    type: Array,
+    required: true,
   },
-  {
-    name: 'Крепеж и фурнитура',
-    src: '/Categories/Dowel.png',
-    path: 'category/dowel',
-  },
-  { name: 'Станки', src: '/Categories/Schlefmachine.png', path: '/category/schlefmachine' },
-  {
-    name: 'Строительный материалы',
-    src: '/Categories/Board.png',
-    path: '/category/board',
-  },
-  {
-    name: 'Сантехника',
-    src: '/Categories/Faucet.png',
-    path: '/category/faucet',
-  },
-  {
-    name: 'Строительное оборудование',
-    src: '/Categories/ConcreteMixer.png',
-    path: '/category/concrete-mixer',
-  },
-  { name: 'Инструменты', src: '/Categories/Instruments.png', path: '/category/instrument' },
-  {
-    name: 'Электрика',
-    src: '/Categories/Wire.png',
-    path: '/category/wire',
-  },
-  {
-    name: 'Крепеж и фурнитура',
-    src: '/Categories/Dowel.png',
-    path: '/category/dowel',
-  },
-  { name: 'Станки', src: '/Categories/Schlefmachine.png', path: '/category/schlefmachine' },
-  {
-    name: 'Строительный материалы',
-    src: '/Categories/Board.png',
-    path: '/category/board',
-  },
-  {
-    name: 'Сантехника',
-    src: '/Categories/Faucet.png',
-    path: '/category/faucet',
-  },
-  {
-    name: 'Строительное оборудование',
-    src: '/Categories/ConcreteMixer.png',
-    path: '/category/concrete-mixer',
-  },
-  { name: 'Инструменты', src: '/Categories/Instruments.png', path: '/category/instrument' },
-  {
-    name: 'Электрика',
-    src: '/Categories/Wire.png',
-    path: '/category/wire',
-  },
-  {
-    name: 'Крепеж и фурнитура',
-    src: '/Categories/Dowel.png',
-    path: '/category/dowel',
-  },
-  { name: 'Станки', src: '/Categories/Schlefmachine.png', path: '/category/schlefmachine' },
-  {
-    name: 'Строительный материалы',
-    src: '/Categories/Board.png',
-    path: '/category/board',
-  },
-  {
-    name: 'Сантехника',
-    src: '/Categories/Faucet.png',
-    path: '/category/faucet',
-  },
-  {
-    name: 'Строительное оборудование',
-    src: '/Categories/ConcreteMixer.png',
-    path: '/category/concrete-mixer',
-  },
-  {
-    name: 'Крепеж и фурнитура',
-    src: '/Categories/Dowel.png',
-    path: '/category/dowel',
-  },
-  { name: 'Станки', src: '/Categories/Schlefmachine.png', path: '/category/schlefmachine' },
-  {
-    name: 'Строительный материалы',
-    src: '/Categories/Board.png',
-    path: '/category/board',
-  },
-  {
-    name: 'Сантехника',
-    src: '/Categories/Faucet.png',
-    path: '/category/faucet',
-  },
-])
+})
+
+// const categories = ref([
+//   { name: 'Инструменты', src: '/Categories/Instruments.png', path: '/category/instrument' },
+//   {
+//     name: 'Электрика',
+//     src: '/Categories/Wire.png',
+//     path: 'category',
+//   },
+//   {
+//     name: 'Крепеж и фурнитура',
+//     src: '/Categories/Dowel.png',
+//     path: 'category/dowel',
+//   },
+//   { name: 'Станки', src: '/Categories/Schlefmachine.png', path: '/category/schlefmachine' },
+//   {
+//     name: 'Строительный материалы',
+//     src: '/Categories/Board.png',
+//     path: '/category/board',
+//   },
+//   {
+//     name: 'Сантехника',
+//     src: '/Categories/Faucet.png',
+//     path: '/category/faucet',
+//   },
+//   {
+//     name: 'Строительное оборудование',
+//     src: '/Categories/ConcreteMixer.png',
+//     path: '/category/concrete-mixer',
+//   },
+//   { name: 'Инструменты', src: '/Categories/Instruments.png', path: '/category/instrument' },
+//   {
+//     name: 'Электрика',
+//     src: '/Categories/Wire.png',
+//     path: '/category/wire',
+//   },
+//   {
+//     name: 'Крепеж и фурнитура',
+//     src: '/Categories/Dowel.png',
+//     path: '/category/dowel',
+//   },
+//   { name: 'Станки', src: '/Categories/Schlefmachine.png', path: '/category/schlefmachine' },
+//   {
+//     name: 'Строительный материалы',
+//     src: '/Categories/Board.png',
+//     path: '/category/board',
+//   },
+//   {
+//     name: 'Сантехника',
+//     src: '/Categories/Faucet.png',
+//     path: '/category/faucet',
+//   },
+//   {
+//     name: 'Строительное оборудование',
+//     src: '/Categories/ConcreteMixer.png',
+//     path: '/category/concrete-mixer',
+//   },
+//   { name: 'Инструменты', src: '/Categories/Instruments.png', path: '/category/instrument' },
+//   {
+//     name: 'Электрика',
+//     src: '/Categories/Wire.png',
+//     path: '/category/wire',
+//   },
+//   {
+//     name: 'Крепеж и фурнитура',
+//     src: '/Categories/Dowel.png',
+//     path: '/category/dowel',
+//   },
+//   { name: 'Станки', src: '/Categories/Schlefmachine.png', path: '/category/schlefmachine' },
+//   {
+//     name: 'Строительный материалы',
+//     src: '/Categories/Board.png',
+//     path: '/category/board',
+//   },
+//   {
+//     name: 'Сантехника',
+//     src: '/Categories/Faucet.png',
+//     path: '/category/faucet',
+//   },
+//   {
+//     name: 'Строительное оборудование',
+//     src: '/Categories/ConcreteMixer.png',
+//     path: '/category/concrete-mixer',
+//   },
+//   {
+//     name: 'Крепеж и фурнитура',
+//     src: '/Categories/Dowel.png',
+//     path: '/category/dowel',
+//   },
+//   { name: 'Станки', src: '/Categories/Schlefmachine.png', path: '/category/schlefmachine' },
+//   {
+//     name: 'Строительный материалы',
+//     src: '/Categories/Board.png',
+//     path: '/category/board',
+//   },
+//   {
+//     name: 'Сантехника',
+//     src: '/Categories/Faucet.png',
+//     path: '/category/faucet',
+//   },
+// ])
 </script>
