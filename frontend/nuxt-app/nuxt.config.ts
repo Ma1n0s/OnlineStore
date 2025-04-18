@@ -83,9 +83,6 @@ export default defineNuxtConfig({
     },
   },
 
-  // Отключение vite.config.ts, чтобы избежать предупреждений
-  vite: {},
-
   // Настройка cookie для SSR
   ssr: true,
 
