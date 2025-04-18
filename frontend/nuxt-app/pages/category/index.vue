@@ -111,7 +111,9 @@ const state = reactive({
     <nav class="flex flex-wrap items-center gap-2 text-gray mb-4">
       <NuxtLink to="#" class="hover:underline">Главная</NuxtLink>
       <span>/</span>
-      <NuxtLink to="#" class="font-semibold">Категории</NuxtLink>
+      <NuxtLink to="#" class="font-semibold">Категория</NuxtLink>
+      <span>/</span>
+      <NuxtLink to="#" class="font-semibold">Подкатегория</NuxtLink>
     </nav>
 
     <div>

@@ -8,6 +8,7 @@ use App\Services\ProductImportService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Category;
 
 class ProductController extends Controller
 {
@@ -25,104 +26,81 @@ class ProductController extends Controller
      */
     public function index(): JsonResponse
     {
-        $products = Product::with(['category', 'subcategory', 'specificationCategories.specifications', 'images'])
-            ->latest()
-            ->paginate(15)
-            ->through(function ($product) {
+        $products = Product::with(['category', 'specificationCategories.specifications', 'images'])
+            ->paginate(10);
+            
+        return response()->json(
+            $products->map(function($product) {
                 return [
                     'id' => $product->id,
                     'name' => $product->name,
+                    'price' => $product->price,
                     'description' => $product->description,
                     'category' => $product->category ? [
                         'id' => $product->category->id,
                         'name' => $product->category->name,
                         'slug' => $product->category->slug,
                     ] : null,
-                    'subcategory' => $product->subcategory ? [
-                        'id' => $product->subcategory->id,
-                        'name' => $product->subcategory->name,
-                        'slug' => $product->subcategory->slug,
-                    ] : null,
                     'specifications' => $product->specificationCategories->mapWithKeys(function ($category) {
                         return [$category->name => $category->specifications->mapWithKeys(function ($spec) {
                             return [$spec->name => $spec->value];
                         })];
                     }),
-                    'images' => $product->images
-                        ->sortBy('position')
-                        ->map(function ($image) use ($product) {
-                            return [
-                                'src' => $image->url,
-                                'alt' => $product->name
-                            ];
-                        })
-                        ->values()
-                        ->toArray(),
-                    'created_at' => $product->created_at,
-                    'updated_at' => $product->updated_at,
+                    'images' => $product->images->map(function($image) {
+                        return [
+                            'id' => $image->id,
+                            'url' => $image->url,
+                            'alt' => $image->alt,
+                        ];
+                    }),
                 ];
-            });
-        
-        return response()->json($products);
+            })
+        );
     }
 
     /**
      * Получить детальную информацию о продукте
      *
-     * @param Product $product
+     * @param string $id
      * @return JsonResponse
      */
-    public function show(Product $product): JsonResponse
+    public function show(string $id): JsonResponse
     {
-        $product->load(['specificationCategories.specifications', 'images', 'category', 'subcategory']);
-        
-        return response()->json([
-            'price'=>[
-                'final'=>1000,
-                'original'=>1500,
-                'savings'=>500,
-            ],
-            'reviewsCount'=>10,
-            'questionsCount'=>5,
-            'warranty'=>'1 год',
-            'advantages'=>[
-                'parameter'=>'Макс. крутящий момент:',
-                'value'=>'1000 Нм',
-            ],
+        $product = Product::with(['specificationCategories.specifications', 'images', 'category'])->findOrFail($id);
 
-            'brand' => 'Brand',
-
+        $response = [
             'id' => $product->id,
             'name' => $product->name,
+            'price' => $product->price,
+            'old_price' => $product->old_price,
             'description' => $product->description,
+            'short_description' => $product->short_description,
+            'in_stock' => (bool)$product->in_stock,
+            'is_featured' => (bool)$product->is_featured,
+            'sku' => $product->sku,
+            'barcode' => $product->barcode,
+            'quantity' => $product->quantity,
+            'rating' => $product->rating,
             'category' => $product->category ? [
                 'id' => $product->category->id,
                 'name' => $product->category->name,
                 'slug' => $product->category->slug,
-            ] : null,
-            'subcategory' => $product->subcategory ? [
-                'id' => $product->subcategory->id,
-                'name' => $product->subcategory->name,
-                'slug' => $product->subcategory->slug,
             ] : null,
             'specifications' => $product->specificationCategories->mapWithKeys(function ($category) {
                 return [$category->name => $category->specifications->mapWithKeys(function ($spec) {
                     return [$spec->name => $spec->value];
                 })];
             }),
-            'images' => $product->images
-                ->sortBy('position')
-                ->map(function ($image) use ($product) {
-                    return [
-                        'src' => $image->url,
-                        'alt' => $product->name
-                    ];
-                })
-                ->values()
-                ->toArray(),
-            'created_at' => $product->created_at,
-            'updated_at' => $product->updated_at,
-        ]);
+            'images' => $product->images->map(function($image) {
+                return [
+                    'id' => $image->id,
+                    'url' => $image->url,
+                    'alt' => $image->alt,
+                ];
+            }),
+        ];
+        
+        return response()->json($response);
     }
 
     /**
@@ -133,85 +111,103 @@ class ProductController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+        // Валидация запроса
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'price' => 'required|numeric',
             'description' => 'nullable|string',
-            'product_url' => 'nullable|string|url',
-            'search_market_url' => 'nullable|string|url',
-            'search_images_url' => 'nullable|string|url',
-            'specifications' => 'nullable|array',
-            'images' => 'nullable|array',
-            'images.market' => 'nullable|array',
-            'images.yandex' => 'nullable|array',
-            'created_at' => 'nullable|string',
+            'short_description' => 'nullable|string',
+            'in_stock' => 'nullable|boolean',
+            'is_featured' => 'nullable|boolean',
+            'sku' => 'nullable|string',
+            'barcode' => 'nullable|string',
+            'quantity' => 'nullable|integer',
+            'old_price' => 'nullable|numeric',
+            'rating' => 'nullable|numeric',
             'category' => 'nullable|string',
-            'subcategory' => 'nullable|string',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'specifications' => 'nullable|array',
         ]);
-
-        if ($validator->fails()) {
-            return response()->json(['message' => 'Ошибка валидации', 'errors' => $validator->errors()], 422);
-        }
-
-        try {
-            // Получаем название категории и подкатегории
-            $categoryName = $request->input('category', 'Другое');
-            $subcategoryName = $request->input('subcategory', 'Разное');
+        
+        // Находим или создаем категорию
+        $categoryName = $request->input('category', 'Другое');
+        
+        // Проверяем, содержит ли категория путь через "/"
+        $categoryPath = explode('/', $categoryName);
+        
+        // Находим или создаем корневую категорию и все подкатегории в пути
+        $category = null;
+        $parentId = null;
+        
+        foreach ($categoryPath as $index => $name) {
+            $name = trim($name);
+            if (empty($name)) continue;
             
-            // Находим или создаем категорию
+            $slug = \Illuminate\Support\Str::slug($name);
+            
             $category = \App\Models\Category::firstOrCreate(
-                ['name' => $categoryName],
                 [
-                    'slug' => \Illuminate\Support\Str::slug($categoryName),
-                    'description' => "Категория товаров: {$categoryName}"
+                    'name' => $name,
+                    'parent_id' => $parentId
+                ],
+                [
+                    'slug' => $slug,
+                    'description' => "Категория товаров: {$name}"
                 ]
             );
             
-            // Находим или создаем подкатегорию
-            $subcategory = \App\Models\Subcategory::firstOrCreate(
-                [
-                    'category_id' => $category->id,
-                    'name' => $subcategoryName
-                ],
-                [
-                    'slug' => \Illuminate\Support\Str::slug($subcategoryName),
-                    'description' => "Подкатегория {$categoryName}: {$subcategoryName}"
-                ]
-            );
-            
-            // Подготовка данных в формат, который ожидает ProductImportService
-            $data = [
-                'название_товара' => $request->input('name'),
-                'описание' => $request->input('description'),
-                'спецификации' => $request->input('specifications', []),
-                'изображения' => [
-                    'маркет' => $request->input('images.market', []),
-                    'картинки' => $request->input('images.yandex', []),
-                ],
-                'ссылки' => [
-                    'товар' => $request->input('product_url'),
-                    'поиск_маркет' => $request->input('search_market_url'),
-                    'поиск_картинки' => $request->input('search_images_url'),
-                ],
-                'время_запроса' => $request->input('created_at', now()->format('Y-m-d H:i:s')),
-                // Используем ID категории и подкатегории, которые уже определены в парсере
-                'category_id' => $category->id,
-                'subcategory_id' => $subcategory->id,
-            ];
-
-            $product = $this->productImportService->importProduct($data);
-
-            return response()->json([
-                'id' => $product->id,
-                'category' => $product->category ? $product->category->name : null,
-                'subcategory' => $product->subcategory ? $product->subcategory->name : null,
-                'message' => 'Продукт успешно создан',
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Ошибка при создании продукта',
-                'error' => $e->getMessage(),
-            ], 500);
+            $parentId = $category->id;
         }
+        
+        // Создаем продукт
+        $product = new Product();
+        $product->name = $validated['name'];
+        $product->price = $validated['price'];
+        $product->description = $validated['description'] ?? '';
+        $product->short_description = $validated['short_description'] ?? '';
+        $product->in_stock = $validated['in_stock'] ?? true;
+        $product->is_featured = $validated['is_featured'] ?? false;
+        $product->sku = $validated['sku'] ?? '';
+        $product->barcode = $validated['barcode'] ?? '';
+        $product->quantity = $validated['quantity'] ?? 0;
+        $product->old_price = $validated['old_price'] ?? 0;
+        $product->rating = $validated['rating'] ?? 0;
+        $product->category_id = $category ? $category->id : null;
+        $product->save();
+        
+        // Обработка изображений
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('products', 'public');
+                
+                $product->images()->create([
+                    'url' => '/storage/' . $path,
+                    'alt' => $product->name,
+                ]);
+            }
+        }
+        
+        // Обработка характеристик
+        if (isset($validated['specifications']) && is_array($validated['specifications'])) {
+            foreach ($validated['specifications'] as $categoryName => $specs) {
+                $specCategory = $product->specificationCategories()->create([
+                    'name' => $categoryName
+                ]);
+                
+                foreach ($specs as $name => $value) {
+                    $specCategory->specifications()->create([
+                        'name' => $name,
+                        'value' => $value
+                    ]);
+                }
+            }
+        }
+        
+        return response()->json([
+            'id' => $product->id,
+            'category' => $product->category ? $product->category->name : null,
+            'message' => 'Продукт успешно создан'
+        ], 201);
     }
 
     /**
@@ -244,69 +240,77 @@ class ProductController extends Controller
      */
     public function getProductsByCategory(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
+        // Валидируем входные данные
+        $request->validate([
             'category_id' => 'nullable|integer|exists:categories,id',
-            'subcategory_id' => 'nullable|integer|exists:subcategories,id',
-            'per_page' => 'nullable|integer|min:1|max:50',
+            'limit' => 'nullable|integer|min:1|max:50',
             'page' => 'nullable|integer|min:1',
         ]);
-
-        if ($validator->fails()) {
-            return response()->json(['message' => 'Ошибка валидации', 'errors' => $validator->errors()], 422);
-        }
-
-        $query = Product::with(['category', 'subcategory', 'specificationCategories.specifications', 'images']);
-
-        // Фильтрация по категории
+        
+        $limit = $request->input('limit', 10);
+        $page = $request->input('page', 1);
+        
+        $query = Product::with(['category', 'specificationCategories.specifications', 'images']);
+        
+        // Фильтр по категории
         if ($request->has('category_id')) {
-            $query->where('category_id', $request->input('category_id'));
+            $categoryId = $request->input('category_id');
+            $category = Category::find($categoryId);
+            
+            if ($category) {
+                // Получаем все ID категорий-потомков, включая текущую категорию
+                $categoryIds = [$category->id];
+                
+                // Загружаем всех потомков
+                $category->load('descendants');
+                
+                // Рекурсивно собираем всех потомков
+                $this->collectDescendantIds($category, $categoryIds);
+                
+                // Фильтруем продукты по всем категориям
+                $query->whereIn('category_id', $categoryIds);
+            }
         }
-
-        // Фильтрация по подкатегории
-        if ($request->has('subcategory_id')) {
-            $query->where('subcategory_id', $request->input('subcategory_id'));
-        }
-
-        // Получаем количество элементов на странице (по умолчанию 15, максимум 50)
-        $perPage = min($request->input('per_page', 15), 50);
-
-        $products = $query->latest()
-            ->paginate($perPage)
-            ->through(function ($product) {
+        
+        $products = $query->paginate($limit, ['*'], 'page', $page);
+        
+        return response()->json(
+            $products->map(function($product) {
                 return [
                     'id' => $product->id,
                     'name' => $product->name,
+                    'price' => $product->price,
+                    'old_price' => $product->old_price,
                     'description' => $product->description,
+                    'short_description' => $product->short_description,
+                    'rating' => $product->rating,
                     'category' => $product->category ? [
                         'id' => $product->category->id,
                         'name' => $product->category->name,
                         'slug' => $product->category->slug,
                     ] : null,
-                    'subcategory' => $product->subcategory ? [
-                        'id' => $product->subcategory->id,
-                        'name' => $product->subcategory->name,
-                        'slug' => $product->subcategory->slug,
-                    ] : null,
-                    'specifications' => $product->specificationCategories->mapWithKeys(function ($category) {
-                        return [$category->name => $category->specifications->mapWithKeys(function ($spec) {
-                            return [$spec->name => $spec->value];
-                        })];
+                    'images' => $product->images->map(function($image) {
+                        return [
+                            'id' => $image->id,
+                            'url' => $image->url,
+                            'alt' => $image->alt,
+                        ];
                     }),
-                    'images' => $product->images
-                        ->sortBy('position')
-                        ->map(function ($image) use ($product) {
-                            return [
-                                'src' => $image->url,
-                                'alt' => $product->name
-                            ];
-                        })
-                        ->values()
-                        ->toArray(),
-                    'created_at' => $product->created_at,
-                    'updated_at' => $product->updated_at,
                 ];
-            });
-
-        return response()->json($products);
+            })
+        );
+    }
+    
+    /**
+     * Рекурсивно собирает ID всех потомков категории
+     */
+    private function collectDescendantIds($category, &$categoryIds): void
+    {
+        foreach ($category->children as $child) {
+            $categoryIds[] = $child->id;
+            if ($child->children->count() > 0) {
+                $this->collectDescendantIds($child, $categoryIds);
+            }
+        }
     }
 } 

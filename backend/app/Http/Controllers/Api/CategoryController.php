@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
-use App\Models\Subcategory;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
@@ -13,26 +12,35 @@ use Illuminate\Support\Str;
 class CategoryController extends Controller
 {
     /**
-     * Получить все категории с подкатегориями
-     *
+     * Получить все категории с их дочерними категориями
+     * 
+     * @param Request $request
      * @return JsonResponse
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $categories = Category::with('subcategories')->get();
+        $onlyRoots = $request->query('roots', false);
+        
+        if ($onlyRoots) {
+            // Получаем только корневые категории
+            $categories = Category::whereNull('parent_id')->get();
+        } else {
+            // Получаем все категории с их дочерними элементами
+            $categories = Category::with('children')->whereNull('parent_id')->get();
+        }
         
         return response()->json($categories);
     }
     
     /**
-     * Получить детальную информацию о категории с подкатегориями
+     * Получить детальную информацию о категории с дочерними категориями
      *
      * @param Category $category
      * @return JsonResponse
      */
     public function show(Category $category): JsonResponse
     {
-        $category->load('subcategories');
+        $category->load('children');
         
         return response()->json($category);
     }
@@ -46,9 +54,12 @@ class CategoryController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255|unique:categories',
+            'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'slug' => 'nullable|string|max:255|unique:categories',
+            'parent_id' => 'nullable|exists:categories,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'description_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
         
         if ($validator->fails()) {
@@ -56,13 +67,39 @@ class CategoryController extends Controller
         }
         
         try {
-            $categoryData = $request->only(['name', 'description']);
+            $categoryData = $request->only(['name', 'description', 'parent_id']);
             
             // Если slug не указан, генерируем его из названия
             if (!$request->has('slug')) {
                 $categoryData['slug'] = Str::slug($request->input('name'));
             } else {
                 $categoryData['slug'] = $request->input('slug');
+            }
+            
+            // Проверяем уникальность slug в рамках родительской категории
+            if (isset($categoryData['parent_id'])) {
+                $existingCategory = Category::where('parent_id', $categoryData['parent_id'])
+                    ->where('slug', $categoryData['slug'])
+                    ->first();
+                    
+                if ($existingCategory) {
+                    return response()->json([
+                        'message' => 'Ошибка валидации',
+                        'errors' => ['slug' => ['Slug должен быть уникальным в рамках родительской категории']],
+                    ], 422);
+                }
+            }
+            
+            // Обработка загрузки изображения категории
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('categories', 'public');
+                $categoryData['image_url'] = '/storage/' . $imagePath;
+            }
+            
+            // Обработка загрузки изображения описания
+            if ($request->hasFile('description_image')) {
+                $descImagePath = $request->file('description_image')->store('categories/descriptions', 'public');
+                $categoryData['description_image_url'] = '/storage/' . $descImagePath;
             }
             
             $category = Category::create($categoryData);
@@ -89,9 +126,14 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'sometimes|required|string|max:255|unique:categories,name,' . $category->id,
+            'name' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
-            'slug' => 'nullable|string|max:255|unique:categories,slug,' . $category->id,
+            'slug' => 'nullable|string|max:255',
+            'parent_id' => 'nullable|exists:categories,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'description_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'remove_image' => 'nullable|boolean',
+            'remove_description_image' => 'nullable|boolean',
         ]);
         
         if ($validator->fails()) {
@@ -99,13 +141,83 @@ class CategoryController extends Controller
         }
         
         try {
-            $categoryData = $request->only(['name', 'description']);
+            $categoryData = $request->only(['name', 'description', 'parent_id']);
+            
+            // Проверяем, не является ли родитель потомком данной категории
+            if ($request->has('parent_id')) {
+                $parentId = $request->input('parent_id');
+                
+                // Нельзя установить категорию своим родителем
+                if ($parentId == $category->id) {
+                    return response()->json([
+                        'message' => 'Ошибка валидации',
+                        'errors' => ['parent_id' => ['Категория не может быть своим родителем']],
+                    ], 422);
+                }
+                
+                // Проверяем, не является ли новый родитель потомком этой категории
+                $parent = Category::find($parentId);
+                $currentParent = $parent;
+                
+                while ($currentParent) {
+                    if ($currentParent->id === $category->id) {
+                        return response()->json([
+                            'message' => 'Ошибка валидации',
+                            'errors' => ['parent_id' => ['Дочерняя категория не может быть родителем']],
+                        ], 422);
+                    }
+                    $currentParent = $currentParent->parent;
+                }
+            }
             
             // Если slug не указан, но название изменилось, генерируем новый slug
             if ($request->has('name') && $request->input('name') !== $category->name && !$request->has('slug')) {
                 $categoryData['slug'] = Str::slug($request->input('name'));
             } elseif ($request->has('slug')) {
                 $categoryData['slug'] = $request->input('slug');
+            }
+            
+            // Проверяем уникальность slug в рамках родительской категории
+            if (isset($categoryData['slug']) && 
+                (isset($categoryData['parent_id']) || $category->parent_id)) {
+                
+                $parentId = $categoryData['parent_id'] ?? $category->parent_id;
+                
+                $existingCategory = Category::where('parent_id', $parentId)
+                    ->where('slug', $categoryData['slug'])
+                    ->where('id', '!=', $category->id)
+                    ->first();
+                    
+                if ($existingCategory) {
+                    return response()->json([
+                        'message' => 'Ошибка валидации',
+                        'errors' => ['slug' => ['Slug должен быть уникальным в рамках родительской категории']],
+                    ], 422);
+                }
+            }
+            
+            // Обработка загрузки изображения категории
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('categories', 'public');
+                $categoryData['image_url'] = '/storage/' . $imagePath;
+            }
+            
+            // Удаление изображения если указан флаг
+            if ($request->input('remove_image') && $category->image_url) {
+                $this->removeImageFromStorage($category->image_url);
+                $categoryData['image_url'] = null;
+            }
+            
+            // Обработка загрузки изображения описания
+            if ($request->hasFile('description_image')) {
+                $descImagePath = $request->file('description_image')->store('categories/descriptions', 'public');
+                $categoryData['description_image_url'] = '/storage/' . $descImagePath;
+            }
+            
+            // Удаление изображения описания если указан флаг
+            if ($request->input('remove_description_image') && $category->description_image_url) {
+                $this->removeImageFromStorage($category->description_image_url);
+                $categoryData['description_image_url'] = null;
             }
             
             $category->update($categoryData);
@@ -130,6 +242,15 @@ class CategoryController extends Controller
     public function destroy(Category $category): JsonResponse
     {
         try {
+            // Удаляем изображения, если они есть
+            if ($category->image_url) {
+                $this->removeImageFromStorage($category->image_url);
+            }
+            
+            if ($category->description_image_url) {
+                $this->removeImageFromStorage($category->description_image_url);
+            }
+            
             $category->delete();
             
             return response()->json([
@@ -144,164 +265,89 @@ class CategoryController extends Controller
     }
     
     /**
-     * Получить подкатегории для указанной категории
+     * Получить дочерние категории для указанной категории
      *
      * @param Category $category
      * @return JsonResponse
      */
-    public function subcategories(Category $category): JsonResponse
+    public function children(Category $category): JsonResponse
     {
-        return response()->json($category->subcategories);
+        return response()->json($category->children);
     }
     
     /**
-     * Создать новую подкатегорию для указанной категории
+     * Получить все потомки категории (все уровни)
+     *
+     * @param Category $category
+     * @return JsonResponse
+     */
+    public function descendants(Category $category): JsonResponse
+    {
+        $category->load('descendants');
+        return response()->json($this->flattenDescendants($category));
+    }
+    
+    /**
+     * Получить предков категории (путь от корня)
+     *
+     * @param Category $category
+     * @return JsonResponse
+     */
+    public function ancestors(Category $category): JsonResponse
+    {
+        return response()->json($category->getPath());
+    }
+    
+    /**
+     * Получить плоский список всех потомков категории
+     *
+     * @param Category $category
+     * @return array
+     */
+    private function flattenDescendants(Category $category): array
+    {
+        $result = [];
+        
+        foreach ($category->children as $child) {
+            $result[] = $child;
+            if ($child->children->count() > 0) {
+                $result = array_merge($result, $this->flattenDescendants($child));
+            }
+        }
+        
+        return $result;
+    }
+    
+    /**
+     * Получить все корневые категории (без родителя)
      *
      * @param Request $request
-     * @param Category $category
      * @return JsonResponse
      */
-    public function storeSubcategory(Request $request, Category $category): JsonResponse
+    public function roots(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'slug' => 'nullable|string|max:255',
-        ]);
+        $withChildren = $request->query('with_children', false);
         
-        if ($validator->fails()) {
-            return response()->json(['message' => 'Ошибка валидации', 'errors' => $validator->errors()], 422);
+        if ($withChildren) {
+            $rootCategories = Category::with('children')->whereNull('parent_id')->get();
+        } else {
+            $rootCategories = Category::whereNull('parent_id')->get();
         }
         
-        try {
-            $subcategoryData = $request->only(['name', 'description']);
-            $subcategoryData['category_id'] = $category->id;
-            
-            // Если slug не указан, генерируем его из названия
-            if (!$request->has('slug')) {
-                $subcategoryData['slug'] = Str::slug($request->input('name'));
-            } else {
-                $subcategoryData['slug'] = $request->input('slug');
-            }
-            
-            // Проверяем уникальность slug в рамках категории
-            $existingSubcategory = Subcategory::where('category_id', $category->id)
-                ->where('slug', $subcategoryData['slug'])
-                ->first();
-                
-            if ($existingSubcategory) {
-                return response()->json([
-                    'message' => 'Ошибка валидации',
-                    'errors' => ['slug' => ['Slug должен быть уникальным в рамках категории']],
-                ], 422);
-            }
-            
-            $subcategory = Subcategory::create($subcategoryData);
-            
-            return response()->json([
-                'id' => $subcategory->id,
-                'message' => 'Подкатегория успешно создана',
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Ошибка при создании подкатегории',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        return response()->json($rootCategories);
     }
     
     /**
-     * Обновить подкатегорию
-     *
-     * @param Request $request
-     * @param Category $category
-     * @param Subcategory $subcategory
-     * @return JsonResponse
+     * Удаляет изображение из хранилища
+     * 
+     * @param string $imageUrl
+     * @return void
      */
-    public function updateSubcategory(Request $request, Category $category, Subcategory $subcategory): JsonResponse
+    private function removeImageFromStorage(string $imageUrl): void
     {
-        // Проверяем, что подкатегория принадлежит категории
-        if ($subcategory->category_id !== $category->id) {
-            return response()->json([
-                'message' => 'Подкатегория не принадлежит указанной категории',
-            ], 404);
-        }
-        
-        $validator = Validator::make($request->all(), [
-            'name' => 'sometimes|required|string|max:255',
-            'description' => 'nullable|string',
-            'slug' => 'nullable|string|max:255',
-        ]);
-        
-        if ($validator->fails()) {
-            return response()->json(['message' => 'Ошибка валидации', 'errors' => $validator->errors()], 422);
-        }
-        
-        try {
-            $subcategoryData = $request->only(['name', 'description']);
-            
-            // Если slug не указан, но название изменилось, генерируем новый slug
-            if ($request->has('name') && $request->input('name') !== $subcategory->name && !$request->has('slug')) {
-                $subcategoryData['slug'] = Str::slug($request->input('name'));
-            } elseif ($request->has('slug')) {
-                $subcategoryData['slug'] = $request->input('slug');
-            }
-            
-            // Проверяем уникальность slug в рамках категории, если он изменился
-            if (isset($subcategoryData['slug']) && $subcategoryData['slug'] !== $subcategory->slug) {
-                $existingSubcategory = Subcategory::where('category_id', $category->id)
-                    ->where('slug', $subcategoryData['slug'])
-                    ->where('id', '!=', $subcategory->id)
-                    ->first();
-                    
-                if ($existingSubcategory) {
-                    return response()->json([
-                        'message' => 'Ошибка валидации',
-                        'errors' => ['slug' => ['Slug должен быть уникальным в рамках категории']],
-                    ], 422);
-                }
-            }
-            
-            $subcategory->update($subcategoryData);
-            
-            return response()->json([
-                'message' => 'Подкатегория успешно обновлена',
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Ошибка при обновлении подкатегории',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
-    }
-    
-    /**
-     * Удалить подкатегорию
-     *
-     * @param Category $category
-     * @param Subcategory $subcategory
-     * @return JsonResponse
-     */
-    public function destroySubcategory(Category $category, Subcategory $subcategory): JsonResponse
-    {
-        // Проверяем, что подкатегория принадлежит категории
-        if ($subcategory->category_id !== $category->id) {
-            return response()->json([
-                'message' => 'Подкатегория не принадлежит указанной категории',
-            ], 404);
-        }
-        
-        try {
-            $subcategory->delete();
-            
-            return response()->json([
-                'message' => 'Подкатегория успешно удалена',
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Ошибка при удалении подкатегории',
-                'error' => $e->getMessage(),
-            ], 500);
+        $path = str_replace('/storage/', '', $imageUrl);
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($path);
         }
     }
 } 
