@@ -134,12 +134,11 @@ Route::apiResource('products', ProductController::class);
 
 // Маршруты для категорий
 Route::apiResource('categories', CategoryController::class);
+Route::get('categories/roots', [CategoryController::class, 'roots']);
+Route::get('categories/{category}/children', [CategoryController::class, 'children']);
+Route::get('categories/{category}/descendants', [CategoryController::class, 'descendants']);
+Route::get('categories/{category}/ancestors', [CategoryController::class, 'ancestors']);
 
-// Маршруты для подкатегорий
-Route::get('categories/{category}/subcategories', [CategoryController::class, 'subcategories']);
-Route::post('categories/{category}/subcategories', [CategoryController::class, 'storeSubcategory']);
-Route::put('categories/{category}/subcategories/{subcategory}', [CategoryController::class, 'updateSubcategory']);
-Route::delete('categories/{category}/subcategories/{subcategory}', [CategoryController::class, 'destroySubcategory']);
 
 // Получение всех пользователей
 Route::get('/users', function() {
