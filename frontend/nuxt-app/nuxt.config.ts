@@ -53,6 +53,7 @@ export default defineNuxtConfig({
           onLogout: '/',
           home: '/',
         },
+        credentials: 'include',
       },
     },
   },
