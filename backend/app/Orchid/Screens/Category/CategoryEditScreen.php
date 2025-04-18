@@ -62,7 +62,7 @@ class CategoryEditScreen extends Screen
 
                 Select::make('category.parent_id')
                     ->title('Parent Category')
-                    ->empty('No parent', null)
+                    ->empty('No parent', '0') // Исправлено здесь
                     ->fromQuery(
                         Category::where('id', '!=', $this->category->id)
                             ->where(function($query) {
@@ -92,6 +92,11 @@ class CategoryEditScreen extends Screen
     public function save(Category $category, Request $request)
     {
         $data = $request->get('category');
+        
+        // Преобразуем '0' обратно в null для parent_id
+        if (isset($data['parent_id']) && $data['parent_id'] === '0') {
+            $data['parent_id'] = null;
+        }
         
         // Обработка загрузки изображений
         if ($request->hasFile('category.image_url')) {
