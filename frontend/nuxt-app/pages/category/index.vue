@@ -1,5 +1,7 @@
 <script setup>
 const route = useRoute()
+const { data: category } = await useFetch(() => `http://127.0.0.1:8000/api/categories`)
+console.log(category.value)
 
 useHead({
   title: `${route.params.category} | Абсолют техно`,
@@ -13,7 +15,7 @@ useHead({
 
 import CategoryDescription from '~/components/CategoryItems/CategoryDescription/CategoryDescription.vue'
 import CategoryList from '~/components/CategoryItems/CategoryList/CategoryList.vue'
-import { catalogDescription } from '~/shared/mock/CatalogDescription'
+// import { catalogDescription } from '~/shared/mock/CatalogDescription'
 
 const state = reactive({
   popularTags: [
@@ -111,7 +113,9 @@ const state = reactive({
     <nav class="flex flex-wrap items-center gap-2 text-gray mb-4">
       <NuxtLink to="#" class="hover:underline">Главная</NuxtLink>
       <span>/</span>
-      <NuxtLink to="#" class="font-semibold">Категории</NuxtLink>
+      <NuxtLink to="#" class="font-semibold">Категория</NuxtLink>
+      <span>/</span>
+      <NuxtLink to="#" class="font-semibold">Подкатегория</NuxtLink>
     </nav>
 
     <div>
@@ -122,9 +126,9 @@ const state = reactive({
         <NuxtLink to="#" class="text-primary hover:underline mt-2 md:mt-0">Как выбрать электроинструмент</NuxtLink>
       </div>
 
-      <CategoryDescription :data="catalogDescription" />
+      <CategoryDescription :data="category" />
 
-      <CategoryList class="mb-8" />
+      <CategoryList :categories="category" class="mb-8" />
 
       <div class="mb-8">
         <h2 class="text-xl font-semibold mb-4">Часто ищут</h2>

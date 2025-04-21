@@ -1,5 +1,26 @@
 <script setup>
 const route = useRoute()
+// const router = useRouter()
+const { slug } = route.params
+console.log(slug)
+
+const { data: category } = await useFetch(() => `http://127.0.0.1:8000/api/categories/${slug.at(-1)}`)
+// const { data: childCategories } = await useFetch(() => `/api/categories/${category.value.id}/children`)
+
+// if (!category.value) {
+//   throw createError({ statusCode: 404, message: 'Категория не найдена' })
+// }
+
+onMounted(async () => {
+  // Проверяем есть ли дочерние категории
+  if (!category.value.children || category.value.children.length === 0) {
+    // Если нет, перенаправляем на страницу товаров
+    await navigateTo(`/products/category/${route.params.slug.join('/')}`)
+  }
+
+  // console.log(childCategories.value)
+  console.log(category.value)
+})
 
 useHead({
   title: `${route.params.category} | Абсолют техно`,
@@ -13,7 +34,6 @@ useHead({
 
 import CategoryDescription from '~/components/CategoryItems/CategoryDescription/CategoryDescription.vue'
 import CategoryList from '~/components/CategoryItems/CategoryList/CategoryList.vue'
-import { catalogDescription } from '~/shared/mock/CatalogDescription'
 
 const state = reactive({
   popularTags: [
@@ -124,9 +144,9 @@ const state = reactive({
         <NuxtLink to="#" class="text-primary hover:underline mt-2 md:mt-0">Как выбрать электроинструмент</NuxtLink>
       </div>
 
-      <CategoryDescription :data="catalogDescription" />
+      <CategoryDescription :data="category" />
 
-      <CategoryList class="mb-8" />
+      <CategoryList :categories="category.children" :path-prefix="`/category/${slug.join('/')}/`" class="mb-8" />
 
       <div class="mb-8">
         <h2 class="text-xl font-semibold mb-4">Часто ищут</h2>

@@ -53,6 +53,7 @@ export default defineNuxtConfig({
           onLogout: '/',
           home: '/',
         },
+        credentials: 'include',
       },
     },
   },
@@ -82,9 +83,6 @@ export default defineNuxtConfig({
       },
     },
   },
-
-  // Отключение vite.config.ts, чтобы избежать предупреждений
-  vite: {},
 
   // Настройка cookie для SSR
   ssr: true,

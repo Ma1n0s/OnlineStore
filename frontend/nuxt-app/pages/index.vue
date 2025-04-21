@@ -6,6 +6,8 @@ import BigSwiper from '~/components/Swiper/BigSwiper.vue'
 import CategoryList from '~/components/CategoryItems/CategoryList/CategoryList.vue'
 import WrapperHeader from '~/components/Wrapper/WrapperHeader.vue'
 import Advantages from '~/components/Advantages/Advantages.vue'
+
+const { data: category } = await useFetch(() => `http://127.0.0.1:8000/api/categories`)
 </script>
 <template>
   <div class="bg-white w-full ~text-sm/xs ~pb-4/8 flex flex-col items-center">
@@ -16,7 +18,7 @@ import Advantages from '~/components/Advantages/Advantages.vue'
 
       <div class="mb-16 px-2 lg:px-0">
         <WrapperHeader title="Кататегории товаров">
-          <CategoryList />
+          <CategoryList :categories="category" />
         </WrapperHeader>
       </div>
 

@@ -19,6 +19,9 @@ use App\Orchid\Screens\User\UserListScreen;
 use App\Orchid\Screens\User\UserProfileScreen;
 use App\Orchid\Screens\ProductScreen;
 use App\Orchid\Screens\ProductListScreen;
+use App\Orchid\Screens\Category\CategoryActionScreen;
+use App\Orchid\Screens\Category\CategoryEditScreen;
+use App\Orchid\Screens\Category\CategoryListScreen;
 use Illuminate\Support\Facades\Route;
 use Tabuna\Breadcrumbs\Trail;
 
@@ -33,27 +36,50 @@ use Tabuna\Breadcrumbs\Trail;
 |
 */
 // Main
-
-Route::screen('product/{product}/edit', ProductScreen::class)
-    ->name('platform.product.edit');
-
-Route::screen('product/create', ProductScreen::class)
-    ->name('platform.product.create');
-
-Route::screen('products', ProductListScreen::class)
-    ->name('platform.product.list');
-
-Route::screen('product/{product}/edit', ProductScreen::class)
-    ->name('platform.product.edit');
-
-Route::screen('product/create', ProductScreen::class)
-    ->name('platform.product.create');
-
-Route::screen('products', ProductListScreen::class)
-    ->name('platform.product.list');
-
 Route::screen('/main', PlatformScreen::class)
     ->name('platform.main');
+
+Route::screen('product/{product}/edit', ProductScreen::class)
+    ->name('platform.product.edit');
+
+Route::screen('product/create', ProductScreen::class)
+    ->name('platform.product.create');
+
+Route::screen('products', ProductListScreen::class)
+    ->name('platform.product.list');
+
+Route::screen('product/{product}/edit', ProductScreen::class)
+    ->name('platform.product.edit');
+
+Route::screen('product/create', ProductScreen::class)
+    ->name('platform.product.create');
+
+Route::screen('products', ProductListScreen::class)
+    ->name('platform.product.list');
+
+Route::screen('categories', CategoryListScreen::class)
+    ->name('platform.category.list')
+    ->breadcrumbs(fn (Trail $trail) => $trail
+        ->parent('platform.index')
+        ->push('Categories'));
+
+Route::screen('category/create', CategoryEditScreen::class)
+    ->name('platform.category.create')
+    ->breadcrumbs(fn (Trail $trail) => $trail
+        ->parent('platform.category.list')
+        ->push('Create'));
+
+Route::screen('category/{category}/edit', CategoryEditScreen::class)
+    ->name('platform.category.edit')
+    ->breadcrumbs(fn (Trail $trail, Category $category) => $trail
+        ->parent('platform.category.list')
+        ->push($category->name));
+
+Route::screen('category/{category}/action', CategoryActionScreen::class)
+    ->name('platform.category.action')
+    ->breadcrumbs(fn (Trail $trail, Category $category) => $trail
+        ->parent('platform.category.list')
+        ->push($category->name));
 
 // Platform > Profile
 Route::screen('profile', UserProfileScreen::class)
