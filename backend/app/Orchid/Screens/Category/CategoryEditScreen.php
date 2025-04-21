@@ -13,6 +13,7 @@ use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Alert;
 use Illuminate\Support\Facades\Validator;
 use Orchid\Support\Facades\Layout;
+use Illuminate\Support\Str;
 
 class CategoryEditScreen extends Screen
 {
@@ -20,20 +21,20 @@ class CategoryEditScreen extends Screen
 
     public function query(Category $category): array
     {
+        $parentId = request()->input('parent_id');
+        
         return [
             'category' => $category,
-            'parentCategories' => Category::where('id', '!=', $category->id)
-                ->where(function($query) use ($category) {
-                    $query->whereNull('parent_id')
-                        ->orWhere('parent_id', '!=', $category->id);
+            'parentCategories' => Category::when($category->exists, function($query) use ($category) {
+                    $query->whereNotIn('id', $category->descendants()->pluck('id'))
+                        ->where('id', '!=', $category->id);
+                })
+                ->when($parentId, function($query) use ($parentId) {
+                    $query->where('id', $parentId);
+                }, function($query) {
+                    $query->whereNull('parent_id');
                 })
                 ->get()
-                ->map(function ($item) {
-                    return [
-                        'id' => $item->id,
-                        'name' => $item->name,
-                    ];
-                }),
         ];
     }
 

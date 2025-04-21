@@ -10,6 +10,7 @@ use Orchid\Attachment\Attachable;
 use Orchid\Filters\Filterable;
 use Orchid\Screen\AsSource;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class Category extends Model
 {
@@ -103,6 +104,18 @@ class Category extends Model
         return static::whereNull('parent_id')->get();
     }
 
+    protected static function booted()
+    {
+        static::deleting(function ($category) {
+            if ($category->image_url) {
+                Storage::disk('public')->delete($category->image_url);
+            }
+            if ($category->description_image_url) {
+                Storage::disk('public')->delete($category->description_image_url);
+            }
+        });
+    }
+
     /**
      * Получить полный путь категории от корня.
      * 
@@ -140,4 +153,6 @@ class Category extends Model
     {
         return $this->children()->count() > 0;
     }
+
+    
 } 

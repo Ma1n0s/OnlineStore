@@ -6,6 +6,7 @@ use App\Models\Category;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Screen;
+use Orchid\Screen\Actions\DropDown;
 use Orchid\Support\Facades\Layout;
 
 class CategoryActionScreen extends Screen
@@ -17,13 +18,12 @@ class CategoryActionScreen extends Screen
         return [
             'category' => $category,
             'children' => $category->children()->paginate(10),
-            'products' => $category->products()->paginate(10)
         ];
     }
 
     public function name(): ?string
     {
-        return $this->category->name;
+        return "Manage: {$this->category->name}";
     }
 
     public function commandBar(): array
@@ -33,55 +33,52 @@ class CategoryActionScreen extends Screen
                 ->icon('arrow-left')
                 ->route('platform.category.list'),
                 
-            Link::make('Edit')
-                ->icon('pencil')
-                ->route('platform.category.edit', $this->category),
-                
-            Link::make('Add Subcategory')
-                ->icon('plus')
-                ->route('platform.category.create', ['parent_id' => $this->category->id]),
-                
-            Link::make('Add Product')
-                ->icon('plus')
-                ->route('platform.product.create', ['category_id' => $this->category->id])
-                ->canSee($this->category->canHaveProducts()),
+            DropDown::make()
+                ->icon('three-dots-vertical')
+                ->list([
+                    Link::make('Edit')
+                        ->icon('pencil')
+                        ->route('platform.category.edit', $this->category)
+                        ->canSee(auth()->user()->hasAccess('platform.categories.edit')),
+                        
+                    Link::make('Add Subcategory')
+                        ->icon('plus')
+                        ->route('platform.category.create', ['parent_id' => $this->category->id])
+                        ->canSee(auth()->user()->hasAccess('platform.categories.create')),
+                        
+                    Button::make('Delete')
+                        ->icon('trash')
+                        ->method('remove')
+                        ->confirm('Delete this category and all its subcategories?')
+                        ->parameters(['id' => $this->category->id])
+                        ->canSee(auth()->user()->hasAccess('platform.categories.delete')),
+                ]),
         ];
     }
 
     public function layout(): array
     {
         return [
-            Layout::view('platform.category.view', [
-                'category' => $this->category
+            Layout::view('platform.category.actions', [
+                'category' => $this->category,
             ]),
             
-            Layout::tabs([
-                'Subcategories' => Layout::table('children', [
-                    TD::make('name', 'Name')
-                        ->render(function (Category $category) {
-                            return Link::make($category->name)
-                                ->route('platform.category.action', $category);
-                        }),
-                    TD::make('actions', 'Actions')
-                        ->render(function (Category $category) {
-                            return Link::make('Edit')
-                                ->route('platform.category.edit', $category);
-                        }),
-                ]),
+            Layout::table('children', [
+                \Orchid\Screen\TD::make('name', 'Name')
+                    ->render(function (Category $category) {
+                        return Link::make($category->name)
+                            ->route('platform.category.action', $category);
+                    }),
+                    
+                \Orchid\Screen\TD::make('title', 'Title'),
                 
-                'Products' => Layout::table('products', [
-                    TD::make('name', 'Name')
-                        ->render(function (Product $product) {
-                            return Link::make($product->name)
-                                ->route('platform.product.edit', $product);
-                        }),
-                    TD::make('price', 'Price'),
-                    TD::make('actions', 'Actions')
-                        ->render(function (Product $product) {
-                            return Link::make('Edit')
-                                ->route('platform.product.edit', $product);
-                        }),
-                ])->canSee($this->category->canHaveProducts()),
+                \Orchid\Screen\TD::make('actions', 'Actions')
+                    ->alignRight()
+                    ->render(function (Category $category) {
+                        return Link::make('Edit')
+                            ->route('platform.category.edit', $category)
+                            ->icon('pencil');
+                    }),
             ]),
         ];
     }

@@ -38,30 +38,22 @@ class PlatformProvider extends OrchidServiceProvider
     {
         $menu = [
             Menu::make('Categories')
-        ->icon('folder')
-        ->permission('platform.categories.view')
-        ->title('Content Management')
-        ->list(
-            Category::with('children')
-                ->whereNull('parent_id')
-                ->get()
-                ->flatMap(function (Category $category) {
-                    return [
-                        MenuItem::make($category->name)
-                            ->route('platform.category.action', $category)
-                            ->icon('folder')
-                            ->list(
-                                $category->children->map(function (Category $child) {
-                                    return MenuItem::make($child->name)
-                                        ->route('platform.category.action', $child)
-                                        ->icon('document');
-                                })->toArray()
-                            )
-                    ];
-                })
-                ->toArray()
-        ),
-                
+                ->icon('folder')
+                ->permission('platform.categories.view')
+                ->title('Content Management')
+                ->route('platform.category.list')
+                ->add([
+                    MenuItem::make('All Categories')
+                        ->route('platform.category.list')
+                        ->icon('list'),
+                    MenuItem::make('Create Root Category')
+                        ->route('platform.category.create')
+                        ->icon('plus'),
+                ])
+                ->list(
+                    $this->buildNestedCategoriesMenu()
+                ),
+                            
             Menu::make('Products')
                 ->icon('bag')
                 ->route('platform.product.list')
@@ -95,6 +87,32 @@ class PlatformProvider extends OrchidServiceProvider
         // }
 
         return $menu;
+    }
+    protected function buildNestedCategoriesMenu(?int $parentId = null): array
+    {
+        return Category::with('children')
+            ->where('parent_id', $parentId)
+            ->get()
+            ->map(function (Category $category) {
+                $menuItem = MenuItem::make($category->name)
+                    ->route('platform.category.action', $category)
+                    ->icon('folder');
+
+                // Рекурсивно добавляем подкатегории
+                if ($category->children->isNotEmpty()) {
+                    $menuItem->list($this->buildNestedCategoriesMenu($category->id));
+                }
+
+                // Добавляем кнопку "Добавить подкатегорию"
+                $menuItem->add([
+                    MenuItem::make('Add Subcategory')
+                        ->route('platform.category.create', ['parent_id' => $category->id])
+                        ->icon('plus'),
+                ]);
+
+                return $menuItem;
+            })
+            ->toArray();
     }
 
     // public function registerMenu(): array
@@ -175,6 +193,12 @@ class PlatformProvider extends OrchidServiceProvider
                 ->addPermission('platform.products.edit', 'Edit products')
                 ->addPermission('platform.products.delete', 'Delete products'),
                 
+            ItemPermission::group('Categories')
+                ->addPermission('platform.categories.view', 'View categories')
+                ->addPermission('platform.categories.create', 'Create categories')
+                ->addPermission('platform.categories.edit', 'Edit categories')
+                ->addPermission('platform.categories.delete', 'Delete categories'),
+
             ItemPermission::group('Categories')
                 ->addPermission('platform.categories.view', 'View categories')
                 ->addPermission('platform.categories.create', 'Create categories')
