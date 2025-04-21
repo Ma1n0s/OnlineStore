@@ -11,6 +11,11 @@ const { data: category } = await useFetch(() => `http://127.0.0.1:8000/api/categ
 //   throw createError({ statusCode: 404, message: 'Категория не найдена' })
 // }
 
+if (!category.value.children || category.value.children.length === 0) {
+  // Если нет, перенаправляем на страницу товаров
+  await navigateTo(`/products/category/${route.params.slug.join('/')}`)
+}
+
 onMounted(async () => {
   // Проверяем есть ли дочерние категории
   if (!category.value.children || category.value.children.length === 0) {
@@ -23,7 +28,7 @@ onMounted(async () => {
 })
 
 useHead({
-  title: `${route.params.category} | Абсолют техно`,
+  title: `${slug.at(-1)} | Абсолют техно`,
   meta: [
     {
       name: 'description',
