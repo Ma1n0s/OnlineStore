@@ -127,7 +127,7 @@ class ProductScreen extends Screen
 
                 Select::make('product.subcategory_id')
                     ->title('Subcategory')
-                    ->fromModel(Subcategory::class, 'name')
+                    ->fromModel(Category::class, 'name')
                     ->empty('No subcategory'),
 
                 Matrix::make('product.specifications')
