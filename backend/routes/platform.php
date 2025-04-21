@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 namespace App\Orchid\Screens\Product;
+use App\Models\Category;
 use App\Orchid\Screens\Examples\ExampleActionsScreen;
 use App\Orchid\Screens\Examples\ExampleCardsScreen;
 use App\Orchid\Screens\Examples\ExampleChartsScreen;
