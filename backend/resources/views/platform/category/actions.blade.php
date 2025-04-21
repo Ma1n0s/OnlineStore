@@ -1,18 +1,17 @@
-<div class="row">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h4>{{ $category->title ?? $category->name }}</h4>
-            </div>
-            <div class="card-body">
-                @if($category->image_url)
-                    <img src="{{ asset($category->image_url) }}" class="img-fluid mb-3" alt="{{ $category->name }}">
-                @endif
-                
-                @if($category->description)
-                    <p>{{ $category->description }}</p>
-                @endif
-            </div>
-        </div>
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">{{ $category->name }}</h5>
+        @if($category->description)
+            <p class="card-text">{{ $category->description }}</p>
+        @endif
+        
+        @if($category->parent)
+            <p class="text-muted">
+                Parent: 
+                <a href="{{ route('platform.category.action', $category->parent) }}">
+                    {{ $category->parent->name }}
+                </a>
+            </p>
+        @endif
     </div>
 </div>
