@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\Orchid;
 
+use Orchid\Screen\Actions\Menu as MenuItem;
+use Orchid\Platform\ItemMenu;
+use Illuminate\Support\Facades\Session;
 use App\Models\Category;
 use Orchid\Platform\Dashboard;
 use Orchid\Platform\ItemPermission;
 use Orchid\Platform\OrchidServiceProvider;
 use Orchid\Screen\Actions\Menu;
+use Orchid\Menus\CategoriesMenu;
 use Orchid\Support\Color;
 
 class PlatformProvider extends OrchidServiceProvider
@@ -28,16 +32,35 @@ class PlatformProvider extends OrchidServiceProvider
     /**
      * Register the application menu.
      *
-     * @return Menu[]
+     * @return Menu[(new \App\Orchid\Menus\CategoriesMenu())->build()]
      */
     public function menu(): array
     {
         $menu = [
             Menu::make('Categories')
-                ->icon('folder')
-                ->route('platform.category.list')
-                ->permission('platform.categories.view')
-                ->title('Content Management'),
+        ->icon('folder')
+        ->permission('platform.categories.view')
+        ->title('Content Management')
+        ->list(
+            Category::with('children')
+                ->whereNull('parent_id')
+                ->get()
+                ->flatMap(function (Category $category) {
+                    return [
+                        MenuItem::make($category->name)
+                            ->route('platform.category.action', $category)
+                            ->icon('folder')
+                            ->list(
+                                $category->children->map(function (Category $child) {
+                                    return MenuItem::make($child->name)
+                                        ->route('platform.category.action', $child)
+                                        ->icon('document');
+                                })->toArray()
+                            )
+                    ];
+                })
+                ->toArray()
+        ),
                 
             Menu::make('Products')
                 ->icon('bag')
@@ -63,16 +86,24 @@ class PlatformProvider extends OrchidServiceProvider
         ];
 
         // Добавляем категории в меню
-        $categories = Category::with('children')
-            ->whereNull('parent_id')
-            ->get();
+        // $categories = Category::with('children')
+        //     ->whereNull('parent_id')
+        //     ->get();
 
-        foreach ($categories as $category) {
-            $menu = $this->addCategoryToMenu($menu, $category);
-        }
+        // foreach ($categories as $category) {
+        //     $menu = $this->addCategoryToMenu($menu, $category);
+        // }
 
         return $menu;
     }
+
+    // public function registerMenu(): array
+    // {
+    //     return [
+    //         // Другие пункты меню...
+    //         (new \App\Orchid\Menus\CategoriesMenu())->build(),
+    //     ];
+    // }
 
     /**
      * Добавляет категорию и её подкатегории в меню
@@ -157,6 +188,22 @@ class PlatformProvider extends OrchidServiceProvider
      *
      * @return string[]
      */
+
+
+    protected function buildCategoryItem(Category $category, int $level = 0): MenuItem
+    {
+        $indent = str_repeat('   ', $level);
+        
+        return MenuItem::make($indent . $category->name)
+            ->route('platform.category.action', $category)
+            ->icon($category->children->isNotEmpty() ? 'folder' : 'document')
+            ->list(
+                $category->children->map(function (Category $child) use ($level) {
+                    return $this->buildCategoryItem($child, $level + 1);
+                })->toArray()
+            );
+    }
+        
     public function registerScreens(): array
     {
         return [
