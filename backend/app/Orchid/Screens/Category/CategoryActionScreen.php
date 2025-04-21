@@ -28,31 +28,33 @@ class CategoryActionScreen extends Screen
 
     public function commandBar(): array
     {
+        $canAddSubcategory = $this->category->canHaveSubcategories();
+        $canAddProduct = $this->category->canHaveProducts();
+        
         return [
             Link::make('Back')
                 ->icon('arrow-left')
                 ->route('platform.category.list'),
                 
-            DropDown::make()
-                ->icon('three-dots-vertical')
-                ->list([
-                    Link::make('Edit')
-                        ->icon('pencil')
-                        ->route('platform.category.edit', $this->category)
-                        ->canSee(auth()->user()->hasAccess('platform.categories.edit')),
-                        
-                    Link::make('Add Subcategory')
-                        ->icon('plus')
-                        ->route('platform.category.create', ['parent_id' => $this->category->id])
-                        ->canSee(auth()->user()->hasAccess('platform.categories.create')),
-                        
-                    Button::make('Delete')
-                        ->icon('trash')
-                        ->method('remove')
-                        ->confirm('Delete this category and all its subcategories?')
-                        ->parameters(['id' => $this->category->id])
-                        ->canSee(auth()->user()->hasAccess('platform.categories.delete')),
-                ]),
+            Link::make('Add Subcategory')
+                ->icon('plus')
+                ->route('platform.category.create', ['parent_id' => $this->category->id])
+                ->canSee($canAddSubcategory),
+                
+            Link::make('Add Product')
+                ->icon('bag')
+                ->route('platform.product.create', ['category_id' => $this->category->id])
+                ->canSee($canAddProduct),
+                
+            Link::make('Edit')
+                ->icon('pencil')
+                ->route('platform.category.edit', $this->category),
+                
+            Button::make('Delete')
+                ->icon('trash')
+                ->method('remove')
+                ->confirm('Delete this category?')
+                ->canSee(!$this->category->has_products),
         ];
     }
 

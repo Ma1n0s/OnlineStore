@@ -185,6 +185,11 @@ class ProductScreen extends Screen
     {
         $data = $request->get('product');
 
+        
+        if ($request->has('category_id')) {
+            $data['category_id'] = $request->get('category_id');
+        }
+
         if (!empty($data['subcategory_id'])) {
             $subcategory = Category::find($data['subcategory_id']);
             if ($subcategory && $subcategory->parent_id) {

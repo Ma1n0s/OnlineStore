@@ -44,7 +44,12 @@ Route::screen('product/{product}/edit', ProductScreen::class)
     ->name('platform.product.edit');
 
 Route::screen('product/create', ProductScreen::class)
-    ->name('platform.product.create');
+    ->name('platform.product.create')
+    ->breadcrumbs(function (Trail $trail) {
+        return $trail
+            ->parent('platform.product.list')
+            ->push('Create');
+    });
 
 Route::screen('products', ProductListScreen::class)
     ->name('platform.product.list');

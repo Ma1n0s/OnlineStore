@@ -70,7 +70,7 @@ class CategoryEditScreen extends Screen
 
                 Select::make('category.parent_id')
                     ->title('Parent Category')
-                    ->empty('No parent', '0') // Исправлено здесь
+                    ->empty('No parent', '0') 
                     ->fromQuery(
                         Category::where('id', '!=', $this->category->id)
                             ->where(function($query) {
@@ -79,6 +79,14 @@ class CategoryEditScreen extends Screen
                             }),
                         'name'
                     ),
+
+                Select::make('category.type')
+                    ->title('Type')
+                    ->options([
+                        'category' => 'Category (can contain subcategories)',
+                        'product_container' => 'Product Container (can only contain products)',
+                    ])
+                    ->required(),
 
                 Input::make('category.slug')
                     ->title('Slug')
