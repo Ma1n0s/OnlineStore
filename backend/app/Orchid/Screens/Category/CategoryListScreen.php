@@ -14,7 +14,7 @@ class CategoryListScreen extends Screen
     {
         return [
             'categories' => Category::with('parent')
-                ->defaultSort('id', 'desc')
+                ->orderBy('id', 'desc')
                 ->paginate(),
         ];
     }

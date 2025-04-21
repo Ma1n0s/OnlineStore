@@ -11,6 +11,7 @@ use Orchid\Screen\Fields\TextArea;
 use Orchid\Screen\Fields\Upload;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Alert;
+use Illuminate\Support\Facades\Validator;
 use Orchid\Support\Facades\Layout;
 
 class CategoryEditScreen extends Screen
@@ -24,9 +25,15 @@ class CategoryEditScreen extends Screen
             'parentCategories' => Category::where('id', '!=', $category->id)
                 ->where(function($query) use ($category) {
                     $query->whereNull('parent_id')
-                          ->orWhere('parent_id', '!=', $category->id);
+                        ->orWhere('parent_id', '!=', $category->id);
                 })
-                ->get(),
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'name' => $item->name,
+                    ];
+                }),
         ];
     }
 
@@ -62,7 +69,7 @@ class CategoryEditScreen extends Screen
 
                 Select::make('category.parent_id')
                     ->title('Parent Category')
-                    ->empty('No parent', null)
+                    ->empty('No parent', '0') // Исправлено здесь
                     ->fromQuery(
                         Category::where('id', '!=', $this->category->id)
                             ->where(function($query) {
@@ -93,7 +100,35 @@ class CategoryEditScreen extends Screen
     {
         $data = $request->get('category');
         
-        // Обработка загрузки изображений
+        // Проверка на уникальность имени
+        $exists = Category::where('name', $data['name'])
+            ->where('id', '!=', $category->id ?? null)
+            ->exists();
+            
+        if ($exists) {
+            Alert::error('Category name already exists!');
+            return back();
+        }
+        
+        // Обработка parent_id
+        if (isset($data['parent_id']) && $data['parent_id'] === '0') {
+            $data['parent_id'] = null;
+        }
+        
+        // Генерация slug если не указан
+        if (empty($data['slug'])) {
+            $data['slug'] = Str::slug($data['name']);
+        }
+        
+        // Проверка уникальности slug
+        $slugExists = Category::where('slug', $data['slug'])
+            ->where('id', '!=', $category->id ?? null)
+            ->exists();
+            
+        if ($slugExists) {
+            $data['slug'] = $data['slug'] . '-' . uniqid();
+        }
+        
         if ($request->hasFile('category.image_url')) {
             $data['image_url'] = $request->file('category.image_url')->store('categories', 'public');
         }
@@ -105,7 +140,24 @@ class CategoryEditScreen extends Screen
         $category->fill($data)->save();
 
         Alert::success('Category was saved');
-
         return redirect()->route('platform.category.list');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($category) {
+            if (empty($category->slug)) {
+                $baseSlug = $slug = Str::slug($category->name);
+                $count = 1;
+                
+                while (Category::where('slug', $slug)->exists()) {
+                    $slug = $baseSlug . '-' . $count++;
+                }
+                
+                $category->slug = $slug;
+            }
+        });
     }
 }
