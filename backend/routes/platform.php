@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 namespace App\Orchid\Screens\Product;
+use App\Models\Category;
 use App\Orchid\Screens\Examples\ExampleActionsScreen;
 use App\Orchid\Screens\Examples\ExampleCardsScreen;
 use App\Orchid\Screens\Examples\ExampleChartsScreen;
@@ -43,7 +44,12 @@ Route::screen('product/{product}/edit', ProductScreen::class)
     ->name('platform.product.edit');
 
 Route::screen('product/create', ProductScreen::class)
-    ->name('platform.product.create');
+    ->name('platform.product.create')
+    ->breadcrumbs(function (Trail $trail) {
+        return $trail
+            ->parent('platform.product.list')
+            ->push('Create');
+    });
 
 Route::screen('products', ProductListScreen::class)
     ->name('platform.product.list');

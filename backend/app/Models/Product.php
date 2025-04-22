@@ -25,7 +25,7 @@ class Product extends Model
         'article',
         'brand',
         'rating',
-        // 'category_id',
+        'category_id',
         'subcategory_id',
         'specifications',
         'images',
@@ -54,9 +54,9 @@ class Product extends Model
     /**
      * Получить подкатегорию продукта.
      */
-    public function subcategory(): BelongsTo
+    public function subcategory()
     {
-        return $this->belongsTo(Subcategory::class);
+        return $this->belongsTo(Category::class, 'subcategory_id');
     }
 
     /**

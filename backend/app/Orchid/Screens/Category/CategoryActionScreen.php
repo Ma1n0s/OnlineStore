@@ -6,6 +6,7 @@ use App\Models\Category;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Screen;
+use Orchid\Screen\Actions\DropDown;
 use Orchid\Support\Facades\Layout;
 
 class CategoryActionScreen extends Screen
@@ -27,18 +28,33 @@ class CategoryActionScreen extends Screen
 
     public function commandBar(): array
     {
+        $canAddSubcategory = $this->category->canHaveSubcategories();
+        $canAddProduct = $this->category->canHaveProducts();
+        
         return [
             Link::make('Back')
                 ->icon('arrow-left')
                 ->route('platform.category.list'),
                 
-            Link::make('Edit Category')
+            Link::make('Add Subcategory')
+                ->icon('plus')
+                ->route('platform.category.create', ['parent_id' => $this->category->id])
+                ->canSee($canAddSubcategory),
+                
+            Link::make('Add Product')
+                ->icon('bag')
+                ->route('platform.product.create', ['category_id' => $this->category->id])
+                ->canSee($canAddProduct),
+                
+            Link::make('Edit')
                 ->icon('pencil')
                 ->route('platform.category.edit', $this->category),
                 
-            Link::make('Add Subcategory')
-                ->icon('plus')
-                ->route('platform.category.create', ['parent_id' => $this->category->id]),
+            Button::make('Delete')
+                ->icon('trash')
+                ->method('remove')
+                ->confirm('Delete this category?')
+                ->canSee(!$this->category->has_products),
         ];
     }
 

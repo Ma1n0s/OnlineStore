@@ -10,6 +10,7 @@ use Orchid\Attachment\Attachable;
 use Orchid\Filters\Filterable;
 use Orchid\Screen\AsSource;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class Category extends Model
 {
@@ -54,6 +55,26 @@ class Category extends Model
         return $this->belongsTo(Category::class, 'parent_id');
     }
 
+    public function getHasProductsAttribute()
+    {
+        return $this->products()->exists();
+    }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'category_id');
+    }
+
+    public function canHaveSubcategories()
+    {
+        return $this->type === 'category' && !$this->has_products;
+    }
+
+    public function canHaveProducts()
+    {
+        return $this->type === 'product_container' || $this->type === 'category';
+    }
+
     /**
      * Получить прямые дочерние категории.
      * 
@@ -89,10 +110,7 @@ class Category extends Model
      * 
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function products(): HasMany
-    {
-        return $this->hasMany(Product::class);
-    }
+
     /**
      * Получить корневые категории (без родителя).
      * 
@@ -101,6 +119,18 @@ class Category extends Model
     public static function roots()
     {
         return static::whereNull('parent_id')->get();
+    }
+
+    protected static function booted()
+    {
+        static::deleting(function ($category) {
+            if ($category->image_url) {
+                Storage::disk('public')->delete($category->image_url);
+            }
+            if ($category->description_image_url) {
+                Storage::disk('public')->delete($category->description_image_url);
+            }
+        });
     }
 
     /**
@@ -140,4 +170,6 @@ class Category extends Model
     {
         return $this->children()->count() > 0;
     }
+
+    
 } 

@@ -1,0 +1,13 @@
+.menu-item-arrow {
+    display: inline-block;
+    margin-right: 8px;
+    transition: transform 0.2s;
+}
+
+.menu-item-open .menu-item-arrow {
+    transform: rotate(90deg);
+}
+
+.menu-item .menu-item {
+    padding-left: 20px;
+}
