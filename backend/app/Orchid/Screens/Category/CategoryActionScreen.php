@@ -12,6 +12,7 @@ use Orchid\Support\Facades\Layout;
 use Orchid\Screen\TD;
 use Illuminate\Http\Request;
 use Orchid\Support\Facades\Alert;
+use Illuminate\Support\Facades\Storage;
 
 class CategoryActionScreen extends Screen
 {
@@ -155,8 +156,10 @@ class CategoryActionScreen extends Screen
     {
         $category = Category::findOrFail($request->get('id'));
         
+        // Get all category IDs to delete (including subcategories)
         $categoryIds = $category->descendants()->pluck('id')->push($category->id);
         
+        // Delete all products and their images
         $products = Product::whereIn('subcategory_id', $categoryIds)->get();
         
         foreach ($products as $product) {
@@ -164,10 +167,17 @@ class CategoryActionScreen extends Screen
             $product->delete();
         }
         
-        $category->descendants()->delete();
+        // Delete all subcategories and their images
+        $descendants = $category->descendants()->get();
+        foreach ($descendants as $descendant) {
+            $this->deleteCategoryImages($descendant);
+            $descendant->delete();
+        }
         
+        // Delete the category's images
         $this->deleteCategoryImages($category);
         
+        // Delete the category itself
         $category->delete();
 
         Alert::info('Category and all its contents were deleted successfully');
@@ -204,6 +214,7 @@ class CategoryActionScreen extends Screen
     {
         $product = Product::findOrFail($request->get('product_id'));
         
+        // Delete product images
         $this->deleteProductImages($product);
         
         $product->delete();

@@ -11,7 +11,6 @@ use Orchid\Screen\Fields\TextArea;
 use Orchid\Screen\Fields\Upload;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Alert;
-use Illuminate\Support\Facades\Validator;
 use Orchid\Support\Facades\Layout;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -102,14 +101,14 @@ class CategoryEditScreen extends Screen
                     ->title('Slug')
                     ->help('Leave empty to auto-generate from name'),
 
-                Upload::make('category.image')
-                    ->title('Category Image')
+                Upload::make('category.image_url')
+                    ->title('Main Image')
                     ->acceptedFiles('image/*')
                     ->maxFiles(1)
                     ->storage('public')
                     ->path('categories'),
 
-                Upload::make('category.description_image')
+                Upload::make('category.description_image_url')
                     ->title('Description Image')
                     ->acceptedFiles('image/*')
                     ->maxFiles(1)
@@ -123,6 +122,7 @@ class CategoryEditScreen extends Screen
     {
         $data = $request->get('category');
         
+        // Validation
         $exists = Category::where('name', $data['name'])
             ->where('id', '!=', $category->id ?? null)
             ->exists();
@@ -132,19 +132,22 @@ class CategoryEditScreen extends Screen
             return back();
         }
         
+        // Handle parent_id
         if (isset($data['parent_id']) && $data['parent_id'] === '0') {
             $data['parent_id'] = null;
         }
         
+        // Set parent_id for new subcategories
         if (!$category->exists && $request->has('parent_id')) {
             $data['parent_id'] = $request->input('parent_id');
         }
         
+        // Generate slug if empty
         if (empty($data['slug'])) {
             $data['slug'] = Str::slug($data['name']);
         }
         
-
+        // Ensure unique slug
         $slugExists = Category::where('slug', $data['slug'])
             ->where('id', '!=', $category->id ?? null)
             ->exists();
@@ -153,44 +156,34 @@ class CategoryEditScreen extends Screen
             $data['slug'] = $data['slug'] . '-' . uniqid();
         }
 
-        if ($request->has('category.image')) {
-                $image = $request->input('category.image');
-                if (is_array($image) && !empty($image)) {
-                    if ($category->exists && $category->image_url) {
-                        Storage::disk('public')->delete($category->image_url);
-                    }
-                    $data['image_url'] = 'categories/'.basename($image[0]);
-                } elseif (empty($image)) {
-                    if ($category->exists && $category->image_url) {
-                        Storage::disk('public')->delete($category->image_url);
-                    }
-                    $data['image_url'] = null;
+        // Handle image uploads
+        if ($request->has('category.image_url')) {
+            $image = $request->input('category.image_url');
+            if (is_array($image) && !empty($image)) {
+                // Delete old image if exists
+                if ($category->exists && $category->image_url) {
+                    Storage::disk('public')->delete($category->image_url);
                 }
-            }
-
-            if ($request->has('category.description_image')) {
-                $descImage = $request->input('category.description_image');
-                if (is_array($descImage) && !empty($descImage)) {
-                    if ($category->exists && $category->description_image_url) {
-                        Storage::disk('public')->delete($category->description_image_url);
-                    }
-                    $data['description_image_url'] = 'categories/'.basename($descImage[0]);
-                } elseif (empty($descImage)) {
-                    if ($category->exists && $category->description_image_url) {
-                        Storage::disk('public')->delete($category->description_image_url);
-                    }
-                    $data['description_image_url'] = null;
+                $data['image_url'] = $image[0];
+            } elseif (empty($image)) {
+                // Image was removed
+                if ($category->exists && $category->image_url) {
+                    Storage::disk('public')->delete($category->image_url);
                 }
+                $data['image_url'] = null;
             }
+        }
 
-        if ($request->has('category.description_image')) {
-            $descImage = $request->input('category.description_image');
+        if ($request->has('category.description_image_url')) {
+            $descImage = $request->input('category.description_image_url');
             if (is_array($descImage) && !empty($descImage)) {
+                // Delete old image if exists
                 if ($category->exists && $category->description_image_url) {
                     Storage::disk('public')->delete($category->description_image_url);
                 }
-                $data['description_image_url'] = str_replace('public/', '', $descImage[0]);
+                $data['description_image_url'] = $descImage[0];
             } elseif (empty($descImage)) {
+                // Image was removed
                 if ($category->exists && $category->description_image_url) {
                     Storage::disk('public')->delete($category->description_image_url);
                 }
