@@ -123,7 +123,6 @@ class CategoryEditScreen extends Screen
     {
         $data = $request->get('category');
         
-        // Проверка на уникальность имени
         $exists = Category::where('name', $data['name'])
             ->where('id', '!=', $category->id ?? null)
             ->exists();
@@ -133,22 +132,19 @@ class CategoryEditScreen extends Screen
             return back();
         }
         
-        // Обработка parent_id
         if (isset($data['parent_id']) && $data['parent_id'] === '0') {
             $data['parent_id'] = null;
         }
         
-        // Если создается подкатегория, устанавливаем parent_id из запроса
         if (!$category->exists && $request->has('parent_id')) {
             $data['parent_id'] = $request->input('parent_id');
         }
         
-        // Генерация slug если не указан
         if (empty($data['slug'])) {
             $data['slug'] = Str::slug($data['name']);
         }
         
-        // Проверка уникальности slug
+
         $slugExists = Category::where('slug', $data['slug'])
             ->where('id', '!=', $category->id ?? null)
             ->exists();
@@ -157,53 +153,44 @@ class CategoryEditScreen extends Screen
             $data['slug'] = $data['slug'] . '-' . uniqid();
         }
 
-        // Обработка изображений
-if ($request->has('category.image')) {
-        $image = $request->input('category.image');
-        if (is_array($image) && !empty($image)) {
-            // Удаляем старое изображение если оно существует
-            if ($category->exists && $category->image_url) {
-                Storage::disk('public')->delete($category->image_url);
+        if ($request->has('category.image')) {
+                $image = $request->input('category.image');
+                if (is_array($image) && !empty($image)) {
+                    if ($category->exists && $category->image_url) {
+                        Storage::disk('public')->delete($category->image_url);
+                    }
+                    $data['image_url'] = 'categories/'.basename($image[0]);
+                } elseif (empty($image)) {
+                    if ($category->exists && $category->image_url) {
+                        Storage::disk('public')->delete($category->image_url);
+                    }
+                    $data['image_url'] = null;
+                }
             }
-            // Сохраняем только имя файла (без пути)
-            $data['image_url'] = 'categories/'.basename($image[0]);
-        } elseif (empty($image)) {
-            // Если изображение было удалено
-            if ($category->exists && $category->image_url) {
-                Storage::disk('public')->delete($category->image_url);
-            }
-            $data['image_url'] = null;
-        }
-    }
 
-    if ($request->has('category.description_image')) {
-        $descImage = $request->input('category.description_image');
-        if (is_array($descImage) && !empty($descImage)) {
-            // Удаляем старое изображение если оно существует
-            if ($category->exists && $category->description_image_url) {
-                Storage::disk('public')->delete($category->description_image_url);
+            if ($request->has('category.description_image')) {
+                $descImage = $request->input('category.description_image');
+                if (is_array($descImage) && !empty($descImage)) {
+                    if ($category->exists && $category->description_image_url) {
+                        Storage::disk('public')->delete($category->description_image_url);
+                    }
+                    $data['description_image_url'] = 'categories/'.basename($descImage[0]);
+                } elseif (empty($descImage)) {
+                    if ($category->exists && $category->description_image_url) {
+                        Storage::disk('public')->delete($category->description_image_url);
+                    }
+                    $data['description_image_url'] = null;
+                }
             }
-            // Сохраняем только имя файла (без пути)
-            $data['description_image_url'] = 'categories/'.basename($descImage[0]);
-        } elseif (empty($descImage)) {
-            // Если изображение было удалено
-            if ($category->exists && $category->description_image_url) {
-                Storage::disk('public')->delete($category->description_image_url);
-            }
-            $data['description_image_url'] = null;
-        }
-    }
 
         if ($request->has('category.description_image')) {
             $descImage = $request->input('category.description_image');
             if (is_array($descImage) && !empty($descImage)) {
-                // Удаляем старое изображение если оно существует
                 if ($category->exists && $category->description_image_url) {
                     Storage::disk('public')->delete($category->description_image_url);
                 }
                 $data['description_image_url'] = str_replace('public/', '', $descImage[0]);
             } elseif (empty($descImage)) {
-                // Если изображение было удалено
                 if ($category->exists && $category->description_image_url) {
                     Storage::disk('public')->delete($category->description_image_url);
                 }
@@ -215,7 +202,6 @@ if ($request->has('category.image')) {
 
         Alert::success('Category was saved');
         
-        // Перенаправляем на страницу родительской категории, если это подкатегория
         if ($category->parent_id) {
             return redirect()->route('platform.category.action', $category->parent);
         }

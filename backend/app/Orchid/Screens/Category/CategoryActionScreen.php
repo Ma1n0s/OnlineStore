@@ -155,10 +155,8 @@ class CategoryActionScreen extends Screen
     {
         $category = Category::findOrFail($request->get('id'));
         
-        // Получаем все ID категорий для удаления (включая подкатегории)
         $categoryIds = $category->descendants()->pluck('id')->push($category->id);
         
-        // Удаляем все продукты и их изображения
         $products = Product::whereIn('subcategory_id', $categoryIds)->get();
         
         foreach ($products as $product) {
@@ -166,13 +164,10 @@ class CategoryActionScreen extends Screen
             $product->delete();
         }
         
-        // Удаляем все подкатегории
         $category->descendants()->delete();
         
-        // Удаляем изображения самой категории
         $this->deleteCategoryImages($category);
         
-        // Удаляем саму категорию
         $category->delete();
 
         Alert::info('Category and all its contents were deleted successfully');
@@ -209,7 +204,6 @@ class CategoryActionScreen extends Screen
     {
         $product = Product::findOrFail($request->get('product_id'));
         
-        // Удаляем изображения продукта
         $this->deleteProductImages($product);
         
         $product->delete();
