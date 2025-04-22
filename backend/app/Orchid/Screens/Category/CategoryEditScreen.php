@@ -54,6 +54,9 @@ class CategoryEditScreen extends Screen
 
     public function layout(): array
     {
+        $parentId = request()->input('parent_id');
+        $isCreatingSubcategory = !$this->category->exists && $parentId;
+        
         return [
             Layout::rows([
                 Input::make('category.name')
@@ -68,17 +71,24 @@ class CategoryEditScreen extends Screen
                     ->title('Description')
                     ->rows(3),
 
-                Select::make('category.parent_id')
-                    ->title('Parent Category')
-                    ->empty('No parent', '0') 
-                    ->fromQuery(
-                        Category::where('id', '!=', $this->category->id)
-                            ->where(function($query) {
-                                $query->whereNull('parent_id')
-                                      ->orWhere('parent_id', '!=', $this->category->id);
-                            }),
-                        'name'
-                    ),
+                // Измененное поле для выбора родительской категории
+                $isCreatingSubcategory 
+                    ? Input::make('category.parent_id')
+                        ->title('Parent Category')
+                        ->value($parentId)
+                        ->readonly()
+                        ->help('This category will be a subcategory of: ' . Category::find($parentId)->name)
+                    : Select::make('category.parent_id')
+                        ->title('Parent Category')
+                        ->empty('No parent', '0') 
+                        ->fromQuery(
+                            Category::where('id', '!=', $this->category->id)
+                                ->where(function($query) {
+                                    $query->whereNull('parent_id')
+                                          ->orWhere('parent_id', '!=', $this->category->id);
+                                }),
+                            'name'
+                        ),
 
                 Select::make('category.type')
                     ->title('Type')
@@ -124,6 +134,11 @@ class CategoryEditScreen extends Screen
             $data['parent_id'] = null;
         }
         
+        // Если создается подкатегория, устанавливаем parent_id из запроса
+        if (!$category->exists && $request->has('parent_id')) {
+            $data['parent_id'] = $request->input('parent_id');
+        }
+        
         // Генерация slug если не указан
         if (empty($data['slug'])) {
             $data['slug'] = Str::slug($data['name']);
@@ -149,6 +164,12 @@ class CategoryEditScreen extends Screen
         $category->fill($data)->save();
 
         Alert::success('Category was saved');
+        
+        // Перенаправляем на страницу родительской категории, если это подкатегория
+        if ($category->parent_id) {
+            return redirect()->route('platform.category.action', $category->parent);
+        }
+        
         return redirect()->route('platform.category.list');
     }
 
