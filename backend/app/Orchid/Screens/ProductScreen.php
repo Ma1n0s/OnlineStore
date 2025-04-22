@@ -36,10 +36,15 @@ class ProductScreen extends Screen
     public function query(Product $product): array
     {
         $product->load('subcategory','images');
+        $categoryId = request()->input('category_id');
         
         return [
             'product' => $product,
             'images' => $product->images,
+            'category_id' => $categoryId,
+            'subcategories' => $categoryId 
+                ? Category::where('parent_id', $categoryId)->get()
+                : collect(),
         ];
     }
 
@@ -85,6 +90,9 @@ class ProductScreen extends Screen
      */
     public function layout(): array
     {
+        $categoryId = request()->input('category_id');
+        $isCreatingInCategory = !$this->product->exists && $categoryId;
+        
         return [
             Layout::rows([
                 Input::make('product.code')
@@ -120,15 +128,17 @@ class ProductScreen extends Screen
                     ->min(0)
                     ->max(5),
 
-                // Select::make('product.category_id')
-                //     ->title('Category')
-                //     ->fromModel(Category::class, 'name')
-                //     ->required(),
-
-                Select::make('product.subcategory_id')
-                    ->title('Subcategory')
-                    ->fromModel(Category::class, 'name')
-                    ->empty('No subcategory'),
+                // Поле для выбора подкатегории
+                $isCreatingInCategory
+                    ? Input::make('product.subcategory_id')
+                        ->title('Subcategory')
+                        ->value($this->getDefaultSubcategoryId())
+                        ->readonly()
+                        ->help('This product will be added to: ' . $this->getSubcategoryName())
+                    : Select::make('product.subcategory_id')
+                        ->title('Subcategory')
+                        ->fromModel(Category::class, 'name')
+                        ->empty('No subcategory'),
 
                 Matrix::make('product.specifications')
                     ->title('Specifications')
@@ -176,6 +186,33 @@ class ProductScreen extends Screen
     }
 
     /**
+     * Get default subcategory ID when creating product in a category
+     */
+    protected function getDefaultSubcategoryId()
+    {
+        $categoryId = request()->input('category_id');
+        if ($categoryId) {
+            $subcategories = Category::where('parent_id', $categoryId)->get();
+            if ($subcategories->isNotEmpty()) {
+                return $subcategories->first()->id;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get subcategory name for help text
+     */
+    protected function getSubcategoryName()
+    {
+        $subcategoryId = $this->getDefaultSubcategoryId();
+        if ($subcategoryId) {
+            return Category::find($subcategoryId)->name;
+        }
+        return 'No subcategory selected';
+    }
+
+    /**
      * @param Product $product
      * @param Request $request
      *
@@ -185,18 +222,17 @@ class ProductScreen extends Screen
     {
         $data = $request->get('product');
 
-        
-        if ($request->has('category_id')) {
-            $data['category_id'] = $request->get('category_id');
-        }
-
-        if (!empty($data['subcategory_id'])) {
-            $subcategory = Category::find($data['subcategory_id']);
-            if ($subcategory && $subcategory->parent_id) {
-                $data['category_id'] = $subcategory->parent_id;
+        // Если создается продукт в категории, устанавливаем subcategory_id
+        if (!$product->exists && $request->has('category_id')) {
+            $categoryId = $request->input('category_id');
+            $subcategories = Category::where('parent_id', $categoryId)->get();
+            
+            if ($subcategories->isNotEmpty()) {
+                $data['subcategory_id'] = $subcategories->first()->id;
+                $data['category_id'] = $categoryId;
             }
         }
-        
+
         $data['rating'] = $data['rating'] ?? 0;
         $data['specifications'] = $data['specifications'] ?? [];
         $data['advantages'] = $data['advantages'] ?? [];
@@ -208,7 +244,6 @@ class ProductScreen extends Screen
                 $attachment = Attachment::find($imageId);
                 
                 if ($attachment) {
-
                     $data['images'][] = [
                         'url' => $attachment->url,
                         'path' => str_replace('public/', '', $attachment->physicalPath()),
@@ -217,7 +252,6 @@ class ProductScreen extends Screen
                         'mime_type' => $attachment->mime_type,
                         'size' => $attachment->size,
                     ];
-                    
                 }
             }
         }
@@ -225,6 +259,12 @@ class ProductScreen extends Screen
         $product->fill($data)->save();
         
         Alert::info('Product was saved');
+        
+        // Перенаправляем на список продуктов в категории, если создавали из категории
+        if ($request->has('category_id')) {
+            return redirect()->route('platform.category.action', $request->input('category_id'));
+        }
+        
         return redirect()->route('platform.product.list');
     }
 
@@ -249,5 +289,4 @@ class ProductScreen extends Screen
         Alert::info('Product was removed');
         return redirect()->route('platform.product.list');
     }
-    
 }
