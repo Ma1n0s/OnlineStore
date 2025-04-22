@@ -3,12 +3,17 @@
 namespace App\Orchid\Screens\Category;
 
 use App\Models\Category;
+use App\Models\Product;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Screen;
 use Orchid\Screen\TD;
 use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\Button;
 use Orchid\Support\Facades\Layout;
+use Orchid\Support\Facades\Alert;
+use Illuminate\Http\Request;
+use Orchid\Screen\Fields\Input;
+use Illuminate\Support\Facades\Storage;
 
 class CategoryListScreen extends Screen
 {
@@ -59,7 +64,8 @@ class CategoryListScreen extends Screen
                 
                 TD::make('products_count', 'Products')
                     ->render(function (Category $category) {
-                        return $category->products()->count();
+                        $categoryIds = $category->descendants()->pluck('id')->push($category->id);
+                        return Product::whereIn('subcategory_id', $categoryIds)->count();
                     }),
                 
                 TD::make('actions', 'Actions')
@@ -70,50 +76,37 @@ class CategoryListScreen extends Screen
                             ->list([
                                 Link::make('Edit')
                                     ->route('platform.category.edit', $category)
-                                    ->icon('pencil')
-                                    ->canSee(auth()->user()->hasAccess('platform.categories.edit')),
+                                    ->icon('pencil'),
                                     
                                 Link::make('Add Subcategory')
                                     ->route('platform.category.create', ['parent_id' => $category->id])
-                                    ->icon('plus')
-                                    ->canSee(auth()->user()->hasAccess('platform.categories.create')),
+                                    ->icon('plus'),
                                     
                                 Button::make('Delete')
                                     ->icon('trash')
-                                    ->method('remove')
-                                    ->confirm('Are you sure you want to delete this category?')
-                                    ->parameters(['id' => $category->id])
-                                    ->canSee(auth()->user()->hasAccess('platform.categories.delete')),
+                                    ->method('removeCategory')
+                                    ->confirm('This will delete the category, all its subcategories and products. Are you sure?')
+                                    ->parameters(['id' => $category->id]),
                             ]);
                     }),
             ]),
         ];
     }
 
-    public function remove(Request $request)
+    public function removeCategory(Request $request)
     {
         $category = Category::findOrFail($request->get('id'));
         
-        if ($category->children()->exists()) {
-            Alert::error('Cannot delete category - it has subcategories');
-            return back();
-        }
+
+        $categoryIds = $category->descendants()->pluck('id')->push($category->id);
+        Product::whereIn('subcategory_id', $categoryIds)->delete();
         
-        if ($category->products()->exists()) {
-            Alert::error('Cannot delete category - it contains products');
-            return back();
-        }
+        $category->descendants()->delete();
         
-        if ($category->image_url) {
-            Storage::disk('public')->delete($category->image_url);
-        }
-        if ($category->description_image_url) {
-            Storage::disk('public')->delete($category->description_image_url);
-        }
-        
+        // Удаляем саму категорию
         $category->delete();
-        
-        Alert::info('Category deleted successfully');
+
+        Alert::info('Category and all its contents were deleted successfully');
         return back();
     }
 }

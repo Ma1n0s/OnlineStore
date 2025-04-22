@@ -14,6 +14,7 @@ use Orchid\Support\Facades\Alert;
 use Illuminate\Support\Facades\Validator;
 use Orchid\Support\Facades\Layout;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class CategoryEditScreen extends Screen
 {
@@ -71,7 +72,6 @@ class CategoryEditScreen extends Screen
                     ->title('Description')
                     ->rows(3),
 
-                // Измененное поле для выбора родительской категории
                 $isCreatingSubcategory 
                     ? Input::make('category.parent_id')
                         ->title('Parent Category')
@@ -102,15 +102,19 @@ class CategoryEditScreen extends Screen
                     ->title('Slug')
                     ->help('Leave empty to auto-generate from name'),
 
-                Upload::make('category.image_url')
+                Upload::make('category.image')
                     ->title('Category Image')
                     ->acceptedFiles('image/*')
-                    ->maxFiles(1),
+                    ->maxFiles(1)
+                    ->storage('public')
+                    ->path('categories'),
 
-                Upload::make('category.description_image_url')
+                Upload::make('category.description_image')
                     ->title('Description Image')
                     ->acceptedFiles('image/*')
-                    ->maxFiles(1),
+                    ->maxFiles(1)
+                    ->storage('public')
+                    ->path('categories'),
             ]),
         ];
     }
@@ -152,13 +156,59 @@ class CategoryEditScreen extends Screen
         if ($slugExists) {
             $data['slug'] = $data['slug'] . '-' . uniqid();
         }
-        
-        if ($request->hasFile('category.image_url')) {
-            $data['image_url'] = $request->file('category.image_url')->store('categories', 'public');
+
+        // Обработка изображений
+if ($request->has('category.image')) {
+        $image = $request->input('category.image');
+        if (is_array($image) && !empty($image)) {
+            // Удаляем старое изображение если оно существует
+            if ($category->exists && $category->image_url) {
+                Storage::disk('public')->delete($category->image_url);
+            }
+            // Сохраняем только имя файла (без пути)
+            $data['image_url'] = 'categories/'.basename($image[0]);
+        } elseif (empty($image)) {
+            // Если изображение было удалено
+            if ($category->exists && $category->image_url) {
+                Storage::disk('public')->delete($category->image_url);
+            }
+            $data['image_url'] = null;
         }
-        
-        if ($request->hasFile('category.description_image_url')) {
-            $data['description_image_url'] = $request->file('category.description_image_url')->store('categories', 'public');
+    }
+
+    if ($request->has('category.description_image')) {
+        $descImage = $request->input('category.description_image');
+        if (is_array($descImage) && !empty($descImage)) {
+            // Удаляем старое изображение если оно существует
+            if ($category->exists && $category->description_image_url) {
+                Storage::disk('public')->delete($category->description_image_url);
+            }
+            // Сохраняем только имя файла (без пути)
+            $data['description_image_url'] = 'categories/'.basename($descImage[0]);
+        } elseif (empty($descImage)) {
+            // Если изображение было удалено
+            if ($category->exists && $category->description_image_url) {
+                Storage::disk('public')->delete($category->description_image_url);
+            }
+            $data['description_image_url'] = null;
+        }
+    }
+
+        if ($request->has('category.description_image')) {
+            $descImage = $request->input('category.description_image');
+            if (is_array($descImage) && !empty($descImage)) {
+                // Удаляем старое изображение если оно существует
+                if ($category->exists && $category->description_image_url) {
+                    Storage::disk('public')->delete($category->description_image_url);
+                }
+                $data['description_image_url'] = str_replace('public/', '', $descImage[0]);
+            } elseif (empty($descImage)) {
+                // Если изображение было удалено
+                if ($category->exists && $category->description_image_url) {
+                    Storage::disk('public')->delete($category->description_image_url);
+                }
+                $data['description_image_url'] = null;
+            }
         }
 
         $category->fill($data)->save();
@@ -171,23 +221,5 @@ class CategoryEditScreen extends Screen
         }
         
         return redirect()->route('platform.category.list');
-    }
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($category) {
-            if (empty($category->slug)) {
-                $baseSlug = $slug = Str::slug($category->name);
-                $count = 1;
-                
-                while (Category::where('slug', $slug)->exists()) {
-                    $slug = $baseSlug . '-' . $count++;
-                }
-                
-                $category->slug = $slug;
-            }
-        });
     }
 }
