@@ -47,7 +47,7 @@
       <div class="flex justify-around items-center gap-4 w-full max-w-screen-2xl xl:px-8">
         <div>
           <NuxtLink to="/" class="flex items-center gap-2 w-[210px]">
-            <NuxtImg src="logo_test.svg" class="h-[50px] w-full" />
+            <NuxtImg src="medium_logo.svg" class="h-[50px] w-full" />
             <!-- <p class="text-nowrap text-xl text-primary font-bold leading-4">Абсолют Техно</p> -->
           </NuxtLink>
         </div>

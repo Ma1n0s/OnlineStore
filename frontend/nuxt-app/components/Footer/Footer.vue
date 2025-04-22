@@ -56,8 +56,8 @@ const socialLinks = [
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-10 pt-10">
         <div class="space-y-6">
-          <NuxtLink to="#" class="inline-block">
-            <img src="~/public/Global_logo_test.svg" class="h-10" alt="logo" />
+          <NuxtLink to="/" class="inline-block">
+            <NuxtImg src="full_logo.svg" class="h-24" alt="logo" />
           </NuxtLink>
           <p class="text-neutral-DEFAULT text-sm leading-relaxed">
             Мы предлагаем широкий ассортимент качественного оборудования. У нас вы найдете всё необходимое для
