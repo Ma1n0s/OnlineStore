@@ -92,7 +92,7 @@ class ProductListScreen extends Screen
                 TD::make('subcategory.name', 'Subcategory')
                     ->sort()
                     ->render(function (Product $product) {
-                        return $product->subcategory->name ?? '-';
+                        return $product->subcategory ? $product->subcategory->name : '-';
                     }),
 
                 TD::make('rating', 'Rating')

@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\Orchid;
 
+use Orchid\Screen\Actions\Menu as MenuItem;
+use Orchid\Platform\ItemMenu;
+use Illuminate\Support\Facades\Session;
 use App\Models\Category;
 use Orchid\Platform\Dashboard;
 use Orchid\Platform\ItemPermission;
 use Orchid\Platform\OrchidServiceProvider;
 use Orchid\Screen\Actions\Menu;
+use Orchid\Menus\CategoriesMenu;
 use Orchid\Support\Color;
 
 class PlatformProvider extends OrchidServiceProvider
@@ -28,17 +32,28 @@ class PlatformProvider extends OrchidServiceProvider
     /**
      * Register the application menu.
      *
-     * @return Menu[]
+     * @return Menu[(new \App\Orchid\Menus\CategoriesMenu())->build()]
      */
     public function menu(): array
     {
         $menu = [
             Menu::make('Categories')
                 ->icon('folder')
-                ->route('platform.category.list')
                 ->permission('platform.categories.view')
-                ->title('Content Management'),
-                
+                ->title('Content Management')
+                ->route('platform.category.list')
+                ->add([
+                    MenuItem::make('All Categories')
+                        ->route('platform.category.list')
+                        ->icon('list'),
+                    MenuItem::make('Create Root Category')
+                        ->route('platform.category.create')
+                        ->icon('plus'),
+                ])
+                ->list(
+                    $this->buildNestedCategoriesMenu()
+                ),
+                            
             Menu::make('Products')
                 ->icon('bag')
                 ->route('platform.product.list')
@@ -63,16 +78,50 @@ class PlatformProvider extends OrchidServiceProvider
         ];
 
         // Добавляем категории в меню
-        $categories = Category::with('children')
-            ->whereNull('parent_id')
-            ->get();
+        // $categories = Category::with('children')
+        //     ->whereNull('parent_id')
+        //     ->get();
 
-        foreach ($categories as $category) {
-            $menu = $this->addCategoryToMenu($menu, $category);
-        }
+        // foreach ($categories as $category) {
+        //     $menu = $this->addCategoryToMenu($menu, $category);
+        // }
 
         return $menu;
     }
+    protected function buildNestedCategoriesMenu(?int $parentId = null): array
+    {
+        return Category::with('children')
+            ->where('parent_id', $parentId)
+            ->get()
+            ->map(function (Category $category) {
+                $menuItem = MenuItem::make($category->name)
+                    ->route('platform.category.action', $category)
+                    ->icon('folder');
+
+                // Рекурсивно добавляем подкатегории
+                if ($category->children->isNotEmpty()) {
+                    $menuItem->list($this->buildNestedCategoriesMenu($category->id));
+                }
+
+                // Добавляем кнопку "Добавить подкатегорию"
+                $menuItem->add([
+                    MenuItem::make('Add Subcategory')
+                        ->route('platform.category.create', ['parent_id' => $category->id])
+                        ->icon('plus'),
+                ]);
+
+                return $menuItem;
+            })
+            ->toArray();
+    }
+
+    // public function registerMenu(): array
+    // {
+    //     return [
+    //         // Другие пункты меню...
+    //         (new \App\Orchid\Menus\CategoriesMenu())->build(),
+    //     ];
+    // }
 
     /**
      * Добавляет категорию и её подкатегории в меню
@@ -149,6 +198,12 @@ class PlatformProvider extends OrchidServiceProvider
                 ->addPermission('platform.categories.create', 'Create categories')
                 ->addPermission('platform.categories.edit', 'Edit categories')
                 ->addPermission('platform.categories.delete', 'Delete categories'),
+
+            ItemPermission::group('Categories')
+                ->addPermission('platform.categories.view', 'View categories')
+                ->addPermission('platform.categories.create', 'Create categories')
+                ->addPermission('platform.categories.edit', 'Edit categories')
+                ->addPermission('platform.categories.delete', 'Delete categories'),
         ];
     }
     
@@ -157,6 +212,22 @@ class PlatformProvider extends OrchidServiceProvider
      *
      * @return string[]
      */
+
+
+    protected function buildCategoryItem(Category $category, int $level = 0): MenuItem
+    {
+        $indent = str_repeat('   ', $level);
+        
+        return MenuItem::make($indent . $category->name)
+            ->route('platform.category.action', $category)
+            ->icon($category->children->isNotEmpty() ? 'folder' : 'document')
+            ->list(
+                $category->children->map(function (Category $child) use ($level) {
+                    return $this->buildCategoryItem($child, $level + 1);
+                })->toArray()
+            );
+    }
+        
     public function registerScreens(): array
     {
         return [

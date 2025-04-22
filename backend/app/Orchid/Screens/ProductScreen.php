@@ -127,7 +127,7 @@ class ProductScreen extends Screen
 
                 Select::make('product.subcategory_id')
                     ->title('Subcategory')
-                    ->fromModel(Subcategory::class, 'name')
+                    ->fromModel(Category::class, 'name')
                     ->empty('No subcategory'),
 
                 Matrix::make('product.specifications')
@@ -184,6 +184,18 @@ class ProductScreen extends Screen
     public function createOrUpdate(Product $product, Request $request)
     {
         $data = $request->get('product');
+
+        
+        if ($request->has('category_id')) {
+            $data['category_id'] = $request->get('category_id');
+        }
+
+        if (!empty($data['subcategory_id'])) {
+            $subcategory = Category::find($data['subcategory_id']);
+            if ($subcategory && $subcategory->parent_id) {
+                $data['category_id'] = $subcategory->parent_id;
+            }
+        }
         
         $data['rating'] = $data['rating'] ?? 0;
         $data['specifications'] = $data['specifications'] ?? [];
