@@ -98,6 +98,13 @@ class ProductListScreen extends Screen
                         return number_format($product->brand, );
                     }),
 
+                TD::make('slug', 'Slug')
+                    ->sort()
+                    ->filter(Input::make())
+                    ->render(function (Product $product) {
+                        return number_format($product->slug, );
+                    }),
+
                 TD::make('subcategory.name', 'Subcategory')
                     ->sort()
                     ->render(function (Product $product) {
