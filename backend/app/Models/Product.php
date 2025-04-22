@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Orchid\Filters\Filterable;
+use Orchid\Attachment\Models\Attachment;
+use Orchid\Attachment\Attachable;
 
 class Product extends Model
 {
-    use HasFactory, Filterable;
+    use HasFactory, Filterable, Attachable;
 
     /**
      * Атрибуты, которые можно массово присваивать.
@@ -23,6 +25,7 @@ class Product extends Model
         'description',
         'price',
         'article',
+        'slug',
         'brand',
         'rating',
         'category_id',
@@ -36,6 +39,19 @@ class Product extends Model
         'questions_count',
 
     ];
+
+
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($product) {
+            foreach ($product->attachments as $attachment) {
+                $attachment->delete();
+            }
+        });
+    }
 
     /**
      * Получить категорию продукта.
