@@ -4,6 +4,7 @@ namespace App\Orchid\Screens;
 
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Image;
 use App\Models\Subcategory;
 use Orchid\Screen\Screen;
 use Orchid\Screen\Fields\Input;
@@ -35,12 +36,11 @@ class ProductScreen extends Screen
      */
     public function query(Product $product): array
     {
-        $product->load('subcategory','images');
+        $product->load('subcategory', 'attachments');
         $categoryId = request()->input('category_id');
         
         return [
             'product' => $product,
-            'images' => $product->images,
             'category_id' => $categoryId,
             'subcategories' => $categoryId 
                 ? Category::where('parent_id', $categoryId)->get()
@@ -121,6 +121,10 @@ class ProductScreen extends Screen
                     ->title('Brand')
                     ->required(),
 
+                Input::make('product.slug')
+                    ->title('slug')
+                    ->required(),
+
                 Input::make('product.rating')
                     ->title('Rating')
                     ->type('number')
@@ -128,7 +132,6 @@ class ProductScreen extends Screen
                     ->min(0)
                     ->max(5),
 
-                // Поле для выбора подкатегории
                 $isCreatingInCategory
                     ? Input::make('product.subcategory_id')
                         ->title('Subcategory')
@@ -151,11 +154,15 @@ class ProductScreen extends Screen
                         'Value' => Input::make(),
                     ]),
 
-                Upload::make('images')
+                Upload::make('product.images')
                     ->title('Product Images')
                     ->multiple()
                     ->maxFiles(10)
-                    ->acceptedFiles('image/*'),
+                    ->acceptedFiles('image/*')
+                    ->groups('products')
+                    ->storage('public')
+                    ->help('Upload product images'),
+
 
                 Input::make('product.warranty')
                     ->title('Warranty'),
@@ -237,26 +244,29 @@ class ProductScreen extends Screen
         $data['specifications'] = $data['specifications'] ?? [];
         $data['advantages'] = $data['advantages'] ?? [];
         $data['specificationsB'] = $data['specificationsB'] ?? [];
-        $data['images'] = [];
         
+        $product->fill($data)->save();
+        
+        // Handle image uploads
         if ($request->has('images')) {
             foreach ($request->input('images', []) as $imageId) {
                 $attachment = Attachment::find($imageId);
                 
                 if ($attachment) {
-                    $data['images'][] = [
-                        'url' => $attachment->url,
-                        'path' => str_replace('public/', '', $attachment->physicalPath()),
-                        'name' => $attachment->name,
-                        'original_name' => $attachment->original_name,
-                        'mime_type' => $attachment->mime_type,
-                        'size' => $attachment->size,
-                    ];
+                    // Save to storage
+                    $path = $attachment->url;
+                    $storagePath = str_replace('public/', '', $attachment->physicalPath());
+                    
+                    // Save to images table
+                    Image::create([
+                        'product_id' => $product->id,
+                        'url' => $path,
+                        'source' => Image::SOURCES['market'],
+                        'position' => 0, // You can adjust this as needed
+                    ]);
                 }
             }
         }
-        
-        $product->fill($data)->save();
         
         Alert::info('Product was saved');
         
