@@ -42,7 +42,7 @@
     </div>
 
     <div
-      class="bg-white hidden lg:flex justify-center items-center gap-4 py-2 w-full border-b border-blue-200 px-2 transition-all duration-300"
+      class="bg-white hidden lg:flex justify-center items-center gap-4 py-2 w-full border-b border-primary/50 px-2 transition-all duration-300"
       :class="{ '!py-4': isScrolled }"
     >
       <div class="flex justify-around items-center gap-4 w-full max-w-screen-2xl xl:px-8">

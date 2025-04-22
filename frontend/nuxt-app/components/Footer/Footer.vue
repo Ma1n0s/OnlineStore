@@ -13,7 +13,7 @@ const socialLinks = [
 </script>
 
 <template>
-  <div class="bg-black/10 text-black font-sans">
+  <div class="bg-black text-white font-sans">
     <div class="container mx-auto px-4 py-12">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pb-10 border-b border-neutral-dark">
         <div class="flex items-start">
