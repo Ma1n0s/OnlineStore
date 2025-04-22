@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import { NuxtLink } from '#components'
+
 interface ICrumb {
   name: string
   url?: string
   color?: string
 }
 
-const props = defineProps<{ list: ICrumb[] }>() // Обратите внимание, что list должен быть массивом
+const props = defineProps<{ list: ICrumb[] }>()
 </script>
 
 <template>

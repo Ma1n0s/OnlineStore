@@ -1,21 +1,19 @@
 <script setup>
-const route = useRoute()
+import Breadcrumbs from '~/components/BreadCrumbs/Breadcrumbs.vue'
+import CategoryDescription from '~/components/CategoryItems/CategoryDescription/CategoryDescription.vue'
+import CategoryList from '~/components/CategoryItems/CategoryList/CategoryList.vue'
+
 const { data: category } = await useFetch(() => `http://127.0.0.1:8000/api/categories`)
-console.log(category.value)
 
 useHead({
-  title: `${route.params.category} | Абсолют техно`,
+  title: `Категории | Абсолют техно`,
   meta: [
     {
       name: 'description',
-      content: `Инструменты для строительства и ремота, категория ${route.params.category}`,
+      content: `Категории товаров, у нас на сайте вы найдете все для строительства и ремонта`,
     },
   ],
 })
-
-import CategoryDescription from '~/components/CategoryItems/CategoryDescription/CategoryDescription.vue'
-import CategoryList from '~/components/CategoryItems/CategoryList/CategoryList.vue'
-// import { catalogDescription } from '~/shared/mock/CatalogDescription'
 
 const state = reactive({
   popularTags: [
@@ -54,78 +52,21 @@ const state = reactive({
       date: '07.06.2023',
     },
   ],
-
-  products: [
-    {
-      name: 'Шуруповерты',
-      image: 'Categories/Instruments.png',
-    },
-    {
-      name: 'Дрели',
-      image: 'Categories/Instruments.png',
-    },
-    {
-      name: 'Перфораторы',
-      image: 'Categories/Instruments.png',
-    },
-    {
-      name: 'Болгарки',
-      image: 'Categories/Instruments.png',
-    },
-    {
-      name: 'Пилы',
-      image: 'Categories/Instruments.png',
-    },
-    {
-      name: 'Фрезеры',
-      image: 'Categories/Instruments.png',
-    },
-    {
-      name: 'Шлифмашины',
-      image: 'Categories/Instruments.png',
-    },
-    {
-      name: 'Лобзики',
-      image: 'Categories/Instruments.png',
-    },
-    {
-      name: 'Строительные пылесосы',
-      image: 'Categories/Instruments.png',
-    },
-    {
-      name: 'Измерительные инструменты',
-      image: 'Categories/Instruments.png',
-    },
-    {
-      name: 'Краскопульты',
-      image: 'Categories/Instruments.png',
-    },
-    {
-      name: 'Тепловые пушки',
-      image: 'Categories/Instruments.png',
-    },
-  ],
 })
+
+const breadcrumbs = [
+  {
+    name: 'Категория',
+    url: '/category',
+  },
+]
 </script>
 
 <template>
   <div class="container mx-auto px-4 md:px-6 lg:px-8 py-8">
-    <nav class="flex flex-wrap items-center gap-2 text-gray mb-4">
-      <NuxtLink to="#" class="hover:underline">Главная</NuxtLink>
-      <span>/</span>
-      <NuxtLink to="#" class="font-semibold">Категория</NuxtLink>
-      <span>/</span>
-      <NuxtLink to="#" class="font-semibold">Подкатегория</NuxtLink>
-    </nav>
+    <Breadcrumbs :list="breadcrumbs" />
 
     <div>
-      <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-        <div>
-          <h1 class="text-2xl font-bold">Строительный инструмент</h1>
-        </div>
-        <NuxtLink to="#" class="text-primary hover:underline mt-2 md:mt-0">Как выбрать электроинструмент</NuxtLink>
-      </div>
-
       <CategoryDescription :data="category" />
 
       <CategoryList :categories="category" class="mb-8" />

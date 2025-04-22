@@ -1,15 +1,13 @@
 <script setup>
+import Breadcrumbs from '~/components/BreadCrumbs/Breadcrumbs.vue'
+import { getBreadcrumbs } from '~/components/BreadCrumbs/helpers'
+import CategoryDescription from '~/components/CategoryItems/CategoryDescription/CategoryDescription.vue'
+import CategoryList from '~/components/CategoryItems/CategoryList/CategoryList.vue'
+
 const route = useRoute()
-// const router = useRouter()
 const { slug } = route.params
-console.log(slug)
 
 const { data: category } = await useFetch(() => `http://127.0.0.1:8000/api/categories/slug/${slug.at(-1)}`)
-// const { data: childCategories } = await useFetch(() => `/api/categories/${category.value.id}/children`)
-
-// if (!category.value) {
-//   throw createError({ statusCode: 404, message: 'Категория не найдена' })
-// }
 
 if (!category.value.children || category.value.children.length === 0) {
   // Если нет, перенаправляем на страницу товаров
@@ -17,14 +15,9 @@ if (!category.value.children || category.value.children.length === 0) {
 }
 
 onMounted(async () => {
-  // Проверяем есть ли дочерние категории
   if (!category.value.children || category.value.children.length === 0) {
-    // Если нет, перенаправляем на страницу товаров
     await navigateTo(`/products/category/${route.params.slug.join('/')}`)
   }
-
-  // console.log(childCategories.value)
-  console.log(category.value)
 })
 
 useHead({
@@ -32,13 +25,10 @@ useHead({
   meta: [
     {
       name: 'description',
-      content: `Инструменты для строительства и ремота, категория ${route.params.category}`,
+      content: `Инструменты для строительства и ремота, категория ${slug.at(-1)}`,
     },
   ],
 })
-
-import CategoryDescription from '~/components/CategoryItems/CategoryDescription/CategoryDescription.vue'
-import CategoryList from '~/components/CategoryItems/CategoryList/CategoryList.vue'
 
 const state = reactive({
   popularTags: [
@@ -77,78 +67,21 @@ const state = reactive({
       date: '07.06.2023',
     },
   ],
-
-  products: [
-    {
-      name: 'Шуруповерты',
-      image: 'Categories/Instruments.png',
-    },
-    {
-      name: 'Дрели',
-      image: 'Categories/Instruments.png',
-    },
-    {
-      name: 'Перфораторы',
-      image: 'Categories/Instruments.png',
-    },
-    {
-      name: 'Болгарки',
-      image: 'Categories/Instruments.png',
-    },
-    {
-      name: 'Пилы',
-      image: 'Categories/Instruments.png',
-    },
-    {
-      name: 'Фрезеры',
-      image: 'Categories/Instruments.png',
-    },
-    {
-      name: 'Шлифмашины',
-      image: 'Categories/Instruments.png',
-    },
-    {
-      name: 'Лобзики',
-      image: 'Categories/Instruments.png',
-    },
-    {
-      name: 'Строительные пылесосы',
-      image: 'Categories/Instruments.png',
-    },
-    {
-      name: 'Измерительные инструменты',
-      image: 'Categories/Instruments.png',
-    },
-    {
-      name: 'Краскопульты',
-      image: 'Categories/Instruments.png',
-    },
-    {
-      name: 'Тепловые пушки',
-      image: 'Categories/Instruments.png',
-    },
-  ],
 })
+
+const breadcrumbs = [
+  {
+    name: 'Категория',
+    url: '/category',
+  },
+  ...getBreadcrumbs(slug),
+]
 </script>
 
 <template>
   <div class="container mx-auto px-4 md:px-6 lg:px-8 py-8">
-    <nav class="flex flex-wrap items-center gap-2 text-gray mb-4">
-      <NuxtLink to="#" class="hover:underline">Главная</NuxtLink>
-      <span>/</span>
-      <NuxtLink to="#" class="font-semibold">Категория</NuxtLink>
-      <span>/</span>
-      <NuxtLink to="#" class="font-semibold">Подкатегория</NuxtLink>
-    </nav>
-
+    <Breadcrumbs :list="breadcrumbs" />
     <div>
-      <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-        <div>
-          <h1 class="text-2xl font-bold">Строительный инструмент</h1>
-        </div>
-        <NuxtLink to="#" class="text-primary hover:underline mt-2 md:mt-0">Как выбрать электроинструмент</NuxtLink>
-      </div>
-
       <CategoryDescription :data="category" />
 
       <CategoryList :categories="category.children" :path-prefix="`/category/${slug.join('/')}/`" class="mb-8" />
