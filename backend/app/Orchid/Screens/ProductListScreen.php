@@ -65,7 +65,10 @@ class ProductListScreen extends Screen
         return [
             Layout::table('products', [
                 TD::make('id', 'ID')
-                    ->sort(),
+                    ->sort()
+                    ->render(function (Product $product) {
+                        return number_format($product->id, );
+                    }),
 
                 TD::make('name', 'Name')
                     ->sort()
@@ -77,7 +80,10 @@ class ProductListScreen extends Screen
 
                 TD::make('code', 'Code')
                     ->sort()
-                    ->filter(Input::make()),
+                    ->filter(Input::make())
+                     ->render(function (Product $product) {
+                        return number_format($product->code, );
+                    }),
 
                 TD::make('price', 'Price')
                     ->sort()
@@ -87,7 +93,10 @@ class ProductListScreen extends Screen
 
                 TD::make('brand', 'Brand')
                     ->sort()
-                    ->filter(Input::make()),
+                    ->filter(Input::make())
+                    ->render(function (Product $product) {
+                        return number_format($product->brand, );
+                    }),
 
                 TD::make('subcategory.name', 'Subcategory')
                     ->sort()
