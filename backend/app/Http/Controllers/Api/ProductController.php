@@ -560,6 +560,8 @@ class ProductController extends Controller
                 'short_description' => $product->short_description,
                 'in_stock' => (bool)$product->in_stock,
                 'rating' => $product->rating,
+                'brand' => $product->brand,
+                'article' => $product->article,
                 'slug' => $product->slug,
                 'category' => $product->category ? [
                     'id' => $product->category->id,

@@ -28,6 +28,7 @@ export type Product = {
   id: number | string
   code?: string | number
   name: string
+  slug: string
   description: string | null
   price: Record<string, any>
   article: string | number
