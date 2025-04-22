@@ -46,6 +46,25 @@ class CategoryController extends Controller
     }
     
     /**
+     * Получить категорию по slug
+     *
+     * @param string $slug
+     * @return JsonResponse
+     */
+    public function getBySlug(string $slug): JsonResponse
+    {
+        $category = Category::where('slug', $slug)->first();
+        
+        if (!$category) {
+            return response()->json(['message' => 'Категория не найдена'], 404);
+        }
+        
+        $category->load('children');
+        
+        return response()->json($category);
+    }
+    
+    /**
      * Создать новую категорию
      *
      * @param Request $request

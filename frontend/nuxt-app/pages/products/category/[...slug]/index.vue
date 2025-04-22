@@ -4,15 +4,15 @@ const route = useRoute()
 const { slug } = route.params
 console.log(slug)
 
-const { data: category } = await useFetch(() => `http://127.0.0.1:8000/api/categories/${slug.at(-1)}`)
+const { data } = await useFetch(() => `http://127.0.0.1:8000/api/products/category-slug/${slug.at(-1)}`)
 
-console.log(category.value)
+console.log(data.value)
 useHead({
-  title: `${slug.at(-1)} | Абсолют техно`,
+  title: `${data.value.category.name} | Абсолют техно`,
   meta: [
     {
       name: 'description',
-      content: `Инструменты для строительства и ремота, категория ${route.params.subsubcategory}`,
+      content: `Инструменты для строительства и ремота, категория ${data.value.category.name}`,
     },
   ],
 })
@@ -486,7 +486,7 @@ const toggleBrand = brand => {
                 <span class="text-gray-500 text-xs">Код: {{ item.code }}</span>
               </div>
 
-              <NuxtLink to="/products/1" class="block">
+              <NuxtLink :to="`/products/${item.slug}`" class="block">
                 <h3
                   class="font-medium text-gray-900 hover:text-red-600 transition-colors line-clamp-2 mb-2 min-h-[2.5rem]"
                 >

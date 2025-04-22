@@ -4,7 +4,7 @@ const route = useRoute()
 const { slug } = route.params
 console.log(slug)
 
-const { data: category } = await useFetch(() => `http://127.0.0.1:8000/api/categories/${slug.at(-1)}`)
+const { data: category } = await useFetch(() => `http://127.0.0.1:8000/api/categories/slug/${slug.at(-1)}`)
 // const { data: childCategories } = await useFetch(() => `/api/categories/${category.value.id}/children`)
 
 // if (!category.value) {

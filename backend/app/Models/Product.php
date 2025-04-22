@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Orchid\Filters\Filterable;
+use Illuminate\Support\Str;
 
 class Product extends Model
 {
@@ -25,7 +26,7 @@ class Product extends Model
         'article',
         'brand',
         'rating',
-        // 'category_id',
+        'category_id',
         'subcategory_id',
         'specifications',
         'images',
@@ -34,8 +35,29 @@ class Product extends Model
         'specificationsB',
         'reviews_count',
         'questions_count',
-
+        'slug',
+        'old_price',
+        'short_description',
+        'in_stock',
+        'is_featured',
+        'sku',
+        'barcode',
+        'quantity',
     ];
+
+    /**
+     * Boot the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($product) {
+            if (empty($product->slug)) {
+                $product->slug = Str::slug($product->name);
+            }
+        });
+    }
 
     /**
      * Получить категорию продукта.
@@ -95,7 +117,6 @@ class Product extends Model
     protected $casts = [
         'price' => 'array',
         'specifications' => 'array',
-        'images' => 'array',
         'advantages' => 'array',
         'specificationsB' => 'array',
         'created_at' => 'datetime',
