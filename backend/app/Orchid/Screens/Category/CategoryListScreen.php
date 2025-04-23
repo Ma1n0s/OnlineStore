@@ -29,13 +29,13 @@ class CategoryListScreen extends Screen
 
     public function name(): ?string
     {
-        return 'Categories';
+        return 'Категории товаров';
     }
 
     public function commandBar(): array
     {
         return [
-            Link::make('Create Root Category')
+            Link::make('Добавить корневую категорию')
                 ->icon('plus')
                 ->route('platform.category.create'),
         ];
@@ -45,44 +45,56 @@ class CategoryListScreen extends Screen
     {
         return [
             Layout::table('categories', [
-                TD::make('name', 'Name')
+                TD::make('name', 'Название')
                     ->render(function (Category $category) {
                         $indent = str_repeat('&nbsp;&nbsp;', $category->getPath()->count() - 1);
                         return Link::make($indent . $category->name)
                             ->route('platform.category.action', $category);
                     }),
                     
-                TD::make('title', 'Title'),
+                TD::make('title', 'Заголовок'),
                 
-                TD::make('parent.name', 'Parent')
+                TD::make('parent.name', 'Родительская категория')
                     ->render(function (Category $category) {
                         return $category->parent
                             ? Link::make($category->parent->name)
                                 ->route('platform.category.action', $category->parent)
                             : 'Root';
                     }),
+
+                TD::make('children_count', 'Подкатегорий')
+                    ->render(function (Category $category) {
+                        return $category->children_count > 0 
+                            ? "<span class='badge bg-info'>{$category->children_count}</span>"
+                            : "<span class='badge bg-secondary'>{$category->children_count}</span>";
+                    })
+                    ->alignCenter()
+                    ->width('120px'),
                 
-                TD::make('products_count', 'Products')
+                TD::make('products_count', 'Товаров')
                     ->render(function (Category $category) {
                         $categoryIds = $category->descendants()->pluck('id')->push($category->id);
-                        return Product::whereIn('subcategory_id', $categoryIds)->count();
-                    }),
+                        $count = Product::whereIn('subcategory_id', $categoryIds)->count();
+                        return $count > 0 
+                            ? "<span class='badge bg-primary'>{$count}</span>"
+                            : "<span class='badge bg-secondary'>{$count}</span>";
+                }),
                 
-                TD::make('actions', 'Actions')
+                TD::make('actions', 'Действия')
                     ->alignRight()
                     ->render(function (Category $category) {
                         return DropDown::make()
                             ->icon('three-dots-vertical')
                             ->list([
-                                Link::make('Edit')
+                                Link::make('Редактировать')
                                     ->route('platform.category.edit', $category)
                                     ->icon('pencil'),
                                     
-                                Link::make('Add Subcategory')
+                                Link::make('Добавить категорию')
                                     ->route('platform.category.create', ['parent_id' => $category->id])
                                     ->icon('plus'),
                                     
-                                Button::make('Delete')
+                                Button::make('Удалить')
                                     ->icon('trash')
                                     ->method('removeCategory')
                                     ->confirm('This will delete the category, all its subcategories and products. Are you sure?')
