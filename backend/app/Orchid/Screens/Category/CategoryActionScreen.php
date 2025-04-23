@@ -34,11 +34,8 @@ class CategoryActionScreen extends Screen
         return "Manage: {$this->category->name}";
     }
 
-    public function commandBar(): array
+   public function commandBar(): array
     {
-        $canAddSubcategory = $this->category->canHaveSubcategories();
-        $canAddProduct = $this->category->canHaveProducts();
-        
         return [
             Link::make('Back')
                 ->icon('arrow-left')
@@ -46,13 +43,11 @@ class CategoryActionScreen extends Screen
                 
             Link::make('Add Subcategory')
                 ->icon('plus')
-                ->route('platform.category.create', ['parent_id' => $this->category->id])
-                ->canSee($canAddSubcategory),
+                ->route('platform.category.create', ['parent_id' => $this->category->id]),
                 
             Link::make('Add Product')
                 ->icon('bag')
-                ->route('platform.product.create', ['category_id' => $this->category->id])
-                ->canSee($canAddProduct),
+                ->route('platform.product.create', ['category_id' => $this->category->id]),
                 
             Link::make('Edit')
                 ->icon('pencil')
