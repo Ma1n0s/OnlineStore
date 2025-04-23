@@ -12,22 +12,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->string('slug')->nullable()->after('name');
-            // Create a unique index on the slug column
-            $table->unique('slug');
-        });
+        // Schema::table('products', function (Blueprint $table) {
+        //     $table->string('slug')->nullable()->after('name');
+        //     // Create a unique index on the slug column
+        //     $table->unique('slug');
+        // });
 
-        // Generate slugs for existing products
-        DB::table('products')->select(['id', 'name'])->orderBy('id')->chunk(100, function ($products) {
-            foreach ($products as $product) {
-                DB::table('products')
-                    ->where('id', $product->id)
-                    ->update([
-                        'slug' => \Illuminate\Support\Str::slug($product->name) . '-' . $product->id
-                    ]);
-            }
-        });
+        // // Generate slugs for existing products
+        // DB::table('products')->select(['id', 'name'])->orderBy('id')->chunk(100, function ($products) {
+        //     foreach ($products as $product) {
+        //         DB::table('products')
+        //             ->where('id', $product->id)
+        //             ->update([
+        //                 'slug' => \Illuminate\Support\Str::slug($product->name) . '-' . $product->id
+        //             ]);
+        //     }
+        // });
     }
 
     /**
@@ -35,9 +35,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->dropUnique(['slug']);
-            $table->dropColumn('slug');
-        });
+        // Schema::table('products', function (Blueprint $table) {
+        //     $table->dropUnique(['slug']);
+        //     $table->dropColumn('slug');
+        // });
     }
 };
