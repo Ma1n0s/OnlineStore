@@ -10,6 +10,7 @@ use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Layout;
 use Orchid\Screen\TD;
+use Orchid\Screen\Fields\Input;
 use Illuminate\Http\Request;
 use Orchid\Support\Facades\Alert;
 use Illuminate\Support\Facades\Storage;
@@ -89,7 +90,7 @@ class CategoryActionScreen extends Screen
                         $currentDepth = $this->category->exists ? $this->category->depth : 0;
                         $indentLevel = max(0, $category->depth - $currentDepth - 1);
                         $indent = str_repeat('&nbsp;&nbsp;&nbsp;', $indentLevel);
-                        $icon = $category->children()->exists() ? '<i class="icon-folder"></i> ' : '<i class="icon-folder-alt"></i> ';
+                        $icon = $category->children()->exists() ? '' : '';
                         return Link::make($icon . $indent . $category->name)
                             ->route('platform.category.action', $category);
                     })
@@ -98,35 +99,22 @@ class CategoryActionScreen extends Screen
                 TD::make('title', 'Заголовок')
                     ->width('200px'),
                 
-                TD::make('products_count', 'Товаров')
-                    ->render(function (Category $category) {
-                        $count = Product::where('subcategory_id', $category->id)->count();
-                        return $count > 0 
-                            ? "<span class='badge bg-primary'>{$count}</span>"
-                            : "<span class='badge bg-secondary'>{$count}</span>";
-                    })
-                    ->alignCenter()
-                    ->width('100px'),
+                
                 
                 TD::make('actions', 'Действия')
                     ->alignRight()
-                    ->width('100px')
                     ->render(function (Category $category) {
                         return DropDown::make()
-                            ->icon('options-vertical')
+                            ->icon('three-dots-vertical')
                             ->list([
                                 Link::make('Редактировать')
                                     ->route('platform.category.edit', $category)
                                     ->icon('pencil'),
                                     
-                                Link::make('Добавить подкатегорию')
-                                    ->route('platform.category.create', ['parent_id' => $category->id])
-                                    ->icon('folder-plus'),
-                                    
                                 Button::make('Удалить')
                                     ->icon('trash')
                                     ->method('removeCategory')
-                                    ->confirm('Будет удалена подкатегория и все её товары. Вы уверены?')
+                                    ->confirm('This will delete the subcategory and all its products. Are you sure?')
                                     ->parameters(['id' => $category->id]),
                             ]);
                     }),
@@ -135,43 +123,70 @@ class CategoryActionScreen extends Screen
 
         if ($this->category->canHaveProducts()) {
             $layouts[] = Layout::table('products', [
+                TD::make('id', 'ID')
+                    ->sort()
+                    ->render(function (Product $product) {
+                        return $product->id;
+                    }),
+
                 TD::make('name', 'Название')
-                    ->width('300px')
+                    ->sort()
+                    ->filter(Input::make())
                     ->render(function (Product $product) {
                         return Link::make($product->name)
                             ->route('platform.product.edit', $product);
-                    })
-                    ->sort(),
-                    
+                    }),
+
                 TD::make('code', 'Артикул')
-                    ->width('150px'),
-                
+                    ->sort()
+                    ->filter(Input::make())
+                     ->render(function (Product $product) {
+                        return $product->code;
+                    }),
+
                 TD::make('price', 'Цена')
+                    ->sort()
                     ->render(function (Product $product) {
-                        return number_format($product->price, 2) . ' ₽';
-                    })
-                    ->alignRight()
-                    ->width('100px'),
-                
+                        return number_format((float)$product->price, 2) . ' ₽';
+                    }),
+
                 TD::make('brand', 'Бренд')
-                    ->width('150px'),
-                
-                TD::make('rating', 'Рейтинг')
+                    ->sort()
+                    ->filter(Input::make())
                     ->render(function (Product $product) {
-                        $rating = number_format($product->rating, 1);
-                        $stars = str_repeat('★', floor($product->rating)) . 
-                                (fmod($product->rating, 1) >= 0.5 ? '½' : '');
-                        return "<span title='{$rating}'>{$stars}</span>";
-                    })
-                    ->alignCenter()
-                    ->width('100px'),
+                        return $product->brand;
+                    }),
+
+                TD::make('slug', 'slug')
+                    ->sort()
+                    ->filter(Input::make())
+                    ->render(function (Product $product) {
+                        return $product->slug;
+                    }),
+
+                TD::make('subcategory.name', 'Подкатегория')
+                    ->sort()
+                    ->render(function (Product $product) {
+                        return $product->subcategory ? $product->subcategory->name : '-';
+                    }),
+
+                TD::make('rating', 'Рейтинг')
+                    ->sort()
+                    ->render(function (Product $product) {
+                        return number_format($product->rating, 1);
+                    }),
+
+                TD::make('created_at', 'Дата создания')
+                    ->sort()
+                    ->render(function (Product $product) {
+                        return $product->created_at->toDateTimeString();
+                    }),
                 
                 TD::make('actions', 'Действия')
                     ->alignRight()
-                    ->width('100px')
                     ->render(function (Product $product) {
                         return DropDown::make()
-                            ->icon('options-vertical')
+                            ->icon('three-dots-vertical')
                             ->list([
                                 Link::make('Редактировать')
                                     ->route('platform.product.edit', $product)
@@ -180,7 +195,7 @@ class CategoryActionScreen extends Screen
                                 Button::make('Удалить')
                                     ->icon('trash')
                                     ->method('removeProduct')
-                                    ->confirm('Вы уверены, что хотите удалить этот товар?')
+                                    ->confirm('Are you sure you want to delete this product?')
                                     ->parameters([
                                         'product_id' => $product->id,
                                         'category_id' => $this->category->id,

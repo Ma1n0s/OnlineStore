@@ -50,88 +50,68 @@ class CategoryListScreen extends Screen
     public function layout(): array
     {
         return [
-            Layout::table('products', [
-                TD::make('id', 'ID')
-                    ->sort()
-                    ->render(function (Product $product) {
-                        return $product->id;
-                    }),
-
-                TD::make('name', 'Name')
-                    ->sort()
-                    ->filter(Input::make())
-                    ->render(function (Product $product) {
-                        return Link::make($product->name)
-                            ->route('platform.product.edit', $product);
-                    }),
-
-                TD::make('code', 'Code')
-                    ->sort()
-                    ->filter(Input::make())
-                     ->render(function (Product $product) {
-                        return $product->code;
-                    }),
-
-                TD::make('price', 'Price')
-                    ->sort()
-                    ->render(function (Product $product) {
-                        return '₽' . number_format((float)$product->price, 2);
-                    }),
-
-                TD::make('brand', 'Brand')
-                    ->sort()
-                    ->filter(Input::make())
-                    ->render(function (Product $product) {
-                        return $product->brand;
-                    }),
-
-                TD::make('slug', 'Slug')
-                    ->sort()
-                    ->filter(Input::make())
-                    ->render(function (Product $product) {
-                        return $product->slug;
-                    }),
-
-                TD::make('subcategory.name', 'Subcategory')
-                    ->sort()
-                    ->render(function (Product $product) {
-                        return $product->subcategory ? $product->subcategory->name : '-';
-                    }),
-
-                TD::make('rating', 'Rating')
-                    ->sort()
-                    ->render(function (Product $product) {
-                        return number_format($product->rating, 1);
-                    }),
-
-                // TD::make('category_id', 'Category')
-                //     ->render(function (Product $product) {
-                //         return $product->category->name ?? '-';
-                //     }),
-
-                TD::make('created_at', 'Created')
-                    ->sort()
-                    ->render(function (Product $product) {
-                        return $product->created_at->toDateTimeString();
-                    }),
-
-                TD::make('actions', 'Actions')
+            Layout::table('categories', [
+                TD::make('name', 'Название')
+                    ->width('300px')
+                    ->render(function (Category $category) {
+                        $indent = str_repeat('&nbsp;&nbsp;&nbsp;', $category->depth);
+                        $icon = $category->children_count > 0 ? '' : '';
+                        return Link::make($icon . $indent . $category->name)
+                            ->route('platform.category.action', $category);
+                    })
+                    ->sort(),
+                    
+                TD::make('title', 'Заголовок')
+                    ->width('200px'),
+                
+                TD::make('parent.name', 'Родительская категория')
+                    ->render(function (Category $category) {
+                        return $category->parent
+                            ? Link::make($category->parent->name)
+                                ->route('platform.category.action', $category->parent)
+                            : '<span class="text-muted">Корневая</span>';
+                    })
+                    ->width('200px'),
+                
+                TD::make('children_count', 'Подкатегорий')
+                    ->render(function (Category $category) {
+                        return $category->children_count > 0 
+                            ? "<span class='badge bg-info'>{$category->children_count}</span>"
+                            : "<span class='badge bg-secondary'>{$category->children_count}</span>";
+                    })
+                    ->alignCenter()
+                    ->width('120px'),
+                
+                TD::make('products_count', 'Товаров')
+                    ->render(function (Category $category) {
+                        $categoryIds = $category->descendants()->pluck('id')->push($category->id);
+                        $count = Product::whereIn('subcategory_id', $categoryIds)->count();
+                        return $count > 0 
+                            ? "<span class='badge bg-primary'>{$count}</span>"
+                            : "<span class='badge bg-secondary'>{$count}</span>";
+                    })
+                    ->alignCenter()
+                    ->width('100px'),
+                
+                TD::make('actions', 'Действия')
                     ->alignRight()
-                    ->render(function (Product $product) {
+                    ->render(function (Category $category) {
                         return DropDown::make()
                             ->icon('three-dots-vertical')
                             ->list([
-                                Link::make('Edit')
-                                    ->route('platform.product.edit', $product)
-                                    ->icon('pencil')
-                                    ->canSee(auth()->user()->hasAccess('platform.products.edit')),
+                                Link::make('Редактировать')
+                                    ->route('platform.category.edit', $category)
+                                    ->icon('pencil'),
                                     
-                                Button::make('Delete')
+                                Link::make('Добавить категорию')
+                                    ->route('platform.category.create', ['parent_id' => $category->id])
+                                    ->icon('plus'),
+                                    
+                                Button::make('Удалить')
                                     ->icon('trash')
-                                    ->method('remove')
-                                    ->confirm('Are you sure you want to delete this product?')
-                                    ->parameters(['id' => $product->id])
-                                    ->canSee(auth()->user()->hasAccess('platform.products.delete')),
+                                    ->method('removeCategory')
+                                    ->confirm('This will delete the category, all its subcategories and products. Are you sure?')
+                                    ->parameters(['id' => $category->id]),
                             ]);
                     }),
             ]),

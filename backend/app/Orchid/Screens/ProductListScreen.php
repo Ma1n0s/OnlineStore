@@ -98,7 +98,7 @@ class ProductListScreen extends Screen
                         return $product->brand;
                     }),
 
-                TD::make('slug', 'ЧПУ')
+                TD::make('slug', 'slug')
                     ->sort()
                     ->filter(Input::make())
                     ->render(function (Product $product) {
