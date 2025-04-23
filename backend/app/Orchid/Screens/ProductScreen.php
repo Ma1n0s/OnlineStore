@@ -182,15 +182,15 @@ class ProductScreen extends Screen
                     
                     $isCreatingInCategory
                         ? Input::make('product.subcategory_id')
-                            ->title('категория')
+                            ->title('Подкатегория')
                             ->value($this->getDefaultSubcategoryId())
                             ->readonly()
                             ->help('Этот товар будет добавлен в: ' . $this->getSubcategoryName())
                         : Select::make('product.subcategory_id')
-                            ->title('категория')
+                            ->title('Подкатегория')
                             ->fromModel(Category::class, 'name')
                             ->empty('Не выбрана')
-                            ->help('Выберите категорию для этого товара'),
+                            ->help('Выберите подкатегорию для этого товара'),
                 ]),
                 
                 'Изображения' => Layout::rows([
@@ -296,7 +296,7 @@ class ProductScreen extends Screen
         if ($categoryId) {
             $subcategories = Category::where('parent_id', $categoryId)->get();
             if ($subcategories->isNotEmpty()) {
-                return $categoryId;
+                return $subcategories->first()->id;
             }
         }
         return null;
@@ -401,7 +401,11 @@ class ProductScreen extends Screen
                 // Delete old attachments if we have new ones or if the array is empty (which means user removed all images)
                 if ($product->attachments->isNotEmpty()) {
                     // Get the current attachment IDs
-                    $currentAttachmentIds = $product->attachment()->where('group', 'products')->pluck('id')->toArray();
+                    $currentAttachmentIds = $product->attachment()
+                        ->select('attachments.id') // Явно указываем, что мы хотим id из таблицы attachments
+                        ->where('group', 'products')
+                        ->pluck('id')
+                        ->toArray();
                     
                     \Illuminate\Support\Facades\Log::info('Current attachment IDs', [
                         'current_ids' => $currentAttachmentIds,

@@ -60,10 +60,10 @@ class CategoryEditScreen extends Screen
                 ->method('save')
                 ->class('btn btn-success'),
                 
-            // Button::make('Отмена')
-            //     ->icon('close')
-            //     ->route('platform.category.list')
-            //     ->canSee(!$this->category->exists),
+            Button::make('Отмена')
+                ->icon('close')
+                ->route('platform.category.list')
+                ->canSee(!$this->category->exists),
                 
             Button::make('Удалить')
                 ->icon('trash')
