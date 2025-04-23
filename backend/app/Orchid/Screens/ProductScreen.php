@@ -4,7 +4,7 @@ namespace App\Orchid\Screens;
 
 use App\Models\Product;
 use App\Models\Category;
-use App\Models\Subcategory;
+use App\Models\Image;
 use Orchid\Screen\Screen;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Select;
@@ -15,7 +15,6 @@ use Orchid\Support\Facades\Layout;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Fields\Group;
 use Orchid\Screen\Fields\Matrix;
-use Orchid\Screen\Fields\Picture;
 use Orchid\Support\Facades\Alert;
 use Illuminate\Http\Request;
 use Orchid\Attachment\Models\Attachment;
@@ -35,11 +34,18 @@ class ProductScreen extends Screen
      */
     public function query(Product $product): array
     {
-        $product->load('subcategory','images');
+        $product->load('subcategory', 'attachments');
+        $categoryId = request()->input('category_id');
         
         return [
             'product' => $product,
-            'images' => $product->images,
+            'specifications' => $product->specifications ?? [],
+            'specificationsB' => $product->specificationsB ?? [],
+            'advantages' => $product->advantages ?? [],
+            'category_id' => $categoryId,
+            'subcategories' => $categoryId 
+                ? Category::where('parent_id', $categoryId)->get()
+                : collect(),
         ];
     }
 
@@ -50,7 +56,17 @@ class ProductScreen extends Screen
      */
     public function name(): ?string
     {
-        return $this->product->exists ? 'Edit Product' : 'Create Product';
+        return $this->product->exists ? "Редактирование товара: {$this->product->name}" : 'Создание нового товара';
+    }
+
+    /**
+     * The description of the screen displayed in the header.
+     *
+     * @return string|null
+     */
+    public function description(): ?string
+    {
+        return "Управление товарами магазина. Заполните все необходимые поля для создания или редактирования товара.";
     }
 
     /**
@@ -61,19 +77,23 @@ class ProductScreen extends Screen
     public function commandBar(): array
     {
         return [
-            Button::make('Create')
-                ->icon('plus')
+            Button::make('Сохранить')
+                ->icon('check')
                 ->method('createOrUpdate')
+                ->class('btn btn-success')
                 ->canSee(!$this->product->exists),
 
-            Button::make('Update')
+            Button::make('Обновить')
                 ->icon('note')
                 ->method('createOrUpdate')
+                ->class('btn btn-success')
                 ->canSee($this->product->exists),
 
-            Button::make('Remove')
+            Button::make('Удалить')
                 ->icon('trash')
                 ->method('remove')
+                ->confirm('Вы уверены, что хотите удалить этот товар? Все связанные изображения также будут удалены.')
+                ->class('btn btn-danger')
                 ->canSee($this->product->exists),
         ];
     }
@@ -85,94 +105,169 @@ class ProductScreen extends Screen
      */
     public function layout(): array
     {
+        $categoryId = request()->input('category_id');
+        $isCreatingInCategory = !$this->product->exists && $categoryId;
+        
         return [
-            Layout::rows([
-                Input::make('product.code')
-                    ->title('Code')
-                    ->required(),
-
-                Input::make('product.name')
-                    ->title('Name')
-                    ->required(),
-
-                TextArea::make('product.description')
-                    ->title('Description')
-                    ->rows(3),
-
-                Input::make('product.price')
-                    ->title('Price')
-                    ->type('number')
-                    ->step('0.01')
-                    ->required(),
-
-                Input::make('product.article')
-                    ->title('Article')
-                    ->required(),
-
-                Input::make('product.brand')
-                    ->title('Brand')
-                    ->required(),
-
-                Input::make('product.rating')
-                    ->title('Rating')
-                    ->type('number')
-                    ->step('0.1')
-                    ->min(0)
-                    ->max(5),
-
-                // Select::make('product.category_id')
-                //     ->title('Category')
-                //     ->fromModel(Category::class, 'name')
-                //     ->required(),
-
-                Select::make('product.subcategory_id')
-                    ->title('Subcategory')
-                    ->fromModel(Category::class, 'name')
-                    ->empty('No subcategory'),
-
-                Matrix::make('product.specifications')
-                    ->title('Specifications')
-                    ->columns([
-                        'Key',
-                        'Value',
-                    ])
-                    ->fields([
-                        'Key' => Input::make(),
-                        'Value' => Input::make(),
+            Layout::tabs([
+                'Основная информация' => Layout::rows([
+                    Group::make([
+                        Input::make('product.name')
+                            ->title('Название товара')
+                            ->placeholder('Введите название товара')
+                            ->required()
+                            ->help('Полное название товара, которое будет отображаться на сайте'),
+                            
+                        Input::make('product.slug')
+                            ->title('URL-адрес (slug)')
+                            ->placeholder('generiruetsya-avtomaticheski')
+                            ->required()
+                            ->help('Уникальная часть URL для этого товара'),
                     ]),
-
-                Upload::make('images')
-                    ->title('Product Images')
-                    ->multiple()
-                    ->maxFiles(10)
-                    ->acceptedFiles('image/*'),
-
-                Input::make('product.warranty')
-                    ->title('Warranty'),
-
-                Matrix::make('product.advantages')
-                    ->title('Advantages')
-                    ->columns([
-                        'Title',
-                        'Description',
-                    ])
-                    ->fields([
-                        'Title' => Input::make(),
-                        'Description' => Input::make(),
+                    
+                    Group::make([
+                        Input::make('product.article')
+                            ->title('Артикул')
+                            ->required()
+                            ->help('Уникальный артикул товара'),
+                            
+                        Input::make('product.code')
+                            ->title('Код товара')
+                            ->required()
+                            ->help('Внутренний код товара'),
                     ]),
-
-                Matrix::make('product.specificationsB')
-                    ->title('Additional Specifications')
-                    ->columns([
-                        'Name',
-                        'Value',
-                    ])
-                    ->fields([
-                        'Name' => Input::make(),
-                        'Value' => Input::make(),
+                    
+                    Quill::make('product.description')
+                        ->title('Описание товара')
+                        ->toolbar(["text", "color", "header", "list", "format"])
+                        ->height('200px')
+                        ->help('Подробное описание товара для страницы продукта'),
+                        
+                    Group::make([
+                        Input::make('product.price')
+                            ->title('Цена')
+                            ->type('number')
+                            ->step('0.01')
+                            ->required()
+                            ->help('Основная цена товара в рублях'),
+                            
+                        Input::make('product.rating')
+                            ->title('Рейтинг')
+                            ->type('number')
+                            ->step('0.1')
+                            ->min(0)
+                            ->max(5)
+                            ->help('Рейтинг товара от 0 до 5'),
                     ]),
+                    
+                    Group::make([
+                        Input::make('product.brand')
+                            ->title('Бренд')
+                            ->required()
+                            ->help('Производитель товара'),
+                            
+                        Input::make('product.warranty')
+                            ->title('Гарантия')
+                            ->help('Срок гарантии (например, "12 месяцев")'),
+                    ]),
+                    
+                    $isCreatingInCategory
+                        ? Input::make('product.subcategory_id')
+                            ->title('Подкатегория')
+                            ->value($this->getDefaultSubcategoryId())
+                            ->readonly()
+                            ->help('Этот товар будет добавлен в: ' . $this->getSubcategoryName())
+                        : Select::make('product.subcategory_id')
+                            ->title('Подкатегория')
+                            ->fromModel(Category::class, 'name')
+                            ->empty('Не выбрана')
+                            ->help('Выберите подкатегорию для этого товара'),
+                ]),
+                
+                'Изображения' => Layout::rows([
+                    Upload::make('product.images')
+                        ->title('Изображения товара')
+                        ->multiple()
+                        ->maxFiles(10)
+                        ->acceptedFiles('image/*')
+                        ->groups('products')
+                        ->storage('public')
+                        ->help('Загрузите изображения товара (максимум 10)')
+                        ->parallelUploads(3)
+                        ->loadingAsync(),
+                ]),
+                
+                'Характеристики' => Layout::rows([
+                    Matrix::make('product.specifications')
+                        ->title('Основные характеристики')
+                        ->columns([
+                            'Параметр' => 'Key',
+                            'Значение' => 'Value',
+                        ])
+                        ->fields([
+                            'Key' => Input::make()->placeholder('Например: Вес'),
+                            'Value' => Input::make()->placeholder('Например: 1.5 кг'),
+                        ])
+                        ->value($this->product->specifications ?? [])
+                        ->help('Основные параметры товара, которые будут отображаться в карточке'),
+                        
+                    Matrix::make('product.specificationsB')
+                        ->title('Дополнительные характеристики')
+                        ->columns([
+                            'Название' => 'Name',
+                            'Значение' => 'Value',
+                        ])
+                        ->fields([
+                            'Name' => Input::make()->placeholder('Например: Материал'),
+                            'Value' => Input::make()->placeholder('Например: Пластик'),
+                        ])
+                        ->value($this->product->specificationsB ?? [])
+                        ->help('Дополнительные параметры товара'),
+                ]),
+                
+                'Преимущества' => Layout::rows([
+                    Matrix::make('product.advantages')
+                        ->title('Преимущества товара')
+                        ->columns([
+                            'Заголовок' => 'Title',
+                            'Описание' => 'Description',
+                        ])
+                        ->fields([
+                            'Title' => Input::make()->placeholder('Например: Удобное использование'),
+                            'Description' => TextArea::make()->placeholder('Подробное описание преимущества')->rows(2),
+                        ])
+                        ->value($this->product->advantages ?? [])
+                        ->help('Перечислите преимущества этого товара перед конкурентами'),
+                ]),
             ]),
         ];
+    }
+
+    /**
+     * Get default subcategory ID when creating product in a category
+     */
+    protected function getDefaultSubcategoryId()
+    {
+        $categoryId = request()->input('category_id');
+        if ($categoryId) {
+            $subcategories = Category::where('parent_id', $categoryId)->get();
+            if ($subcategories->isNotEmpty()) {
+                return $subcategories->first()->id;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get subcategory name for help text
+     */
+    protected function getSubcategoryName()
+    {
+        $subcategoryId = $this->getDefaultSubcategoryId();
+        if ($subcategoryId) {
+            return Category::find($subcategoryId)->name;
+        }
+        return 'Не выбрана подкатегория';
     }
 
     /**
@@ -183,49 +278,121 @@ class ProductScreen extends Screen
      */
     public function createOrUpdate(Product $product, Request $request)
     {
-        $data = $request->get('product');
+        try {
+            $request->validate([
+                'product.name' => 'required|string|max:255',
+                'product.slug' => 'required|string|max:255|unique:products,slug,'.$product->id,
+                'product.article' => 'required|string|max:100',
+                'product.price' => 'required|numeric|min:0',
+                'product.code' => 'required|string|max:100',
+                'product.brand' => 'required|string|max:100',
+                'product.subcategory_id' => 'required|exists:categories,id',
+            ]);
 
-        
-        if ($request->has('category_id')) {
-            $data['category_id'] = $request->get('category_id');
-        }
+            $data = $request->get('product');
 
-        if (!empty($data['subcategory_id'])) {
-            $subcategory = Category::find($data['subcategory_id']);
-            if ($subcategory && $subcategory->parent_id) {
-                $data['category_id'] = $subcategory->parent_id;
-            }
-        }
-        
-        $data['rating'] = $data['rating'] ?? 0;
-        $data['specifications'] = $data['specifications'] ?? [];
-        $data['advantages'] = $data['advantages'] ?? [];
-        $data['specificationsB'] = $data['specificationsB'] ?? [];
-        $data['images'] = [];
-        
-        if ($request->has('images')) {
-            foreach ($request->input('images', []) as $imageId) {
-                $attachment = Attachment::find($imageId);
+            if (!$product->exists && $request->has('category_id')) {
+                $categoryId = $request->input('category_id');
+                $subcategories = Category::where('parent_id', $categoryId)->get();
                 
-                if ($attachment) {
-
-                    $data['images'][] = [
-                        'url' => $attachment->url,
-                        'path' => str_replace('public/', '', $attachment->physicalPath()),
-                        'name' => $attachment->name,
-                        'original_name' => $attachment->original_name,
-                        'mime_type' => $attachment->mime_type,
-                        'size' => $attachment->size,
-                    ];
-                    
+                if ($subcategories->isNotEmpty()) {
+                    $data['subcategory_id'] = $subcategories->first()->id;
+                    $data['category_id'] = $categoryId;
                 }
             }
+
+            $data['rating'] = $data['rating'] ?? 0;
+            $data['price'] = (float)$data['price'];
+            $data['specifications'] = $data['specifications'] ?? [];
+            $data['advantages'] = $data['advantages'] ?? [];
+            $data['specificationsB'] = $data['specificationsB'] ?? [];
+            
+            $product->fill($data)->save();
+            
+            if ($request->has('product.images')) {
+                if ($product->attachments->isNotEmpty()) {
+                    $product->attachments()->each(function ($attachment) {
+                        Storage::disk('public')->delete($attachment->path);
+                        $attachment->delete();
+                    });
+                }
+                
+                // Also delete existing image records from the images table
+                \App\Models\Image::where('product_id', $product->id)->delete();
+                
+                $imageIds = $request->input('product.images', []);
+                
+                // Log for debugging
+                \Illuminate\Support\Facades\Log::info('Product Images', [
+                    'product_id' => $product->id,
+                    'image_ids' => $imageIds,
+                    'is_array' => is_array($imageIds),
+                    'count' => is_array($imageIds) ? count($imageIds) : 0,
+                ]);
+                
+                // Check if we have image IDs
+                if (is_array($imageIds) && count($imageIds) > 0) {
+                    // Get current max position for this product's images
+                    $maxPosition = \App\Models\Image::where('product_id', $product->id)
+                        ->where('source', 'admin')
+                        ->max('position') ?? -1;
+                    
+                    foreach ($imageIds as $index => $imageId) {
+                        $attachment = Attachment::find($imageId);
+                        
+                        if ($attachment) {
+                            \Illuminate\Support\Facades\Log::info('Processing Attachment', [
+                                'id' => $attachment->id,
+                                'name' => $attachment->name,
+                                'url' => $attachment->url,
+                            ]);
+                            
+                            $attachment->update([
+                                'group' => 'products',
+                                'product_id' => $product->id,
+                            ]);
+                            
+                            // Calculate a unique position for each image
+                            $position = $maxPosition + $index + 1;
+                            
+                            \Illuminate\Support\Facades\Log::info('Creating image', [
+                                'product_id' => $product->id,
+                                'url' => $attachment->url,
+                                'source' => 'admin',
+                                'position' => $position,
+                            ]);
+                            
+                            Image::create([
+                                'product_id' => $product->id,
+                                'url' => $attachment->url,
+                                'source' => 'admin',
+                                'position' => $position,
+                            ]);
+                        } else {
+                            \Illuminate\Support\Facades\Log::warning('Attachment not found', [
+                                'image_id' => $imageId
+                            ]);
+                        }
+                    }
+                }
+            }
+            
+            Alert::success($this->product->exists ? 'Товар успешно обновлен' : 'Товар успешно создан');
+            
+            if ($request->has('category_id')) {
+                return redirect()->route('platform.category.products', $request->input('category_id'));
+            }
+            
+            return redirect()->route('platform.product.list');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error creating/updating product', [
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            
+            Alert::error('Ошибка при сохранении товара: ' . $e->getMessage());
+            return back()->withInput();
         }
-        
-        $product->fill($data)->save();
-        
-        Alert::info('Product was saved');
-        return redirect()->route('platform.product.list');
     }
 
     /**
@@ -236,18 +403,18 @@ class ProductScreen extends Screen
      */
     public function remove(Product $product)
     {
-        if (!empty($product->images)) {
-            foreach ($product->images as $image) {
-                if (isset($image['path'])) {
-                    Storage::disk('public')->delete($image['path']);
-                }
-            }
+        if ($product->attachments->isNotEmpty()) {
+            $product->attachments()->each(function ($attachment) {
+                Storage::disk('public')->delete($attachment->path);
+                $attachment->delete();
+            });
         }
+        
+        $product->images()->delete();
         
         $product->delete();
 
-        Alert::info('Product was removed');
+        Alert::info('Товар успешно удален');
         return redirect()->route('platform.product.list');
     }
-    
 }

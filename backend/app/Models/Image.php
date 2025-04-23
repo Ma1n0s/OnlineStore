@@ -29,7 +29,8 @@ class Image extends Model
      */
     public const SOURCES = [
         'market' => 'market',
-        'yandex' => 'yandex'
+        'yandex' => 'yandex',
+        'admin' => 'admin'
     ];
 
     /**

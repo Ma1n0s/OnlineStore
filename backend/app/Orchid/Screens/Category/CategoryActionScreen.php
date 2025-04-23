@@ -3,11 +3,16 @@
 namespace App\Orchid\Screens\Category;
 
 use App\Models\Category;
+use App\Models\Product;
+use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Screen;
-use Orchid\Screen\Actions\DropDown;
 use Orchid\Support\Facades\Layout;
+use Orchid\Screen\TD;
+use Illuminate\Http\Request;
+use Orchid\Support\Facades\Alert;
+use Illuminate\Support\Facades\Storage;
 
 class CategoryActionScreen extends Screen
 {
@@ -15,9 +20,12 @@ class CategoryActionScreen extends Screen
 
     public function query(Category $category): array
     {
+        $categoryIds = $category->descendants()->pluck('id')->push($category->id);
+        
         return [
             'category' => $category,
             'children' => $category->children()->paginate(10),
+            'products' => Product::whereIn('subcategory_id', $categoryIds)->paginate(10),
         ];
     }
 
@@ -52,36 +60,166 @@ class CategoryActionScreen extends Screen
                 
             Button::make('Delete')
                 ->icon('trash')
-                ->method('remove')
-                ->confirm('Delete this category?')
-                ->canSee(!$this->category->has_products),
+                ->method('removeCategory')
+                ->confirm('This will delete the category, all its subcategories and products. Are you sure?')
+                ->parameters(['id' => $this->category->id]),
         ];
     }
 
     public function layout(): array
     {
-        return [
+        $layouts = [
             Layout::view('platform.category.actions', [
                 'category' => $this->category,
             ]),
-            
-            Layout::table('children', [
-                \Orchid\Screen\TD::make('name', 'Name')
+        ];
+
+        if ($this->category->children()->exists()) {
+            $layouts[] = Layout::table('children', [
+                TD::make('name', 'Name')
                     ->render(function (Category $category) {
                         return Link::make($category->name)
                             ->route('platform.category.action', $category);
                     }),
                     
-                \Orchid\Screen\TD::make('title', 'Title'),
+                TD::make('title', 'Title'),
                 
-                \Orchid\Screen\TD::make('actions', 'Actions')
+                TD::make('actions', 'Actions')
                     ->alignRight()
                     ->render(function (Category $category) {
-                        return Link::make('Edit')
-                            ->route('platform.category.edit', $category)
-                            ->icon('pencil');
+                        return DropDown::make()
+                            ->icon('three-dots-vertical')
+                            ->list([
+                                Link::make('Edit')
+                                    ->route('platform.category.edit', $category)
+                                    ->icon('pencil'),
+                                    
+                                Button::make('Delete')
+                                    ->icon('trash')
+                                    ->method('removeCategory')
+                                    ->confirm('This will delete the subcategory and all its products. Are you sure?')
+                                    ->parameters(['id' => $category->id]),
+                            ]);
                     }),
-            ]),
-        ];
+            ]);
+        }
+
+        if ($this->category->canHaveProducts()) {
+            $layouts[] = Layout::table('products', [
+                TD::make('name', 'Name')
+                    ->render(function (Product $product) {
+                        return Link::make($product->name)
+                            ->route('platform.product.edit', $product);
+                    }),
+                    
+                TD::make('code', 'Code'),
+                
+                TD::make('price', 'Price')
+                    ->render(function (Product $product) {
+                        return '$' . number_format($product->price, 2);
+                    }),
+                
+                TD::make('brand', 'Brand'),
+                
+                TD::make('rating', 'Rating')
+                    ->render(function (Product $product) {
+                        return number_format($product->rating, 1);
+                    }),
+                
+                TD::make('actions', 'Actions')
+                    ->alignRight()
+                    ->render(function (Product $product) {
+                        return DropDown::make()
+                            ->icon('three-dots-vertical')
+                            ->list([
+                                Link::make('Edit')
+                                    ->route('platform.product.edit', $product)
+                                    ->icon('pencil'),
+                                    
+                                Button::make('Delete')
+                                    ->icon('trash')
+                                    ->method('removeProduct')
+                                    ->confirm('Are you sure you want to delete this product?')
+                                    ->parameters([
+                                        'product_id' => $product->id,
+                                        'category_id' => $this->category->id,
+                                    ]),
+                            ]);
+                    }),
+            ]);
+        }
+
+        return $layouts;
+    }
+
+    public function removeCategory(Request $request)
+    {
+        $category = Category::findOrFail($request->get('id'));
+        
+        // Get all category IDs to delete (including subcategories)
+        $categoryIds = $category->descendants()->pluck('id')->push($category->id);
+        
+        // Delete all products and their images
+        $products = Product::whereIn('subcategory_id', $categoryIds)->get();
+        
+        foreach ($products as $product) {
+            $this->deleteProductImages($product);
+            $product->delete();
+        }
+        
+        // Delete all subcategories and their images
+        $descendants = $category->descendants()->get();
+        foreach ($descendants as $descendant) {
+            $this->deleteCategoryImages($descendant);
+            $descendant->delete();
+        }
+        
+        // Delete the category's images
+        $this->deleteCategoryImages($category);
+        
+        // Delete the category itself
+        $category->delete();
+
+        Alert::info('Category and all its contents were deleted successfully');
+        
+        if ($category->parent_id) {
+            return redirect()->route('platform.category.action', $category->parent);
+        }
+        
+        return redirect()->route('platform.category.list');
+    }
+
+    protected function deleteCategoryImages(Category $category)
+    {
+        if ($category->image_url) {
+            Storage::disk('public')->delete($category->image_url);
+        }
+        if ($category->description_image_url) {
+            Storage::disk('public')->delete($category->description_image_url);
+        }
+    }
+
+    protected function deleteProductImages(Product $product)
+    {
+        if (!empty($product->images)) {
+            foreach ($product->images as $image) {
+                if (isset($image['path'])) {
+                    Storage::disk('public')->delete($image['path']);
+                }
+            }
+        }
+    }
+
+    public function removeProduct(Request $request)
+    {
+        $product = Product::findOrFail($request->get('product_id'));
+        
+        // Delete product images
+        $this->deleteProductImages($product);
+        
+        $product->delete();
+
+        Alert::info('Product was deleted');
+        return redirect()->route('platform.category.action', $request->get('category_id'));
     }
 }
