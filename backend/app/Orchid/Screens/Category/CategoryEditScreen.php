@@ -34,37 +34,21 @@ class CategoryEditScreen extends Screen
                 }, function($query) {
                     $query->whereNull('parent_id');
                 })
-                ->orderBy('name')
                 ->get()
         ];
     }
 
     public function name(): ?string
     {
-        return $this->category->exists 
-            ? "Редактирование категории: {$this->category->name}" 
-            : 'Создание новой категории';
-    }
-
-    public function description(): ?string
-    {
-        return $this->category->exists
-            ? "Изменение параметров категории {$this->category->name}"
-            : 'Заполните поля для создания новой категории';
+        return $this->category->exists ? 'Edit Category' : 'Create Category';
     }
 
     public function commandBar(): array
     {
         return [
-            Button::make('Сохранить')
+            Button::make('Save')
                 ->icon('check')
-                ->method('save')
-                ->class('btn btn-success'),
-                
-            Button::make('Отменить')
-                ->icon('close')
-                ->method('cancel')
-                ->class('btn btn-secondary'),
+                ->method('save'),
         ];
     }
 
@@ -76,71 +60,60 @@ class CategoryEditScreen extends Screen
         return [
             Layout::rows([
                 Input::make('category.name')
-                    ->title('Название')
-                    ->required()
-                    ->placeholder('Введите название категории')
-                    ->help('Отображается в меню и навигации'),
+                    ->title('Name')
+                    ->required(),
                     
                 Input::make('category.title')
-                    ->title('Заголовок')
-                    ->placeholder('Введите заголовок для отображения')
-                    ->help('Отображается на странице категории'),
+                    ->title('Display Title')
+                    ->help('This will be shown to users'),
 
                 TextArea::make('category.description')
-                    ->title('Описание')
-                    ->rows(3)
-                    ->placeholder('Детальное описание категории')
-                    ->help('Отображается на странице категории'),
+                    ->title('Description')
+                    ->rows(3),
 
                 $isCreatingSubcategory 
                     ? Input::make('category.parent_id')
-                        ->title('Родительская категория')
+                        ->title('Parent Category')
                         ->value($parentId)
                         ->readonly()
-                        ->help('Эта категория будет подкатегорией для: ' . Category::find($parentId)->name)
+                        ->help('This category will be a subcategory of: ' . Category::find($parentId)->name)
                     : Select::make('category.parent_id')
-                        ->title('Родительская категория')
-                        ->empty('Без родительской категории', '0') 
+                        ->title('Parent Category')
+                        ->empty('No parent', '0') 
                         ->fromQuery(
-                            Category::where('id', '!=', $this->category->id ?? null)
+                            Category::where('id', '!=', $this->category->id)
                                 ->where(function($query) {
                                     $query->whereNull('parent_id')
-                                          ->orWhere('parent_id', '!=', $this->category->id ?? null);
-                                })
-                                ->orderBy('name'),
+                                          ->orWhere('parent_id', '!=', $this->category->id);
+                                }),
                             'name'
-                        )
-                        ->help('Выберите родительскую категорию, если нужно'),
+                        ),
 
                 Select::make('category.type')
-                    ->title('Тип категории')
+                    ->title('Type')
                     ->options([
-                        'category' => 'Категория (может содержать подкатегории)',
-                        'product_container' => 'Контейнер товаров (может содержать только товары)',
+                        'category' => 'Category (can contain subcategories)',
+                        'product_container' => 'Product Container (can only contain products)',
                     ])
-                    ->required()
-                    ->help('Определяет, что может содержать эта категория'),
+                    ->required(),
 
                 Input::make('category.slug')
-                    ->title('URL-адрес')
-                    ->placeholder('автоматически-сгенерируется')
-                    ->help('Человекопонятный URL (оставьте пустым для автогенерации)'),
+                    ->title('Slug')
+                    ->help('Leave empty to auto-generate from name'),
 
                 Upload::make('category.image_url')
-                    ->title('Основное изображение')
+                    ->title('Main Image')
                     ->acceptedFiles('image/*')
                     ->maxFiles(1)
                     ->storage('public')
-                    ->path('categories')
-                    ->help('Главное изображение категории (рекомендуемый размер: 800x600)'),
+                    ->path('categories'),
 
                 Upload::make('category.description_image_url')
-                    ->title('Дополнительное изображение')
+                    ->title('Description Image')
                     ->acceptedFiles('image/*')
                     ->maxFiles(1)
                     ->storage('public')
-                    ->path('categories')
-                    ->help('Изображение для описания категории (опционально)'),
+                    ->path('categories'),
             ]),
         ];
     }
@@ -155,7 +128,7 @@ class CategoryEditScreen extends Screen
             ->exists();
             
         if ($exists) {
-            Alert::error('Категория с таким названием уже существует!');
+            Alert::error('Category name already exists!');
             return back();
         }
         
@@ -220,19 +193,10 @@ class CategoryEditScreen extends Screen
 
         $category->fill($data)->save();
 
-        Alert::success('Категория успешно сохранена');
+        Alert::success('Category was saved');
         
         if ($category->parent_id) {
             return redirect()->route('platform.category.action', $category->parent);
-        }
-        
-        return redirect()->route('platform.category.list');
-    }
-    
-    public function cancel()
-    {
-        if ($this->category->exists && $this->category->parent_id) {
-            return redirect()->route('platform.category.action', $this->category->parent);
         }
         
         return redirect()->route('platform.category.list');
