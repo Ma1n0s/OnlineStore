@@ -96,17 +96,17 @@ class Product extends Model
      * 
      * @return array
      */
-    public function getSpecificationsAttribute(): array
-    {
-        $result = [];
+    // public function getSpecificationsAttribute(): array
+    // {
+    //     $result = [];
         
-        foreach ($this->specificationCategories as $category) {
-            $categoryName = $category->name;
-            $result[$categoryName] = $category->specifications->pluck('value', 'name')->toArray();
-        }
+    //     foreach ($this->specificationCategories as $category) {
+    //         $categoryName = $category->name;
+    //         $result[$categoryName] = $category->specifications->pluck('value', 'name')->toArray();
+    //     }
         
-        return $result;
-    }
+    //     return $result;
+    // }
     
     protected $casts = [
         'price' => 'array',
