@@ -67,13 +67,20 @@ class Category extends Model
 
     public function canHaveSubcategories()
     {
-        return $this->type === 'category' && !$this->has_products;
+       return true;
     }
 
     public function canHaveProducts()
     {
-        return $this->type === 'product_container' || $this->children()->exists();
+        return true; 
     }
+
+    public function allProducts()
+    {
+        $categoryIds = $this->descendants()->pluck('id')->push($this->id);
+        return Product::whereIn('subcategory_id', $categoryIds);
+    }
+
 
     /**
      * Получить прямые дочерние категории.
