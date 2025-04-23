@@ -3,8 +3,10 @@
 # Определение пути к директории скрипта, независимо от места запуска
 SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$SCRIPT_PATH"
+BACKEND_DIR="$PROJECT_DIR/backend"
 SERVICE_NAME="onlinestore"
 SERVICE_FILE="$PROJECT_DIR/$SERVICE_NAME.service"
+TEMP_SERVICE_FILE="/tmp/$SERVICE_NAME.service.tmp"
 
 # Цвета для вывода
 RED='\033[0;31m'
@@ -27,14 +29,36 @@ fi
 install_service() {
     echo -e "${YELLOW}Установка сервиса $SERVICE_NAME...${NC}"
     echo -e "Используется директория проекта: $PROJECT_DIR"
+    echo -e "Директория backend: $BACKEND_DIR"
+    
+    # Проверка наличия директории backend
+    if [ ! -d "$BACKEND_DIR" ]; then
+        error "Директория backend не найдена: $BACKEND_DIR"
+    fi
+    
+    # Проверка наличия файла artisan в директории backend
+    if [ ! -f "$BACKEND_DIR/artisan" ]; then
+        error "Файл artisan не найден в директории backend: $BACKEND_DIR/artisan"
+    fi
     
     # Проверка наличия файла сервиса
     if [ ! -f "$SERVICE_FILE" ]; then
         error "Файл сервиса $SERVICE_FILE не найден!"
     fi
     
-    # Копирование файла сервиса в директорию systemd
-    cp "$SERVICE_FILE" /etc/systemd/system/ || error "Не удалось скопировать файл сервиса."
+    # Создаем временный файл и заменяем путь в файле сервиса
+    cp "$SERVICE_FILE" "$TEMP_SERVICE_FILE"
+    
+    # Заменяем путь /OnlineStore на реальный абсолютный путь к директории backend
+    sed -i "s|WorkingDirectory=/OnlineStore|WorkingDirectory=$BACKEND_DIR|g" "$TEMP_SERVICE_FILE"
+    
+    echo -e "Путь в файле сервиса обновлен с /OnlineStore на $BACKEND_DIR"
+    
+    # Копирование обновленного файла сервиса в директорию systemd
+    cp "$TEMP_SERVICE_FILE" "/etc/systemd/system/$SERVICE_NAME.service" || error "Не удалось скопировать файл сервиса."
+    
+    # Удаляем временный файл
+    rm -f "$TEMP_SERVICE_FILE"
     
     # Перезагрузка конфигурации systemd
     systemctl daemon-reload || error "Не удалось перезагрузить конфигурацию systemd."
@@ -102,7 +126,7 @@ remove_service() {
     systemctl disable $SERVICE_NAME 2>/dev/null
     
     # Удаление файла сервиса
-    rm -f /etc/systemd/system/$SERVICE_FILE || error "Не удалось удалить файл сервиса."
+    rm -f /etc/systemd/system/$SERVICE_NAME.service || error "Не удалось удалить файл сервиса."
     
     # Перезагрузка конфигурации systemd
     systemctl daemon-reload || error "Не удалось перезагрузить конфигурацию systemd."
