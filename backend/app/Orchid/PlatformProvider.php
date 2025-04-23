@@ -37,10 +37,10 @@ class PlatformProvider extends OrchidServiceProvider
     public function menu(): array
     {
         $menu = [
-            Menu::make('Categories')
+            Menu::make('Категории')
                 ->icon('folder')
                 ->permission('platform.categories.view')
-                ->title('Content Management')
+                ->title('Управление контентом')
                 ->route('platform.category.list')
                 ->add([
                     MenuItem::make('All Categories')
@@ -54,12 +54,12 @@ class PlatformProvider extends OrchidServiceProvider
                     $this->buildNestedCategoriesMenu()
                 ),
                             
-            Menu::make('Products')
+            Menu::make('Продукты')
                 ->icon('bag')
                 ->route('platform.product.list')
                 ->permission('platform.products.view'),
                 
-            Menu::make('Cards')
+            Menu::make('Карточка')
                 ->icon('bs.card-text')
                 ->route('platform.example.cards')
                 ->divider(),
@@ -68,7 +68,7 @@ class PlatformProvider extends OrchidServiceProvider
                 ->icon('bs.people')
                 ->route('platform.systems.users')
                 ->permission('platform.systems.users')
-                ->title(__('Access Controls')),
+                ->title(__('Контроль доступа')),
 
             Menu::make(__('Роли'))
                 ->icon('bs.shield')

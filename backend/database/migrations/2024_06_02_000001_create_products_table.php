@@ -24,6 +24,7 @@ return new class extends Migration
             $table->foreignId('subcategory_id')->nullable()->constrained('categories')->onDelete('set null');
             $table->json('specifications')->nullable();
             $table->json('images')->nullable();
+            $table->string('slug')->unique();
             $table->string('warranty')->nullable();
             $table->json('advantages')->nullable();
             $table->json('specificationsB')->nullable();

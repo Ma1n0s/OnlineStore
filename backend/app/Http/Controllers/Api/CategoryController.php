@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Orchid\Attachment\Models\Attachment;
+use Orchid\Attachment\File;
 
 class CategoryController extends Controller
 {
@@ -29,6 +31,9 @@ class CategoryController extends Controller
             $categories = Category::with('children')->whereNull('parent_id')->get();
         }
         
+        // Преобразуем ID изображений в полные пути
+        $categories = $this->transformImagesInCategories($categories);
+        
         return response()->json($categories);
     }
     
@@ -41,6 +46,14 @@ class CategoryController extends Controller
     public function show(Category $category): JsonResponse
     {
         $category->load('children');
+        
+        // Преобразуем ID изображений в полные пути
+        $category = $this->transformImagesPaths($category);
+        
+        // Преобразуем ID изображений для дочерних категорий
+        if ($category->children && $category->children->count() > 0) {
+            $category->children = $this->transformImagesInCategories($category->children);
+        }
         
         return response()->json($category);
     }
@@ -115,23 +128,34 @@ class CategoryController extends Controller
                 }
             }
             
-            // Обработка загрузки изображения категории
-            if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('categories', 'public');
-                $categoryData['image_url'] = '/storage/' . $imagePath;
-            }
-            
-            // Обработка загрузки изображения описания
-            if ($request->hasFile('description_image')) {
-                $descImagePath = $request->file('description_image')->store('categories/descriptions', 'public');
-                $categoryData['description_image_url'] = '/storage/' . $descImagePath;
-            }
-            
+            // Создаем категорию
             $category = Category::create($categoryData);
+            
+            // Обработка загрузки изображения категории через Orchid
+            if ($request->hasFile('image')) {
+                $file = new File($request->file('image'));
+                $attachment = $file->load('categories');
+                
+                $category->image_url = $attachment->id;
+                $category->save();
+            }
+            
+            // Обработка загрузки изображения описания через Orchid
+            if ($request->hasFile('description_image')) {
+                $file = new File($request->file('description_image'));
+                $attachment = $file->load('categories/descriptions');
+                
+                $category->description_image_url = $attachment->id;
+                $category->save();
+            }
+            
+            // Преобразуем ID изображений в полные пути перед возвратом
+            $category = $this->transformImagesPaths($category);
             
             return response()->json([
                 'id' => $category->id,
                 'message' => 'Категория успешно создана',
+                'category' => $category
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
@@ -227,34 +251,54 @@ class CategoryController extends Controller
                 }
             }
             
-            // Обработка загрузки изображения категории
+            // Обработка загрузки изображения категории через Orchid
             if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('categories', 'public');
-                $categoryData['image_url'] = '/storage/' . $imagePath;
+                // Удаляем старое изображение, если оно есть
+                if ($category->image_url) {
+                    $this->deleteAttachment($category->image_url);
+                }
+                
+                // Загружаем новое изображение
+                $file = new File($request->file('image'));
+                $attachment = $file->load('categories');
+                
+                $categoryData['image_url'] = $attachment->id;
             }
             
             // Удаление изображения если указан флаг
             if ($request->input('remove_image') && $category->image_url) {
-                $this->removeImageFromStorage($category->image_url);
+                $this->deleteAttachment($category->image_url);
                 $categoryData['image_url'] = null;
             }
             
-            // Обработка загрузки изображения описания
+            // Обработка загрузки изображения описания через Orchid
             if ($request->hasFile('description_image')) {
-                $descImagePath = $request->file('description_image')->store('categories/descriptions', 'public');
-                $categoryData['description_image_url'] = '/storage/' . $descImagePath;
+                // Удаляем старое изображение, если оно есть
+                if ($category->description_image_url) {
+                    $this->deleteAttachment($category->description_image_url);
+                }
+                
+                // Загружаем новое изображение
+                $file = new File($request->file('description_image'));
+                $attachment = $file->load('categories/descriptions');
+                
+                $categoryData['description_image_url'] = $attachment->id;
             }
             
             // Удаление изображения описания если указан флаг
             if ($request->input('remove_description_image') && $category->description_image_url) {
-                $this->removeImageFromStorage($category->description_image_url);
+                $this->deleteAttachment($category->description_image_url);
                 $categoryData['description_image_url'] = null;
             }
             
             $category->update($categoryData);
             
+            // Преобразуем ID изображений в полные пути перед возвратом
+            $category = $this->transformImagesPaths($category);
+            
             return response()->json([
                 'message' => 'Категория успешно обновлена',
+                'category' => $category
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -275,11 +319,11 @@ class CategoryController extends Controller
         try {
             // Удаляем изображения, если они есть
             if ($category->image_url) {
-                $this->removeImageFromStorage($category->image_url);
+                $this->deleteAttachment($category->image_url);
             }
             
             if ($category->description_image_url) {
-                $this->removeImageFromStorage($category->description_image_url);
+                $this->deleteAttachment($category->description_image_url);
             }
             
             $category->delete();
@@ -303,7 +347,8 @@ class CategoryController extends Controller
      */
     public function children(Category $category): JsonResponse
     {
-        return response()->json($category->children);
+        $children = $this->transformImagesInCategories($category->children);
+        return response()->json($children);
     }
     
     /**
@@ -315,7 +360,9 @@ class CategoryController extends Controller
     public function descendants(Category $category): JsonResponse
     {
         $category->load('descendants');
-        return response()->json($this->flattenDescendants($category));
+        $descendants = $this->flattenDescendants($category);
+        $descendants = $this->transformImagesInCategories($descendants);
+        return response()->json($descendants);
     }
     
     /**
@@ -326,7 +373,9 @@ class CategoryController extends Controller
      */
     public function ancestors(Category $category): JsonResponse
     {
-        return response()->json($category->getPath());
+        $ancestors = $category->getPath();
+        $ancestors = $this->transformImagesInCategories($ancestors);
+        return response()->json($ancestors);
     }
     
     /**
@@ -365,20 +414,78 @@ class CategoryController extends Controller
             $rootCategories = Category::whereNull('parent_id')->get();
         }
         
+        $rootCategories = $this->transformImagesInCategories($rootCategories);
+        
         return response()->json($rootCategories);
     }
     
     /**
-     * Удаляет изображение из хранилища
+     * Удаляет вложение по ID
      * 
-     * @param string $imageUrl
+     * @param string|int $attachmentId
      * @return void
      */
-    private function removeImageFromStorage(string $imageUrl): void
+    private function deleteAttachment($attachmentId): void
     {
-        $path = str_replace('/storage/', '', $imageUrl);
-        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($path);
+        $attachment = Attachment::find($attachmentId);
+        
+        if ($attachment) {
+            $attachment->delete();
         }
+    }
+    
+    /**
+     * Преобразует ID изображений в полные пути для коллекции категорий
+     * 
+     * @param \Illuminate\Support\Collection|array $categories
+     * @return \Illuminate\Support\Collection|array
+     */
+    private function transformImagesInCategories($categories)
+    {
+        if (is_array($categories)) {
+            foreach ($categories as &$category) {
+                $category = $this->transformImagesPaths($category);
+            }
+        } else {
+            $categories->transform(function ($category) {
+                return $this->transformImagesPaths($category);
+            });
+            
+            // Также преобразуем изображения для дочерних категорий
+            $categories->each(function ($category) {
+                if ($category->children && $category->children->count() > 0) {
+                    $category->children = $this->transformImagesInCategories($category->children);
+                }
+            });
+        }
+        
+        return $categories;
+    }
+    
+    /**
+     * Преобразует ID изображений в полные пути для одной категории
+     * 
+     * @param Category $category
+     * @return Category
+     */
+    private function transformImagesPaths(Category $category)
+    {
+        // Проверяем и преобразуем image_url
+        if ($category->image_url) {
+            $attachment = Attachment::find($category->image_url);
+            if ($attachment) {
+                $category->image_path = $attachment->url();
+            }
+        }
+        
+        // Проверяем и преобразуем description_image_url
+        if ($category->description_image_url) {
+            $attachment = Attachment::find($category->description_image_url);
+            if ($attachment) {
+                $category->description_image_path = $attachment->url();
+            }
+        }
+        
+        return $category;
     }
 } 
