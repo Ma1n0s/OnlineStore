@@ -109,7 +109,10 @@ class Product extends Model
     // }
     
     protected $casts = [
-        'price' => 'array',
+        'price' => 'float',
+        'old_price' => 'float',
+        'rating' => 'float',
+        'quantity' => 'integer',
         'specifications' => 'array',
         'images' => 'array',
         'advantages' => 'array',

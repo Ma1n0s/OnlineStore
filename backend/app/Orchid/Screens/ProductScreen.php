@@ -193,7 +193,8 @@ class ProductScreen extends Screen
                         ->groups('products')
                         ->storage('public')
                         ->help('Загрузите изображения товара (максимум 10)')
-                        ->parallelUploads(3),
+                        ->parallelUploads(3)
+                        ->loadingAsync(),
                 ]),
                 
                 'Характеристики' => Layout::rows([
@@ -277,70 +278,121 @@ class ProductScreen extends Screen
      */
     public function createOrUpdate(Product $product, Request $request)
     {
-        $request->validate([
-            'product.name' => 'required|string|max:255',
-            'product.slug' => 'required|string|max:255|unique:products,slug,'.$product->id,
-            'product.article' => 'required|string|max:100',
-            'product.price' => 'required|numeric|min:0',
-            'product.code' => 'required|string|max:100',
-            'product.brand' => 'required|string|max:100',
-            'product.subcategory_id' => 'required|exists:categories,id',
-            'product.images.*' => 'image|mimes:jpeg,png,jpg,webp',
-        ]);
+        try {
+            $request->validate([
+                'product.name' => 'required|string|max:255',
+                'product.slug' => 'required|string|max:255|unique:products,slug,'.$product->id,
+                'product.article' => 'required|string|max:100',
+                'product.price' => 'required|numeric|min:0',
+                'product.code' => 'required|string|max:100',
+                'product.brand' => 'required|string|max:100',
+                'product.subcategory_id' => 'required|exists:categories,id',
+            ]);
 
-        $data = $request->get('product');
+            $data = $request->get('product');
 
-        if (!$product->exists && $request->has('category_id')) {
-            $categoryId = $request->input('category_id');
-            $subcategories = Category::where('parent_id', $categoryId)->get();
-            
-            if ($subcategories->isNotEmpty()) {
-                $data['subcategory_id'] = $subcategories->first()->id;
-                $data['category_id'] = $categoryId;
-            }
-        }
-
-        $data['rating'] = $data['rating'] ?? 0;
-        $data['specifications'] = $data['specifications'] ?? [];
-        $data['advantages'] = $data['advantages'] ?? [];
-        $data['specificationsB'] = $data['specificationsB'] ?? [];
-        
-        $product->fill($data)->save();
-        
-        if ($request->has('product.images')) {
-            if ($product->attachments->isNotEmpty()) {
-                $product->attachments()->each(function ($attachment) {
-                    Storage::disk('public')->delete($attachment->path);
-                    $attachment->delete();
-                });
-            }
-            
-            foreach ($request->input('product.images', []) as $imageId) {
-                $attachment = Attachment::find($imageId);
+            if (!$product->exists && $request->has('category_id')) {
+                $categoryId = $request->input('category_id');
+                $subcategories = Category::where('parent_id', $categoryId)->get();
                 
-                if ($attachment) {
-                    $attachment->update([
-                        'group' => 'products',
-                        'product_id' => $product->id,
-                    ]);
-                    
-                    Image::create([
-                        'product_id' => $product->id,
-                        'url' => $attachment->url,
-                        'source' => 'admin',
-                        'position' => 0,
-                    ]);
+                if ($subcategories->isNotEmpty()) {
+                    $data['subcategory_id'] = $subcategories->first()->id;
+                    $data['category_id'] = $categoryId;
                 }
             }
+
+            $data['rating'] = $data['rating'] ?? 0;
+            $data['price'] = (float)$data['price'];
+            $data['specifications'] = $data['specifications'] ?? [];
+            $data['advantages'] = $data['advantages'] ?? [];
+            $data['specificationsB'] = $data['specificationsB'] ?? [];
+            
+            $product->fill($data)->save();
+            
+            if ($request->has('product.images')) {
+                if ($product->attachments->isNotEmpty()) {
+                    $product->attachments()->each(function ($attachment) {
+                        Storage::disk('public')->delete($attachment->path);
+                        $attachment->delete();
+                    });
+                }
+                
+                // Also delete existing image records from the images table
+                \App\Models\Image::where('product_id', $product->id)->delete();
+                
+                $imageIds = $request->input('product.images', []);
+                
+                // Log for debugging
+                \Illuminate\Support\Facades\Log::info('Product Images', [
+                    'product_id' => $product->id,
+                    'image_ids' => $imageIds,
+                    'is_array' => is_array($imageIds),
+                    'count' => is_array($imageIds) ? count($imageIds) : 0,
+                ]);
+                
+                // Check if we have image IDs
+                if (is_array($imageIds) && count($imageIds) > 0) {
+                    // Get current max position for this product's images
+                    $maxPosition = \App\Models\Image::where('product_id', $product->id)
+                        ->where('source', 'admin')
+                        ->max('position') ?? -1;
+                    
+                    foreach ($imageIds as $index => $imageId) {
+                        $attachment = Attachment::find($imageId);
+                        
+                        if ($attachment) {
+                            \Illuminate\Support\Facades\Log::info('Processing Attachment', [
+                                'id' => $attachment->id,
+                                'name' => $attachment->name,
+                                'url' => $attachment->url,
+                            ]);
+                            
+                            $attachment->update([
+                                'group' => 'products',
+                                'product_id' => $product->id,
+                            ]);
+                            
+                            // Calculate a unique position for each image
+                            $position = $maxPosition + $index + 1;
+                            
+                            \Illuminate\Support\Facades\Log::info('Creating image', [
+                                'product_id' => $product->id,
+                                'url' => $attachment->url,
+                                'source' => 'admin',
+                                'position' => $position,
+                            ]);
+                            
+                            Image::create([
+                                'product_id' => $product->id,
+                                'url' => $attachment->url,
+                                'source' => 'admin',
+                                'position' => $position,
+                            ]);
+                        } else {
+                            \Illuminate\Support\Facades\Log::warning('Attachment not found', [
+                                'image_id' => $imageId
+                            ]);
+                        }
+                    }
+                }
+            }
+            
+            Alert::success($this->product->exists ? 'Товар успешно обновлен' : 'Товар успешно создан');
+            
+            if ($request->has('category_id')) {
+                return redirect()->route('platform.category.products', $request->input('category_id'));
+            }
+            
+            return redirect()->route('platform.product.list');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error creating/updating product', [
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            
+            Alert::error('Ошибка при сохранении товара: ' . $e->getMessage());
+            return back()->withInput();
         }
-        
-        Alert::success($this->product->exists ? 'Товар успешно обновлен' : 'Товар успешно создан');
-        
-        if ($request->has('category_id')) {
-            return redirect()->route('platform.category.products', $request->input('category_id'));
-        }
-        
-        return redirect()->route('platform.product.list');
     }
 
     /**
