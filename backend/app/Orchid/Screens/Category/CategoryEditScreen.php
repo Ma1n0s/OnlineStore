@@ -14,6 +14,8 @@ use Orchid\Support\Facades\Alert;
 use Orchid\Support\Facades\Layout;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Orchid\Attachment\Models\Attachment;
+use Illuminate\Support\Facades\Log;
 
 class CategoryEditScreen extends Screen
 {
@@ -162,13 +164,71 @@ class CategoryEditScreen extends Screen
             if (is_array($image) && !empty($image)) {
                 // Delete old image if exists
                 if ($category->exists && $category->image_url) {
-                    Storage::disk('public')->delete($category->image_url);
+                    // If image_url is an ID, find and delete the attachment
+                    $attachment = Attachment::find($category->image_url);
+                    if ($attachment) {
+                        $attachment->delete();
+                    }
                 }
+                
+                // Ensure the file is physically stored
+                $attachment = Attachment::find($image[0]);
+                if ($attachment) {
+                    // Log attachment details for debugging
+                    Log::info('Processing attachment', [
+                        'id' => $attachment->id,
+                        'name' => $attachment->name,
+                        'path' => $attachment->path,
+                        'disk' => $attachment->disk,
+                        'physicalPath' => $attachment->physicalPath(),
+                    ]);
+
+                    // Create directory if it doesn't exist
+                    $directory = 'app/public/' . $attachment->path;
+                    if (!file_exists(storage_path($directory))) {
+                        mkdir(storage_path($directory), 0755, true);
+                    }
+                    
+                    // Check if file already exists at destination
+                    $destinationPath = storage_path($directory . '/' . $attachment->physicalPath());
+                    if (!file_exists($destinationPath)) {
+                        // Try to get the file from the upload
+                        $sourcePath = storage_path('app/uploads/' . $attachment->physicalPath());
+                        if (file_exists($sourcePath)) {
+                            // Copy file to final destination
+                            copy($sourcePath, $destinationPath);
+                            Log::info('Copied file from uploads folder', [
+                                'source' => $sourcePath,
+                                'destination' => $destinationPath,
+                            ]);
+                        } else {
+                            // Try from temporary directory
+                            $tempPath = storage_path('app/public/temp/' . $attachment->name);
+                            if (file_exists($tempPath)) {
+                                copy($tempPath, $destinationPath);
+                                Log::info('Copied file from temp folder', [
+                                    'source' => $tempPath,
+                                    'destination' => $destinationPath,
+                                ]);
+                            } else {
+                                Log::error('Could not find file to copy', [
+                                    'uploadPath' => $sourcePath,
+                                    'tempPath' => $tempPath,
+                                ]);
+                            }
+                        }
+                    }
+                }
+                
                 $data['image_url'] = $image[0];
             } elseif (empty($image)) {
                 // Image was removed
                 if ($category->exists && $category->image_url) {
-                    Storage::disk('public')->delete($category->image_url);
+                    // If image_url is an ID, find and delete the attachment
+                    $attachment = Attachment::find($category->image_url);
+                    if ($attachment) {
+                        $attachment->delete();
+                    }
                 }
                 $data['image_url'] = null;
             }
@@ -179,13 +239,71 @@ class CategoryEditScreen extends Screen
             if (is_array($descImage) && !empty($descImage)) {
                 // Delete old image if exists
                 if ($category->exists && $category->description_image_url) {
-                    Storage::disk('public')->delete($category->description_image_url);
+                    // If description_image_url is an ID, find and delete the attachment
+                    $attachment = Attachment::find($category->description_image_url);
+                    if ($attachment) {
+                        $attachment->delete();
+                    }
                 }
+                
+                // Ensure the file is physically stored
+                $attachment = Attachment::find($descImage[0]);
+                if ($attachment) {
+                    // Log attachment details for debugging
+                    Log::info('Processing description attachment', [
+                        'id' => $attachment->id,
+                        'name' => $attachment->name,
+                        'path' => $attachment->path,
+                        'disk' => $attachment->disk,
+                        'physicalPath' => $attachment->physicalPath(),
+                    ]);
+
+                    // Create directory if it doesn't exist
+                    $directory = 'app/public/' . $attachment->path;
+                    if (!file_exists(storage_path($directory))) {
+                        mkdir(storage_path($directory), 0755, true);
+                    }
+                    
+                    // Check if file already exists at destination
+                    $destinationPath = storage_path($directory . '/' . $attachment->physicalPath());
+                    if (!file_exists($destinationPath)) {
+                        // Try to get the file from the upload
+                        $sourcePath = storage_path('app/uploads/' . $attachment->physicalPath());
+                        if (file_exists($sourcePath)) {
+                            // Copy file to final destination
+                            copy($sourcePath, $destinationPath);
+                            Log::info('Copied file from uploads folder', [
+                                'source' => $sourcePath,
+                                'destination' => $destinationPath,
+                            ]);
+                        } else {
+                            // Try from temporary directory
+                            $tempPath = storage_path('app/public/temp/' . $attachment->name);
+                            if (file_exists($tempPath)) {
+                                copy($tempPath, $destinationPath);
+                                Log::info('Copied file from temp folder', [
+                                    'source' => $tempPath,
+                                    'destination' => $destinationPath,
+                                ]);
+                            } else {
+                                Log::error('Could not find file to copy', [
+                                    'uploadPath' => $sourcePath,
+                                    'tempPath' => $tempPath,
+                                ]);
+                            }
+                        }
+                    }
+                }
+                
                 $data['description_image_url'] = $descImage[0];
             } elseif (empty($descImage)) {
                 // Image was removed
                 if ($category->exists && $category->description_image_url) {
-                    Storage::disk('public')->delete($category->description_image_url);
+                    // If description_image_url is an ID, find and delete the attachment
+                    $attachment = Attachment::find($category->description_image_url);
+                    if ($attachment) {
+                        $attachment->delete();
+                    }
                 }
                 $data['description_image_url'] = null;
             }
