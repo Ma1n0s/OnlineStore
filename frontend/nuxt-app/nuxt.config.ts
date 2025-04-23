@@ -93,7 +93,7 @@ export default defineNuxtConfig({
       htmlAttrs: {
         lang: 'ru',
       },
-      link: [{ rel: 'icon', type: 'image/x-icon', href: '/logo_test.svg' }],
+      link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
     },
   },
 })

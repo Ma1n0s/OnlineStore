@@ -20,6 +20,7 @@ class Image extends Model
         'url',
         'source',
         'position',
+        'attachment_id',
     ];
 
     /**

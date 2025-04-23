@@ -13,7 +13,7 @@ const socialLinks = [
 </script>
 
 <template>
-  <div class="bg-black text-white font-sans" data-aos="fade-up">
+  <div class="bg-black text-white font-sans">
     <div class="container mx-auto px-4 py-12">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pb-10 border-b border-neutral-dark">
         <div class="flex items-start">
@@ -21,7 +21,7 @@ const socialLinks = [
             <i class="i-mdi-map-marker text-3xl"></i>
           </div>
           <div>
-            <h4 class="text-white text-lg font-semibold mb-1">Адрес</h4>
+            <h4 class="text-lg font-semibold mb-1">Адрес</h4>
             <p class="text-neutral-DEFAULT">Ул. Пушкина д.42</p>
             <p class="text-neutral-DEFAULT text-sm mt-1">Пн-Пт: 9:00 - 18:00</p>
           </div>
@@ -32,7 +32,7 @@ const socialLinks = [
             <i class="i-mdi-phone text-3xl"></i>
           </div>
           <div>
-            <h4 class="text-white text-lg font-semibold mb-1">Телефон</h4>
+            <h4 class="text-lg font-semibold mb-1">Телефон</h4>
             <a href="tel:+79008005533" class="text-neutral-DEFAULT hover:text-primary transition-colors"
               >+7 (900) 800 555 33-55</a
             >
@@ -45,7 +45,7 @@ const socialLinks = [
             <i class="i-mdi-email text-3xl"></i>
           </div>
           <div>
-            <h4 class="text-white text-lg font-semibold mb-1">Почта</h4>
+            <h4 class="text-lg font-semibold mb-1">Почта</h4>
             <a href="mailto:mail@gmail.com" class="text-neutral-DEFAULT hover:text-primary transition-colors"
               >mail@gmail.com</a
             >
@@ -56,8 +56,8 @@ const socialLinks = [
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-10 pt-10">
         <div class="space-y-6">
-          <NuxtLink to="#" class="inline-block">
-            <img src="~/public/Global_logo_test.svg" class="h-10" alt="logo" />
+          <NuxtLink to="/" class="inline-block">
+            <NuxtImg src="full_logo.svg" class="h-24" alt="logo" />
           </NuxtLink>
           <p class="text-neutral-DEFAULT text-sm leading-relaxed">
             Мы предлагаем широкий ассортимент качественного оборудования. У нас вы найдете всё необходимое для
@@ -77,7 +77,7 @@ const socialLinks = [
         </div>
 
         <div>
-          <h3 class="text-white text-lg font-semibold mb-6 pb-2 relative inline-block">
+          <h3 class="text-lg font-semibold mb-6 pb-2 relative inline-block">
             Полезные ссылки
             <span class="absolute bottom-0 left-0 w-full h-0.5 bg-primary"></span>
           </h3>

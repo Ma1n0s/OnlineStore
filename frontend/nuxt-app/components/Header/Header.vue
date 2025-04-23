@@ -30,7 +30,8 @@
             </div>
 
             <div>
-              <p class="text-gray font-bold text-nowrap text-sm">
+              <p class="text-gray font-bold text-nowrap text-sm flex items-start gap-1">
+                <Icon name="material-symbols:location-on-rounded" class="h-4 w-4 mt-[2px] inline text-gray" />
                 Нижний Тагил, <br />
                 ул. Аганичева 101а
               </p>
@@ -41,14 +42,14 @@
     </div>
 
     <div
-      class="bg-white hidden lg:flex justify-center items-center gap-4 py-2 w-full border-b border-blue-200 px-2 transition-all duration-300"
+      class="bg-white hidden lg:flex justify-center items-center gap-4 py-2 w-full border-b border-primary/50 px-2 transition-all duration-300"
       :class="{ '!py-4': isScrolled }"
     >
       <div class="flex justify-around items-center gap-4 w-full max-w-screen-2xl xl:px-8">
         <div>
           <NuxtLink to="/" class="flex items-center gap-2 w-[210px]">
-            <NuxtImg src="logo_test.svg" class="h-[50px] w-[50px]" />
-            <p class="text-nowrap text-xl text-primary font-bold leading-4">Абсолют Техно</p>
+            <NuxtImg src="medium_logo.svg" class="h-[50px] w-full" />
+            <!-- <p class="text-nowrap text-xl text-primary font-bold leading-4">Абсолют Техно</p> -->
           </NuxtLink>
         </div>
 
@@ -83,8 +84,7 @@
       <div class="flex items-center justify-between gap-4 w-full" v-else>
         <div>
           <NuxtLink to="/" class="flex items-center gap-2 w-full">
-            <NuxtImg src="logo_test.svg" class="h-[40px] w-[40px]" />
-            <p class="text-lg sm:text-xl text-primary font-bold ~w-[4em/8em] leading-5">Абсолют Техно</p>
+            <NuxtImg src="medium_logo.svg" class="h-[40px]" />
           </NuxtLink>
         </div>
 
@@ -110,8 +110,7 @@
     <div class="flex flex-col gap-4">
       <div>
         <NuxtLink to="/" class="flex items-center gap-2 w-[210px]">
-          <NuxtImg src="logo_test.svg" class="h-[50px] w-[50px]" />
-          <p class="text-nowrap text-xl text-primary font-bold leading-4">Абсолют Техно</p>
+          <NuxtImg src="medium_logo.svg" class="h-[50px]" />
         </NuxtLink>
       </div>
 
@@ -184,7 +183,8 @@
           </div>
 
           <div>
-            <p class="text-gray font-bold text-nowrap text-sm">
+            <p class="text-gray font-bold text-nowrap text-sm flex items-start gap-1">
+              <Icon name="material-symbols:location-on-rounded" class="h-4 w-4 mt-[2px] inline text-gray" />
               Нижний Тагил, <br />
               ул. Аганичева 101а
             </p>

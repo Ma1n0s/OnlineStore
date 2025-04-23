@@ -11,6 +11,7 @@ use Orchid\Filters\Filterable;
 use Orchid\Screen\AsSource;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class Category extends Model
 {
@@ -171,5 +172,108 @@ class Category extends Model
         return $this->children()->count() > 0;
     }
 
+    /**
+     * Get the category's main image
+     * 
+     * @return string|null
+     */
+    public function getMainImageAttribute()
+    {
+        try {
+            // First try to get from image_url field
+            if (!empty($this->image_url)) {
+                return $this->image_url;
+            }
+            
+            // Otherwise try to get from attachments
+            if ($this->exists) {
+                $attachment = $this->attachment()->where('group', 'category')->first();
+                return $attachment ? $attachment->url : null;
+            }
+            
+            return null;
+        } catch (\Exception $e) {
+            Log::error('Error getting category main image: ' . $e->getMessage());
+            return null;
+        }
+    }
     
+    /**
+     * Get the category's description image
+     * 
+     * @return string|null
+     */
+    public function getDescriptionImageAttribute()
+    {
+        try {
+            // First try to get from description_image_url field
+            if (!empty($this->description_image_url)) {
+                return $this->description_image_url;
+            }
+            
+            // Otherwise try to get from attachments
+            if ($this->exists) {
+                $attachment = $this->attachment()->where('group', 'category_description')->first();
+                return $attachment ? $attachment->url : null;
+            }
+            
+            return null;
+        } catch (\Exception $e) {
+            Log::error('Error getting category description image: ' . $e->getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Get all associated images
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function getAllImagesAttribute()
+    {
+        try {
+            $images = collect();
+            
+            // Add standard image fields if they exist
+            if (!empty($this->image_url)) {
+                $images->push([
+                    'id' => 'main',
+                    'url' => $this->image_url,
+                    'type' => 'main_image',
+                    'group' => 'category',
+                    'name' => 'Основное изображение',
+                ]);
+            }
+            
+            if (!empty($this->description_image_url)) {
+                $images->push([
+                    'id' => 'description',
+                    'url' => $this->description_image_url,
+                    'type' => 'description_image',
+                    'group' => 'category_description',
+                    'name' => 'Изображение описания',
+                ]);
+            }
+            
+            // Add attachment images if available
+            if ($this->exists) {
+                $attachmentImages = $this->attachment()->get()->map(function($attachment) {
+                    return [
+                        'id' => 'att_' . $attachment->id,
+                        'url' => $attachment->url,
+                        'type' => 'attachment',
+                        'group' => $attachment->group,
+                        'name' => $attachment->original_name,
+                    ];
+                });
+                
+                $images = $images->merge($attachmentImages);
+            }
+            
+            return $images;
+        } catch (\Exception $e) {
+            Log::error('Error getting category all images: ' . $e->getMessage());
+            return collect();
+        }
+    }
 } 

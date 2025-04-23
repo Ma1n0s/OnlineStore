@@ -2,7 +2,7 @@
   <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-4">
     <NuxtLink
       v-for="(category, index) in categories"
-      :to="`${pathPrefix}${category.id}`"
+      :to="`${pathPrefix}${category.slug}`"
       :key="index + category.name"
       class="bg-gray/10 border h-fit sm:h-64 overflow-hidden cursor-pointer border-dark/20 hover:bg-gray/20 rounded-2xl shadow-xl hover:shadow-2xl"
     >

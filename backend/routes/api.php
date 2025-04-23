@@ -129,6 +129,8 @@ Route::group(['middleware' => [ 'guest']], function() {
 // Специальные маршруты для продуктов
 Route::get('/products/by-category', [ProductController::class, 'getProductsByCategory']);
 Route::get('/products/category/{category}', [ProductController::class, 'getProductsByCategoryId']);
+Route::get('/products/slug/{slug}', [ProductController::class, 'getBySlug']);
+Route::get('/products/category-slug/{slug}', [ProductController::class, 'getProductsByCategorySlug']);
 
 // Маршруты для продуктов
 Route::apiResource('products', ProductController::class);
@@ -139,7 +141,7 @@ Route::get('categories/roots', [CategoryController::class, 'roots']);
 Route::get('categories/{category}/children', [CategoryController::class, 'children']);
 Route::get('categories/{category}/descendants', [CategoryController::class, 'descendants']);
 Route::get('categories/{category}/ancestors', [CategoryController::class, 'ancestors']);
-
+Route::get('categories/slug/{slug}', [CategoryController::class, 'getBySlug']);
 
 // Получение всех пользователей
 Route::get('/users', function() {

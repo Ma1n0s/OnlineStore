@@ -28,16 +28,14 @@ class Product extends Model
         'slug',
         'brand',
         'rating',
-        // 'category_id',
+        'category_id',
         'subcategory_id',
         'specifications',
-        'images',
         'warranty',
         'advantages',
         'specificationsB',
         'reviews_count',
         'questions_count',
-
     ];
 
 
@@ -114,10 +112,77 @@ class Product extends Model
         'rating' => 'float',
         'quantity' => 'integer',
         'specifications' => 'array',
-        'images' => 'array',
         'advantages' => 'array',
         'specificationsB' => 'array',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    /**
+     * Get all images for the product combining both traditional images and attachments
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function getAllImagesAttribute()
+    {
+        // Get traditional images
+        $traditionalImages = collect();
+        if ($this->images !== null) {
+            $traditionalImages = $this->images->map(function($image) {
+                return [
+                    'id' => 'img_' . $image->id,
+                    'url' => $image->url,
+                    'type' => 'db_image',
+                    'position' => $image->position,
+                    'alt' => $image->alt ?? $this->name,
+                ];
+            });
+        }
+        
+        // Get attachment images
+        $attachmentImages = collect();
+        if ($this->exists) {
+            $attachmentImages = $this->attachment()->where('group', 'products')->get()->map(function($attachment) {
+                return [
+                    'id' => 'att_' . $attachment->id,
+                    'url' => $attachment->url,
+                    'type' => 'attachment',
+                    'position' => 0,
+                    'alt' => $this->name,
+                ];
+            });
+        }
+        
+        // Combine and sort by position
+        return $traditionalImages->merge($attachmentImages)->sortBy('position');
+    }
+    
+    /**
+     * Get the main product image (first image)
+     * 
+     * @return string|null
+     */
+    public function getMainImageAttribute()
+    {
+        // First try to get from traditional images
+        try {
+            $image = $this->images()->orderBy('position')->first();
+            if ($image) {
+                return $image->url;
+            }
+            
+            // Then try attachments
+            if ($this->exists) {
+                $attachment = $this->attachment()->where('group', 'products')->first();
+                if ($attachment) {
+                    return $attachment->url;
+                }
+            }
+            
+            return null;
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error getting main image: ' . $e->getMessage());
+            return null;
+        }
+    }
 } 

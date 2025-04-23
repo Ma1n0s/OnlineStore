@@ -1,20 +1,24 @@
 <script setup>
-const route = useRoute()
-
-useHead({
-  title: `${route.params.subsubcategory} | Абсолют техно`,
-  meta: [
-    {
-      name: 'description',
-      content: `Инструменты для строительства и ремота, категория ${route.params.subsubcategory}`,
-    },
-  ],
-})
-
 import CategoryDescription from '~/components/CategoryItems/CategoryDescription/CategoryDescription.vue'
 import { catalogDescription } from '~/shared/mock/CatalogDescription'
 import { reactive, computed } from 'vue'
 import TextInput from '~/components/ui/Inputs/TextInput.vue'
+
+const route = useRoute()
+const { slug } = route.params
+
+const { data } = await useFetch(() => `http://127.0.0.1:8000/api/products/category-slug/${slug.at(-1)}`)
+
+console.log(data.value, 'products')
+useHead({
+  title: `${data.value.category.name} | Абсолют техно`,
+  meta: [
+    {
+      name: 'description',
+      content: `Инструменты для строительства и ремота, категория ${data.value.category.name}`,
+    },
+  ],
+})
 
 const state = reactive({
   priceRange: {
@@ -130,11 +134,7 @@ const state = reactive({
 
 // Вычисляемые свойства
 const filteredItems = computed(() => {
-  return state.items.filter(item => {
-    const priceMatch = item.price >= state.priceRange.currentMin && item.price <= state.priceRange.currentMax
-    const brandMatch = state.filters.selectedBrands.length === 0 || state.filters.selectedBrands.includes(item.brand)
-    return priceMatch && brandMatch
-  })
+  return data.value.products
 })
 
 const visibleItems = computed(() => filteredItems.value.slice(0, state.ui.visibleItems))
@@ -471,20 +471,21 @@ const toggleBrand = brand => {
                 :class="state.ui.isGrid ? 'absolute top-3 left-3' : 'absolute top-3 left-3'"
                 class="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded"
               >
+                <select name="" id="" disabled="disabled"></select>
                 -{{ item.discount }}%
               </div>
             </div>
 
             <div :class="state.ui.isGrid ? 'p-4 flex flex-col flex-grow' : 'w-2/3 p-4 flex flex-col'">
               <div class="flex justify-between items-start mb-1">
-                <span class="text-gray-500 text-xs">Код: {{ item.code }}</span>
+                <span class="text-gray-500 text-xs">Код: {{ item.article }}</span>
               </div>
 
-              <NuxtLink to="1/1" class="block">
+              <NuxtLink :to="`/products/${item.slug}`" class="block">
                 <h3
                   class="font-medium text-gray-900 hover:text-red-600 transition-colors line-clamp-2 mb-2 min-h-[2.5rem]"
                 >
-                  {{ item.title }}
+                  {{ item.name }}
                 </h3>
               </NuxtLink>
 
@@ -495,7 +496,7 @@ const toggleBrand = brand => {
 
               <div class="mb-3 flex-grow flex items-end">
                 <div>
-                  <span class="text-gray-400 line-through text-sm mr-2">{{ item.oldPrice.toLocaleString() }} ₽</span>
+                  <span class="text-gray-400 line-through text-sm mr-2">{{ item.price.toLocaleString() }} ₽</span>
                   <span class="text-red-600 font-bold text-lg">{{ item.price.toLocaleString() }} ₽</span>
                 </div>
               </div>

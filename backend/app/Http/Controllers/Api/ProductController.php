@@ -29,9 +29,16 @@ class ProductController extends Controller
     {
         $products = Product::with(['category', 'specificationCategories.specifications', 'images'])
             ->paginate(10);
+        
+        $categoryController = app('App\Http\Controllers\Api\CategoryController');
             
         return response()->json(
-            $products->map(function($product) {
+            $products->map(function($product) use ($categoryController) {
+                // Transform category image paths if category exists
+                if ($product->category) {
+                    $product->category = $categoryController->transformImagesPaths($product->category);
+                }
+                
                 return [
                     'id' => $product->id,
                     'name' => $product->name,
@@ -41,22 +48,73 @@ class ProductController extends Controller
                         'id' => $product->category->id,
                         'name' => $product->category->name,
                         'slug' => $product->category->slug,
+                        'image_url' => $product->category->image_url,
+                        'description_image_url' => $product->category->description_image_url,
                     ] : null,
                     'specifications' => $product->specificationCategories->mapWithKeys(function ($category) {
                         return [$category->name => $category->specifications->mapWithKeys(function ($spec) {
                             return [$spec->name => $spec->value];
                         })];
                     }),
-                    'images' => $product->images->map(function($image) {
-                        return [
-                            'id' => $image->id,
-                            'url' => $image->url,
-                            'alt' => $image->alt,
-                        ];
-                    }),
+                    'images' => $product->all_images,
                 ];
             })
         );
+    }
+
+    /**
+     * Получить продукт по slug
+     *
+     * @param string $slug
+     * @return JsonResponse
+     */
+    public function getBySlug(string $slug): JsonResponse
+    {
+        $product = Product::where('slug', $slug)->first();
+        
+        if (!$product) {
+            return response()->json(['message' => 'Продукт не найден'], 404);
+        }
+        
+        $product = $product->load(['specificationCategories.specifications', 'images', 'category']);
+
+        // Transform category image paths if category exists
+        $categoryController = app('App\Http\Controllers\Api\CategoryController');
+        if ($product->category) {
+            $product->category = $categoryController->transformImagesPaths($product->category);
+        }
+
+        $response = [
+            'id' => $product->id,
+            'name' => $product->name,
+            'price' => $product->price,
+            'old_price' => $product->old_price,
+            'description' => $product->description,
+            'short_description' => $product->short_description,
+            'in_stock' => (bool)$product->in_stock,
+            'is_featured' => (bool)$product->is_featured,
+            'sku' => $product->sku,
+            'barcode' => $product->barcode,
+            'quantity' => $product->quantity,
+            'rating' => $product->rating,
+            'slug' => $product->slug,
+            // 'category' => $product->category ? [
+            //     'id' => $product->category->id,
+            //     'name' => $product->category->name,
+            //     'slug' => $product->category->slug,
+            //     'image_url' => $product->category->image_url,
+            //     'description_image_url' => $product->category->description_image_url,
+            // ] : null,
+            'specifications' => $product->specificationCategories->mapWithKeys(function ($category) {
+                return [$category->name => $category->specifications->mapWithKeys(function ($spec) {
+                    return [$spec->name => $spec->value];
+                })];
+            }),
+            'images' => $product->all_images,
+            'main_image' => $product->main_image,
+        ];
+        
+        return response()->json($response);
     }
 
     /**
@@ -86,19 +144,16 @@ class ProductController extends Controller
                 'id' => $product->category->id,
                 'name' => $product->category->name,
                 'slug' => $product->category->slug,
+                'image_url' => $product->category->image_url,
+                'description_image_url' => $product->category->description_image_url,
             ] : null,
             'specifications' => $product->specificationCategories->mapWithKeys(function ($category) {
                 return [$category->name => $category->specifications->mapWithKeys(function ($spec) {
                     return [$spec->name => $spec->value];
                 })];
             }),
-            'images' => $product->images->map(function($image) {
-                return [
-                    'id' => $image->id,
-                    'url' => $image->url,
-                    'alt' => $image->alt,
-                ];
-            }),
+            'images' => $product->all_images,
+            'main_image' => $product->main_image,
         ];
         
         return response()->json($response);
@@ -285,18 +340,14 @@ class ProductController extends Controller
                     'description' => $product->description,
                     'short_description' => $product->short_description,
                     'rating' => $product->rating,
-                    'category' => $product->category ? [
-                        'id' => $product->category->id,
-                        'name' => $product->category->name,
-                        'slug' => $product->category->slug,
-                    ] : null,
-                    'images' => $product->images->map(function($image) {
-                        return [
-                            'id' => $image->id,
-                            'url' => $image->url,
-                            'alt' => $image->alt,
-                        ];
-                    }),
+                    // 'category' => $product->category ? [
+                    //     'id' => $product->category->id,
+                    //     'name' => $product->category->name,
+                    //     'slug' => $product->category->slug,
+                    //     'image_url' => $product->category->image_url,
+                    //     'description_image_url' => $product->category->description_image_url,
+                    // ] : null,
+                    'images' => $product->all_images,
                 ];
             })
         );
@@ -334,6 +385,9 @@ class ProductController extends Controller
         $page = $request->input('page', 1);
         $limit = $request->input('limit', 12);
         $sort = $request->input('sort', 'newest');
+
+        // Преобразуем ID изображений категории в URL
+        $category = app('App\Http\Controllers\Api\CategoryController')->transformImagesPaths($category);
         
         // Получаем все ID категорий-потомков, включая текущую категорию
         $categoryIds = [$category->id];
@@ -346,7 +400,12 @@ class ProductController extends Controller
         
         // Фильтруем продукты по всем категориям
         $query = Product::with(['category', 'images'])
-            ->whereIn('category_id', $categoryIds);
+            ->where(function($query) use ($categoryIds) {
+                $query->where(function($subQuery) use ($categoryIds) {
+                    $subQuery->whereIn('category_id', $categoryIds)
+                            ->orWhereIn('subcategory_id', $categoryIds);
+                });
+            });
             
         // Применяем сортировку
         switch ($sort) {
@@ -383,20 +442,141 @@ class ProductController extends Controller
                 'short_description' => $product->short_description,
                 'in_stock' => (bool)$product->in_stock,
                 'rating' => $product->rating,
+                'brand' => $product->brand,
+                'article' => $product->article,
+                'slug' => $product->slug,
                 'category' => $product->category ? [
                     'id' => $product->category->id,
                     'name' => $product->category->name,
                     'title' => $product->category->title,
                     'slug' => $product->category->slug,
+                    'image_url' => $product->category->image_url,
+                    'description_image_url' => $product->category->description_image_url,
                 ] : null,
-                'images' => $product->images->map(function($image) {
-                    return [
-                        'id' => $image->id,
-                        'url' => $image->url,
-                        'alt' => $image->alt,
-                    ];
-                }),
-                'slug' => $product->slug ?: Str::slug($product->name),
+                'images' => $product->all_images,
+                'main_image' => $product->main_image,
+            ];
+        });
+        
+        return response()->json([
+            'category' => [
+                'id' => $category->id,
+                'name' => $category->name,
+                'title' => $category->title,
+                'slug' => $category->slug,
+                'description' => $category->description,
+                'image_url' => $category->image_url,
+                'description_image_url' => $category->description_image_url,
+            ],
+            'products' => $formattedProducts,
+            'pagination' => [
+                'total' => $products->total(),
+                'per_page' => $products->perPage(),
+                'current_page' => $products->currentPage(),
+                'last_page' => $products->lastPage(),
+                'from' => $products->firstItem(),
+                'to' => $products->lastItem(),
+                'has_more' => $products->hasMorePages(),
+            ],
+        ]);
+    }
+
+    /**
+     * Получить продукты по slug категории
+     *
+     * @param Request $request
+     * @param string $slug
+     * @return JsonResponse
+     */
+    public function getProductsByCategorySlug(Request $request, string $slug): JsonResponse
+    {
+        // Находим категорию по slug
+        $category = Category::where('slug', $slug)->first();
+        
+        if (!$category) {
+            return response()->json(['message' => 'Категория не найдена'], 404);
+        }
+        
+        // Валидируем входные данные
+        $request->validate([
+            'page' => 'nullable|integer|min:1',
+            'limit' => 'nullable|integer|min:1|max:50',
+            'sort' => 'nullable|string|in:price_asc,price_desc,newest,oldest,name_asc,name_desc',
+        ]);
+        
+        $page = $request->input('page', 1);
+        $limit = $request->input('limit', 12);
+        $sort = $request->input('sort', 'newest');
+        
+        // Преобразуем ID изображений категории в URL
+        $category = app('App\Http\Controllers\Api\CategoryController')->transformImagesPaths($category);
+
+        // Получаем все ID категорий-потомков, включая текущую категорию
+        $categoryIds = [$category->id];
+        
+        // Загружаем всех потомков
+        $category->load('descendants');
+        
+        // Рекурсивно собираем всех потомков
+        $this->collectDescendantIds($category, $categoryIds);
+        
+        // Фильтруем продукты по всем категориям
+        $query = Product::with(['category', 'images'])
+            ->where(function($query) use ($categoryIds) {
+                $query->where(function($subQuery) use ($categoryIds) {
+                    $subQuery->whereIn('category_id', $categoryIds)
+                            ->orWhereIn('subcategory_id', $categoryIds);
+                });
+            });
+            
+        // Применяем сортировку
+        switch ($sort) {
+            case 'price_asc':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'newest':
+                $query->orderBy('created_at', 'desc');
+                break;
+            case 'name_asc':
+                $query->orderBy('name', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('name', 'desc');
+                break;
+        }
+        
+        $products = $query->paginate($limit, ['*'], 'page', $page);
+        
+        // Форматируем данные для каждого продукта
+        $formattedProducts = collect($products->items())->map(function($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => $product->price,
+                'old_price' => $product->old_price,
+                'description' => $product->description,
+                'short_description' => $product->short_description,
+                'in_stock' => (bool)$product->in_stock,
+                'rating' => $product->rating,
+                'brand' => $product->brand,
+                'article' => $product->article,
+                'slug' => $product->slug,
+                'category' => $product->category ? [
+                    'id' => $product->category->id,
+                    'name' => $product->category->name,
+                    'title' => $product->category->title,
+                    'slug' => $product->category->slug,
+                    'image_url' => $product->category->image_url,
+                    'description_image_url' => $product->category->description_image_url,
+                ] : null,
+                'images' => $product->all_images,
+                'main_image' => $product->main_image,
             ];
         });
         
