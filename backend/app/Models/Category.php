@@ -12,6 +12,7 @@ use Orchid\Screen\AsSource;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Orchid\Attachment\Models\Attachment;
 
 class Category extends Model
 {
@@ -68,20 +69,13 @@ class Category extends Model
 
     public function canHaveSubcategories()
     {
-       return true;
+        return $this->type === 'category' && !$this->has_products;
     }
 
     public function canHaveProducts()
     {
-        return true; 
+        return $this->type === 'product_container' || $this->children()->exists();
     }
-
-    public function allProducts()
-    {
-        $categoryIds = $this->descendants()->pluck('id')->push($this->id);
-        return Product::whereIn('subcategory_id', $categoryIds);
-    }
-
 
     /**
      * Получить прямые дочерние категории.
@@ -189,12 +183,20 @@ class Category extends Model
         try {
             // First try to get from image_url field
             if (!empty($this->image_url)) {
+                // Check if it's an attachment ID
+                if (is_numeric($this->image_url)) {
+                    $attachment = Attachment::find($this->image_url);
+                    return $attachment ? $attachment->url : null;
+                }
                 return $this->image_url;
             }
             
             // Otherwise try to get from attachments
             if ($this->exists) {
-                $attachment = $this->attachment()->where('group', 'category')->first();
+                $attachment = $this->attachment()
+                    ->select('attachments.*') // Явно выбираем все поля из таблицы attachments
+                    ->where('group', 'category_main')
+                    ->first();
                 return $attachment ? $attachment->url : null;
             }
             
@@ -215,12 +217,20 @@ class Category extends Model
         try {
             // First try to get from description_image_url field
             if (!empty($this->description_image_url)) {
+                // Check if it's an attachment ID
+                if (is_numeric($this->description_image_url)) {
+                    $attachment = Attachment::find($this->description_image_url);
+                    return $attachment ? $attachment->url : null;
+                }
                 return $this->description_image_url;
             }
             
             // Otherwise try to get from attachments
             if ($this->exists) {
-                $attachment = $this->attachment()->where('group', 'category_description')->first();
+                $attachment = $this->attachment()
+                    ->select('attachments.*') // Явно выбираем все поля из таблицы attachments
+                    ->where('group', 'category_description')
+                    ->first();
                 return $attachment ? $attachment->url : null;
             }
             
@@ -241,21 +251,22 @@ class Category extends Model
         try {
             $images = collect();
             
-            // Add standard image fields if they exist
+            // Add main image if it exists
             if (!empty($this->image_url)) {
                 $images->push([
                     'id' => 'main',
-                    'url' => $this->image_url,
+                    'url' => $this->getMainImageAttribute(),
                     'type' => 'main_image',
-                    'group' => 'category',
+                    'group' => 'category_main',
                     'name' => 'Основное изображение',
                 ]);
             }
             
+            // Add description image if it exists
             if (!empty($this->description_image_url)) {
                 $images->push([
                     'id' => 'description',
-                    'url' => $this->description_image_url,
+                    'url' => $this->getDescriptionImageAttribute(),
                     'type' => 'description_image',
                     'group' => 'category_description',
                     'name' => 'Изображение описания',
@@ -264,15 +275,18 @@ class Category extends Model
             
             // Add attachment images if available
             if ($this->exists) {
-                $attachmentImages = $this->attachment()->get()->map(function($attachment) {
-                    return [
-                        'id' => 'att_' . $attachment->id,
-                        'url' => $attachment->url,
-                        'type' => 'attachment',
-                        'group' => $attachment->group,
-                        'name' => $attachment->original_name,
-                    ];
-                });
+                $attachmentImages = $this->attachment()
+                    ->select('attachments.*') // Явно выбираем все поля из таблицы attachments
+                    ->get()
+                    ->map(function($attachment) {
+                        return [
+                            'id' => 'att_' . $attachment->id,
+                            'url' => $attachment->url,
+                            'type' => 'attachment',
+                            'group' => $attachment->group,
+                            'name' => $attachment->original_name,
+                        ];
+                    });
                 
                 $images = $images->merge($attachmentImages);
             }
