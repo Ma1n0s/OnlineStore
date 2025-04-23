@@ -56,9 +56,9 @@ class Product extends Model
     /**
      * Получить категорию продукта.
      */
-    public function category(): BelongsTo
+    public function category()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class, 'subcategory_id');
     }
 
     public function getContent()
