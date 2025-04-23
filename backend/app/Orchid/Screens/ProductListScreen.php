@@ -67,7 +67,7 @@ class ProductListScreen extends Screen
                 TD::make('id', 'ID')
                     ->sort()
                     ->render(function (Product $product) {
-                        return number_format($product->id, );
+                        return $product->id;
                     }),
 
                 TD::make('name', 'Name')
@@ -82,27 +82,27 @@ class ProductListScreen extends Screen
                     ->sort()
                     ->filter(Input::make())
                      ->render(function (Product $product) {
-                        return number_format($product->code, );
+                        return $product->code;
                     }),
 
                 TD::make('price', 'Price')
                     ->sort()
                     ->render(function (Product $product) {
-                        return '$' . number_format($product->price, 2);
+                        return '$' . number_format((float)$product->price, 2);
                     }),
 
                 TD::make('brand', 'Brand')
                     ->sort()
                     ->filter(Input::make())
                     ->render(function (Product $product) {
-                        return number_format($product->brand, );
+                        return $product->brand;
                     }),
 
                 TD::make('slug', 'Slug')
                     ->sort()
                     ->filter(Input::make())
                     ->render(function (Product $product) {
-                        return number_format($product->slug, );
+                        return $product->slug;
                     }),
 
                 TD::make('subcategory.name', 'Subcategory')

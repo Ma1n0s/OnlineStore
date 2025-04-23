@@ -126,7 +126,7 @@ class ProductController extends Controller
             'old_price' => 'nullable|numeric',
             'rating' => 'nullable|numeric',
             'category' => 'nullable|string',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:2048',
             'specifications' => 'nullable|array',
         ]);
         
@@ -163,16 +163,16 @@ class ProductController extends Controller
         // Создаем продукт
         $product = new Product();
         $product->name = $validated['name'];
-        $product->price = $validated['price'];
+        $product->price = (float)$validated['price'];
         $product->description = $validated['description'] ?? '';
         $product->short_description = $validated['short_description'] ?? '';
         $product->in_stock = $validated['in_stock'] ?? true;
         $product->is_featured = $validated['is_featured'] ?? false;
         $product->sku = $validated['sku'] ?? '';
         $product->barcode = $validated['barcode'] ?? '';
-        $product->quantity = $validated['quantity'] ?? 0;
-        $product->old_price = $validated['old_price'] ?? 0;
-        $product->rating = $validated['rating'] ?? 0;
+        $product->quantity = (int)($validated['quantity'] ?? 0);
+        $product->old_price = (float)($validated['old_price'] ?? 0);
+        $product->rating = (float)($validated['rating'] ?? 0);
         $product->category_id = $category ? $category->id : null;
         $product->save();
         
