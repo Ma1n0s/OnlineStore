@@ -66,9 +66,8 @@ class CategoryEditScreen extends Screen
                     ->required(),
                     
                 Input::make('category.title')
-                    ->title('Display Title')
-                    ->help('This will be shown to users'),
-
+                    ->title('Display Title'),
+                    
                 TextArea::make('category.description')
                     ->title('Description')
                     ->rows(3),
@@ -81,23 +80,14 @@ class CategoryEditScreen extends Screen
                         ->help('This category will be a subcategory of: ' . Category::find($parentId)->name)
                     : Select::make('category.parent_id')
                         ->title('Parent Category')
-                        ->empty('No parent', '0') 
+                        ->empty('No parent (root category)', '0')
                         ->fromQuery(
-                            Category::where('id', '!=', $this->category->id)
-                                ->where(function($query) {
-                                    $query->whereNull('parent_id')
-                                          ->orWhere('parent_id', '!=', $this->category->id);
-                                }),
+                            Category::when($this->category->exists, function($query) {
+                                $query->whereNotIn('id', $this->category->descendants()->pluck('id'))
+                                    ->where('id', '!=', $this->category->id);
+                            }),
                             'name'
                         ),
-
-                Select::make('category.type')
-                    ->title('Type')
-                    ->options([
-                        'category' => 'Category (can contain subcategories)',
-                        'product_container' => 'Product Container (can only contain products)',
-                    ])
-                    ->required(),
 
                 Input::make('category.slug')
                     ->title('Slug')
