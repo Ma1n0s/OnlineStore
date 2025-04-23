@@ -193,7 +193,10 @@ class Category extends Model
             
             // Otherwise try to get from attachments
             if ($this->exists) {
-                $attachment = $this->attachment()->where('group', 'category_main')->first();
+                $attachment = $this->attachment()
+                    ->select('attachments.*') // Явно выбираем все поля из таблицы attachments
+                    ->where('group', 'category_main')
+                    ->first();
                 return $attachment ? $attachment->url : null;
             }
             
@@ -224,7 +227,10 @@ class Category extends Model
             
             // Otherwise try to get from attachments
             if ($this->exists) {
-                $attachment = $this->attachment()->where('group', 'category_description')->first();
+                $attachment = $this->attachment()
+                    ->select('attachments.*') // Явно выбираем все поля из таблицы attachments
+                    ->where('group', 'category_description')
+                    ->first();
                 return $attachment ? $attachment->url : null;
             }
             
@@ -269,15 +275,18 @@ class Category extends Model
             
             // Add attachment images if available
             if ($this->exists) {
-                $attachmentImages = $this->attachment()->get()->map(function($attachment) {
-                    return [
-                        'id' => 'att_' . $attachment->id,
-                        'url' => $attachment->url,
-                        'type' => 'attachment',
-                        'group' => $attachment->group,
-                        'name' => $attachment->original_name,
-                    ];
-                });
+                $attachmentImages = $this->attachment()
+                    ->select('attachments.*') // Явно выбираем все поля из таблицы attachments
+                    ->get()
+                    ->map(function($attachment) {
+                        return [
+                            'id' => 'att_' . $attachment->id,
+                            'url' => $attachment->url,
+                            'type' => 'attachment',
+                            'group' => $attachment->group,
+                            'name' => $attachment->original_name,
+                        ];
+                    });
                 
                 $images = $images->merge($attachmentImages);
             }

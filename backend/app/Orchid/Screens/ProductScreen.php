@@ -401,7 +401,11 @@ class ProductScreen extends Screen
                 // Delete old attachments if we have new ones or if the array is empty (which means user removed all images)
                 if ($product->attachments->isNotEmpty()) {
                     // Get the current attachment IDs
-                    $currentAttachmentIds = $product->attachment()->where('group', 'products')->pluck('id')->toArray();
+                    $currentAttachmentIds = $product->attachment()
+                        ->select('attachments.id') // Явно указываем, что мы хотим id из таблицы attachments
+                        ->where('group', 'products')
+                        ->pluck('id')
+                        ->toArray();
                     
                     \Illuminate\Support\Facades\Log::info('Current attachment IDs', [
                         'current_ids' => $currentAttachmentIds,

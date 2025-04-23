@@ -142,15 +142,28 @@ class Product extends Model
         // Get attachment images
         $attachmentImages = collect();
         if ($this->exists) {
-            $attachmentImages = $this->attachment()->where('group', 'products')->get()->map(function($attachment) {
-                return [
-                    'id' => 'att_' . $attachment->id,
-                    'url' => $attachment->url,
-                    'type' => 'attachment',
-                    'position' => 0,
-                    'alt' => $this->name,
-                ];
-            });
+            try {
+                // Явно указываем выборку полей с нужной таблицы, чтобы избежать неоднозначности
+                $attachments = $this->attachment()
+                    ->select('attachments.*') // Явно выбираем все поля из таблицы attachments
+                    ->where('group', 'products')
+                    ->get();
+                
+                $attachmentImages = $attachments->map(function($attachment) {
+                    return [
+                        'id' => 'att_' . $attachment->id,
+                        'url' => $attachment->url,
+                        'type' => 'attachment',
+                        'position' => 0,
+                        'alt' => $this->name,
+                    ];
+                });
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Error getting attachment images: ' . $e->getMessage(), [
+                    'trace' => $e->getTraceAsString(),
+                    'product_id' => $this->id,
+                ]);
+            }
         }
         
         // Combine and sort by position
@@ -173,7 +186,10 @@ class Product extends Model
             
             // Then try attachments
             if ($this->exists) {
-                $attachment = $this->attachment()->where('group', 'products')->first();
+                $attachment = $this->attachment()
+                    ->select('attachments.*') // Явно выбираем все поля из таблицы attachments
+                    ->where('group', 'products')
+                    ->first();
                 if ($attachment) {
                     return $attachment->url;
                 }
