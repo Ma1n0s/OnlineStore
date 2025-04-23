@@ -172,16 +172,19 @@ class CategoryEditScreen extends Screen
             $data['slug'] = $data['slug'] . '-' . uniqid();
         }
 
-        // Логируем данные перед обработкой, чтобы понимать что получаем
-        Log::info('Category save - raw data received', [
-            'id' => $category->id,
+        // Логируем данные перед обработкой
+        Log::info('Category save - data received', [
+            'category_id' => $category->id,
+            'category_exists' => $category->exists,
             'image_url_input' => $request->input('category.image_url'),
             'desc_image_url_input' => $request->input('category.description_image_url'),
-            'current_image_url' => $category->exists ? $category->image_url : null,
-            'current_desc_image_url' => $category->exists ? $category->description_image_url : null,
         ]);
 
-        // Основное изображение
+        // Временно храним ID вложений
+        $mainImageAttachmentId = null;
+        $descImageAttachmentId = null;
+        
+        // Обработка основного изображения
         if ($request->has('category.image_url')) {
             $mainImage = $request->input('category.image_url');
             
@@ -197,17 +200,13 @@ class CategoryEditScreen extends Screen
                     $data['image_url'] = null;
                 } else {
                     // Новое изображение загружено
-                    $data['image_url'] = $mainImage[0];
+                    $mainImageAttachmentId = $mainImage[0];
+                    $data['image_url'] = $mainImageAttachmentId;
+                    
                     // Обновляем группу аттачмента
-                    $attachment = Attachment::find($mainImage[0]);
+                    $attachment = Attachment::find($mainImageAttachmentId);
                     if ($attachment) {
                         $attachment->update(['group' => 'category_main']);
-                        
-                        // Привязываем attachment к категории
-                        $category->attachment()->syncWithoutDetaching([$attachment->id => [
-                            'attachmentable_type' => Category::class,
-                            'attachmentable_id' => $category->id
-                        ]]);
                     }
                 }
             } else {
@@ -221,7 +220,7 @@ class CategoryEditScreen extends Screen
             $data['image_url'] = $category->image_url;
         }
 
-        // Изображение описания
+        // Обработка изображения описания
         if ($request->has('category.description_image_url')) {
             $descImage = $request->input('category.description_image_url');
             
@@ -237,17 +236,13 @@ class CategoryEditScreen extends Screen
                     $data['description_image_url'] = null;
                 } else {
                     // Новое изображение загружено
-                    $data['description_image_url'] = $descImage[0];
+                    $descImageAttachmentId = $descImage[0];
+                    $data['description_image_url'] = $descImageAttachmentId;
+                    
                     // Обновляем группу аттачмента
-                    $attachment = Attachment::find($descImage[0]);
+                    $attachment = Attachment::find($descImageAttachmentId);
                     if ($attachment) {
                         $attachment->update(['group' => 'category_description']);
-                        
-                        // Привязываем attachment к категории
-                        $category->attachment()->syncWithoutDetaching([$attachment->id => [
-                            'attachmentable_type' => Category::class,
-                            'attachmentable_id' => $category->id
-                        ]]);
                     }
                 }
             } else {
@@ -260,14 +255,51 @@ class CategoryEditScreen extends Screen
             // Если поле отсутствует, сохраняем текущее значение
             $data['description_image_url'] = $category->description_image_url;
         }
-
-        // Логируем финальные данные для сохранения
-        Log::info('Category save - final data', [
-            'image_url' => $data['image_url'] ?? null,
-            'description_image_url' => $data['description_image_url'] ?? null,
+        
+        // Логируем данные перед сохранением
+        Log::info('Category save - before save', [
+            'data' => $data,
+            'mainImageAttachmentId' => $mainImageAttachmentId,
+            'descImageAttachmentId' => $descImageAttachmentId
         ]);
         
+        // Сохраняем категорию
         $category->fill($data)->save();
+        
+        // ВАЖНО: Только после сохранения категории привязываем вложения
+        if ($mainImageAttachmentId) {
+            try {
+                // Используем базовый метод без дополнительных параметров
+                $category->attachment()->syncWithoutDetaching([$mainImageAttachmentId]);
+                Log::info('Attached main image', [
+                    'category_id' => $category->id,
+                    'attachment_id' => $mainImageAttachmentId
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to attach main image', [
+                    'error' => $e->getMessage(),
+                    'category_id' => $category->id,
+                    'attachment_id' => $mainImageAttachmentId
+                ]);
+            }
+        }
+        
+        if ($descImageAttachmentId) {
+            try {
+                // Используем базовый метод без дополнительных параметров
+                $category->attachment()->syncWithoutDetaching([$descImageAttachmentId]);
+                Log::info('Attached description image', [
+                    'category_id' => $category->id,
+                    'attachment_id' => $descImageAttachmentId
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to attach description image', [
+                    'error' => $e->getMessage(),
+                    'category_id' => $category->id,
+                    'attachment_id' => $descImageAttachmentId
+                ]);
+            }
+        }
 
         Alert::success('Category was saved');
         
