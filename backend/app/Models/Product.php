@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Orchid\Filters\Filterable;
+use Orchid\Attachment\Models\Attachment;
+use Orchid\Attachment\Attachable;
 
 class Product extends Model
 {
-    use HasFactory, Filterable;
+    use HasFactory, Filterable, Attachable;
 
     /**
      * Атрибуты, которые можно массово присваивать.
@@ -23,9 +25,10 @@ class Product extends Model
         'description',
         'price',
         'article',
+        'slug',
         'brand',
         'rating',
-        'category_id',
+        // 'category_id',
         'subcategory_id',
         'specifications',
         'images',
@@ -36,6 +39,19 @@ class Product extends Model
         'questions_count',
 
     ];
+
+
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($product) {
+            foreach ($product->attachments as $attachment) {
+                $attachment->delete();
+            }
+        });
+    }
 
     /**
      * Получить категорию продукта.
@@ -80,20 +96,23 @@ class Product extends Model
      * 
      * @return array
      */
-    public function getSpecificationsAttribute(): array
-    {
-        $result = [];
+    // public function getSpecificationsAttribute(): array
+    // {
+    //     $result = [];
         
-        foreach ($this->specificationCategories as $category) {
-            $categoryName = $category->name;
-            $result[$categoryName] = $category->specifications->pluck('value', 'name')->toArray();
-        }
+    //     foreach ($this->specificationCategories as $category) {
+    //         $categoryName = $category->name;
+    //         $result[$categoryName] = $category->specifications->pluck('value', 'name')->toArray();
+    //     }
         
-        return $result;
-    }
+    //     return $result;
+    // }
     
     protected $casts = [
-        'price' => 'array',
+        'price' => 'float',
+        'old_price' => 'float',
+        'rating' => 'float',
+        'quantity' => 'integer',
         'specifications' => 'array',
         'images' => 'array',
         'advantages' => 'array',

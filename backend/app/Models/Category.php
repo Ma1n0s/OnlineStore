@@ -72,7 +72,7 @@ class Category extends Model
 
     public function canHaveProducts()
     {
-        return $this->type === 'product_container' || $this->type === 'category';
+        return $this->type === 'product_container' || $this->children()->exists();
     }
 
     /**
