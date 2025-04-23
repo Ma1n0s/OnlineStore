@@ -59,6 +59,24 @@ class CategoryEditScreen extends Screen
         $parentId = request()->input('parent_id');
         $isCreatingSubcategory = !$this->category->exists && $parentId;
         
+        // Подготовка данных для полей Upload
+        $imageIds = [];
+        $descImageIds = [];
+
+        if ($this->category->exists) {
+            if ($this->category->image_url) {
+                $imageIds = [
+                    $this->category->image_url
+                ];
+            }
+
+            if ($this->category->description_image_url) {
+                $descImageIds = [
+                    $this->category->description_image_url
+                ];
+            }
+        }
+        
         return [
             Layout::rows([
                 Input::make('category.name')
@@ -98,14 +116,20 @@ class CategoryEditScreen extends Screen
                     ->acceptedFiles('image/*')
                     ->maxFiles(1)
                     ->storage('public')
-                    ->path('categories'),
+                    ->path('categories')
+                    ->value($imageIds)
+                    ->groups('category_main')
+                    ->target('category.image_url'),
 
                 Upload::make('category.description_image_url')
                     ->title('Description Image')
                     ->acceptedFiles('image/*')
                     ->maxFiles(1)
                     ->storage('public')
-                    ->path('categories'),
+                    ->path('categories')
+                    ->value($descImageIds)
+                    ->groups('category_description')
+                    ->target('category.description_image_url'),
             ]),
         ];
     }
@@ -148,157 +172,101 @@ class CategoryEditScreen extends Screen
             $data['slug'] = $data['slug'] . '-' . uniqid();
         }
 
-        // Handle image uploads
-        if ($request->has('category.image_url')) {
-            $image = $request->input('category.image_url');
-            if (is_array($image) && !empty($image)) {
-                // Delete old image if exists
-                if ($category->exists && $category->image_url) {
-                    // If image_url is an ID, find and delete the attachment
-                    $attachment = Attachment::find($category->image_url);
-                    if ($attachment) {
-                        $attachment->delete();
-                    }
-                }
-                
-                // Ensure the file is physically stored
-                $attachment = Attachment::find($image[0]);
-                if ($attachment) {
-                    // Log attachment details for debugging
-                    Log::info('Processing attachment', [
-                        'id' => $attachment->id,
-                        'name' => $attachment->name,
-                        'path' => $attachment->path,
-                        'disk' => $attachment->disk,
-                        'physicalPath' => $attachment->physicalPath(),
-                    ]);
+        // Логируем данные перед обработкой, чтобы понимать что получаем
+        Log::info('Category save - raw data received', [
+            'id' => $category->id,
+            'image_url_input' => $request->input('category.image_url'),
+            'desc_image_url_input' => $request->input('category.description_image_url'),
+            'current_image_url' => $category->exists ? $category->image_url : null,
+            'current_desc_image_url' => $category->exists ? $category->description_image_url : null,
+        ]);
 
-                    // Create directory if it doesn't exist
-                    $directory = 'app/public/' . $attachment->path;
-                    if (!file_exists(storage_path($directory))) {
-                        mkdir(storage_path($directory), 0755, true);
-                    }
-                    
-                    // Check if file already exists at destination
-                    $destinationPath = storage_path($directory . '/' . $attachment->physicalPath());
-                    if (!file_exists($destinationPath)) {
-                        // Try to get the file from the upload
-                        $sourcePath = storage_path('app/uploads/' . $attachment->physicalPath());
-                        if (file_exists($sourcePath)) {
-                            // Copy file to final destination
-                            copy($sourcePath, $destinationPath);
-                            Log::info('Copied file from uploads folder', [
-                                'source' => $sourcePath,
-                                'destination' => $destinationPath,
-                            ]);
-                        } else {
-                            // Try from temporary directory
-                            $tempPath = storage_path('app/public/temp/' . $attachment->name);
-                            if (file_exists($tempPath)) {
-                                copy($tempPath, $destinationPath);
-                                Log::info('Copied file from temp folder', [
-                                    'source' => $tempPath,
-                                    'destination' => $destinationPath,
-                                ]);
-                            } else {
-                                Log::error('Could not find file to copy', [
-                                    'uploadPath' => $sourcePath,
-                                    'tempPath' => $tempPath,
-                                ]);
-                            }
+        // Основное изображение
+        if ($request->has('category.image_url')) {
+            $mainImage = $request->input('category.image_url');
+            
+            if (is_array($mainImage)) {
+                if (empty($mainImage)) {
+                    // Пользователь удалил изображение
+                    if ($category->exists && $category->image_url) {
+                        $attachment = Attachment::find($category->image_url);
+                        if ($attachment) {
+                            $attachment->delete();
                         }
                     }
-                }
-                
-                $data['image_url'] = $image[0];
-            } elseif (empty($image)) {
-                // Image was removed
-                if ($category->exists && $category->image_url) {
-                    // If image_url is an ID, find and delete the attachment
-                    $attachment = Attachment::find($category->image_url);
+                    $data['image_url'] = null;
+                } else {
+                    // Новое изображение загружено
+                    $data['image_url'] = $mainImage[0];
+                    // Обновляем группу аттачмента
+                    $attachment = Attachment::find($mainImage[0]);
                     if ($attachment) {
-                        $attachment->delete();
+                        $attachment->update(['group' => 'category_main']);
+                        
+                        // Привязываем attachment к категории
+                        $category->attachment()->syncWithoutDetaching([$attachment->id => [
+                            'attachmentable_type' => Category::class,
+                            'attachmentable_id' => $category->id
+                        ]]);
                     }
                 }
-                $data['image_url'] = null;
+            } else {
+                // Если это не массив, сохраняем текущее значение
+                if ($category->exists) {
+                    $data['image_url'] = $category->image_url;
+                }
             }
+        } elseif ($category->exists) {
+            // Если поле отсутствует, сохраняем текущее значение
+            $data['image_url'] = $category->image_url;
         }
 
+        // Изображение описания
         if ($request->has('category.description_image_url')) {
             $descImage = $request->input('category.description_image_url');
-            if (is_array($descImage) && !empty($descImage)) {
-                // Delete old image if exists
-                if ($category->exists && $category->description_image_url) {
-                    // If description_image_url is an ID, find and delete the attachment
-                    $attachment = Attachment::find($category->description_image_url);
-                    if ($attachment) {
-                        $attachment->delete();
-                    }
-                }
-                
-                // Ensure the file is physically stored
-                $attachment = Attachment::find($descImage[0]);
-                if ($attachment) {
-                    // Log attachment details for debugging
-                    Log::info('Processing description attachment', [
-                        'id' => $attachment->id,
-                        'name' => $attachment->name,
-                        'path' => $attachment->path,
-                        'disk' => $attachment->disk,
-                        'physicalPath' => $attachment->physicalPath(),
-                    ]);
-
-                    // Create directory if it doesn't exist
-                    $directory = 'app/public/' . $attachment->path;
-                    if (!file_exists(storage_path($directory))) {
-                        mkdir(storage_path($directory), 0755, true);
-                    }
-                    
-                    // Check if file already exists at destination
-                    $destinationPath = storage_path($directory . '/' . $attachment->physicalPath());
-                    if (!file_exists($destinationPath)) {
-                        // Try to get the file from the upload
-                        $sourcePath = storage_path('app/uploads/' . $attachment->physicalPath());
-                        if (file_exists($sourcePath)) {
-                            // Copy file to final destination
-                            copy($sourcePath, $destinationPath);
-                            Log::info('Copied file from uploads folder', [
-                                'source' => $sourcePath,
-                                'destination' => $destinationPath,
-                            ]);
-                        } else {
-                            // Try from temporary directory
-                            $tempPath = storage_path('app/public/temp/' . $attachment->name);
-                            if (file_exists($tempPath)) {
-                                copy($tempPath, $destinationPath);
-                                Log::info('Copied file from temp folder', [
-                                    'source' => $tempPath,
-                                    'destination' => $destinationPath,
-                                ]);
-                            } else {
-                                Log::error('Could not find file to copy', [
-                                    'uploadPath' => $sourcePath,
-                                    'tempPath' => $tempPath,
-                                ]);
-                            }
+            
+            if (is_array($descImage)) {
+                if (empty($descImage)) {
+                    // Пользователь удалил изображение
+                    if ($category->exists && $category->description_image_url) {
+                        $attachment = Attachment::find($category->description_image_url);
+                        if ($attachment) {
+                            $attachment->delete();
                         }
                     }
-                }
-                
-                $data['description_image_url'] = $descImage[0];
-            } elseif (empty($descImage)) {
-                // Image was removed
-                if ($category->exists && $category->description_image_url) {
-                    // If description_image_url is an ID, find and delete the attachment
-                    $attachment = Attachment::find($category->description_image_url);
+                    $data['description_image_url'] = null;
+                } else {
+                    // Новое изображение загружено
+                    $data['description_image_url'] = $descImage[0];
+                    // Обновляем группу аттачмента
+                    $attachment = Attachment::find($descImage[0]);
                     if ($attachment) {
-                        $attachment->delete();
+                        $attachment->update(['group' => 'category_description']);
+                        
+                        // Привязываем attachment к категории
+                        $category->attachment()->syncWithoutDetaching([$attachment->id => [
+                            'attachmentable_type' => Category::class,
+                            'attachmentable_id' => $category->id
+                        ]]);
                     }
                 }
-                $data['description_image_url'] = null;
+            } else {
+                // Если это не массив, сохраняем текущее значение
+                if ($category->exists) {
+                    $data['description_image_url'] = $category->description_image_url;
+                }
             }
+        } elseif ($category->exists) {
+            // Если поле отсутствует, сохраняем текущее значение
+            $data['description_image_url'] = $category->description_image_url;
         }
 
+        // Логируем финальные данные для сохранения
+        Log::info('Category save - final data', [
+            'image_url' => $data['image_url'] ?? null,
+            'description_image_url' => $data['description_image_url'] ?? null,
+        ]);
+        
         $category->fill($data)->save();
 
         Alert::success('Category was saved');
