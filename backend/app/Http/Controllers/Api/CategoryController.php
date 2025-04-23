@@ -74,6 +74,9 @@ class CategoryController extends Controller
         
         $category->load('children');
         
+        // Преобразуем ID изображений в полные пути
+        $category = $this->transformImagesPaths($category);
+        
         return response()->json($category);
     }
     
@@ -347,7 +350,8 @@ class CategoryController extends Controller
      */
     public function children(Category $category): JsonResponse
     {
-        $children = $this->transformImagesInCategories($category->children);
+        $children = $category->children;
+        $children = $this->transformImagesInCategories($children);
         return response()->json($children);
     }
     
@@ -440,7 +444,7 @@ class CategoryController extends Controller
      * @param \Illuminate\Support\Collection|array $categories
      * @return \Illuminate\Support\Collection|array
      */
-    private function transformImagesInCategories($categories)
+    public function transformImagesInCategories($categories)
     {
         if (is_array($categories)) {
             foreach ($categories as &$category) {
@@ -464,17 +468,18 @@ class CategoryController extends Controller
     
     /**
      * Преобразует ID изображений в полные пути для одной категории
+     * Важно: преобразует image_url и description_image_url из ID вложений в URL изображений
      * 
      * @param Category $category
      * @return Category
      */
-    private function transformImagesPaths(Category $category)
+    public function transformImagesPaths(Category $category)
     {
         // Проверяем и преобразуем image_url
         if ($category->image_url) {
             $attachment = Attachment::find($category->image_url);
             if ($attachment) {
-                $category->image_path = $attachment->url();
+                $category->image_url = $attachment->url();
             }
         }
         
@@ -482,7 +487,7 @@ class CategoryController extends Controller
         if ($category->description_image_url) {
             $attachment = Attachment::find($category->description_image_url);
             if ($attachment) {
-                $category->description_image_path = $attachment->url();
+                $category->description_image_url = $attachment->url();
             }
         }
         

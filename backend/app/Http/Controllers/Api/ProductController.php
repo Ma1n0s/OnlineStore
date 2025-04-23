@@ -29,9 +29,16 @@ class ProductController extends Controller
     {
         $products = Product::with(['category', 'specificationCategories.specifications', 'images'])
             ->paginate(10);
+        
+        $categoryController = app('App\Http\Controllers\Api\CategoryController');
             
         return response()->json(
-            $products->map(function($product) {
+            $products->map(function($product) use ($categoryController) {
+                // Transform category image paths if category exists
+                if ($product->category) {
+                    $product->category = $categoryController->transformImagesPaths($product->category);
+                }
+                
                 return [
                     'id' => $product->id,
                     'name' => $product->name,
@@ -41,21 +48,15 @@ class ProductController extends Controller
                         'id' => $product->category->id,
                         'name' => $product->category->name,
                         'slug' => $product->category->slug,
+                        'image_url' => $product->category->image_url,
+                        'description_image_url' => $product->category->description_image_url,
                     ] : null,
                     'specifications' => $product->specificationCategories->mapWithKeys(function ($category) {
                         return [$category->name => $category->specifications->mapWithKeys(function ($spec) {
                             return [$spec->name => $spec->value];
                         })];
                     }),
-                    'images' => $product->images instanceof \Illuminate\Support\Collection 
-                        ? $product->images->map(function($image) {
-                            return [
-                                'id' => $image->id,
-                                'url' => $image->url,
-                                'alt' => $image->alt,
-                            ];
-                        })
-                        : [],
+                    'images' => $product->all_images,
                 ];
             })
         );
@@ -77,6 +78,12 @@ class ProductController extends Controller
         
         $product = $product->load(['specificationCategories.specifications', 'images', 'category']);
 
+        // Transform category image paths if category exists
+        $categoryController = app('App\Http\Controllers\Api\CategoryController');
+        if ($product->category) {
+            $product->category = $categoryController->transformImagesPaths($product->category);
+        }
+
         $response = [
             'id' => $product->id,
             'name' => $product->name,
@@ -91,25 +98,20 @@ class ProductController extends Controller
             'quantity' => $product->quantity,
             'rating' => $product->rating,
             'slug' => $product->slug,
-            'category' => $product->category ? [
-                'id' => $product->category->id,
-                'name' => $product->category->name,
-                'slug' => $product->category->slug,
-            ] : null,
+            // 'category' => $product->category ? [
+            //     'id' => $product->category->id,
+            //     'name' => $product->category->name,
+            //     'slug' => $product->category->slug,
+            //     'image_url' => $product->category->image_url,
+            //     'description_image_url' => $product->category->description_image_url,
+            // ] : null,
             'specifications' => $product->specificationCategories->mapWithKeys(function ($category) {
                 return [$category->name => $category->specifications->mapWithKeys(function ($spec) {
                     return [$spec->name => $spec->value];
                 })];
             }),
-            'images' => $product->images instanceof \Illuminate\Support\Collection 
-                ? $product->images->map(function($image) {
-                    return [
-                        'id' => $image->id,
-                        'url' => $image->url,
-                        'alt' => $image->alt,
-                    ];
-                })
-                : [],
+            'images' => $product->all_images,
+            'main_image' => $product->main_image,
         ];
         
         return response()->json($response);
@@ -142,21 +144,16 @@ class ProductController extends Controller
                 'id' => $product->category->id,
                 'name' => $product->category->name,
                 'slug' => $product->category->slug,
+                'image_url' => $product->category->image_url,
+                'description_image_url' => $product->category->description_image_url,
             ] : null,
             'specifications' => $product->specificationCategories->mapWithKeys(function ($category) {
                 return [$category->name => $category->specifications->mapWithKeys(function ($spec) {
                     return [$spec->name => $spec->value];
                 })];
             }),
-            'images' => $product->images instanceof \Illuminate\Support\Collection 
-                ? $product->images->map(function($image) {
-                    return [
-                        'id' => $image->id,
-                        'url' => $image->url,
-                        'alt' => $image->alt,
-                    ];
-                })
-                : [],
+            'images' => $product->all_images,
+            'main_image' => $product->main_image,
         ];
         
         return response()->json($response);
@@ -343,20 +340,14 @@ class ProductController extends Controller
                     'description' => $product->description,
                     'short_description' => $product->short_description,
                     'rating' => $product->rating,
-                    'category' => $product->category ? [
-                        'id' => $product->category->id,
-                        'name' => $product->category->name,
-                        'slug' => $product->category->slug,
-                    ] : null,
-                    'images' => $product->images instanceof \Illuminate\Support\Collection 
-                        ? $product->images->map(function($image) {
-                            return [
-                                'id' => $image->id,
-                                'url' => $image->url,
-                                'alt' => $image->alt,
-                            ];
-                        })
-                        : [],
+                    // 'category' => $product->category ? [
+                    //     'id' => $product->category->id,
+                    //     'name' => $product->category->name,
+                    //     'slug' => $product->category->slug,
+                    //     'image_url' => $product->category->image_url,
+                    //     'description_image_url' => $product->category->description_image_url,
+                    // ] : null,
+                    'images' => $product->all_images,
                 ];
             })
         );
@@ -394,6 +385,9 @@ class ProductController extends Controller
         $page = $request->input('page', 1);
         $limit = $request->input('limit', 12);
         $sort = $request->input('sort', 'newest');
+
+        // Преобразуем ID изображений категории в URL
+        $category = app('App\Http\Controllers\Api\CategoryController')->transformImagesPaths($category);
         
         // Получаем все ID категорий-потомков, включая текущую категорию
         $categoryIds = [$category->id];
@@ -406,7 +400,12 @@ class ProductController extends Controller
         
         // Фильтруем продукты по всем категориям
         $query = Product::with(['category', 'images'])
-            ->whereIn('category_id', $categoryIds);
+            ->where(function($query) use ($categoryIds) {
+                $query->where(function($subQuery) use ($categoryIds) {
+                    $subQuery->whereIn('category_id', $categoryIds)
+                            ->orWhereIn('subcategory_id', $categoryIds);
+                });
+            });
             
         // Применяем сортировку
         switch ($sort) {
@@ -443,22 +442,19 @@ class ProductController extends Controller
                 'short_description' => $product->short_description,
                 'in_stock' => (bool)$product->in_stock,
                 'rating' => $product->rating,
+                'brand' => $product->brand,
+                'article' => $product->article,
+                'slug' => $product->slug,
                 'category' => $product->category ? [
                     'id' => $product->category->id,
                     'name' => $product->category->name,
                     'title' => $product->category->title,
                     'slug' => $product->category->slug,
+                    'image_url' => $product->category->image_url,
+                    'description_image_url' => $product->category->description_image_url,
                 ] : null,
-                'images' => $product->images instanceof \Illuminate\Support\Collection 
-                    ? $product->images->map(function($image) {
-                        return [
-                            'id' => $image->id,
-                            'url' => $image->url,
-                            'alt' => $image->alt,
-                        ];
-                    })
-                    : [],
-                'slug' => $product->slug ?: Str::slug($product->name),
+                'images' => $product->all_images,
+                'main_image' => $product->main_image,
             ];
         });
         
@@ -512,6 +508,9 @@ class ProductController extends Controller
         $limit = $request->input('limit', 12);
         $sort = $request->input('sort', 'newest');
         
+        // Преобразуем ID изображений категории в URL
+        $category = app('App\Http\Controllers\Api\CategoryController')->transformImagesPaths($category);
+
         // Получаем все ID категорий-потомков, включая текущую категорию
         $categoryIds = [$category->id];
         
@@ -523,7 +522,12 @@ class ProductController extends Controller
         
         // Фильтруем продукты по всем категориям
         $query = Product::with(['category', 'images'])
-            ->whereIn('category_id', $categoryIds);
+            ->where(function($query) use ($categoryIds) {
+                $query->where(function($subQuery) use ($categoryIds) {
+                    $subQuery->whereIn('category_id', $categoryIds)
+                            ->orWhereIn('subcategory_id', $categoryIds);
+                });
+            });
             
         // Применяем сортировку
         switch ($sort) {
@@ -568,16 +572,11 @@ class ProductController extends Controller
                     'name' => $product->category->name,
                     'title' => $product->category->title,
                     'slug' => $product->category->slug,
+                    'image_url' => $product->category->image_url,
+                    'description_image_url' => $product->category->description_image_url,
                 ] : null,
-                'images' => $product->images instanceof \Illuminate\Support\Collection 
-                    ? $product->images->map(function($image) {
-                        return [
-                            'id' => $image->id,
-                            'url' => $image->url,
-                            'alt' => $image->alt,
-                        ];
-                    })
-                    : [],
+                'images' => $product->all_images,
+                'main_image' => $product->main_image,
             ];
         });
         
