@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Orchid\Attachment\Models\Attachment;
+use Orchid\Attachment\File;
 
 class CategoryController extends Controller
 {
@@ -96,19 +98,26 @@ class CategoryController extends Controller
                 }
             }
             
-            // Обработка загрузки изображения категории
-            if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('categories', 'public');
-                $categoryData['image_url'] = '/storage/' . $imagePath;
-            }
-            
-            // Обработка загрузки изображения описания
-            if ($request->hasFile('description_image')) {
-                $descImagePath = $request->file('description_image')->store('categories/descriptions', 'public');
-                $categoryData['description_image_url'] = '/storage/' . $descImagePath;
-            }
-            
+            // Создаем категорию
             $category = Category::create($categoryData);
+            
+            // Обработка загрузки изображения категории через Orchid
+            if ($request->hasFile('image')) {
+                $file = new File($request->file('image'));
+                $attachment = $file->load('categories');
+                
+                $category->image_url = $attachment->id;
+                $category->save();
+            }
+            
+            // Обработка загрузки изображения описания через Orchid
+            if ($request->hasFile('description_image')) {
+                $file = new File($request->file('description_image'));
+                $attachment = $file->load('categories/descriptions');
+                
+                $category->description_image_url = $attachment->id;
+                $category->save();
+            }
             
             return response()->json([
                 'id' => $category->id,
@@ -208,27 +217,43 @@ class CategoryController extends Controller
                 }
             }
             
-            // Обработка загрузки изображения категории
+            // Обработка загрузки изображения категории через Orchid
             if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('categories', 'public');
-                $categoryData['image_url'] = '/storage/' . $imagePath;
+                // Удаляем старое изображение, если оно есть
+                if ($category->image_url) {
+                    $this->deleteAttachment($category->image_url);
+                }
+                
+                // Загружаем новое изображение
+                $file = new File($request->file('image'));
+                $attachment = $file->load('categories');
+                
+                $categoryData['image_url'] = $attachment->id;
             }
             
             // Удаление изображения если указан флаг
             if ($request->input('remove_image') && $category->image_url) {
-                $this->removeImageFromStorage($category->image_url);
+                $this->deleteAttachment($category->image_url);
                 $categoryData['image_url'] = null;
             }
             
-            // Обработка загрузки изображения описания
+            // Обработка загрузки изображения описания через Orchid
             if ($request->hasFile('description_image')) {
-                $descImagePath = $request->file('description_image')->store('categories/descriptions', 'public');
-                $categoryData['description_image_url'] = '/storage/' . $descImagePath;
+                // Удаляем старое изображение, если оно есть
+                if ($category->description_image_url) {
+                    $this->deleteAttachment($category->description_image_url);
+                }
+                
+                // Загружаем новое изображение
+                $file = new File($request->file('description_image'));
+                $attachment = $file->load('categories/descriptions');
+                
+                $categoryData['description_image_url'] = $attachment->id;
             }
             
             // Удаление изображения описания если указан флаг
             if ($request->input('remove_description_image') && $category->description_image_url) {
-                $this->removeImageFromStorage($category->description_image_url);
+                $this->deleteAttachment($category->description_image_url);
                 $categoryData['description_image_url'] = null;
             }
             
@@ -256,11 +281,11 @@ class CategoryController extends Controller
         try {
             // Удаляем изображения, если они есть
             if ($category->image_url) {
-                $this->removeImageFromStorage($category->image_url);
+                $this->deleteAttachment($category->image_url);
             }
             
             if ($category->description_image_url) {
-                $this->removeImageFromStorage($category->description_image_url);
+                $this->deleteAttachment($category->description_image_url);
             }
             
             $category->delete();
@@ -350,16 +375,17 @@ class CategoryController extends Controller
     }
     
     /**
-     * Удаляет изображение из хранилища
+     * Удаляет вложение по ID
      * 
-     * @param string $imageUrl
+     * @param string|int $attachmentId
      * @return void
      */
-    private function removeImageFromStorage(string $imageUrl): void
+    private function deleteAttachment($attachmentId): void
     {
-        $path = str_replace('/storage/', '', $imageUrl);
-        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($path);
+        $attachment = Attachment::find($attachmentId);
+        
+        if ($attachment) {
+            $attachment->delete();
         }
     }
 } 
