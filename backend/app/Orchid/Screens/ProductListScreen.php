@@ -88,7 +88,7 @@ class ProductListScreen extends Screen
                 TD::make('price', 'Price')
                     ->sort()
                     ->render(function (Product $product) {
-                        return '$' . number_format((float)$product->price, 2);
+                        return '₽' . number_format((float)$product->price, 2);
                     }),
 
                 TD::make('brand', 'Brand')
