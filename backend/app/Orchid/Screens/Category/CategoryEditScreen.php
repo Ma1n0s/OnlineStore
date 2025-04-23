@@ -42,13 +42,13 @@ class CategoryEditScreen extends Screen
 
     public function name(): ?string
     {
-        return $this->category->exists ? 'Edit Category' : 'Create Category';
+        return $this->category->exists ? 'Редактирование категории' : 'Создание категории';
     }
 
     public function commandBar(): array
     {
         return [
-            Button::make('Save')
+            Button::make('Сохранить')
                 ->icon('check')
                 ->method('save'),
         ];
@@ -80,39 +80,47 @@ class CategoryEditScreen extends Screen
         return [
             Layout::rows([
                 Input::make('category.name')
-                    ->title('Name')
-                    ->required(),
+                    ->title('Название')
+                    ->placeholder('Введите название категории')
+                    ->required()
+                    ->help('Уникальное название категории'),
                     
                 Input::make('category.title')
-                    ->title('Display Title'),
+                    ->title('Заголовок')
+                    ->placeholder('Отображаемый заголовок')
+                    ->help('Заголовок для отображения на сайте'),
                     
                 TextArea::make('category.description')
-                    ->title('Description')
-                    ->rows(3),
+                    ->title('Описание')
+                    ->rows(3)
+                    ->placeholder('Описание категории')
+                    ->help('Подробное описание категории'),
 
                 $isCreatingSubcategory 
                     ? Input::make('category.parent_id')
-                        ->title('Parent Category')
+                        ->title('Родительская категория')
                         ->value($parentId)
                         ->readonly()
-                        ->help('This category will be a subcategory of: ' . Category::find($parentId)->name)
+                        ->help('Эта категория будет подкатегорией для: ' . Category::find($parentId)->name)
                     : Select::make('category.parent_id')
-                        ->title('Parent Category')
-                        ->empty('No parent (root category)', '0')
+                        ->title('Родительская категория')
+                        ->empty('Без родителя (корневая категория)', '0')
                         ->fromQuery(
                             Category::when($this->category->exists, function($query) {
                                 $query->whereNotIn('id', $this->category->descendants()->pluck('id'))
                                     ->where('id', '!=', $this->category->id);
                             }),
                             'name'
-                        ),
+                        )
+                        ->help('Выберите родительскую категорию, если нужно'),
 
                 Input::make('category.slug')
-                    ->title('Slug')
-                    ->help('Leave empty to auto-generate from name'),
+                    ->title('URL-адрес')
+                    ->placeholder('URL-адрес категории')
+                    ->help('Оставьте пустым для автоматической генерации из названия'),
 
                 Upload::make('category.image_url')
-                    ->title('Main Image')
+                    ->title('Основное изображение')
                     ->acceptedFiles('image/*')
                     ->maxFiles(1)
                     ->storage('public')
@@ -122,7 +130,7 @@ class CategoryEditScreen extends Screen
                     ->target('category.image_url'),
 
                 Upload::make('category.description_image_url')
-                    ->title('Description Image')
+                    ->title('Дополнительное изображение')
                     ->acceptedFiles('image/*')
                     ->maxFiles(1)
                     ->storage('public')
