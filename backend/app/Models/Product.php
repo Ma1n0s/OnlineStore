@@ -29,7 +29,7 @@ class Product extends Model
         'slug',
         'brand',
         'rating',
-        // 'category_id',
+        'category_id',
         'subcategory_id',
         'specifications',
         'images',
