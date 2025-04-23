@@ -31,6 +31,9 @@ class CategoryController extends Controller
             $categories = Category::with('children')->whereNull('parent_id')->get();
         }
         
+        // Преобразуем ID изображений в полные пути
+        $categories = $this->transformImagesInCategories($categories);
+        
         return response()->json($categories);
     }
     
@@ -43,6 +46,14 @@ class CategoryController extends Controller
     public function show(Category $category): JsonResponse
     {
         $category->load('children');
+        
+        // Преобразуем ID изображений в полные пути
+        $category = $this->transformImagesPaths($category);
+        
+        // Преобразуем ID изображений для дочерних категорий
+        if ($category->children && $category->children->count() > 0) {
+            $category->children = $this->transformImagesInCategories($category->children);
+        }
         
         return response()->json($category);
     }
@@ -119,9 +130,13 @@ class CategoryController extends Controller
                 $category->save();
             }
             
+            // Преобразуем ID изображений в полные пути перед возвратом
+            $category = $this->transformImagesPaths($category);
+            
             return response()->json([
                 'id' => $category->id,
                 'message' => 'Категория успешно создана',
+                'category' => $category
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
@@ -259,8 +274,12 @@ class CategoryController extends Controller
             
             $category->update($categoryData);
             
+            // Преобразуем ID изображений в полные пути перед возвратом
+            $category = $this->transformImagesPaths($category);
+            
             return response()->json([
                 'message' => 'Категория успешно обновлена',
+                'category' => $category
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -309,7 +328,8 @@ class CategoryController extends Controller
      */
     public function children(Category $category): JsonResponse
     {
-        return response()->json($category->children);
+        $children = $this->transformImagesInCategories($category->children);
+        return response()->json($children);
     }
     
     /**
@@ -321,7 +341,9 @@ class CategoryController extends Controller
     public function descendants(Category $category): JsonResponse
     {
         $category->load('descendants');
-        return response()->json($this->flattenDescendants($category));
+        $descendants = $this->flattenDescendants($category);
+        $descendants = $this->transformImagesInCategories($descendants);
+        return response()->json($descendants);
     }
     
     /**
@@ -332,7 +354,9 @@ class CategoryController extends Controller
      */
     public function ancestors(Category $category): JsonResponse
     {
-        return response()->json($category->getPath());
+        $ancestors = $category->getPath();
+        $ancestors = $this->transformImagesInCategories($ancestors);
+        return response()->json($ancestors);
     }
     
     /**
@@ -371,6 +395,8 @@ class CategoryController extends Controller
             $rootCategories = Category::whereNull('parent_id')->get();
         }
         
+        $rootCategories = $this->transformImagesInCategories($rootCategories);
+        
         return response()->json($rootCategories);
     }
     
@@ -387,5 +413,60 @@ class CategoryController extends Controller
         if ($attachment) {
             $attachment->delete();
         }
+    }
+    
+    /**
+     * Преобразует ID изображений в полные пути для коллекции категорий
+     * 
+     * @param \Illuminate\Support\Collection|array $categories
+     * @return \Illuminate\Support\Collection|array
+     */
+    private function transformImagesInCategories($categories)
+    {
+        if (is_array($categories)) {
+            foreach ($categories as &$category) {
+                $category = $this->transformImagesPaths($category);
+            }
+        } else {
+            $categories->transform(function ($category) {
+                return $this->transformImagesPaths($category);
+            });
+            
+            // Также преобразуем изображения для дочерних категорий
+            $categories->each(function ($category) {
+                if ($category->children && $category->children->count() > 0) {
+                    $category->children = $this->transformImagesInCategories($category->children);
+                }
+            });
+        }
+        
+        return $categories;
+    }
+    
+    /**
+     * Преобразует ID изображений в полные пути для одной категории
+     * 
+     * @param Category $category
+     * @return Category
+     */
+    private function transformImagesPaths(Category $category)
+    {
+        // Проверяем и преобразуем image_url
+        if ($category->image_url) {
+            $attachment = Attachment::find($category->image_url);
+            if ($attachment) {
+                $category->image_path = $attachment->url();
+            }
+        }
+        
+        // Проверяем и преобразуем description_image_url
+        if ($category->description_image_url) {
+            $attachment = Attachment::find($category->description_image_url);
+            if ($attachment) {
+                $category->description_image_path = $attachment->url();
+            }
+        }
+        
+        return $category;
     }
 } 
