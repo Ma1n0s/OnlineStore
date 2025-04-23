@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# Путь к директории backend
-BACKEND_DIR="/home/frog/Desktop/OnlineStore/backend"
+# Определение пути к директории скрипта и backend, независимо от места запуска
+SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BACKEND_DIR="$SCRIPT_PATH/backend"
 PID_FILE="$BACKEND_DIR/storage/app/laravel.pid"
 
 # Цвета для вывода
@@ -24,6 +25,7 @@ fi
 # Функция запуска приложения
 start_app() {
     echo -e "${YELLOW}Запуск Laravel приложения...${NC}"
+    echo -e "Используется директория backend: $BACKEND_DIR"
     
     # Проверка, не запущено ли уже приложение
     if [ -f "$PID_FILE" ]; then
@@ -37,16 +39,23 @@ start_app() {
         fi
     fi
     
+    # Проверка существования директории логов
+    LOG_DIR="$BACKEND_DIR/storage/logs"
+    if [ ! -d "$LOG_DIR" ]; then
+        echo "Создание директории для логов: $LOG_DIR"
+        mkdir -p "$LOG_DIR" || error "Не удалось создать директорию для логов"
+    fi
+    
     # Переход в директорию backend
     cd "$BACKEND_DIR" || error "Не удалось перейти в директорию backend"
     
     # Запуск сервера Laravel в фоновом режиме
-    nohup php artisan serve --host=0.0.0.0 --port=8000 > "$BACKEND_DIR/storage/logs/server.log" 2>&1 &
+    nohup php artisan serve --host=0.0.0.0 --port=8000 > "$LOG_DIR/server.log" 2>&1 &
     
     # Сохранение PID процесса
     echo $! > "$PID_FILE"
     echo -e "${GREEN}Laravel приложение запущено на http://localhost:8000 (PID: $!)${NC}"
-    echo -e "Логи сервера: $BACKEND_DIR/storage/logs/server.log"
+    echo -e "Логи сервера: $LOG_DIR/server.log"
 }
 
 # Функция остановки приложения

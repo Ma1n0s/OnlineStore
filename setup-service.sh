@@ -1,9 +1,10 @@
 #!/bin/bash
 
-# Путь к директории проекта
-PROJECT_DIR="/home/frog/Desktop/OnlineStore"
+# Определение пути к директории скрипта, независимо от места запуска
+SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$SCRIPT_PATH"
 SERVICE_NAME="onlinestore"
-SERVICE_FILE="$SERVICE_NAME.service"
+SERVICE_FILE="$PROJECT_DIR/$SERVICE_NAME.service"
 
 # Цвета для вывода
 RED='\033[0;31m'
@@ -25,9 +26,15 @@ fi
 # Функция для установки сервиса
 install_service() {
     echo -e "${YELLOW}Установка сервиса $SERVICE_NAME...${NC}"
+    echo -e "Используется директория проекта: $PROJECT_DIR"
+    
+    # Проверка наличия файла сервиса
+    if [ ! -f "$SERVICE_FILE" ]; then
+        error "Файл сервиса $SERVICE_FILE не найден!"
+    fi
     
     # Копирование файла сервиса в директорию systemd
-    cp "$PROJECT_DIR/$SERVICE_FILE" /etc/systemd/system/ || error "Не удалось скопировать файл сервиса."
+    cp "$SERVICE_FILE" /etc/systemd/system/ || error "Не удалось скопировать файл сервиса."
     
     # Перезагрузка конфигурации systemd
     systemctl daemon-reload || error "Не удалось перезагрузить конфигурацию systemd."
