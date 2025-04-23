@@ -86,10 +86,6 @@ class ProductScreen extends Screen
     public function commandBar(): array
     {
         return [
-            Link::make('Назад')
-                ->icon('arrow-left')
-                ->route($this->getBackRoute())
-                ->class('btn btn-secondary'),
 
             Button::make('Сохранить')
                 ->icon('check')
