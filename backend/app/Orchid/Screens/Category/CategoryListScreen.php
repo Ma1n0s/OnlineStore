@@ -59,7 +59,7 @@ class CategoryListScreen extends Screen
                         return $category->parent
                             ? Link::make($category->parent->name)
                                 ->route('platform.category.action', $category->parent)
-                            : 'Root';
+                            : 'Родительская';
                     }),
 
                 TD::make('children_count', 'Подкатегорий')
