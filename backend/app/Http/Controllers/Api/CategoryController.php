@@ -76,6 +76,10 @@ class CategoryController extends Controller
         
         // Преобразуем ID изображений в полные пути
         $category = $this->transformImagesPaths($category);
+
+        foreach ($category->children as $child) {
+            $child->haveProducts = count($child->children) == 0;
+        }
         
         return response()->json($category);
     }
