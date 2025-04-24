@@ -56,7 +56,7 @@ const state = reactive({
 
 const breadcrumbs = [
   {
-    name: 'Категория',
+    name: 'Категории',
     url: '/category',
   },
 ]

@@ -9,13 +9,15 @@ const { slug } = route.params
 
 const { data: category } = await useFetch(() => `http://127.0.0.1:8000/api/categories/slug/${slug.at(-1)}`)
 
-if (!category.value.children || category.value.children.length === 0) {
+console.log(category.value)
+
+if (!category.value?.children?.length) {
   // Если нет, перенаправляем на страницу товаров
   await navigateTo(`/products/category/${route.params.slug.join('/')}`)
 }
 
 onMounted(async () => {
-  if (!category.value.children || category.value.children.length === 0) {
+  if (!category.value?.children?.length) {
     await navigateTo(`/products/category/${route.params.slug.join('/')}`)
   }
 })
@@ -71,7 +73,7 @@ const state = reactive({
 
 const breadcrumbs = [
   {
-    name: 'Категория',
+    name: 'Категории',
     url: '/category',
   },
   ...getBreadcrumbs(slug),
