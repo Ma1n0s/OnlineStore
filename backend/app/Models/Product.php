@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Orchid\Filters\Filterable;
+use App\Models\Advantages;
+use App\Models\Specification;
+use App\Models\SpecificationB;
 use Orchid\Attachment\Models\Attachment;
 use Orchid\Attachment\Attachable;
 
@@ -29,7 +32,6 @@ class Product extends Model
         'brand',
         'rating',
         'category_id',
-        'subcategory_id',
         'specifications',
         'warranty',
         'advantages',
@@ -88,7 +90,6 @@ class Product extends Model
     {
         return $this->hasMany(Image::class);
     }
-
     /**
      * Получить все спецификации продукта через категории.
      * 

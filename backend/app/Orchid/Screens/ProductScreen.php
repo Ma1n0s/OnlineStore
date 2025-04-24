@@ -13,6 +13,7 @@ use Orchid\Screen\Fields\TextArea;
 use Orchid\Screen\Fields\Upload;
 use Orchid\Support\Facades\Layout;
 use Orchid\Screen\Actions\Button;
+use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Fields\Group;
 use Orchid\Screen\Fields\Matrix;
 use Orchid\Support\Facades\Alert;
@@ -38,7 +39,6 @@ class ProductScreen extends Screen
         $product->load('subcategory');
         $categoryId = request()->input('category_id');
         
-        // Debug - log product and its attachments
         \Illuminate\Support\Facades\Log::info('Product data for Orchid screen', [
             'product_id' => $product->id,
             'exists' => $product->exists,
@@ -86,6 +86,7 @@ class ProductScreen extends Screen
     public function commandBar(): array
     {
         return [
+
             Button::make('Сохранить')
                 ->icon('check')
                 ->method('createOrUpdate')
@@ -105,6 +106,20 @@ class ProductScreen extends Screen
                 ->class('btn btn-danger')
                 ->canSee($this->product->exists),
         ];
+    }
+
+    /**
+     * Determine the back route based on context
+     */
+    protected function getBackRoute(): string
+    {
+        $categoryId = request()->input('category_id');
+        
+        if ($categoryId) {
+            return 'platform.category.products';
+        }
+        
+        return 'platform.product.list';
     }
 
     /**
@@ -190,7 +205,7 @@ class ProductScreen extends Screen
                             ->title('категория')
                             ->fromModel(Category::class, 'name')
                             ->empty('Не выбрана')
-                            ->help('Выберите подкатегорию для этого товара'),
+                            ->help('Выберите категорию для этого товара'),
                 ]),
                 
                 'Изображения' => Layout::rows([
@@ -207,7 +222,6 @@ class ProductScreen extends Screen
                             }
                             
                             try {
-                                // Get attachments from the attachmentable table directly
                                 $attachmentIds = DB::table('attachmentable')
                                     ->where('attachmentable_id', $product->id)
                                     ->where('attachmentable_type', get_class($product))
@@ -290,40 +304,29 @@ class ProductScreen extends Screen
     /**
      * Get default subcategory ID when creating product in a category
      */
-protected function getDefaultSubcategoryId()
-{
-    $categoryId = request()->input('category_id');
-    
-    if ($categoryId) {
-        $currentCategory = Category::find($categoryId);
-        
-        if ($currentCategory && $currentCategory->parent_id) {
-            return $categoryId;
+    protected function getDefaultSubcategoryId()
+    {
+        $categoryId = request()->input('category_id');
+        if ($categoryId) {
+            $subcategories = Category::where('parent_id', $categoryId)->get();
+            if ($subcategories->isNotEmpty()) {
+                return $categoryId;
+            }
         }
-        
-        $subcategories = Category::where('parent_id', $categoryId)->get();
-        
-        if ($subcategories->isNotEmpty()) {
-            return $subcategories->first()->id;
-        }
-        return $categoryId;
+        return null;
     }
-    
-    return null;
-}
 
     /**
      * Get subcategory name for help text
      */
-protected function getSubcategoryName()
-{
-    $subcategoryId = $this->getDefaultSubcategoryId();
-    if ($subcategoryId) {
-        $category = Category::find($subcategoryId);
-        return $category ? $category->name : 'Неизвестная категория';
+    protected function getSubcategoryName()
+    {
+        $subcategoryId = $this->getDefaultSubcategoryId();
+        if ($subcategoryId) {
+            return Category::find($subcategoryId)->name;
+        }
+        return 'Не выбрана подкатегория';
     }
-    return 'Не выбрана категория';
-}
 
     /**
      * @param Product $product
@@ -359,12 +362,10 @@ protected function getSubcategoryName()
             $data['rating'] = $data['rating'] ?? 0;
             $data['price'] = (float)$data['price'];
             
-            // Ensure these are arrays before saving
             $data['specifications'] = isset($data['specifications']) ? (array)$data['specifications'] : [];
             $data['advantages'] = isset($data['advantages']) ? (array)$data['advantages'] : [];
             $data['specificationsB'] = isset($data['specificationsB']) ? (array)$data['specificationsB'] : [];
             
-            // Convert arrays to JSON strings manually if needed
             if (isset($data['specifications']) && !is_string($data['specifications'])) {
                 $data['specifications'] = json_encode($data['specifications']);
             }
@@ -377,7 +378,6 @@ protected function getSubcategoryName()
                 $data['specificationsB'] = json_encode($data['specificationsB']);
             }
             
-            // Remove images field from the data to prevent 'Array to string conversion' error
             if (isset($data['images'])) {
                 unset($data['images']);
             }
@@ -385,10 +385,8 @@ protected function getSubcategoryName()
             $product->fill($data)->save();
             
             if ($request->has('product.images')) {
-                // Get the new image IDs
                 $imageIds = $request->input('product.images', []);
                 
-                // Log for debugging
                 \Illuminate\Support\Facades\Log::info('Product Images being processed', [
                     'product_id' => $product->id,
                     'image_ids' => $imageIds,
@@ -397,7 +395,6 @@ protected function getSubcategoryName()
                     'request_data' => $request->all(),
                 ]);
                 
-                // Check available upload directories
                 $publicPath = storage_path('app/public');
                 $datePath = storage_path('app/public/' . date('Y/m/d'));
                 
@@ -409,21 +406,14 @@ protected function getSubcategoryName()
                     'date_writable' => file_exists($datePath) ? is_writable($datePath) : false,
                 ]);
                 
-                // Delete old attachments if we have new ones or if the array is empty (which means user removed all images)
                 if ($product->attachments->isNotEmpty()) {
-                    // Get the current attachment IDs
-                    $currentAttachmentIds = $product->attachment()
-                        ->select('attachments.id') // Явно указываем, что мы хотим id из таблицы attachments
-                        ->where('group', 'products')
-                        ->pluck('id')
-                        ->toArray();
+                    $currentAttachmentIds = $product->attachment()->where('group', 'products')->pluck('id')->toArray();
                     
                     \Illuminate\Support\Facades\Log::info('Current attachment IDs', [
                         'current_ids' => $currentAttachmentIds,
                         'new_ids' => $imageIds,
                     ]);
                     
-                    // Find which attachments to delete
                     $attachmentsToDelete = array_diff($currentAttachmentIds, $imageIds);
                     
                     \Illuminate\Support\Facades\Log::info('Attachments to delete', [
@@ -443,15 +433,12 @@ protected function getSubcategoryName()
                         }
                     }
                     
-                    // Also delete corresponding image records
                     if (!empty($attachmentsToDelete)) {
                         \App\Models\Image::whereIn('attachment_id', $attachmentsToDelete)->delete();
                     }
                 }
                 
-                // Check if we have image IDs
                 if (is_array($imageIds) && count($imageIds) > 0) {
-                    // Get current max position for this product's images
                     $maxPosition = \App\Models\Image::where('product_id', $product->id)
                         ->where('source', 'admin')
                         ->max('position') ?? -1;
@@ -469,13 +456,10 @@ protected function getSubcategoryName()
                                 'path' => $attachment->path,
                             ]);
                             
-                            // Make sure we're setting up the attachment properly
                             $attachment->forceFill([
                                 'group' => 'products',
                             ])->save();
                             
-                            // Explicitly link the attachment to the product
-                            // This uses the 'attachmentable' junction table
                             DB::table('attachmentable')->updateOrInsert(
                                 [
                                     'attachment_id' => $attachment->id,
@@ -490,7 +474,6 @@ protected function getSubcategoryName()
                                 'product_id' => $product->id,
                             ]);
                             
-                            // Check if an image record already exists for this attachment
                             $imageExists = \App\Models\Image::where('product_id', $product->id)
                                 ->where('attachment_id', $attachment->id)
                                 ->exists();
@@ -502,7 +485,6 @@ protected function getSubcategoryName()
                             ]);
                             
                             if (!$imageExists) {
-                                // Calculate a unique position for each image
                                 $position = $maxPosition + $index + 1;
                                 
                                 \Illuminate\Support\Facades\Log::info('Creating image', [
