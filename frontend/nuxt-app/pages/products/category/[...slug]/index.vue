@@ -452,7 +452,7 @@ const toggleBrand = brand => {
           >
             <div :class="state.ui.isGrid ? 'relative h-48 flex-shrink-0' : 'relative w-1/3 flex-shrink-0'">
               <NuxtImg
-                :src="item.image"
+                :src="item.main_image"
                 :alt="item.title"
                 :class="state.ui.isGrid ? 'w-full h-full object-contain p-4' : 'w-full h-full object-cover'"
                 width="300"
