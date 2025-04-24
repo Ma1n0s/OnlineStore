@@ -111,7 +111,7 @@ class ProductListScreen extends Screen
                         return $product->subcategory ? $product->subcategory->name : '-';
                     }),
 
-                TD::make('rating', 'Дата создания')
+                TD::make('rating', 'Рейтинг')
                     ->sort()
                     ->render(function (Product $product) {
                         return number_format($product->rating, 1);
@@ -122,7 +122,7 @@ class ProductListScreen extends Screen
                 //         return $product->category->name ?? '-';
                 //     }),
 
-                TD::make('created_at', 'Действия')
+                TD::make('created_at', 'Дата создания')
                     ->sort()
                     ->render(function (Product $product) {
                         return $product->created_at->toDateTimeString();

@@ -45,12 +45,12 @@ class CategoryListScreen extends Screen
     {
         return [
             Layout::table('categories', [
-                TD::make('name', 'Название')
-                    ->render(function (Category $category) {
-                        $indent = str_repeat('&nbsp;&nbsp;', $category->getPath()->count() - 1);
-                        return Link::make($indent . $category->name)
-                            ->route('platform.category.action', $category);
-                    }),
+                // TD::make('name', 'Путь')
+                //     ->render(function (Category $category) {
+                //         $indent = str_repeat('&nbsp;&nbsp;', $category->getPath()->count() - 1);
+                //         return Link::make($indent . $category->name)
+                //             ->route('platform.category.action', $category);
+                //     }),
                     
                 TD::make('title', 'Заголовок'),
                 
@@ -62,14 +62,14 @@ class CategoryListScreen extends Screen
                             : 'Родительская';
                     }),
 
-                TD::make('children_count', 'Подкатегорий')
-                    ->render(function (Category $category) {
-                        return $category->children_count > 0 
-                            ? "<span class='badge bg-info'>{$category->children_count}</span>"
-                            : "<span class='badge bg-secondary'>{$category->children_count}</span>";
-                    })
-                    ->alignCenter()
-                    ->width('120px'),
+                // TD::make('children_count', 'Подкатегорий')
+                //     ->render(function (Category $category) {
+                //         return $category->children_count > 0 
+                //             ? "<span class='badge bg-info'>{$category->children_count}</span>"
+                //             : "<span class='badge bg-secondary'>{$category->children_count}</span>";
+                //     })
+                //     ->alignCenter()
+                //     ->width('120px'),
                 
                 TD::make('products_count', 'Товаров')
                     ->render(function (Category $category) {
