@@ -19,18 +19,16 @@ class CategoryActionScreen extends Screen
 {
     public $category;
 
-    public function query(Category $category): array
-    {
-        $categoryIds = $category->descendants()->pluck('id')->push($category->id);
-        
-        return [
-            'category' => $category,
-            'children' => $category->children()->paginate(10),
-            'products' => Product::whereIn('subcategory_id', $categoryIds)
-                ->with('subcategory')
-                ->paginate(10),
-        ];
-    }
+public function query(Category $category): array
+{
+    return [
+        'category' => $category,
+        'children' => $category->children()->paginate(10),
+        'products' => Product::where('subcategory_id', $category->id)
+            ->with('subcategory')
+            ->paginate(10),
+    ];
+}
 
     public function name(): ?string
     {
