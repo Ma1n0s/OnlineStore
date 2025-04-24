@@ -12,6 +12,8 @@ defineProps<{
   data: {
     title: string
     description: string
+    name: string
+    description_image_url: string
   }
 }>()
 </script>
