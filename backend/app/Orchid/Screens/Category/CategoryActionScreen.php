@@ -80,7 +80,6 @@ public function query(Category $category): array
             ]),
         ];
 
-        if ($this->category->children()->exists()) {
             $layouts[] = Layout::table('children', [
                 TD::make('name', 'Название')
                     ->width('300px')
@@ -117,9 +116,7 @@ public function query(Category $category): array
                             ]);
                     }),
             ]);
-        }
 
-        if ($this->category->canHaveProducts()) {
             $layouts[] = Layout::table('products', [
                 TD::make('id', 'ID')
                     ->sort()
@@ -201,7 +198,6 @@ public function query(Category $category): array
                             ]);
                     }),
             ]);
-        }
 
         return $layouts;
     }
