@@ -290,29 +290,40 @@ class ProductScreen extends Screen
     /**
      * Get default subcategory ID when creating product in a category
      */
-    protected function getDefaultSubcategoryId()
-    {
-        $categoryId = request()->input('category_id');
-        if ($categoryId) {
-            $subcategories = Category::where('parent_id', $categoryId)->get();
-            if ($subcategories->isNotEmpty()) {
-                return $subcategories->first()->id;
-            }
+protected function getDefaultSubcategoryId()
+{
+    $categoryId = request()->input('category_id');
+    
+    if ($categoryId) {
+        $currentCategory = Category::find($categoryId);
+        
+        if ($currentCategory && $currentCategory->parent_id) {
+            return $categoryId;
         }
-        return null;
+        
+        $subcategories = Category::where('parent_id', $categoryId)->get();
+        
+        if ($subcategories->isNotEmpty()) {
+            return $subcategories->first()->id;
+        }
+        return $categoryId;
     }
+    
+    return null;
+}
 
     /**
      * Get subcategory name for help text
      */
-    protected function getSubcategoryName()
-    {
-        $subcategoryId = $this->getDefaultSubcategoryId();
-        if ($subcategoryId) {
-            return Category::find($subcategoryId)->name;
-        }
-        return 'Не выбрана подкатегория';
+protected function getSubcategoryName()
+{
+    $subcategoryId = $this->getDefaultSubcategoryId();
+    if ($subcategoryId) {
+        $category = Category::find($subcategoryId);
+        return $category ? $category->name : 'Неизвестная категория';
     }
+    return 'Не выбрана категория';
+}
 
     /**
      * @param Product $product
