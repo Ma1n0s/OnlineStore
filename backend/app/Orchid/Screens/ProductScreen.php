@@ -36,7 +36,7 @@ class ProductScreen extends Screen
      */
     public function query(Product $product): array
     {
-        $product->load('subcategory');
+        $product->load('category');
         $categoryId = request()->input('category_id');
         
         \Illuminate\Support\Facades\Log::info('Product data for Orchid screen', [
@@ -52,7 +52,7 @@ class ProductScreen extends Screen
             'specificationsB' => $product->specificationsB ?? [],
             'advantages' => $product->advantages ?? [],
             'category_id' => $categoryId,
-            'subcategories' => $categoryId 
+            'categories' => $categoryId 
                 ? Category::where('parent_id', $categoryId)->get()
                 : collect(),
         ];
@@ -196,13 +196,13 @@ class ProductScreen extends Screen
                     ]),
                     
                     $isCreatingInCategory
-                        ? Input::make('product.subcategory_id')
-                            ->title('категория')
-                            ->value($this->getDefaultSubcategoryId())
+                        ? Input::make('product.category_id')
+                            ->title('Категория')
+                            ->value($this->getDefaultCategoryId())
                             ->readonly()
-                            ->help('Этот товар будет добавлен в: ' . $this->getSubcategoryName())
-                        : Select::make('product.subcategory_id')
-                            ->title('категория')
+                            ->help('Этот товар будет добавлен в: ' . $this->getCategoryName())
+                        : Select::make('product.category_id')
+                            ->title('Категория')
                             ->fromModel(Category::class, 'name')
                             ->empty('Не выбрана')
                             ->help('Выберите категорию для этого товара'),
@@ -304,30 +304,23 @@ class ProductScreen extends Screen
     /**
      * Get default subcategory ID when creating product in a category
      */
-    protected function getDefaultSubcategoryId()
+    protected function getDefaultCategoryId()
     {
         $categoryId = request()->input('category_id');
-        if ($categoryId) {
-            $subcategories = Category::where('parent_id', $categoryId)->get();
-            if ($subcategories->isNotEmpty()) {
-                return $categoryId;
-            }
-        }
-        return null;
+        return $categoryId ?: null;
     }
 
     /**
      * Get subcategory name for help text
      */
-    protected function getSubcategoryName()
+    protected function getCategoryName()
     {
-        $subcategoryId = $this->getDefaultSubcategoryId();
-        if ($subcategoryId) {
-            return Category::find($subcategoryId)->name;
+        $categoryId = $this->getDefaultCategoryId();
+        if ($categoryId) {
+            return Category::find($categoryId)->name;
         }
-        return 'Не выбрана подкатегория';
+        return 'Не выбрана категория';
     }
-
     /**
      * @param Product $product
      * @param Request $request
@@ -344,19 +337,14 @@ class ProductScreen extends Screen
                 'product.price' => 'required|numeric|min:0',
                 'product.code' => 'required|string|max:100',
                 'product.brand' => 'required|string|max:100',
-                'product.subcategory_id' => 'required|exists:categories,id',
+                'product.category_id' => 'required|exists:categories,id',
             ]);
 
             $data = $request->get('product');
 
             if (!$product->exists && $request->has('category_id')) {
                 $categoryId = $request->input('category_id');
-                $subcategories = Category::where('parent_id', $categoryId)->get();
-                
-                if ($subcategories->isNotEmpty()) {
-                    $data['subcategory_id'] = $subcategories->first()->id;
-                    $data['category_id'] = $categoryId;
-                }
+                $data['category_id'] = $categoryId;  
             }
 
             $data['rating'] = $data['rating'] ?? 0;

@@ -56,10 +56,10 @@ class Product extends Model
     /**
      * Получить категорию продукта.
      */
-    public function category(): BelongsTo
-    {
-        return $this->belongsTo(Category::class, 'category_id');
-    }
+    // public function category(): BelongsTo
+    // {
+    //     return $this->belongsTo(Category::class, 'category_id');
+    // }
 
     public function getContent()
     {
@@ -70,9 +70,9 @@ class Product extends Model
     /**
      * Получить подкатегорию продукта.
      */
-    public function subcategory()
+    public function category()
     {
-        return $this->belongsTo(Category::class, 'subcategory_id');
+        return $this->belongsTo(Category::class);
     }
 
     /**
