@@ -182,12 +182,12 @@ class ProductScreen extends Screen
                     
                     $isCreatingInCategory
                         ? Input::make('product.subcategory_id')
-                            ->title('Подкатегория')
+                            ->title('категория')
                             ->value($this->getDefaultSubcategoryId())
                             ->readonly()
                             ->help('Этот товар будет добавлен в: ' . $this->getSubcategoryName())
                         : Select::make('product.subcategory_id')
-                            ->title('Подкатегория')
+                            ->title('категория')
                             ->fromModel(Category::class, 'name')
                             ->empty('Не выбрана')
                             ->help('Выберите подкатегорию для этого товара'),
