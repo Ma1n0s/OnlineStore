@@ -37,7 +37,7 @@ class ProductListScreen extends Screen
      */
     public function name(): ?string
     {
-        return 'Products';
+        return 'Товары';
     }
 
     /**
@@ -48,7 +48,7 @@ class ProductListScreen extends Screen
     public function commandBar(): array
     {
         return [
-            Link::make('Create new')
+            Link::make('Создать новый')
                 ->icon('plus')
                 ->route('platform.product.create')
                 ->canSee(auth()->user()->hasAccess('platform.products.create')),
@@ -70,7 +70,7 @@ class ProductListScreen extends Screen
                         return $product->id;
                     }),
 
-                TD::make('name', 'Name')
+                TD::make('name', 'Название')
                     ->sort()
                     ->filter(Input::make())
                     ->render(function (Product $product) {
@@ -78,20 +78,20 @@ class ProductListScreen extends Screen
                             ->route('platform.product.edit', $product);
                     }),
 
-                TD::make('code', 'Code')
+                TD::make('code', 'Артикул')
                     ->sort()
                     ->filter(Input::make())
                      ->render(function (Product $product) {
                         return $product->code;
                     }),
 
-                TD::make('price', 'Price')
+                TD::make('price', 'Цена')
                     ->sort()
                     ->render(function (Product $product) {
                         return '₽' . number_format((float)$product->price, 2);
                     }),
 
-                TD::make('brand', 'Brand')
+                TD::make('brand', 'Бренд')
                     ->sort()
                     ->filter(Input::make())
                     ->render(function (Product $product) {
@@ -105,13 +105,13 @@ class ProductListScreen extends Screen
                         return $product->slug;
                     }),
 
-                TD::make('subcategory.name', 'Subcategory')
+                TD::make('subcategory.name', 'категория')
                     ->sort()
                     ->render(function (Product $product) {
                         return $product->subcategory ? $product->subcategory->name : '-';
                     }),
 
-                TD::make('rating', 'Rating')
+                TD::make('rating', 'Рейтинг')
                     ->sort()
                     ->render(function (Product $product) {
                         return number_format($product->rating, 1);
@@ -122,27 +122,27 @@ class ProductListScreen extends Screen
                 //         return $product->category->name ?? '-';
                 //     }),
 
-                TD::make('created_at', 'Created')
+                TD::make('created_at', 'Дата создания')
                     ->sort()
                     ->render(function (Product $product) {
                         return $product->created_at->toDateTimeString();
                     }),
 
-                TD::make('actions', 'Actions')
+                TD::make('actions', 'Действия')
                     ->alignRight()
                     ->render(function (Product $product) {
                         return DropDown::make()
                             ->icon('three-dots-vertical')
                             ->list([
-                                Link::make('Edit')
+                                Link::make('Редактировать')
                                     ->route('platform.product.edit', $product)
                                     ->icon('pencil')
                                     ->canSee(auth()->user()->hasAccess('platform.products.edit')),
                                     
-                                Button::make('Delete')
+                                Button::make('Удалить')
                                     ->icon('trash')
                                     ->method('remove')
-                                    ->confirm('Are you sure you want to delete this product?')
+                                    ->confirm('Вы уверены, что хотите удалить этот товар?')
                                     ->parameters(['id' => $product->id])
                                     ->canSee(auth()->user()->hasAccess('platform.products.delete')),
                             ]);
@@ -164,7 +164,7 @@ class ProductListScreen extends Screen
         
         $product->delete();
 
-        Alert::info('Product was deleted');
+        Alert::info('Товар был удален');
 
         return redirect()->route('platform.product.list');
     }

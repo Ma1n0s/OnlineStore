@@ -38,7 +38,9 @@ use Tabuna\Breadcrumbs\Trail;
 */
 // Main
 Route::screen('/main', PlatformScreen::class)
-    ->name('platform.main');
+    ->name('platform.main')
+    ->breadcrumbs(fn (Trail $trail) => $trail
+        ->push('Главная'));
 
 Route::screen('product/{product}/edit', ProductScreen::class)
     ->name('platform.product.edit');
@@ -66,26 +68,77 @@ Route::screen('products', ProductListScreen::class)
 Route::screen('categories', CategoryListScreen::class)
     ->name('platform.category.list')
     ->breadcrumbs(fn (Trail $trail) => $trail
-        ->parent('platform.index')
-        ->push('Categories'));
+        ->parent('platform.main')
+        ->push('Категории'));
+
+Route::screen('categories/{category}', CategoryListScreen::class)
+    ->name('platform.category.list.nested')
+    ->breadcrumbs(function (Trail $trail, Category $category) {
+        $trail->parent('platform.main')
+              ->push('Категории', route('platform.category.list'));
+        
+        $current = $category;
+        $ancestors = collect();
+        
+        while ($current->parent) {
+            $ancestors->prepend($current->parent);
+            $current = $current->parent;
+        }
+        
+        foreach ($ancestors as $ancestor) {
+            $trail->push($ancestor->name, route('platform.category.list.nested', $ancestor));
+        }
+        
+        return $trail->push($category->name);
+    });
 
 Route::screen('category/create', CategoryEditScreen::class)
     ->name('platform.category.create')
     ->breadcrumbs(fn (Trail $trail) => $trail
         ->parent('platform.category.list')
-        ->push('Create'));
+        ->push('Создать категорию'));
 
 Route::screen('category/{category}/edit', CategoryEditScreen::class)
     ->name('platform.category.edit')
-    ->breadcrumbs(fn (Trail $trail, Category $category) => $trail
-        ->parent('platform.category.list')
-        ->push($category->name));
+    ->breadcrumbs(function (Trail $trail, Category $category) {
+        $trail->parent('platform.main')
+              ->push('Категории', route('platform.category.list'));
+        
+        $current = $category;
+        $ancestors = collect();
+        
+        while ($current->parent) {
+            $ancestors->prepend($current->parent);
+            $current = $current->parent;
+        }
+        
+        foreach ($ancestors as $ancestor) {
+            $trail->push($ancestor->name, route('platform.category.list.nested', $ancestor));
+        }
+        
+        return $trail->push('Редактировать: ' . $category->name);
+    });
 
 Route::screen('category/{category}/action', CategoryActionScreen::class)
     ->name('platform.category.action')
-    ->breadcrumbs(fn (Trail $trail, Category $category) => $trail
-        ->parent('platform.category.list')
-        ->push($category->name));
+    ->breadcrumbs(function (Trail $trail, Category $category) {
+        $trail->parent('platform.main')
+              ->push('Категории', route('platform.category.list'));
+        
+        $current = $category;
+        $ancestors = collect();
+        
+        while ($current->parent) {
+            $ancestors->prepend($current->parent);
+            $current = $current->parent;
+        }
+        
+        foreach ($ancestors as $ancestor) {
+            $trail->push($ancestor->name, route('platform.category.list.nested', $ancestor));
+        }
+        
+        return $trail->push($category->name);
+    });
 
 // Platform > Profile
 Route::screen('profile', UserProfileScreen::class)

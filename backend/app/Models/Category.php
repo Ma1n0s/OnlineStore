@@ -102,9 +102,22 @@ class Category extends Model
      * 
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function ancestors(): BelongsTo
+    public function ancestors()
     {
-        return $this->parent()->with('ancestors');
+        $ancestors = collect();
+        $current = $this;
+        
+        while ($current->parent) {
+            $current = $current->parent;
+            $ancestors->prepend($current);
+        }
+        
+        return $ancestors;
+    }
+
+    public function parentRecursive()
+    {
+        return $this->belongsTo(Category::class, 'parent_id')->with('parentRecursive');
     }
 
     /**
