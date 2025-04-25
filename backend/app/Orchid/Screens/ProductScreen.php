@@ -252,7 +252,7 @@ class ProductScreen extends Screen
                 ]),
                 
                 'Характеристики' => Layout::rows([
-                    Matrix::make('product.specifications')
+                    Matrix::make('specifications')
                         ->title('Основные характеристики')
                         ->columns([
                             'Параметр' => 'Key',
@@ -262,10 +262,10 @@ class ProductScreen extends Screen
                             'Key' => Input::make()->placeholder('Например: Вес'),
                             'Value' => Input::make()->placeholder('Например: 1.5 кг'),
                         ])
-                        ->value($this->product->specifications ?? [])
+                        ->value($this->specifications ?? [])
                         ->help('Основные параметры товара, которые будут отображаться в карточке'),
                         
-                    Matrix::make('product.specificationsB')
+                    Matrix::make('specificationsB')
                         ->title('Дополнительные характеристики')
                         ->columns([
                             'Название' => 'Name',
@@ -275,12 +275,12 @@ class ProductScreen extends Screen
                             'Name' => Input::make()->placeholder('Например: Материал'),
                             'Value' => Input::make()->placeholder('Например: Пластик'),
                         ])
-                        ->value($this->product->specificationsB ?? [])
+                        ->value($this->specificationsB ?? [])
                         ->help('Дополнительные параметры товара'),
                 ]),
                 
                 'Преимущества' => Layout::rows([
-                    Matrix::make('product.advantages')
+                    Matrix::make('advantages')
                         ->title('Преимущества товара')
                         ->columns([
                             'Заголовок' => 'Title',
@@ -290,7 +290,7 @@ class ProductScreen extends Screen
                             'Title' => Input::make()->placeholder('Например: Удобное использование'),
                             'Description' => TextArea::make()->placeholder('Подробное описание преимущества')->rows(2),
                         ])
-                        ->value($this->product->advantages ?? [])
+                        ->value($this->advantages ?? [])
                         ->help('Перечислите преимущества этого товара перед конкурентами'),
                 ]),
             ]),
@@ -517,7 +517,7 @@ class ProductScreen extends Screen
 
     protected function processSpecifications(Product $product, Request $request)
     {
-        $specifications = $request->input('product.specifications', []);
+        $specifications = $request->input('specifications', []);
         
         $product->specifications()->delete();
         
@@ -534,7 +534,7 @@ class ProductScreen extends Screen
 
     protected function processSpecificationsB(Product $product, Request $request)
     {
-        $specificationsB = $request->input('product.specificationsB', []);
+        $specificationsB = $request->input('specificationsB', []);
         
         $product->specificationsB()->delete();
         
@@ -551,7 +551,7 @@ class ProductScreen extends Screen
 
     protected function processAdvantages(Product $product, Request $request)
     {
-        $advantages = $request->input('product.advantages', []);
+        $advantages = $request->input('advantages', []);
         
         $product->advantages()->delete();
         
