@@ -255,7 +255,7 @@ const toggleBrand = brand => {
 </script>
 
 <template>
-  <div class="container mx-auto px-4 md:px-6 lg:px-8 py-6">
+  <div class="mx-auto w-full max-w-screen-2xl px-8 space-y-16 py-8">
     <!-- Хлебные крошки -->
     <nav class="flex flex-wrap items-center gap-2 text-gray mb-4">
       <NuxtLink to="#" class="hover:underline">Главная</NuxtLink>

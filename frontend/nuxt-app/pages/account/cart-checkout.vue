@@ -1,7 +1,5 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
-// import TextInput from '~/components/ui/Inputs/TextInput.vue'
-// import Button from '~/components/ui/Button/Button.vue'
 import OrderSummary from '~/components/СartСheckout/OrderSummary.vue'
 import CartHeader from '~/components/СartСheckout/CartHeader.vue'
 import CartItemsList from '~/components/СartСheckout/CartItemsList.vue'
@@ -26,7 +24,6 @@ const state = ref({
   },
   selectAll: false,
   items: [
-    // Regular purchase items
     {
       id: 1,
       name: 'Бесщеточная дрель-шуруповерт AEG BS18SBL-202C',
@@ -49,7 +46,6 @@ const state = ref({
       image: 'Categories/Instruments.png',
       rentalType: null,
     },
-
     {
       id: 3,
       name: 'Генератор FUBAG TI 6000',
@@ -122,7 +118,6 @@ const formattedTotalAmount = computed(() => {
 })
 
 const discountAmount = computed(() => {
-  // Calculate discount only for non-rental items
   const nonRentalItems = selectedItems.value.filter(item => !item.rentalType)
   const rentalDiscounts = selectedItems.value
     .filter(item => item.rentalType === 'long-term' && item.discount)
@@ -147,6 +142,11 @@ const formattedDiscountAmount = computed(() => {
   return '-' + discountAmount.value.toLocaleString('ru-RU') + ' ₽'
 })
 
+const handleSearch = searchTerm => {
+  // Реализация поиска по товарам
+  console.log('Search term:', searchTerm)
+}
+
 const increaseQuantity = item => {
   item.quantity += 1
 }
@@ -167,9 +167,15 @@ const removeSelectedItems = () => {
   state.value.items = state.value.items.filter(item => !item.selected)
 }
 
-// const formatPrice = price => {
-//   return price.toLocaleString('ru-RU') + ' ₽'
-// }
+const increaseRentalDays = item => {
+  item.rentalDays += 1
+}
+
+const decreaseRentalDays = item => {
+  if (item.rentalDays > 1) {
+    item.rentalDays -= 1
+  }
+}
 
 watch(
   () => state.value.items.every(item => item.selected),
@@ -187,27 +193,11 @@ watch(
   },
   { deep: true }
 )
-
-const increaseRentalDays = item => {
-  item.rentalDays += 1
-}
-
-const decreaseRentalDays = item => {
-  if (item.rentalDays > 1) {
-    item.rentalDays -= 1
-  }
-}
-
-// const orderDate = computed(() => {
-//   const today = new Date()
-//   const options = { year: 'numeric', month: 'long', day: 'numeric' }
-//   return today.toLocaleDateString('ru-RU', options)
-// })
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 py-4 sm:py-8">
-    <div class="container mx-auto px-3 sm:px-4">
+  <div>
+    <div class="mx-auto w-full max-w-screen-2xl px-8 space-y-16 py-8">
       <div class="flex flex-col lg:flex-row gap-4 sm:gap-6">
         <div class="lg:w-3/4">
           <CartHeader :cart-number="state.cartNumber" @search="handleSearch" />

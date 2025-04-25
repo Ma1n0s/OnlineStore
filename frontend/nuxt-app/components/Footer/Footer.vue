@@ -1,8 +1,8 @@
 <script setup lang="ts">
 const links = [
-  { link: 'contacts', name: 'Контакты' },
-  { link: 'about', name: 'О компании' },
-  { link: 'news', name: 'Статьи' },
+  { link: '/contacts', name: 'Контакты' },
+  { link: '/about', name: 'О компании' },
+  { link: '/news', name: 'Статьи' },
 ]
 
 const socialLinks = [
