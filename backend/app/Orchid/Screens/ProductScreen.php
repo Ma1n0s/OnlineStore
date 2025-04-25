@@ -232,12 +232,11 @@ class ProductScreen extends Screen
                             try {
                                 return $this->product->attachment()
                                     ->select('attachments.id', 'attachments.name', 'attachments.original_name', 
-                                         'attachments.mime', 'attachments.extension', 'attachments.path', 
-                                         'attachments.disk', 'attachments.group', 'attachments.sort')
+                                             'attachments.mime', 'attachments.extension', 'attachments.path', 
+                                             'attachments.disk', 'attachments.group', 'attachments.sort')
                                     ->where('group', 'products')
-                                    ->orderBy('sort')
-                                    ->get()
-                                    ->toArray();
+                                    ->orderBy('attachments.sort')
+                                    ->get();
                             } catch (\Exception $e) {
                                 \Illuminate\Support\Facades\Log::error('Error fetching product attachments', [
                                     'error' => $e->getMessage(),
@@ -383,7 +382,11 @@ class ProductScreen extends Screen
                 ]);
                 
                 if ($product->attachments->isNotEmpty()) {
-                    $currentAttachmentIds = $product->attachment()->where('group', 'products')->pluck('id')->toArray();
+                    $currentAttachmentIds = $product->attachment()
+                        ->select('attachments.id')
+                        ->where('group', 'products')
+                        ->pluck('attachments.id')
+                        ->toArray();
                     
                     \Illuminate\Support\Facades\Log::info('Current attachment IDs', [
                         'current_ids' => $currentAttachmentIds,
