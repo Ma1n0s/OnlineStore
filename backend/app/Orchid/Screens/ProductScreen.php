@@ -36,8 +36,13 @@ class ProductScreen extends Screen
      */
     public function query(Product $product): array
     {
-        $product->load('category');
         $categoryId = request()->input('category_id');
+
+        $product->load(['category', 'attachment' => function($query) {
+            $query->select('attachments.*')
+                ->where('group', 'products')
+                ->orderBy('sort');
+        }]);
         
         \Illuminate\Support\Facades\Log::info('Product data for Orchid screen', [
             'product_id' => $product->id,
@@ -222,23 +227,10 @@ class ProductScreen extends Screen
                             }
                             
                             try {
-                                $attachmentIds = DB::table('attachmentable')
-                                    ->where('attachmentable_id', $product->id)
-                                    ->where('attachmentable_type', get_class($product))
-                                    ->pluck('attachment_id')
-                                    ->toArray();
-                                    
-                                \Illuminate\Support\Facades\Log::info('Fetching attachments from attachmentable table', [
-                                    'product_id' => $product->id,
-                                    'attachment_ids' => $attachmentIds
-                                ]);
-                                
-                                if (empty($attachmentIds)) {
-                                    return [];
-                                }
-                                
-                                return Attachment::whereIn('id', $attachmentIds)
+                                return $product->attachment()
+                                    ->select('attachments.*') // Explicitly select from attachments
                                     ->where('group', 'products')
+                                    ->orderBy('sort')
                                     ->get();
                             } catch (\Exception $e) {
                                 \Illuminate\Support\Facades\Log::error('Error fetching product attachments', [
@@ -248,6 +240,7 @@ class ProductScreen extends Screen
                                 return [];
                             }
                         })
+
                         ->storage('public')
                         ->path('products/' . date('Y/m/d'))
                         ->help('Загрузите изображения товара (максимум 10)')

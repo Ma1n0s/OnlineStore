@@ -144,12 +144,11 @@ class Product extends Model
         $attachmentImages = collect();
         if ($this->exists) {
             try {
-                // Явно указываем выборку полей с нужной таблицы, чтобы избежать неоднозначности
-                $attachments = $this->attachment()
-                    ->select('attachments.*') // Явно выбираем все поля из таблицы attachments
+                $attachment = $this->attachment()
+                    ->select('attachments.*') 
                     ->where('group', 'products')
-                    ->get();
-                
+                    ->first();
+                                
                 $attachmentImages = $attachments->map(function($attachment) {
                     return [
                         'id' => 'att_' . $attachment->id,
@@ -188,7 +187,7 @@ class Product extends Model
             // Then try attachments
             if ($this->exists) {
                 $attachment = $this->attachment()
-                    ->select('attachments.*') // Явно выбираем все поля из таблицы attachments
+                    ->select('attachments.*') 
                     ->where('group', 'products')
                     ->first();
                 if ($attachment) {
