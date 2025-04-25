@@ -117,29 +117,17 @@ class Product extends Model
      */
     public function getAllImagesAttribute()
     {
-        // Get traditional images
-        $traditionalImages = collect();
-        if ($this->images !== null) {
-            $traditionalImages = $this->images->map(function($image) {
-                return [
-                    'id' => 'img_' . $image->id,
-                    'url' => $image->url,
-                    'type' => 'db_image',
-                    'position' => $image->position,
-                    'alt' => $image->alt ?? $this->name,
-                ];
-            });
-        }
-        
-        // Get attachment images
+        // Get attachment images - using attachments as the primary image source
         $attachmentImages = collect();
         if ($this->exists) {
             try {
                 $attachments = $this->attachment()
                     ->select('attachments.id', 'attachments.name', 'attachments.original_name', 
                              'attachments.mime', 'attachments.extension', 'attachments.path', 
-                             'attachments.disk', 'attachments.group', 'attachments.sort') 
+                             'attachments.disk', 'attachments.group', 'attachments.sort',
+                             'attachments.position') 
                     ->where('group', 'products')
+                    ->orderBy('attachments.position')
                     ->get();
                                 
                 $attachmentImages = $attachments->map(function($attachment) {
@@ -147,8 +135,9 @@ class Product extends Model
                         'id' => 'att_' . $attachment->id,
                         'url' => $attachment->url,
                         'type' => 'attachment',
-                        'position' => 0,
+                        'position' => $attachment->position ?? 0,
                         'alt' => $this->name,
+                        'sort' => $attachment->position ?? 0
                     ];
                 });
             } catch (\Exception $e) {
@@ -159,8 +148,38 @@ class Product extends Model
             }
         }
         
-        // Combine and sort by position
-        return $traditionalImages->merge($attachmentImages)->sortBy('position');
+        // Get traditional images as fallback/legacy
+        $traditionalImages = collect();
+        if ($this->images !== null) {
+            $traditionalImages = $this->images->map(function($image) {
+                return [
+                    'id' => 'img_' . $image->id,
+                    'url' => $image->url,
+                    'type' => 'db_image',
+                    'position' => $image->position,
+                    'sort' => $image->position,
+                    'alt' => $image->alt ?? $this->name,
+                ];
+            });
+        }
+        
+        // Create a combined collection of all images
+        $allImages = collect();
+        
+        // First add attachment images - these are the primary ones
+        foreach ($attachmentImages as $image) {
+            $allImages->push($image);
+        }
+        
+        // Then add traditional images as fallback
+        foreach ($traditionalImages as $image) {
+            $allImages->push($image);
+        }
+        
+        // Sort by position field
+        return $allImages->sortBy(function($image) {
+            return $image['position'] ?? 999;
+        });
     }
     
     /**
@@ -170,24 +189,26 @@ class Product extends Model
      */
     public function getMainImageAttribute()
     {
-        // First try to get from traditional images
+        // First try to get from attachments since they're the primary image source now
         try {
-            $image = $this->images()->orderBy('position')->first();
-            if ($image) {
-                return $image->url;
-            }
-            
-            // Then try attachments
             if ($this->exists) {
                 $attachment = $this->attachment()
                     ->select('attachments.id', 'attachments.name', 'attachments.original_name', 
                              'attachments.mime', 'attachments.extension', 'attachments.path', 
-                             'attachments.disk', 'attachments.group', 'attachments.sort') 
+                             'attachments.disk', 'attachments.group', 'attachments.position') 
                     ->where('group', 'products')
+                    ->orderBy('attachments.position')
                     ->first();
+                
                 if ($attachment) {
                     return $attachment->url;
                 }
+            }
+            
+            // Then try traditional images as fallback
+            $image = $this->images()->orderBy('position')->first();
+            if ($image) {
+                return $image->url;
             }
             
             return null;
