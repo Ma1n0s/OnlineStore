@@ -16,6 +16,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Orchid\Attachment\Models\Attachment;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class CategoryEditScreen extends Screen
 {
@@ -202,7 +203,26 @@ class CategoryEditScreen extends Screen
                     if ($category->exists && $category->image_url) {
                         $attachment = Attachment::find($category->image_url);
                         if ($attachment) {
-                            $attachment->delete();
+                            // Проверяем, используется ли файл где-то еще
+                            $usageCount = $this->getAttachmentUsageCount($attachment->id);
+                            
+                            Log::info('Checking if main image can be deleted', [
+                                'attachment_id' => $attachment->id,
+                                'usage_count' => $usageCount
+                            ]);
+                            
+                            // Если файл нигде не используется (или используется только в текущей категории)
+                            if ($usageCount <= 1) {
+                                $attachment->delete();
+                                Log::info('Deleted unused main image', [
+                                    'attachment_id' => $attachment->id
+                                ]);
+                            } else {
+                                Log::info('Main image is used elsewhere, not deleting', [
+                                    'attachment_id' => $attachment->id,
+                                    'usage_count' => $usageCount
+                                ]);
+                            }
                         }
                     }
                     $data['image_url'] = null;
@@ -238,7 +258,26 @@ class CategoryEditScreen extends Screen
                     if ($category->exists && $category->description_image_url) {
                         $attachment = Attachment::find($category->description_image_url);
                         if ($attachment) {
-                            $attachment->delete();
+                            // Проверяем, используется ли файл где-то еще
+                            $usageCount = $this->getAttachmentUsageCount($attachment->id);
+                            
+                            Log::info('Checking if description image can be deleted', [
+                                'attachment_id' => $attachment->id,
+                                'usage_count' => $usageCount
+                            ]);
+                            
+                            // Если файл нигде не используется (или используется только в текущей категории)
+                            if ($usageCount <= 1) {
+                                $attachment->delete();
+                                Log::info('Deleted unused description image', [
+                                    'attachment_id' => $attachment->id
+                                ]);
+                            } else {
+                                Log::info('Description image is used elsewhere, not deleting', [
+                                    'attachment_id' => $attachment->id,
+                                    'usage_count' => $usageCount
+                                ]);
+                            }
                         }
                     }
                     $data['description_image_url'] = null;
@@ -316,5 +355,30 @@ class CategoryEditScreen extends Screen
         }
         
         return redirect()->route('platform.category.list');
+    }
+    
+    /**
+     * Проверяет количество использований вложения в таблице attachment_models
+     * 
+     * @param int $attachmentId ID вложения
+     * @return int Количество моделей, использующих данное вложение
+     */
+    private function getAttachmentUsageCount(int $attachmentId): int
+    {
+        try {
+            $count = DB::table('attachmentable')
+                ->where('attachment_id', $attachmentId)
+                ->count();
+                
+            return $count;
+        } catch (\Exception $e) {
+            Log::error('Error checking attachment usage', [
+                'attachment_id' => $attachmentId,
+                'error' => $e->getMessage()
+            ]);
+            
+            // В случае ошибки возвращаем 0, чтобы файл был удален
+            return 0;
+        }
     }
 }

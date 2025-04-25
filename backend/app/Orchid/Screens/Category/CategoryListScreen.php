@@ -14,6 +14,7 @@ use Orchid\Support\Facades\Alert;
 use Illuminate\Http\Request;
 use Orchid\Screen\Fields\Input;
 use Illuminate\Support\Facades\Storage;
+use Orchid\Attachment\Models\Attachment;
 
 class CategoryListScreen extends Screen
 {
@@ -109,13 +110,23 @@ class CategoryListScreen extends Screen
     {
         $category = Category::findOrFail($request->get('id'));
         
-
+        // Получаем ID всех категорий, которые нужно удалить (текущая + подкатегории)
         $categoryIds = $category->descendants()->pluck('id')->push($category->id);
+        
+        // Удаляем продукты из категорий (без каскадного удаления)
         Product::whereIn('subcategory_id', $categoryIds)->delete();
         
-        $category->descendants()->delete();
+        // Найдем все категории, которые нужно удалить
+        $categoriesToDelete = Category::whereIn('id', $categoryIds)->get();
         
-        // Удаляем саму категорию
+        // Для каждой категории удаляем связанные изображения
+        foreach ($categoriesToDelete as $categoryToDelete) {
+            // Удаляем все вложения категории, включая изображения
+            $categoryToDelete->attachment()->delete();
+        }
+        
+        // Удаляем все подкатегории и саму категорию
+        $category->descendants()->delete();
         $category->delete();
 
         Alert::info('Category and all its contents were deleted successfully');
