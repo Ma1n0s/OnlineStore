@@ -402,8 +402,7 @@ class ProductController extends Controller
         $query = Product::with(['category', 'images'])
             ->where(function($query) use ($categoryIds) {
                 $query->where(function($subQuery) use ($categoryIds) {
-                    $subQuery->whereIn('category_id', $categoryIds)
-                            ->orWhereIn('subcategory_id', $categoryIds);
+                    $subQuery->whereIn('category_id', $categoryIds);
                 });
             });
             
@@ -524,8 +523,7 @@ class ProductController extends Controller
         $query = Product::with(['category', 'images'])
             ->where(function($query) use ($categoryIds) {
                 $query->where(function($subQuery) use ($categoryIds) {
-                    $subQuery->whereIn('category_id', $categoryIds)
-                            ->orWhereIn('subcategory_id', $categoryIds);
+                    $subQuery->whereIn('category_id', $categoryIds);
                 });
             });
             

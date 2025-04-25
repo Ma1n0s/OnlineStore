@@ -230,10 +230,12 @@ class ProductScreen extends Screen
                             }
                             
                             try {
-                                return $product->attachment()
-                                    ->select('attachments.*') // Explicitly select from attachments
+                                return $this->product->attachment()
+                                    ->select('attachments.id', 'attachments.name', 'attachments.original_name', 
+                                             'attachments.mime', 'attachments.extension', 'attachments.path', 
+                                             'attachments.disk', 'attachments.group', 'attachments.sort')
                                     ->where('group', 'products')
-                                    ->orderBy('sort')
+                                    ->orderBy('attachments.sort')
                                     ->get();
                             } catch (\Exception $e) {
                                 \Illuminate\Support\Facades\Log::error('Error fetching product attachments', [
@@ -243,7 +245,6 @@ class ProductScreen extends Screen
                                 return [];
                             }
                         })
-
                         ->storage('public')
                         ->path('products/' . date('Y/m/d'))
                         ->help('Загрузите изображения товара (максимум 10)')
@@ -381,7 +382,11 @@ class ProductScreen extends Screen
                 ]);
                 
                 if ($product->attachments->isNotEmpty()) {
-                    $currentAttachmentIds = $product->attachment()->where('group', 'products')->pluck('id')->toArray();
+                    $currentAttachmentIds = $product->attachment()
+                        ->select('attachments.id')
+                        ->where('group', 'products')
+                        ->pluck('attachments.id')
+                        ->toArray();
                     
                     \Illuminate\Support\Facades\Log::info('Current attachment IDs', [
                         'current_ids' => $currentAttachmentIds,
