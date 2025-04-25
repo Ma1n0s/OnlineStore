@@ -1,17 +1,38 @@
 <template>
-  <div class="py-4">
+  <div class="pb-4">
     <h1>{{ data.title }}</h1>
-    <div>
-      <NuxtImg :src="`${data.description_image_url}`" :alt="data.name" />
-      <div v-html="data.description" class="flex gap-4 flex-col lg:flex-row justify-center items-center"></div>
+    <div class="w-full flex flex-col py-2">
+      <NuxtImg
+        :src="`${data.description_image_url}`"
+        :alt="data.name"
+        class="object-fill h-fit max-h-[300px] float-start pb-2 md:pb-4"
+      />
+      <div
+        :class="['text-sm lg:text-lg overflow-hidden text-justify', hideText ? 'line-clamp-4' : 'line-clamp-none']"
+        @click="hideText = !hideText"
+      >
+        {{ data.description }}
+      </div>
+      <button @click="hideText = !hideText" class="w-full hover:bg-gray/10 py-1 flex items-center justify-center">
+        {{ hideText ? 'Показать больше' : 'Показать меньше' }}
+        <Icon
+          :name="hideText ? 'material-symbols:arrow-drop-down-rounded' : 'material-symbols:arrow-drop-up-rounded'"
+          class="w-8 h-8"
+        />
+      </button>
     </div>
   </div>
 </template>
 <script setup lang="ts">
+// v-html="data.description"
 defineProps<{
   data: {
     title: string
     description: string
+    name: string
+    description_image_url: string
   }
 }>()
+
+const hideText = ref(true)
 </script>
