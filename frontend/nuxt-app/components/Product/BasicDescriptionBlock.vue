@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { productData } from '~/shared/productData'
 import type { Product } from '~/types/product.types'
-
 const product = reactive<Product>(productData)
+
+const expanded = ref(false)
 </script>
 
 <template>

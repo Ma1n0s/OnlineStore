@@ -1,8 +1,9 @@
 <script setup>
 import CategoryDescription from '~/components/CategoryItems/CategoryDescription/CategoryDescription.vue'
-import { catalogDescription } from '~/shared/mock/CatalogDescription'
 import { reactive, computed } from 'vue'
 import TextInput from '~/components/ui/Inputs/TextInput.vue'
+import Breadcrumbs from '~/components/BreadCrumbs/Breadcrumbs.vue'
+import { getBreadcrumbs } from '~/components/BreadCrumbs/helpers'
 
 const route = useRoute()
 const { slug } = route.params
@@ -248,25 +249,24 @@ const toggleBrand = brand => {
     state.filters.selectedBrands = [...state.filters.selectedBrands, brand]
   }
 }
+
+const breadcrumbs = [
+  {
+    name: 'Категории',
+    url: '/category',
+  },
+  ...getBreadcrumbs(slug.slice(0, -1)),
+  {
+    name: 'Список',
+    url: '/products/category/' + slug.join('/'),
+  },
+]
 </script>
 
 <template>
   <div class="container mx-auto px-4 md:px-6 lg:px-8 py-6">
-    <!-- Хлебные крошки -->
-    <nav class="flex flex-wrap items-center gap-2 text-gray mb-4">
-      <NuxtLink to="#" class="hover:underline">Главная</NuxtLink>
-      <span>/</span>
-      <NuxtLink to="#" class="font-semibold">Категория</NuxtLink>
-      <span>/</span>
-      <NuxtLink to="#" class="font-semibold">Подкатегория</NuxtLink>
-      <span>/</span>
-      <NuxtLink to="#" class="font-semibold">Подподкатегория</NuxtLink>
-      <span>/</span>
-      <NuxtLink to="#" class="font-semibold">Список товаров</NuxtLink>
-    </nav>
-
-    <!-- Категории -->
-    <CategoryDescription :data="catalogDescription" />
+    <Breadcrumbs :list="breadcrumbs" />
+    <CategoryDescription :data="data.category" />
 
     <!-- Заголовок результатов -->
     <div
@@ -452,7 +452,7 @@ const toggleBrand = brand => {
           >
             <div :class="state.ui.isGrid ? 'relative h-48 flex-shrink-0' : 'relative w-1/3 flex-shrink-0'">
               <NuxtImg
-                :src="item.image"
+                :src="item.main_image"
                 :alt="item.title"
                 :class="state.ui.isGrid ? 'w-full h-full object-contain p-4' : 'w-full h-full object-cover'"
                 width="300"
