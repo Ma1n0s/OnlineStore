@@ -23,7 +23,7 @@ class ProductListScreen extends Screen
     public function query(): array
     {
         return [
-            'products' => Product::with('subcategory')
+            'products' => Product::with('category')
                 ->filters()
                 ->defaultSort('id', 'desc')
                 ->paginate(),
@@ -105,10 +105,10 @@ class ProductListScreen extends Screen
                         return $product->slug;
                     }),
 
-                TD::make('subcategory.name', 'категория')
+                TD::make('category.name', 'категория')
                     ->sort()
                     ->render(function (Product $product) {
-                        return $product->subcategory ? $product->subcategory->name : '-';
+                        return $product->category ? $product->category->name : '-';
                     }),
 
                 TD::make('rating', 'Рейтинг')

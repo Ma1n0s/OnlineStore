@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Orchid\Filters\Filterable;
+use App\Models\Advantages;
+use App\Models\Specification;
+use App\Models\SpecificationB;
 use Orchid\Attachment\Models\Attachment;
 use Orchid\Attachment\Attachable;
 
@@ -29,7 +32,6 @@ class Product extends Model
         'brand',
         'rating',
         'category_id',
-        'subcategory_id',
         'specifications',
         'warranty',
         'advantages',
@@ -54,10 +56,10 @@ class Product extends Model
     /**
      * Получить категорию продукта.
      */
-    public function category(): BelongsTo
-    {
-        return $this->belongsTo(Category::class, 'category_id');
-    }
+    // public function category(): BelongsTo
+    // {
+    //     return $this->belongsTo(Category::class, 'category_id');
+    // }
 
     public function getContent()
     {
@@ -68,9 +70,9 @@ class Product extends Model
     /**
      * Получить подкатегорию продукта.
      */
-    public function subcategory()
+    public function category()
     {
-        return $this->belongsTo(Category::class, 'subcategory_id');
+        return $this->belongsTo(Category::class);
     }
 
     /**
@@ -88,7 +90,6 @@ class Product extends Model
     {
         return $this->hasMany(Image::class);
     }
-
     /**
      * Получить все спецификации продукта через категории.
      * 
@@ -143,12 +144,11 @@ class Product extends Model
         $attachmentImages = collect();
         if ($this->exists) {
             try {
-                // Явно указываем выборку полей с нужной таблицы, чтобы избежать неоднозначности
-                $attachments = $this->attachment()
-                    ->select('attachments.*') // Явно выбираем все поля из таблицы attachments
+                $attachment = $this->attachment()
+                    ->select('attachments.*') 
                     ->where('group', 'products')
-                    ->get();
-                
+                    ->first();
+                                
                 $attachmentImages = $attachments->map(function($attachment) {
                     return [
                         'id' => 'att_' . $attachment->id,
@@ -187,7 +187,7 @@ class Product extends Model
             // Then try attachments
             if ($this->exists) {
                 $attachment = $this->attachment()
-                    ->select('attachments.*') // Явно выбираем все поля из таблицы attachments
+                    ->select('attachments.*') 
                     ->where('group', 'products')
                     ->first();
                 if ($attachment) {

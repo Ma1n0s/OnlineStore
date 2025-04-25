@@ -74,7 +74,7 @@ class CategoryListScreen extends Screen
                 TD::make('products_count', 'Товаров')
                     ->render(function (Category $category) {
                         $categoryIds = $category->descendants()->pluck('id')->push($category->id);
-                        $count = Product::whereIn('subcategory_id', $categoryIds)->count();
+                        $count = Product::whereIn('category_id', $categoryIds)->count();
                         return $count > 0 
                             ? "<span class='badge bg-primary'>{$count}</span>"
                             : "<span class='badge bg-secondary'>{$count}</span>";

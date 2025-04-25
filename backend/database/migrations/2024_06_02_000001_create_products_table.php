@@ -20,8 +20,7 @@ return new class extends Migration
             $table->string('article');
             $table->string('brand');
             $table->decimal('rating', 3, 1)->default(0);
-                $table->foreignId('category_id')->nullable()->change();
-            $table->foreignId('subcategory_id')->nullable()->constrained('categories')->onDelete('set null');
+            $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('set null');
             $table->json('specifications')->nullable();
             $table->json('images')->nullable();
             $table->string('slug')->unique();

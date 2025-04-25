@@ -24,8 +24,8 @@ public function query(Category $category): array
     return [
         'category' => $category,
         'children' => $category->children()->paginate(10),
-        'products' => Product::where('subcategory_id', $category->id)
-            ->with('subcategory')
+        'products' => Product::where('category_id', $category->id)
+            ->with('category')
             ->paginate(10),
     ];
 }
@@ -159,10 +159,10 @@ public function query(Category $category): array
                         return $product->slug;
                     }),
 
-                TD::make('subcategory.name', 'Подкатегория')
+                TD::make('category.name', 'Подкатегория')
                     ->sort()
                     ->render(function (Product $product) {
-                        return $product->subcategory ? $product->subcategory->name : '-';
+                        return $product->category ? $product->category->name : '-'; 
                     }),
 
                 TD::make('rating', 'Рейтинг')
