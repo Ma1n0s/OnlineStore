@@ -135,10 +135,12 @@ class Product extends Model
         $attachmentImages = collect();
         if ($this->exists) {
             try {
-                $attachment = $this->attachment()
-                    ->select('attachments.*') 
+                $attachments = $this->attachment()
+                    ->select('attachments.id', 'attachments.name', 'attachments.original_name', 
+                             'attachments.mime', 'attachments.extension', 'attachments.path', 
+                             'attachments.disk', 'attachments.group', 'attachments.sort') 
                     ->where('group', 'products')
-                    ->first();
+                    ->get();
                                 
                 $attachmentImages = $attachments->map(function($attachment) {
                     return [
@@ -178,7 +180,9 @@ class Product extends Model
             // Then try attachments
             if ($this->exists) {
                 $attachment = $this->attachment()
-                    ->select('attachments.*') 
+                    ->select('attachments.id', 'attachments.name', 'attachments.original_name', 
+                             'attachments.mime', 'attachments.extension', 'attachments.path', 
+                             'attachments.disk', 'attachments.group', 'attachments.sort') 
                     ->where('group', 'products')
                     ->first();
                 if ($attachment) {

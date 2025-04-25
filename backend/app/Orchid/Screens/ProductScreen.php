@@ -230,11 +230,14 @@ class ProductScreen extends Screen
                             }
                             
                             try {
-                                return $product->attachment()
-                                    ->select('attachments.*') // Explicitly select from attachments
+                                return $this->product->attachment()
+                                    ->select('attachments.id', 'attachments.name', 'attachments.original_name', 
+                                         'attachments.mime', 'attachments.extension', 'attachments.path', 
+                                         'attachments.disk', 'attachments.group', 'attachments.sort')
                                     ->where('group', 'products')
                                     ->orderBy('sort')
-                                    ->get();
+                                    ->get()
+                                    ->toArray();
                             } catch (\Exception $e) {
                                 \Illuminate\Support\Facades\Log::error('Error fetching product attachments', [
                                     'error' => $e->getMessage(),
@@ -243,7 +246,6 @@ class ProductScreen extends Screen
                                 return [];
                             }
                         })
-
                         ->storage('public')
                         ->path('products/' . date('Y/m/d'))
                         ->help('Загрузите изображения товара (максимум 10)')
