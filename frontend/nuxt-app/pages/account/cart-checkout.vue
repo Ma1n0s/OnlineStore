@@ -206,8 +206,8 @@ const decreaseRentalDays = item => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 py-4 sm:py-8">
-    <div class="container mx-auto px-3 sm:px-4">
+  <div>
+    <div class="mx-auto w-full max-w-screen-2xl px-8 space-y-16 py-8">
       <div class="flex flex-col lg:flex-row gap-4 sm:gap-6">
         <div class="lg:w-3/4">
           <CartHeader :cart-number="state.cartNumber" @search="handleSearch" />

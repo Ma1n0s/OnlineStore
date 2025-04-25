@@ -19,7 +19,7 @@ const transactions = [
 ]
 </script>
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6 mx-auto w-full max-w-screen-2xl px-8 space-y-16 py-8">
     <BonusCard />
 
     <div class="bg-white shadow rounded-lg p-6">

@@ -56,7 +56,7 @@ const articles = [
 
 <template>
   <div class="min-h-screen bg-gray-50">
-    <div class="container mx-auto px-4 py-8">
+    <div class="mx-auto w-full max-w-screen-2xl px-8 space-y-16 py-8">
       <div class="grid grid-cols-1 mx-6 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <ArticleCard
           v-for="article in articles"
