@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('advantages', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->string('name');
-            $table->text('value');
-            $table->unique(['category_id', 'name']);
+            $table->string('title');
+            $table->text('description');
+            $table->integer('position')->default(0);
             $table->timestamps();
         });
     }

@@ -32,10 +32,7 @@ class Product extends Model
         'brand',
         'rating',
         'category_id',
-        'specifications',
         'warranty',
-        'advantages',
-        'specificationsB',
         'reviews_count',
         'questions_count',
     ];
@@ -50,16 +47,12 @@ class Product extends Model
             foreach ($product->attachments as $attachment) {
                 $attachment->delete();
             }
+
+            $product->specifications()->delete();
+            $product->specificationsB()->delete();
+            $product->advantages()->delete();
         });
     }
-
-    /**
-     * Получить категорию продукта.
-     */
-    // public function category(): BelongsTo
-    // {
-    //     return $this->belongsTo(Category::class, 'category_id');
-    // }
 
     public function getContent()
     {
@@ -70,7 +63,7 @@ class Product extends Model
     /**
      * Получить подкатегорию продукта.
      */
-    public function category()
+    public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
@@ -90,33 +83,31 @@ class Product extends Model
     {
         return $this->hasMany(Image::class);
     }
+
+    public function specifications(): HasMany
+    {
+        return $this->hasMany(Specification::class)->orderBy('position');
+    }
+
+    public function specificationsB(): HasMany
+    {
+        return $this->hasMany(SpecificationB::class)->orderBy('position');
+    }
+
+    public function advantages(): HasMany
+    {
+        return $this->hasMany(Advantages::class)->orderBy('position');
+    }
+
     /**
      * Получить все спецификации продукта через категории.
      * 
      * @return array
      */
-    // public function getSpecificationsAttribute(): array
-    // {
-    //     $result = [];
-        
-    //     foreach ($this->specificationCategories as $category) {
-    //         $categoryName = $category->name;
-    //         $result[$categoryName] = $category->specifications->pluck('value', 'name')->toArray();
-    //     }
-        
-    //     return $result;
-    // }
     
     protected $casts = [
         'price' => 'float',
-        'old_price' => 'float',
         'rating' => 'float',
-        'quantity' => 'integer',
-        'specifications' => 'array',
-        'advantages' => 'array',
-        'specificationsB' => 'array',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
     /**

@@ -38,24 +38,28 @@ class ProductScreen extends Screen
     {
         $categoryId = request()->input('category_id');
 
-        $product->load(['category', 'attachment' => function($query) {
-            $query->select('attachments.*')
-                ->where('group', 'products')
-                ->orderBy('sort');
-        }]);
-        
-        \Illuminate\Support\Facades\Log::info('Product data for Orchid screen', [
-            'product_id' => $product->id,
-            'exists' => $product->exists,
-            'attachments_count' => $product->exists ? $product->attachment()->count() : 0,
-            'attachments' => $product->exists ? $product->attachment()->get()->pluck('id')->toArray() : []
+        $product->load([
+            'category', 
+            'attachment' => function($query) {
+                $query->where('group', 'products')
+                    ->orderBy('sort');
+            },
+            'specifications',
+            'specificationsB',
+            'advantages'
         ]);
         
         return [
             'product' => $product,
-            'specifications' => $product->specifications ?? [],
-            'specificationsB' => $product->specificationsB ?? [],
-            'advantages' => $product->advantages ?? [],
+            'specifications' => $product->specifications->map(function($item) {
+                return ['Key' => $item->key, 'Value' => $item->value];
+            })->toArray(),
+            'specificationsB' => $product->specificationsB->map(function($item) {
+                return ['Name' => $item->name, 'Value' => $item->value];
+            })->toArray(),
+            'advantages' => $product->advantages->map(function($item) {
+                return ['Title' => $item->title, 'Description' => $item->description];
+            })->toArray(),
             'category_id' => $categoryId,
             'categories' => $categoryId 
                 ? Category::where('parent_id', $categoryId)->get()
@@ -221,8 +225,7 @@ class ProductScreen extends Screen
                         ->acceptedFiles('image/*')
                         ->groups('products')
                         ->value(function () {
-                            $product = $this->product;
-                            if (!$product->exists) {
+                            if (!$this->product->exists) {
                                 return [];
                             }
                             
@@ -343,27 +346,17 @@ class ProductScreen extends Screen
             $data['rating'] = $data['rating'] ?? 0;
             $data['price'] = (float)$data['price'];
             
-            $data['specifications'] = isset($data['specifications']) ? (array)$data['specifications'] : [];
-            $data['advantages'] = isset($data['advantages']) ? (array)$data['advantages'] : [];
-            $data['specificationsB'] = isset($data['specificationsB']) ? (array)$data['specificationsB'] : [];
-            
-            if (isset($data['specifications']) && !is_string($data['specifications'])) {
-                $data['specifications'] = json_encode($data['specifications']);
-            }
-            
-            if (isset($data['advantages']) && !is_string($data['advantages'])) {
-                $data['advantages'] = json_encode($data['advantages']);
-            }
-            
-            if (isset($data['specificationsB']) && !is_string($data['specificationsB'])) {
-                $data['specificationsB'] = json_encode($data['specificationsB']);
-            }
-            
             if (isset($data['images'])) {
                 unset($data['images']);
             }
             
+            // Сохраняем продукт
             $product->fill($data)->save();
+            
+            // Обработка характеристик
+            $this->processSpecifications($product, $request);
+            $this->processSpecificationsB($product, $request);
+            $this->processAdvantages($product, $request);
             
             if ($request->has('product.images')) {
                 $imageIds = $request->input('product.images', []);
@@ -503,7 +496,7 @@ class ProductScreen extends Screen
                     }
                 }
             }
-            
+
             Alert::success($this->product->exists ? 'Товар успешно обновлен' : 'Товар успешно создан');
             
             if ($request->has('category_id')) {
@@ -521,6 +514,58 @@ class ProductScreen extends Screen
             return back()->withInput();
         }
     }
+
+    protected function processSpecifications(Product $product, Request $request)
+    {
+        $specifications = $request->input('product.specifications', []);
+        
+        $product->specifications()->delete();
+        
+        foreach ($specifications as $index => $spec) {
+            if (!empty($spec['Key']) && !empty($spec['Value'])) {
+                $product->specifications()->create([
+                    'key' => $spec['Key'],
+                    'value' => $spec['Value'],
+                    'position' => $index
+                ]);
+            }
+        }
+    }
+
+    protected function processSpecificationsB(Product $product, Request $request)
+    {
+        $specificationsB = $request->input('product.specificationsB', []);
+        
+        $product->specificationsB()->delete();
+        
+        foreach ($specificationsB as $index => $spec) {
+            if (!empty($spec['Name']) && !empty($spec['Value'])) {
+                $product->specificationsB()->create([
+                    'name' => $spec['Name'],
+                    'value' => $spec['Value'],
+                    'position' => $index
+                ]);
+            }
+        }
+    }
+
+    protected function processAdvantages(Product $product, Request $request)
+    {
+        $advantages = $request->input('product.advantages', []);
+        
+        $product->advantages()->delete();
+        
+        foreach ($advantages as $index => $advantage) {
+            if (!empty($advantage['Title']) && !empty($advantage['Description'])) {
+                $product->advantages()->create([
+                    'title' => $advantage['Title'],
+                    'description' => $advantage['Description'],
+                    'position' => $index
+                ]);
+            }
+        }
+    }
+
 
     /**
      * @param Product $product

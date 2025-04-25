@@ -11,6 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
+// database/migrations/2024_06_02_000001_create_products_table.php
+
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('code');
@@ -21,12 +23,8 @@ return new class extends Migration
             $table->string('brand');
             $table->decimal('rating', 3, 1)->default(0);
             $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('set null');
-            $table->json('specifications')->nullable();
-            $table->json('images')->nullable();
             $table->string('slug')->unique();
             $table->string('warranty')->nullable();
-            $table->json('advantages')->nullable();
-            $table->json('specificationsB')->nullable();
             $table->integer('reviews_count')->default(0);
             $table->integer('questions_count')->default(0);
             $table->timestamps();
