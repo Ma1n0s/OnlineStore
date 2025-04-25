@@ -24,7 +24,7 @@ public function query(Category $category): array
     return [
         'category' => $category,
         'children' => $category->children()->paginate(10),
-        'products' => Product::where('subcategory_id', $category->id)
+        'products' => Product::where('category_id', $category->id)
             ->with('category')
             ->paginate(10),
     ];
