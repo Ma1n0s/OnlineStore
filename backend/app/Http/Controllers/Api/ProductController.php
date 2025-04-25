@@ -21,6 +21,27 @@ class ProductController extends Controller
     }
 
     /**
+     * Transform and sort product images for API responses
+     * 
+     * @param Product $product
+     * @return array
+     */
+    private function transformProductImages(Product $product): array
+    {
+        $allImages = $product->all_images;
+        
+        // Ensure images are sorted by position
+        if ($allImages instanceof \Illuminate\Support\Collection) {
+            $allImages = $allImages->sortBy('position');
+        }
+        
+        return [
+            'images' => $allImages,
+            'main_image' => $product->main_image
+        ];
+    }
+
+    /**
      * Получить список всех продуктов
      *
      * @return JsonResponse
@@ -56,7 +77,8 @@ class ProductController extends Controller
                             return [$spec->name => $spec->value];
                         })];
                     }),
-                    'images' => $product->all_images,
+                    'images' => $this->transformProductImages($product)['images'],
+                    'main_image' => $this->transformProductImages($product)['main_image'],
                 ];
             })
         );
@@ -110,8 +132,8 @@ class ProductController extends Controller
                     return [$spec->name => $spec->value];
                 })];
             }),
-            'images' => $product->all_images,
-            'main_image' => $product->main_image,
+            'images' => $this->transformProductImages($product)['images'],
+            'main_image' => $this->transformProductImages($product)['main_image'],
         ];
         
         return response()->json($response);
@@ -152,8 +174,8 @@ class ProductController extends Controller
                     return [$spec->name => $spec->value];
                 })];
             }),
-            'images' => $product->all_images,
-            'main_image' => $product->main_image,
+            'images' => $this->transformProductImages($product)['images'],
+            'main_image' => $this->transformProductImages($product)['main_image'],
         ];
         
         return response()->json($response);
@@ -347,7 +369,7 @@ class ProductController extends Controller
                     //     'image_url' => $product->category->image_url,
                     //     'description_image_url' => $product->category->description_image_url,
                     // ] : null,
-                    'images' => $product->all_images,
+                    'images' => $this->transformProductImages($product)['images'],
                 ];
             })
         );
@@ -432,6 +454,8 @@ class ProductController extends Controller
         
         // Форматируем данные для каждого продукта
         $formattedProducts = collect($products->items())->map(function($product) {
+            $images = $this->transformProductImages($product);
+            
             return [
                 'id' => $product->id,
                 'name' => $product->name,
@@ -452,8 +476,8 @@ class ProductController extends Controller
                     'image_url' => $product->category->image_url,
                     'description_image_url' => $product->category->description_image_url,
                 ] : null,
-                'images' => $product->all_images,
-                'main_image' => $product->main_image,
+                'images' => $images['images'],
+                'main_image' => $images['main_image'],
             ];
         });
         
@@ -553,6 +577,8 @@ class ProductController extends Controller
         
         // Форматируем данные для каждого продукта
         $formattedProducts = collect($products->items())->map(function($product) {
+            $images = $this->transformProductImages($product);
+            
             return [
                 'id' => $product->id,
                 'name' => $product->name,
@@ -573,8 +599,8 @@ class ProductController extends Controller
                     'image_url' => $product->category->image_url,
                     'description_image_url' => $product->category->description_image_url,
                 ] : null,
-                'images' => $product->all_images,
-                'main_image' => $product->main_image,
+                'images' => $images['images'],
+                'main_image' => $images['main_image'],
             ];
         });
         

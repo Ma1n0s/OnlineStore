@@ -21,6 +21,7 @@ use Illuminate\Http\Request;
 use Orchid\Attachment\Models\Attachment;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class ProductScreen extends Screen
 {
@@ -42,7 +43,7 @@ class ProductScreen extends Screen
             'category', 
             'attachment' => function($query) {
                 $query->where('group', 'products')
-                    ->orderBy('sort');
+                    ->orderBy('position');
             },
             'specifications',
             'specificationsB',
@@ -233,9 +234,9 @@ class ProductScreen extends Screen
                                 return $this->product->attachment()
                                     ->select('attachments.id', 'attachments.name', 'attachments.original_name', 
                                              'attachments.mime', 'attachments.extension', 'attachments.path', 
-                                             'attachments.disk', 'attachments.group', 'attachments.sort')
+                                             'attachments.disk', 'attachments.group', 'attachments.position')
                                     ->where('group', 'products')
-                                    ->orderBy('attachments.sort')
+                                    ->orderBy('attachments.position')
                                     ->get();
                             } catch (\Exception $e) {
                                 \Illuminate\Support\Facades\Log::error('Error fetching product attachments', [
@@ -359,145 +360,120 @@ class ProductScreen extends Screen
             $this->processSpecificationsB($product, $request);
             $this->processAdvantages($product, $request);
             
+            // Handle product images
             if ($request->has('product.images')) {
-                $imageIds = $request->input('product.images', []);
+                $newImageIds = $request->input('product.images', []);
                 
-                \Illuminate\Support\Facades\Log::info('Product Images being processed', [
+                // Convert to array if needed
+                if (!is_array($newImageIds)) {
+                    $newImageIds = [];
+                }
+                
+                \Illuminate\Support\Facades\Log::info('Processing product images', [
                     'product_id' => $product->id,
-                    'image_ids' => $imageIds,
-                    'is_array' => is_array($imageIds),
-                    'count' => is_array($imageIds) ? count($imageIds) : 0,
-                    'request_data' => $request->all(),
+                    'new_image_ids' => $newImageIds,
+                    'count' => count($newImageIds)
                 ]);
                 
-                $publicPath = storage_path('app/public');
-                $datePath = storage_path('app/public/' . date('Y/m/d'));
+                // Get current attachments for this product
+                $currentAttachments = DB::table('attachmentable')
+                    ->where('attachmentable_id', $product->id)
+                    ->where('attachmentable_type', get_class($product))
+                    ->join('attachments', 'attachments.id', '=', 'attachmentable.attachment_id')
+                    ->where('attachments.group', 'products')
+                    ->select('attachments.id')
+                    ->get()
+                    ->pluck('id')
+                    ->toArray();
                 
-                \Illuminate\Support\Facades\Log::info('Storage directories', [
-                    'public_exists' => file_exists($publicPath),
-                    'public_writable' => is_writable($publicPath),
-                    'date_path' => $datePath,
-                    'date_exists' => file_exists($datePath),
-                    'date_writable' => file_exists($datePath) ? is_writable($datePath) : false,
+                \Illuminate\Support\Facades\Log::info('Current vs New attachments', [
+                    'current_ids' => $currentAttachments,
+                    'new_ids' => $newImageIds
                 ]);
                 
-                if ($product->attachments->isNotEmpty()) {
-                    $currentAttachmentIds = $product->attachment()
-                        ->select('attachments.id')
-                        ->where('group', 'products')
-                        ->pluck('attachments.id')
-                        ->toArray();
+                // Find attachments to remove (in current but not in new list)
+                $toRemove = array_diff($currentAttachments, $newImageIds);
+                
+                // Remove outdated attachments
+                foreach ($toRemove as $attachmentId) {
+                    // Remove link between product and attachment
+                    DB::table('attachmentable')
+                        ->where('attachment_id', $attachmentId)
+                        ->where('attachmentable_id', $product->id)
+                        ->where('attachmentable_type', get_class($product))
+                        ->delete();
                     
-                    \Illuminate\Support\Facades\Log::info('Current attachment IDs', [
-                        'current_ids' => $currentAttachmentIds,
-                        'new_ids' => $imageIds,
+                    \Illuminate\Support\Facades\Log::info('Removed attachment link', [
+                        'attachment_id' => $attachmentId,
+                        'product_id' => $product->id
                     ]);
                     
-                    $attachmentsToDelete = array_diff($currentAttachmentIds, $imageIds);
+                    // Check if attachment is used elsewhere before deleting
+                    $usageCount = DB::table('attachmentable')
+                        ->where('attachment_id', $attachmentId)
+                        ->count();
                     
-                    \Illuminate\Support\Facades\Log::info('Attachments to delete', [
-                        'to_delete' => $attachmentsToDelete
-                    ]);
-                    
-                    if (!empty($attachmentsToDelete)) {
-                        foreach ($attachmentsToDelete as $attachmentId) {
-                            $attachment = Attachment::find($attachmentId);
-                            if ($attachment) {
-                                Storage::disk('public')->delete($attachment->path);
-                                $attachment->delete();
-                                \Illuminate\Support\Facades\Log::info('Deleted attachment', [
-                                    'attachment_id' => $attachmentId
-                                ]);
-                            }
+                    if ($usageCount === 0) {
+                        // Actually delete the attachment if not used elsewhere
+                        $attachment = Attachment::find($attachmentId);
+                        if ($attachment) {
+                            $attachment->delete();
+                            \Illuminate\Support\Facades\Log::info('Deleted unused attachment', [
+                                'attachment_id' => $attachmentId
+                            ]);
                         }
-                    }
-                    
-                    if (!empty($attachmentsToDelete)) {
-                        \App\Models\Image::whereIn('attachment_id', $attachmentsToDelete)->delete();
                     }
                 }
                 
-                if (is_array($imageIds) && count($imageIds) > 0) {
-                    $maxPosition = \App\Models\Image::where('product_id', $product->id)
-                        ->where('source', 'admin')
-                        ->max('position') ?? -1;
+                // The file IDs come in the exact order they are in the form
+                // We directly use this order for the positions
+                $firstImageUrl = null;
+                
+                foreach ($newImageIds as $index => $attachmentId) {
+                    // Set position directly based on the order in the form
+                    DB::table('attachments')
+                        ->where('id', $attachmentId)
+                        ->update([
+                            'position' => $index, // Position is based on exact array order
+                            'group' => 'products'
+                        ]);
                     
-                    foreach ($imageIds as $index => $imageId) {
-                        $attachment = Attachment::find($imageId);
-                        
+                    // For the first image, get URL for main_image
+                    if ($index === 0 && !$firstImageUrl) {
+                        $attachment = Attachment::find($attachmentId);
                         if ($attachment) {
-                            \Illuminate\Support\Facades\Log::info('Processing Attachment', [
-                                'id' => $attachment->id,
-                                'name' => $attachment->name,
-                                'url' => $attachment->url,
-                                'group' => $attachment->group,
-                                'disk' => $attachment->disk,
-                                'path' => $attachment->path,
-                            ]);
-                            
-                            $attachment->forceFill([
-                                'group' => 'products',
-                            ])->save();
-                            
-                            DB::table('attachmentable')->updateOrInsert(
-                                [
-                                    'attachment_id' => $attachment->id,
-                                    'attachmentable_id' => $product->id,
-                                    'attachmentable_type' => get_class($product),
-                                ],
-                                []
-                            );
-                            
-                            \Illuminate\Support\Facades\Log::info('Linked attachment to product', [
-                                'attachment_id' => $attachment->id,
-                                'product_id' => $product->id,
-                            ]);
-                            
-                            $imageExists = \App\Models\Image::where('product_id', $product->id)
-                                ->where('attachment_id', $attachment->id)
-                                ->exists();
-                            
-                            \Illuminate\Support\Facades\Log::info('Image record check', [
-                                'exists' => $imageExists,
-                                'attachment_id' => $attachment->id,
-                                'product_id' => $product->id,
-                            ]);
-                            
-                            if (!$imageExists) {
-                                $position = $maxPosition + $index + 1;
-                                
-                                \Illuminate\Support\Facades\Log::info('Creating image', [
-                                    'product_id' => $product->id,
-                                    'url' => $attachment->url,
-                                    'source' => 'admin',
-                                    'position' => $position,
-                                    'attachment_id' => $attachment->id,
-                                ]);
-                                
-                                try {
-                                    $image = Image::create([
-                                        'product_id' => $product->id,
-                                        'url' => $attachment->url,
-                                        'source' => 'admin',
-                                        'position' => $position,
-                                        'attachment_id' => $attachment->id,
-                                    ]);
-                                    
-                                    \Illuminate\Support\Facades\Log::info('Image created successfully', [
-                                        'image_id' => $image->id,
-                                    ]);
-                                } catch (\Exception $e) {
-                                    \Illuminate\Support\Facades\Log::error('Error creating image record', [
-                                        'error' => $e->getMessage(),
-                                        'trace' => $e->getTraceAsString(),
-                                    ]);
-                                }
-                            }
-                        } else {
-                            \Illuminate\Support\Facades\Log::warning('Attachment not found', [
-                                'image_id' => $imageId
-                            ]);
+                            $firstImageUrl = $attachment->url;
                         }
+                    }
+                    
+                    // Link attachment to product
+                    DB::table('attachmentable')->updateOrInsert(
+                        [
+                            'attachment_id' => $attachmentId,
+                            'attachmentable_id' => $product->id,
+                            'attachmentable_type' => get_class($product)
+                        ],
+                        []
+                    );
+                }
+                
+                // Update product's main_image
+                if (Schema::hasColumn('products', 'main_image')) {
+                    if (!empty($newImageIds) && $firstImageUrl) {
+                        $product->main_image = $firstImageUrl;
+                        $product->save();
+                        
+                        \Illuminate\Support\Facades\Log::info('Updated main image', [
+                            'product_id' => $product->id,
+                            'main_image' => $firstImageUrl
+                        ]);
+                    } else {
+                        $product->main_image = null;
+                        $product->save();
+                        
+                        \Illuminate\Support\Facades\Log::info('Cleared main image', [
+                            'product_id' => $product->id
+                        ]);
                     }
                 }
             }
