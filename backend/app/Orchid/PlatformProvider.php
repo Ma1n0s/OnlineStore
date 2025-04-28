@@ -58,6 +58,12 @@ class PlatformProvider extends OrchidServiceProvider
                 ->icon('bag')
                 ->route('platform.product.list')
                 ->permission('platform.products.view'),
+
+            Menu::make('Заявки')
+                ->icon('bs.card-list')
+                ->route('platform.application.list')
+                ->permission('platform.applications.view')
+                ->title('Управление заявками'),
                 
             Menu::make('Карточка')
                 ->icon('bs.card-text')
@@ -204,6 +210,12 @@ class PlatformProvider extends OrchidServiceProvider
                 ->addPermission('platform.categories.create', 'Create categories')
                 ->addPermission('platform.categories.edit', 'Edit categories')
                 ->addPermission('platform.categories.delete', 'Delete categories'),
+
+            ItemPermission::group('Applications')
+                ->addPermission('platform.applications.view', 'View applications')
+                ->addPermission('platform.applications.create', 'Create applications')
+                ->addPermission('platform.applications.edit', 'Edit applications')
+                ->addPermission('platform.applications.delete', 'Delete applications'),
         ];
     }
     
@@ -236,6 +248,8 @@ class PlatformProvider extends OrchidServiceProvider
             \App\Orchid\Screens\Category\CategoryListScreen::class,
             \App\Orchid\Screens\Category\CategoryEditScreen::class,
             \App\Orchid\Screens\Category\CategoryActionScreen::class,
+            \App\Orchid\Screens\ApplicationListScreen::class,
+            \App\Orchid\Screens\ApplicationEditScreen::class,
         ];
     }
 }

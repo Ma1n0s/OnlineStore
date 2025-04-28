@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Models\User;
+use App\Http\Controllers\PurchaseController;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
@@ -24,6 +25,8 @@ use App\Mail\VerificationCodeMail;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::middleware('auth:sanctum')->post('/purchase', [PurchaseController::class, 'processPurchase']);
 
 // Authentication routes with CSRF protection disabled
 Route::group(['middleware' => [ 'guest']], function() {

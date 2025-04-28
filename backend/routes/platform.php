@@ -20,6 +20,8 @@ use App\Orchid\Screens\User\UserListScreen;
 use App\Orchid\Screens\User\UserProfileScreen;
 use App\Orchid\Screens\ProductScreen;
 use App\Orchid\Screens\ProductListScreen;
+use App\Orchid\Screens\ApplicationEditScreen;
+use App\Orchid\Screens\ApplicationListScreen;
 use App\Orchid\Screens\Category\CategoryActionScreen;
 use App\Orchid\Screens\Category\CategoryEditScreen;
 use App\Orchid\Screens\Category\CategoryListScreen;
@@ -139,6 +141,15 @@ Route::screen('category/{category}/action', CategoryActionScreen::class)
         
         return $trail->push($category->name);
     });
+
+    Route::screen('applications', ApplicationListScreen::class)
+    ->name('platform.application.list');
+
+Route::screen('applications/create', ApplicationEditScreen::class)
+    ->name('platform.application.create');
+
+Route::screen('applications/{application}/edit', ApplicationEditScreen::class)
+    ->name('platform.application.edit');
 
 // Platform > Profile
 Route::screen('profile', UserProfileScreen::class)
