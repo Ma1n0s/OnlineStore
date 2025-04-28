@@ -70,6 +70,12 @@ class PlatformProvider extends OrchidServiceProvider
                 ->route('platform.example.cards')
                 ->divider(),
 
+            Menu::make('Профили пользователей')
+                ->icon('user')
+                ->route('platform.profiles.list')
+                ->permission('platform.profiles.view')
+                ->title('Управление профилями'),
+
             Menu::make(__('Пользователи'))
                 ->icon('bs.people')
                 ->route('platform.systems.users')
@@ -216,6 +222,10 @@ class PlatformProvider extends OrchidServiceProvider
                 ->addPermission('platform.applications.create', 'Create applications')
                 ->addPermission('platform.applications.edit', 'Edit applications')
                 ->addPermission('platform.applications.delete', 'Delete applications'),
+
+            ItemPermission::group('Профили')
+                ->addPermission('platform.profiles.view', 'Просмотр профилей')
+                ->addPermission('platform.profiles.edit', 'Редактирование профилей'),
         ];
     }
     
@@ -250,6 +260,8 @@ class PlatformProvider extends OrchidServiceProvider
             \App\Orchid\Screens\Category\CategoryActionScreen::class,
             \App\Orchid\Screens\ApplicationListScreen::class,
             \App\Orchid\Screens\ApplicationEditScreen::class,
+            \App\Orchid\Screens\ProfileListScreen::class,
+            \App\Orchid\Screens\ProfileEditScreen::class,
         ];
     }
 }
