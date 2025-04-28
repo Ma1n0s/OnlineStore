@@ -37,6 +37,7 @@ export type Product = {
   category: Category
   subcategory: Subcategory
   specifications: Specification
+  shortDescription: string | null
   images: Img[]
   created_at: string
   updated_at: string

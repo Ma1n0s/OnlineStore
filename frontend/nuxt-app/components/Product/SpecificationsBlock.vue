@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
-import { productData } from '~/shared/productData'
 import type { Product } from '~/types/product.types'
 
-const product = reactive<Partial<Product>>(productData)
+defineProps<{
+  product: Product
+}>()
 </script>
 
 <template>
