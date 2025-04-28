@@ -25,6 +25,9 @@ use App\Orchid\Screens\ApplicationListScreen;
 use App\Orchid\Screens\Category\CategoryActionScreen;
 use App\Orchid\Screens\Category\CategoryEditScreen;
 use App\Orchid\Screens\Category\CategoryListScreen;
+use App\Orchid\Screens\ProfileListScreen;
+use App\Orchid\Screens\ProfileEditScreen;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Tabuna\Breadcrumbs\Trail;
 
@@ -142,14 +145,36 @@ Route::screen('category/{category}/action', CategoryActionScreen::class)
         return $trail->push($category->name);
     });
 
-    Route::screen('applications', ApplicationListScreen::class)
+Route::screen('applications', ApplicationListScreen::class)
     ->name('platform.application.list');
+
+Route::screen('users/{user}/profile', UserProfileScreen::class)
+    ->name('platform.systems.users.profile')
+    ->breadcrumbs(function (Trail $trail, User $user) {
+        return $trail
+            ->parent('platform.systems.users')
+            ->push('Профиль пользователя', route('platform.systems.users.profile', $user));
+    });
 
 Route::screen('applications/create', ApplicationEditScreen::class)
     ->name('platform.application.create');
 
 Route::screen('applications/{application}/edit', ApplicationEditScreen::class)
     ->name('platform.application.edit');
+
+    Route::screen('profiles', ProfileListScreen::class)
+    ->name('platform.profiles.list')
+    ->breadcrumbs(fn (Trail $trail) => $trail
+        ->parent('platform.main')
+        ->push('Профили пользователей'));
+
+Route::screen('profiles/{user}/edit', ProfileEditScreen::class)
+    ->name('platform.profiles.edit')
+    ->breadcrumbs(function (Trail $trail, User $user) {
+        return $trail
+            ->parent('platform.profiles.list')
+            ->push('Редактирование профиля', $user->name);
+    });
 
 // Platform > Profile
 Route::screen('profile', UserProfileScreen::class)
