@@ -55,17 +55,6 @@ const addToCart = () => {
 
 <template>
   <div class="space-y-6">
-    <!-- Информационный блок -->
-    <div class="bg-white rounded-lg shadow-md p-6">
-      <h2 class="text-xl font-bold text-second mb-4">Волна выгоды</h2>
-      <div class="flex items-center gap-4 mb-2">
-        <p class="text-3xl font-bold">1 859 ₽</p>
-        <p class="text-lg line-through text-gray">2 516 ₽</p>
-        <p class="text-primary font-medium">Выгода 657 ₽</p>
-      </div>
-      <p class="text-lg font-bold mb-2">1 202 ₽</p>
-      <p class="text-gray-600">301 ₽ x 4 платежа в рассрочку</p>
-    </div>
 
     <!-- Блок с кнопками -->
     <div class="bg-white rounded-lg shadow-md p-6">
@@ -99,43 +88,6 @@ const addToCart = () => {
           >
             В аренду
           </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="bg-white rounded-lg shadow-md p-6">
-      <h2 class="text-xl font-bold mb-4">Основные характеристики</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="space-y-6">
-          <div>
-            <h3 class="font-semibold text-gray-700 mb-2">Основные</h3>
-            <ul class="space-y-3">
-              <li
-                v-for="(value, key) in product.specifications['Основны характеристики']"
-                :key="key"
-                class="flex justify-between"
-              >
-                <span class="text-gray-500">{{ key.replace(' ', ' ') }}</span>
-                <span class="font-medium">{{ value }}</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="space-y-6">
-          <div>
-            <h3 class="font-semibold text-gray-700 mb-2">Экран</h3>
-            <ul class="space-y-3">
-              <li
-                v-for="(value, key) in product.specifications['Вторичные характеристики']"
-                :key="key"
-                class="flex justify-between"
-              >
-                <span class="text-gray-500">{{ key.replace(' ', ' ') }}</span>
-                <span class="font-medium">{{ value }}</span>
-              </li>
-            </ul>
-          </div>
         </div>
       </div>
     </div>
