@@ -27,10 +27,6 @@ const emit = defineEmits([
   'decreaseRentalDays',
 ])
 
-// const longTermRentalItems = computed(() =>
-//   props.items.filter(item => item.rentalType === 'long-term' && item.rentalMonths)
-// )
-
 const rentedItems = computed(() => props.items.filter(item => item.rentalType === 'short-term' && item.rentalDays))
 
 const regularItems = computed(() =>
