@@ -134,6 +134,7 @@ Route::get('/products/by-category', [ProductController::class, 'getProductsByCat
 Route::get('/products/category/{category}', [ProductController::class, 'getProductsByCategoryId']);
 Route::get('/products/slug/{slug}', [ProductController::class, 'getBySlug']);
 Route::get('/products/category-slug/{slug}', [ProductController::class, 'getProductsByCategorySlug']);
+Route::get('/products/{slug}/category-path', [ProductController::class, 'getCategoryPath']);
 
 // Маршруты для продуктов
 Route::apiResource('products', ProductController::class);
