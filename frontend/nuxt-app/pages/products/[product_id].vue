@@ -25,7 +25,7 @@ import ActionsPanel from '~/components/Product/ActionsPanel.vue'
 // import InformationCart from '~/components/Product/InformationCart.vue'
 // import Reviews from '~/components/Product/Reviews.vue'
 import DescriptionBlock from '~/components/Product/DescriptionBlock.vue'
-// import { getBreadcrumbs } from '~/components/BreadCrumbs/helpers'
+import { getBreadcrumbsFromCategoryPath } from '~/components/BreadCrumbs/helpers'
 
 // Вкладки
 const tabs = ref([
@@ -54,6 +54,7 @@ const breadcrumbs = [
   //   name: 'Список',
   //   url: '/products/category/' + slug.join('/'),
   // },
+  ...getBreadcrumbsFromCategoryPath(product.value?.category),
   {
     name: 'Продукт',
     url: `${product_id}`,
@@ -73,8 +74,8 @@ const breadcrumbs = [
 
         <div class="grid grid-cols-2 gap-4">
           <!-- Основные характеристики -->
-          <DescriptionBlock />
-          <Basket />
+          <Basket :product="product" />
+          <DescriptionBlock :product="product" />
         </div>
       </div>
 
