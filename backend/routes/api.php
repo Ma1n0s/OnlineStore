@@ -9,6 +9,7 @@ use App\Http\Controllers\PurchaseController;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
+use App\Http\Controllers\Api\CartController;
 use App\Mail\VerificationCodeMail;
 
 /*
@@ -27,6 +28,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::middleware('auth:sanctum')->post('/purchase', [PurchaseController::class, 'processPurchase']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('cart', CartController::class)->except(['show']);
+    Route::delete('cart/clear', [CartController::class, 'clear']);
+});
 
 // Authentication routes with CSRF protection disabled
 Route::group(['middleware' => [ 'guest']], function() {
