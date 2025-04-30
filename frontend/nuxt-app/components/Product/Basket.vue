@@ -7,6 +7,13 @@ import Button from '~/components/ui/Button/Button.vue'
 import { DatePicker } from 'v-calendar'
 import 'v-calendar/dist/style.css'
 
+const props = defineProps({
+  productId: {
+    type: Number,
+    required: true
+  }
+})
+
 const product = reactive<Product>({
   ...productData,
   availableForRent: true, 
@@ -40,22 +47,45 @@ const calculateRentalPrice = () => {
 }
 
 const confirmRental = () => {
-  console.log(
-    `Renting from ${dateRange.value.start.toLocaleDateString()} to ${dateRange.value.end.toLocaleDateString()}, ${
-      rentalDays.value
-    } days, total price: ${rentalPrice.value} ₽`
-  )
+  addToCart({
+    rental_days: rentalDays.value,
+    rental_start: dateRange.value.start,
+    rental_end: dateRange.value.end,
+    rental_price: rentalPrice.value
+  })
   closeRentalModal()
 }
 
-const addToCart = () => {
-  console.log('Product added to cart')
+const addToCart = async (options = {}) => {
+  try {
+    const { data, error } = await useFetch('http://127.0.0.1:8000/api/cart', {
+      method: 'POST',
+      body: {
+        product_id: props.productId,
+        quantity: 1,
+        options: options
+      },
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    })
+    
+    if (error.value) {
+      console.error('Error adding to cart:', error.value)
+      // Показать сообщение об ошибке
+    } else {
+      console.log('Product added to cart:', data.value)
+      // Показать уведомление об успешном добавлении
+    }
+  } catch (err) {
+    console.error('Exception when adding to cart:', err)
+  }
 }
 </script>
 
 <template>
   <div class="space-y-6">
-
     <!-- Блок с кнопками -->
     <div class="bg-white rounded-lg shadow-md p-6">
       <div class="flex flex-col gap-4">
