@@ -75,7 +75,7 @@ const breadcrumbs = [
         <div class="grid grid-cols-2 gap-4">
           <!-- Основные характеристики -->
           <DescriptionBlock />
-          <Basket />
+          <Basket :product-id="data?.id" />
         </div>
       </div>
 
