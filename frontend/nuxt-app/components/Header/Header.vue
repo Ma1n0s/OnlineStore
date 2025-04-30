@@ -75,12 +75,12 @@
   <div class="bg-zinc-200 flex justify-center w-full px-2 lg:hidden fixed z-50">
     <div class="flex justify-around flex-col md:flex-row items-center gap-4 pt-[2px] w-full max-w-screen-xl">
       <div class="w-full h-full flex items-center gap-2" v-if="isMenuOpen">
-        <Button class="flex items-center gap-2 h-full !px-2" @click="isMenuOpen = false"
-          ><Icon name="material-symbols:close-rounded" class="h-6 w-6"
-        /></Button>
         <div class="w-full">
           <Search @close="isMenuOpen = false" />
         </div>
+        <Button variant="transparent" class="flex items-center gap-2 h-full" @click="isMenuOpen = false"
+          ><Icon name="material-symbols:close-rounded" class="h-8 w-8 text-danger"
+        /></Button>
       </div>
 
       <div class="flex items-center justify-between gap-4 w-full" v-else>
@@ -102,14 +102,14 @@
     </div>
   </div>
 
-  <div class="pb-[60px] lg:pb-[120px]"></div>
+  <div class="pb-[40px] lg:pb-[120px]"></div>
 
   <Modal class="min-h-[427px]" :isOpen="isModalOpen" @close="closeModal" @confirm="handleConfirm" title="">
     <AuthForm @close="closeModal" />
   </Modal>
 
   <Modal :isOpen="menuOpen" @close="closeMenu" @confirm="handleConfirm" title="">
-    <div class="flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
+    <div class="flex flex-col gap-4">
       <div>
         <NuxtLink to="/" class="flex items-center gap-2 w-[210px]">
           <NuxtImg src="full_logo_text.svg" class="h-[50px] w-fit" />
