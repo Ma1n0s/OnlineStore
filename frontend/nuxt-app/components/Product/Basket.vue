@@ -5,12 +5,6 @@ import Button from '~/components/ui/Button/Button.vue'
 import { DatePicker } from 'v-calendar'
 import 'v-calendar/dist/style.css'
 
-// const product = reactive<Product>({
-//   ...productData,
-//   availableForRent: true,
-//   availableForPurchase: true,
-// })
-
 import type { Product } from '~/types/product.types'
 const { product } = defineProps<{
   product: Product
@@ -57,7 +51,7 @@ const addToCart = async (options = {}) => {
     const { data, error } = await useFetch('http://127.0.0.1:8000/api/cart', {
       method: 'POST',
       body: {
-        product_id: props.productId,
+        product_id: product.id,
         quantity: 1,
         options: options,
       },
@@ -88,7 +82,7 @@ const addToCart = async (options = {}) => {
         <div>
           <h2 class="text-xl font-bold text-second mb-2">Сезон впереди</h2>
           <div class="flex items-center gap-4">
-            <p class="text-3xl font-bold">{{ product.price.final }} ₽</p>
+            <p class="text-3xl font-bold">{{ product.price }} ₽</p>
             <p
               v-if="product.price.original && product.price.original !== product.price.final"
               class="text-lg line-through text-gray"
@@ -101,14 +95,14 @@ const addToCart = async (options = {}) => {
 
         <div class="flex flex-col sm:flex-row gap-3">
           <button
-            v-if="product.availableForPurchase"
+            v-if="product"
             @click="addToCart"
             class="bg-primary hover:bg-second-hover text-white py-3 px-6 rounded-lg font-medium transition"
           >
             В корзину
           </button>
           <button
-            v-if="product.availableForRent"
+            v-if="product"
             @click="openRentalModal"
             class="bg-primary hover:bg-second-hover text-white py-3 px-6 rounded-lg font-medium transition"
           >
