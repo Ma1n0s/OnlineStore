@@ -11,9 +11,9 @@
           @slide-change="onMainSlideChange"
         >
           <swiper-slide v-for="(image, index) in product.images" :key="'main-' + index">
-            <NuxtImg 
-              :src="image.src" 
-              :alt="product.name" 
+            <NuxtImg
+              :src="image.url"
+              :alt="product.alt"
               class="w-full h-full object-contain"
               @click="openFullscreenImage(index)"
             />
@@ -35,7 +35,7 @@
             :class="{ 'active-thumb': activeIndex === index }"
           >
             <NuxtImg
-              :src="image.src"
+              :src="image.url"
               :alt="'Изображение ' + (index + 1)"
               class="w-full h-full object-cover rounded cursor-pointer border"
             />
@@ -45,36 +45,48 @@
     </div>
 
     <div v-if="isFullscreenOpen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white p-4">
-      <button 
+      <button
         class="absolute top-4 right-4 text-gray-800 text-2xl z-50 hover:text-red-500 transition-colors"
         @click="closeFullscreenImage"
       >
         &times;
       </button>
-      
+
       <div class="relative w-full h-4/5 flex items-center justify-center mb-4">
-        <NuxtImg 
-          :src="product.images[fullscreenIndex].src" 
-          :alt="product.name" 
+        <NuxtImg
+          :src="product.images[fullscreenIndex].url"
+          :alt="product.name"
           class="max-w-full max-h-full object-contain"
         />
-        
-        <button 
+
+        <button
           v-if="product.images.length > 1"
           class="absolute left-4 top-1/2 transform -translate-y-1/2 text-red-500 text-4xl z-50 hover:text-red-700 transition-colors"
           @click="prevFullscreenImage"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6 text-red-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        
-        <button 
+
+        <button
           v-if="product.images.length > 1"
           class="absolute right-4 top-1/2 transform -translate-y-1/2 text-red-500 text-4xl z-50 hover:text-red-700 transition-colors"
           @click="nextFullscreenImage"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6 text-red-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </button>
@@ -96,7 +108,7 @@
             :class="{ 'active-thumb': fullscreenIndex === index }"
           >
             <NuxtImg
-              :src="image.src"
+              :src="image.url"
               :alt="'Изображение ' + (index + 1)"
               class="w-full h-full object-cover rounded cursor-pointer border"
             />
@@ -108,13 +120,15 @@
 </template>
 
 <script setup lang="ts">
-import { productData } from '~/shared/productData'
-import type { Product } from '~/types/product.types'
 import { register } from 'swiper/element/bundle'
+import type { Product } from '~/types/product.types'
+
+const { product } = defineProps<{
+  product: Product
+}>()
 
 register()
 
-const product = reactive<Product>(productData)
 const mainSwiper = ref<any>(null)
 const thumbsSwiper = ref<any>(null)
 const fullscreenThumbsSwiper = ref<any>(null)
@@ -136,7 +150,7 @@ const openFullscreenImage = (index: number) => {
   fullscreenIndex.value = index
   isFullscreenOpen.value = true
   document.body.style.overflow = 'hidden'
-  
+
   nextTick(() => {
     if (fullscreenThumbsSwiper.value && fullscreenThumbsSwiper.value.swiper) {
       fullscreenThumbsSwiper.value.swiper.slideTo(index)
@@ -172,7 +186,7 @@ const syncFullscreenThumbs = () => {
 
 const handleKeyDown = (e: KeyboardEvent) => {
   if (!isFullscreenOpen.value) return
-  
+
   if (e.key === 'Escape') {
     closeFullscreenImage()
   } else if (e.key === 'ArrowLeft') {
@@ -189,7 +203,7 @@ onMounted(() => {
       thumbs.swiper.controller.control = main.swiper
     }
   })
-  
+
   window.addEventListener('keydown', handleKeyDown)
 })
 

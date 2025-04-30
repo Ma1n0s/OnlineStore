@@ -1,10 +1,10 @@
 <template>
   <div class="fixed z-50 w-full">
     <div
-      class="bg-white justify-center items-center flex-col w-full px-2 lg:flex transition-all duration-300"
+      class="bg-zinc-200 justify-center items-center flex-col w-full lg:flex transition-all duration-300"
       :class="{ 'opacity-0 h-0 overflow-hidden': isScrolled }"
     >
-      <div class="flex justify-center items-center gap-2 w-full max-w-screen-2xl xl:px-8">
+      <div class="flex justify-center items-center gap-1 xl:gap-2 w-full max-w-screen-2xl px-8">
         <div class="flex items-center justify-around gap-2 w-full py-2">
           <div class="flex items-center gap-8 xl:gap-16 justify-start w-full">
             <NuxtLink to="/contacts" class="text-dark hover:text-primary font-bold text-sm">Контакты</NuxtLink>
@@ -14,23 +14,23 @@
             <NuxtLink to="/about" class="text-dark hover:text-primary font-bold text-sm">Оплата и доставка</NuxtLink>
           </div>
 
-          <div class="flex items-center justify-between gap-8">
+          <div class="flex items-center justify-between gap-4 xl:gap-8">
             <div class="flex flex-col items-start">
               <NuxtLink
                 to="tel:+79169999999"
-                class="text-primary font-bold text-nowrap text-sm text-center flex items-center gap-1"
+                class="text-primary font-bold text-nowrap text-xs xl:text-sm text-center flex items-center gap-1"
               >
                 <Icon name="material-symbols:phone-android-rounded" class="h-4 w-4" />
                 +7 (916) 999-99-99</NuxtLink
               >
-              <p class="text-gray font-bold text-nowrap text-sm flex items-center gap-1">
+              <p class="text-gray font-bold text-nowrap text-xs xl:text-sm flex items-center gap-1">
                 <Icon name="material-symbols:nest-clock-farsight-analog-outline-rounded" class="h-4 w-4" />
                 с 9:00 до 18:00 (Пн-Пт)
               </p>
             </div>
 
             <div>
-              <p class="text-gray font-bold text-nowrap text-sm flex items-start gap-1">
+              <p class="text-gray font-bold text-nowrap text-xs xl:text-sm flex items-start gap-1">
                 <Icon name="material-symbols:location-on-rounded" class="h-4 w-4 mt-[2px] inline text-gray" />
                 Нижний Тагил, <br />
                 ул. Аганичева 101а
@@ -42,36 +42,38 @@
     </div>
 
     <div
-      class="bg-white hidden lg:flex justify-center items-center gap-4 py-2 w-full border-b border-primary/50 px-2 transition-all duration-300"
-      :class="{ '!py-4': isScrolled }"
+      class="bg-zinc-200 hidden lg:flex justify-center items-center gap-4 py-2 w-full transition-all duration-300"
+      :class="{ '!py-1': isScrolled }"
     >
-      <div class="flex justify-around items-center gap-4 w-full max-w-screen-2xl xl:px-8">
-        <div>
+      <div class="flex justify-between gap-2 items-center w-full max-w-screen-2xl px-8">
+        <div class="flex items-center gap-2 w-full">
           <NuxtLink to="/" class="flex items-center gap-2 w-[210px]">
-            <NuxtImg src="medium_logo.svg" class="h-[50px] w-full" />
-            <!-- <p class="text-nowrap text-xl text-primary font-bold leading-4">Абсолют Техно</p> -->
+            <NuxtImg src="full_logo_text.svg" class="h-[50px] w-fit" />
           </NuxtLink>
+
+          <!-- <CatalogButton /> -->
+          <div class="w-full max-w-[700px]">
+            <Search />
+          </div>
         </div>
 
-        <CatalogButton />
-        <div class="w-full">
-          <Search />
+        <div class="flex items-center gap-2">
+          <Button variant="transparent" class="flex items-center gap-2 h-full !px-4" to="/account/cart-checkout"
+            ><Icon name="material-symbols:shopping-cart-rounded" class="h-8 w-8 text-dark"
+          /></Button>
+          <Button v-if="isAuth" variant="transparent" class="flex items-center gap-2 h-full !px-4" @click="handleLogout"
+            >{{ userDisplayName }} <Icon name="material-symbols:account-circle" class="h-8 w-8 text-dark"
+          /></Button>
+          <Button variant="transparent" class="flex items-center gap-2 h-full !px-4" @click="openModal" v-else>
+            <Icon name="material-symbols:account-circle" class="h-8 w-8 text-dark"
+          /></Button>
         </div>
-        <Button class="flex items-center gap-2 h-full" to="/account/cart-checkout"
-          ><Icon name="material-symbols:shopping-cart-rounded" class="h-6 w-6"
-        /></Button>
-        <Button v-if="isAuth" class="flex items-center gap-2 h-full" @click="handleLogout"
-          >{{ userDisplayName }} <Icon name="solar:user-outline" class="h-6 w-6"
-        /></Button>
-        <Button class="flex items-center gap-2 h-full" @click="openModal" v-else
-          ><span class="hidden lg:inline"> Вход </span> <Icon name="material-symbols:login-rounded" class="h-6 w-6"
-        /></Button>
       </div>
     </div>
   </div>
 
-  <div class="bg-white flex justify-center w-full border-b border-blue-200 px-2 lg:hidden fixed z-50">
-    <div class="flex justify-around flex-col md:flex-row items-center gap-4 py-2 w-full max-w-screen-xl">
+  <div class="bg-zinc-200 flex justify-center w-full px-2 lg:hidden fixed z-50">
+    <div class="flex justify-around flex-col md:flex-row items-center gap-4 pt-[2px] w-full max-w-screen-xl">
       <div class="w-full h-full flex items-center gap-2" v-if="isMenuOpen">
         <Button class="flex items-center gap-2 h-full !px-2" @click="isMenuOpen = false"
           ><Icon name="material-symbols:close-rounded" class="h-6 w-6"
@@ -84,16 +86,16 @@
       <div class="flex items-center justify-between gap-4 w-full" v-else>
         <div>
           <NuxtLink to="/" class="flex items-center gap-2 w-full">
-            <NuxtImg src="medium_logo.svg" class="h-[40px]" />
+            <NuxtImg src="full_logo_text.svg" class="h-[40px] w-fit" />
           </NuxtLink>
         </div>
 
         <div class="flex items-center gap-2">
-          <Button class="flex items-center gap-2 h-full" @click="isMenuOpen = true"
-            ><Icon name="material-symbols:search-rounded" class="h-6 w-6"
+          <Button variant="transparent" class="flex items-center gap-2 h-full" @click="isMenuOpen = true"
+            ><Icon name="material-symbols:search-rounded" class="h-8 w-8"
           /></Button>
-          <Button class="flex items-center gap-2 h-full" @click="menuOpen = true"
-            ><Icon name="material-symbols:menu" class="h-6 w-6"
+          <Button variant="transparent" class="flex items-center gap-2 h-full" @click="menuOpen = true"
+            ><Icon name="material-symbols:menu" class="h-8 w-8"
           /></Button>
         </div>
       </div>
@@ -107,10 +109,10 @@
   </Modal>
 
   <Modal :isOpen="menuOpen" @close="closeMenu" @confirm="handleConfirm" title="">
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
       <div>
         <NuxtLink to="/" class="flex items-center gap-2 w-[210px]">
-          <NuxtImg src="medium_logo.svg" class="h-[50px]" />
+          <NuxtImg src="full_logo_text.svg" class="h-[50px] w-fit" />
         </NuxtLink>
       </div>
 
@@ -129,7 +131,7 @@
         "
         v-else
       >
-        <Icon name="material-symbols:login-rounded" class="h-8 w-8" />
+        <Icon name="material-symbols:account-circle" class="h-8 w-8" />
         <span class="text-lg font-bold"> Вход </span>
       </Button>
 
@@ -198,7 +200,7 @@
 <script setup lang="ts">
 import Button from '~/components/ui/Button/Button.vue'
 import { useUserStore } from '~/stores/user'
-import CatalogButton from '../CatalogButton/CatalogButton.vue'
+// import CatalogButton from '../CatalogButton/CatalogButton.vue'
 import Search from '../Search/Search.vue'
 import Modal from '../Modal/Modal.vue'
 import AuthForm from '../Forms/AuthForm.vue'

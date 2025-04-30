@@ -1,24 +1,20 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
-import { productData } from '~/shared/productData'
-import type { Product } from '~/types/product.types'
+import { ref } from 'vue'
 import TextInput from '../ui/Inputs/TextInput.vue'
 import Button from '~/components/ui/Button/Button.vue'
 import { DatePicker } from 'v-calendar'
 import 'v-calendar/dist/style.css'
 
-const props = defineProps({
-  productId: {
-    type: Number,
-    required: true
-  }
-})
+// const product = reactive<Product>({
+//   ...productData,
+//   availableForRent: true,
+//   availableForPurchase: true,
+// })
 
-const product = reactive<Product>({
-  ...productData,
-  availableForRent: true, 
-  availableForPurchase: true 
-})
+import type { Product } from '~/types/product.types'
+const { product } = defineProps<{
+  product: Product
+}>()
 
 const isRentalModalOpen = ref(false)
 const rentalDays = ref(1)
@@ -51,7 +47,7 @@ const confirmRental = () => {
     rental_days: rentalDays.value,
     rental_start: dateRange.value.start,
     rental_end: dateRange.value.end,
-    rental_price: rentalPrice.value
+    rental_price: rentalPrice.value,
   })
   closeRentalModal()
 }
@@ -63,14 +59,14 @@ const addToCart = async (options = {}) => {
       body: {
         product_id: props.productId,
         quantity: 1,
-        options: options
+        options: options,
       },
       headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      }
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
     })
-    
+
     if (error.value) {
       console.error('Error adding to cart:', error.value)
       // Показать сообщение об ошибке
@@ -104,7 +100,7 @@ const addToCart = async (options = {}) => {
         </div>
 
         <div class="flex flex-col sm:flex-row gap-3">
-          <button 
+          <button
             v-if="product.availableForPurchase"
             @click="addToCart"
             class="bg-primary hover:bg-second-hover text-white py-3 px-6 rounded-lg font-medium transition"
@@ -121,6 +117,38 @@ const addToCart = async (options = {}) => {
         </div>
       </div>
     </div>
+
+    <!-- <div class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-xl font-bold mb-4">Основные характеристики</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-6">
+          <div>
+            <ul class="space-y-3">
+              <li v-for="value in product.mainSpecifications" :key="value.name" class="flex justify-between">
+                <span class="text-gray-500">{{ value.name }}</span>
+                <span class="font-medium">{{ value.value }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <div>
+            <h3 class="font-semibold text-gray-700 mb-2">Экран</h3>
+            <ul class="space-y-3">
+              <li
+                v-for="(value, key) in product.specifications['Вторичные характеристики']"
+                :key="key"
+                class="flex justify-between"
+              >
+                <span class="text-gray-500">{{ key.replace(' ', ' ') }}</span>
+                <span class="font-medium">{{ value }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div> -->
   </div>
 
   <Modal :isOpen="isRentalModalOpen" title="Аренда товара" @close="closeRentalModal" @confirm="confirmRental">

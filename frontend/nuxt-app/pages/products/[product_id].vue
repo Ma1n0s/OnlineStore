@@ -1,14 +1,17 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive } from 'vue'
-import { productData } from '~/shared/productData'
+import { ref, onMounted } from 'vue'
 import type { Product } from '~/types/product.types'
 
 const route = useRoute()
 const { product_id } = route.params
 
-const { data } = await useFetch(() => `http://127.0.0.1:8000/api/products/slug/${product_id}`)
+const { data: product } = await useFetch<Product>(() => `http://127.0.0.1:8000/api/products/slug/${product_id}`)
 
-console.log(data.value, 'products')
+if (!product.value) {
+  navigateTo('/404')
+}
+
+console.log(product.value, 'products')
 
 // Импорты компонентов
 // import DescriptionBlock from '~/components/Product/DescriptionBlock.vue'
@@ -22,10 +25,7 @@ import ActionsPanel from '~/components/Product/ActionsPanel.vue'
 // import InformationCart from '~/components/Product/InformationCart.vue'
 // import Reviews from '~/components/Product/Reviews.vue'
 import DescriptionBlock from '~/components/Product/DescriptionBlock.vue'
-// import { getBreadcrumbs } from '~/components/BreadCrumbs/helpers'
-
-// Данные продукта
-const product = reactive<Partial<Product>>(productData)
+import { getBreadcrumbsFromCategoryPath } from '~/components/BreadCrumbs/helpers'
 
 // Вкладки
 const tabs = ref([
@@ -42,7 +42,6 @@ onMounted(() => {
   activeTab.value = 'description'
   isFavorite.value = false
   loading.value = false
-  console.log(product.specifications)
 })
 
 const breadcrumbs = [
@@ -55,6 +54,7 @@ const breadcrumbs = [
   //   name: 'Список',
   //   url: '/products/category/' + slug.join('/'),
   // },
+  ...getBreadcrumbsFromCategoryPath(product.value?.category),
   {
     name: 'Продукт',
     url: `${product_id}`,
@@ -67,15 +67,15 @@ const breadcrumbs = [
     <Breadcrumbs :list="breadcrumbs" />
 
     <div v-if="!loading">
-      <ActionsPanel />
+      <ActionsPanel :product="product" />
       <div class="flex flex-col md:flex-row gap-8">
         <!-- Свой Свайпер по img -->
-        <ImageBlock />
+        <ImageBlock :product="product" />
 
         <div class="grid grid-cols-2 gap-4">
           <!-- Основные характеристики -->
-          <DescriptionBlock />
-          <Basket :product-id="data?.id" />
+          <Basket :product="product" />
+          <DescriptionBlock :product="product" />
         </div>
       </div>
 
@@ -101,9 +101,9 @@ const breadcrumbs = [
           <!-- Основной контент (описание и характеристики) -->
           <div class="lg:col-span-3">
             <!-- Описание -->
-            <BasicDescriptionBlock />
+            <BasicDescriptionBlock :product="product" />
             <!-- Техническое описание -->
-            <SpecificationsBlock />
+            <SpecificationsBlock :product="product" />
             <!-- <InformationCart /> -->
           </div>
 

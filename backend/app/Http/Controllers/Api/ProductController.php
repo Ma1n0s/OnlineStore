@@ -106,6 +106,18 @@ class ProductController extends Controller
             $product->category = $categoryController->transformImagesPaths($product->category);
         }
 
+        // Получаем путь категорий от корня до категории продукта
+        $categoryPath = [];
+        if ($product->category) {
+            $categoryPath = $product->category->getPath()->map(function($category) {
+                return [
+                    'id' => $category->id,
+                    'name' => $category->name,
+                    'slug' => $category->slug
+                ];
+            });
+        }
+
         $response = [
             'id' => $product->id,
             'name' => $product->name,
@@ -120,18 +132,15 @@ class ProductController extends Controller
             'quantity' => $product->quantity,
             'rating' => $product->rating,
             'slug' => $product->slug,
-            // 'category' => $product->category ? [
-            //     'id' => $product->category->id,
-            //     'name' => $product->category->name,
-            //     'slug' => $product->category->slug,
-            //     'image_url' => $product->category->image_url,
-            //     'description_image_url' => $product->category->description_image_url,
-            // ] : null,
-            'specifications' => $product->specificationCategories->mapWithKeys(function ($category) {
-                return [$category->name => $category->specifications->mapWithKeys(function ($spec) {
-                    return [$spec->name => $spec->value];
-                })];
-            }),
+            'category' => $categoryPath,
+            'specifications' => $product->specifications,
+            'mainSpecifications' => $product->specificationsB,
+            'advantages' => $product->advantages,
+            // 'specifications' => $product->specificationCategories->mapWithKeys(function ($category) {
+            //     return [$category->name => $category->specifications->mapWithKeys(function ($spec) {
+            //         return [$spec->name => $spec->value];
+            //     })];
+            // }),
             'images' => $this->transformProductImages($product)['images'],
             'main_image' => $this->transformProductImages($product)['main_image'],
         ];
@@ -148,6 +157,18 @@ class ProductController extends Controller
     public function show(string $id): JsonResponse
     {
         $product = Product::with(['specificationCategories.specifications', 'images', 'category'])->findOrFail($id);
+
+        // Получаем путь категорий от корня до категории продукта
+        $categoryPath = [];
+        if ($product->category) {
+            $categoryPath = $product->category->getPath()->map(function($category) {
+                return [
+                    'id' => $category->id,
+                    'name' => $category->name,
+                    'slug' => $category->slug
+                ];
+            });
+        }
 
         $response = [
             'id' => $product->id,
@@ -169,6 +190,7 @@ class ProductController extends Controller
                 'image_url' => $product->category->image_url,
                 'description_image_url' => $product->category->description_image_url,
             ] : null,
+            'category_path' => $categoryPath,
             'specifications' => $product->specificationCategories->mapWithKeys(function ($category) {
                 return [$category->name => $category->specifications->mapWithKeys(function ($spec) {
                     return [$spec->name => $spec->value];
@@ -624,6 +646,43 @@ class ProductController extends Controller
                 'to' => $products->lastItem(),
                 'has_more' => $products->hasMorePages(),
             ],
+        ]);
+    }
+
+    /**
+     * Получить список категорий от родителя до продукта (путь категорий)
+     *
+     * @param string $slug
+     * @return JsonResponse
+     */
+    public function getCategoryPath(string $slug): JsonResponse
+    {
+        $product = Product::where('slug', $slug)->with('category')->first();
+        
+        if (!$product) {
+            return response()->json(['message' => 'Продукт не найден'], 404);
+        }
+        
+        if (!$product->category) {
+            return response()->json(['message' => 'У продукта нет категории'], 404);
+        }
+        
+        // Получаем путь категорий от корня до категории продукта
+        $path = $product->category->getPath()->map(function($category) {
+            return [
+                'id' => $category->id,
+                'name' => $category->name,
+                'slug' => $category->slug
+            ];
+        });
+        
+        return response()->json([
+            'product' => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'slug' => $product->slug
+            ],
+            'category_path' => $path
         ]);
     }
 } 
