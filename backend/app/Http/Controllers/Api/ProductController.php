@@ -132,6 +132,7 @@ class ProductController extends Controller
             'quantity' => $product->quantity,
             'rating' => $product->rating,
             'slug' => $product->slug,
+            'brand' => $product->brand,
             'category' => $categoryPath,
             'specifications' => $product->specifications,
             'mainSpecifications' => $product->specificationsB,

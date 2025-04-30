@@ -56,7 +56,7 @@ const breadcrumbs = [
   // },
   ...getBreadcrumbsFromCategoryPath(product.value?.category),
   {
-    name: 'Продукт',
+    name: product.value?.name || 'Продукт',
     url: `${product_id}`,
   },
 ]
@@ -109,7 +109,7 @@ const breadcrumbs = [
 
           <!-- Боковая панель с брендом -->
           <div class="sticky top-4 h-fit">
-            <BrandBlock />
+            <BrandBlock :product="product" />
           </div>
         </div>
       </div>

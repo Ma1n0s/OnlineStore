@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
-import { productData } from '~/shared/productData'
 import type { Product } from '~/types/product.types'
 
-const product = reactive<Product>(productData)
+const { product } = defineProps<{
+  product: Product
+}>()
 </script>
 <template>
   <div class="rounded-lg p-6 bg-gray-50">
