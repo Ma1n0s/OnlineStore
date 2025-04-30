@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, onMounted } from 'vue'
 import OrderSummary from '~/components/СartСheckout/OrderSummary.vue'
 import CartHeader from '~/components/СartСheckout/CartHeader.vue'
 import CartItemsList from '~/components/СartСheckout/CartItemsList.vue'
@@ -10,8 +10,7 @@ useHead({
   meta: [
     {
       name: 'description',
-      content:
-        'Оформление заказа в Абсолют техно. Выберите способ доставки и оплаты, укажите адрес и контактные данные. Быстрое и удобное оформление покупок с возможностью использования бонусов.',
+      content: 'Оформление заказа в Абсолют техно'
     },
   ],
 })
@@ -23,69 +22,7 @@ const state = ref({
     phone: '',
   },
   selectAll: false,
-  items: [
-    // {
-    //   id: 1,
-    //   name: 'Бесщеточная дрель-шуруповерт AEG BS18SBL-202C',
-    //   code: '16313057',
-    //   description: 'Бесщеточная аккумуляторная дрель-шуруповерт AEG BS18SBL-202C 4935472277',
-    //   price: 25790,
-    //   quantity: 1,
-    //   selected: false,
-    //   image: 'Categories/Instruments.png',
-    //   rentalType: null,
-    // },
-    // {
-    //   id: 2,
-    //   name: 'Компактный перфоратор',
-    //   code: '12345678',
-    //   description: 'Компактный перфоратор с мощным двигателем',
-    //   price: 15000,
-    //   quantity: 2,
-    //   selected: false,
-    //   image: 'Categories/Instruments.png',
-    //   rentalType: null,
-    // },
-    // {
-    //   id: 3,
-    //   name: 'Генератор FUBAG TI 6000',
-    //   code: 'GEN001',
-    //   description: 'Бензиновый генератор 5.5 кВт',
-    //   price: 2500,
-    //   quantity: 1,
-    //   selected: false,
-    //   image: 'Categories/Instruments.png',
-    //   rentalType: 'short-term',
-    //   rentalDays: 3,
-    //   isRented: true,
-    // },
-    // {
-    //   id: 4,
-    //   name: 'Бетономешалка 160л',
-    //   code: 'CONCRETE001',
-    //   description: 'Бетономешалка электрическая 160 литров',
-    //   price: 1200,
-    //   quantity: 1,
-    //   selected: false,
-    //   image: 'Categories/Instruments.png',
-    //   rentalType: 'short-term',
-    //   rentalDays: 7,
-    //   isRented: true,
-    // },
-    {
-      id: 5,
-      name: 'Бетономешалка 160л',
-      code: 'CONCRETE001',
-      description: 'Бетономешалка электрическая 160 литров',
-      price: 1200,
-      quantity: 1,
-      selected: false,
-      image: 'Categories/Instruments.png',
-      rentalType: 'short-term',
-      rentalDays: 7,
-      isRented: true,
-    },
-  ],
+  items: [],
   customer: {
     name: 'Иван Иванович Иванов',
     phone: '+7 922 555 99-00',
@@ -94,6 +31,39 @@ const state = ref({
   paymentMethod: 'cash',
   showQrCode: false,
 })
+
+const loading = ref(true)
+
+const fetchCartItems = async () => {
+  try {
+    const { data, error } = await useFetch('http://127.0.0.1:8000/api/cart')
+    
+    if (error.value) {
+      console.error('Error fetching cart items:', error.value)
+    } else {
+      state.value.items = data.value.cartItems.map(item => ({
+        id: item.id,
+        name: item.product.name,
+        code: item.product.code,
+        description: item.product.description,
+        price: item.product.price,
+        quantity: item.quantity,
+        selected: false,
+        image: item.product.images?.[0]?.src || '',
+        rentalType: item.options?.rental_days ? 'short-term' : null,
+        rentalDays: item.options?.rental_days || null,
+        rentalStart: item.options?.rental_start || null,
+        rentalEnd: item.options?.rental_end || null,
+        isRented: !!item.options?.rental_days
+      }))
+    }
+  } catch (err) {
+    console.error('Exception when fetching cart items:', err)
+  } finally {
+    loading.value = false
+  }
+}
+
 
 const selectedItems = computed(() => state.value.items.filter(item => item.selected))
 const totalItemsCount = computed(() => selectedItems.value.length)
@@ -193,6 +163,8 @@ watch(
   },
   { deep: true }
 )
+
+onMounted(fetchCartItems)
 </script>
 
 <template>
