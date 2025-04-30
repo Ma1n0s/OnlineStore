@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import OrderSummary from '~/components/СartСheckout/OrderSummary.vue'
 import CartHeader from '~/components/СartСheckout/CartHeader.vue'
 import CartItemsList from '~/components/СartСheckout/CartItemsList.vue'
@@ -15,6 +15,11 @@ useHead({
   ],
 })
 
+const loading = ref(true)
+const showSuccessMessage = ref(false)
+const showErrorMessage = ref(false)
+const messageText = ref('')
+
 const state = ref({
   showSecondForm: false,
   secondCustomer: {
@@ -24,106 +29,141 @@ const state = ref({
   selectAll: false,
   items: [],
   customer: {
-    name: 'Иван Иванович Иванов',
-    phone: '+7 922 555 99-00',
+    name: '',
+    phone: '',
   },
   deliveryAddress: '',
   paymentMethod: 'cash',
-  showQrCode: false,
 })
 
-const loading = ref(true)
+const showMessage = (message, isError = false) => {
+  messageText.value = message
+  if (isError) {
+    showErrorMessage.value = true
+  } else {
+    showSuccessMessage.value = true
+  }
+  setTimeout(() => {
+    showSuccessMessage.value = false
+    showErrorMessage.value = false
+  }, 3000)
+}
+
+const fetchUserData = async () => {
+  try {
+    const { data } = await useFetch('http://127.0.0.1:8000/api/user', {
+      headers: {
+        'Authorization': `Bearer ${useAuthToken().value}`
+      }
+    })
+    
+    if (data.value) {
+      state.value.customer = {
+        name: data.value.name || '',
+        phone: data.value.phone || ''
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching user data:', error)
+  }
+}
 
 const fetchCartItems = async () => {
   try {
-    const { data, error } = await useFetch('http://127.0.0.1:8000/api/cart')
+    const { data, error } = await useFetch('http://127.0.0.1:8000/api/cart', {
+      headers: {
+        'Authorization': `Bearer ${useAuthToken().value}`
+      }
+    })
     
     if (error.value) {
-      console.error('Error fetching cart items:', error.value)
-    } else {
-      state.value.items = data.value.cartItems.map(item => ({
-        id: item.id,
-        name: item.product.name,
-        code: item.product.code,
-        description: item.product.description,
-        price: item.product.price,
-        quantity: item.quantity,
-        selected: false,
-        image: item.product.images?.[0]?.src || '',
-        rentalType: item.options?.rental_days ? 'short-term' : null,
-        rentalDays: item.options?.rental_days || null,
-        rentalStart: item.options?.rental_start || null,
-        rentalEnd: item.options?.rental_end || null,
-        isRented: !!item.options?.rental_days
-      }))
+      throw error.value
     }
-  } catch (err) {
-    console.error('Exception when fetching cart items:', err)
+
+    state.value.items = data.value.cartItems.map(item => ({
+      id: item.id,
+      name: item.product.name,
+      code: item.product.code,
+      description: item.product.description,
+      price: item.product.price.final,
+      quantity: item.quantity,
+      selected: false,
+      image: item.product.images?.[0]?.src || '/images/Logo.png',
+      rentalType: item.options?.rental_days ? 'short-term' : null,
+      rentalDays: item.options?.rental_days || null,
+      rentalStart: item.options?.rental_start || null,
+      rentalEnd: item.options?.rental_end || null,
+      isRented: !!item.options?.rental_days
+    }))
+  } catch (error) {
+    console.error('Error fetching cart items:', error)
+    if (error.statusCode === 401) {
+      navigateTo('/login')
+    }
   } finally {
     loading.value = false
   }
 }
 
-
-const selectedItems = computed(() => state.value.items.filter(item => item.selected))
-const totalItemsCount = computed(() => selectedItems.value.length)
-const totalWeight = computed(() => '4,8')
-const isEmptyCart = computed(() => state.value.items.length === 0)
-
-const totalAmount = computed(() => {
-  return selectedItems.value.reduce((sum, item) => {
-    if (item.rentalType === 'short-term') {
-      return sum + item.price * item.rentalDays * item.quantity
-    } else if (item.rentalType === 'long-term') {
-      const basePrice = item.price * item.rentalMonths
-      const discountedPrice = item.discount ? basePrice * (1 - item.discount / 100) : basePrice
-      return sum + discountedPrice * item.quantity
-    }
-    return sum + item.price * item.quantity
-  }, 0)
-})
-
-const formattedTotalAmount = computed(() => {
-  return totalAmount.value.toLocaleString('ru-RU') + ' ₽'
-})
-
-const discountAmount = computed(() => {
-  const nonRentalItems = selectedItems.value.filter(item => !item.rentalType)
-  const rentalDiscounts = selectedItems.value
-    .filter(item => item.rentalType === 'long-term' && item.discount)
-    .reduce((sum, item) => sum + (item.price * item.rentalMonths * item.discount) / 100, 0)
-
-  return Math.round(nonRentalItems.reduce((sum, item) => sum + item.price * item.quantity, 0) * 0.1) + rentalDiscounts
-})
-
-const finalAmount = computed(() => {
-  return totalAmount.value - discountAmount.value
-})
-
-const formattedFinalAmount = computed(() => {
-  return finalAmount.value.toLocaleString('ru-RU') + ' ₽'
-})
-
-const emptyCartFinalAmount = computed(() => {
-  return '0 ₽'
-})
-
-const formattedDiscountAmount = computed(() => {
-  return '-' + discountAmount.value.toLocaleString('ru-RU') + ' ₽'
-})
-
-const handleSearch = searchTerm => {
-  // Реализация поиска по товарам
-  console.log('Search term:', searchTerm)
+const removeSelectedItems = async () => {
+  try {
+    const selectedIds = selectedItems.value.map(item => item.id)
+    
+    await Promise.all(selectedIds.map(async id => {
+      await useFetch(`http://127.0.0.1:8000/api/cart/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${useAuthToken().value}`
+        }
+      })
+    }))
+    
+    await fetchCartItems()
+    showMessage('Товары удалены из корзины')
+  } catch (error) {
+    console.error('Error removing items:', error)
+    showMessage('Не удалось удалить товары', true)
+  }
 }
 
-const increaseQuantity = item => {
-  item.quantity += 1
+const updateCartItem = async (item, newQuantity) => {
+  try {
+    await useFetch(`http://127.0.0.1:8000/api/cart/${item.id}`, {
+      method: 'PATCH',
+      body: {
+        quantity: newQuantity
+      },
+      headers: {
+        'Authorization': `Bearer ${useAuthToken().value}`
+      }
+    })
+    
+    await fetchCartItems()
+  } catch (error) {
+    console.error('Error updating cart item:', error)
+    showMessage('Не удалось изменить количество', true)
+  }
 }
 
-const decreaseQuantity = item => {
+const increaseQuantity = (item) => {
+  const newQuantity = item.quantity + 1
+  updateCartItem(item, newQuantity)
+}
+
+const decreaseQuantity = (item) => {
   if (item.quantity > 1) {
-    item.quantity -= 1
+    const newQuantity = item.quantity - 1
+    updateCartItem(item, newQuantity)
+  }
+}
+
+const increaseRentalDays = (item) => {
+  item.rentalDays += 1
+}
+
+const decreaseRentalDays = (item) => {
+  if (item.rentalDays > 1) {
+    item.rentalDays -= 1
   }
 }
 
@@ -133,50 +173,63 @@ const toggleSelectAll = () => {
   })
 }
 
-const removeSelectedItems = () => {
-  state.value.items = state.value.items.filter(item => !item.selected)
-}
+const selectedItems = computed(() => state.value.items.filter(item => item.selected))
+const totalItemsCount = computed(() => state.value.items.length)
+const isEmptyCart = computed(() => state.value.items.length === 0)
 
-const increaseRentalDays = item => {
-  item.rentalDays += 1
-}
-
-const decreaseRentalDays = item => {
-  if (item.rentalDays > 1) {
-    item.rentalDays -= 1
-  }
-}
-
-watch(
-  () => state.value.items.every(item => item.selected),
-  allSelected => {
-    state.value.selectAll = allSelected
-  }
-)
-
-watch(
-  selectedItems,
-  newVal => {
-    if (newVal.length === 0) {
-      state.value.selectAll = false
+const totalAmount = computed(() => {
+  return state.value.items.reduce((sum, item) => {
+    if (item.rentalType === 'short-term') {
+      return sum + item.price * (item.rentalDays || 1) * item.quantity
     }
-  },
-  { deep: true }
-)
+    return sum + item.price * item.quantity
+  }, 0)
+})
 
-onMounted(fetchCartItems)
+const discountAmount = computed(() => {
+  return Math.round(totalAmount.value * 0.1)
+})
+
+const finalAmount = computed(() => totalAmount.value - discountAmount.value)
+
+const formattedValues = computed(() => ({
+  total: totalAmount.value.toLocaleString('ru-RU') + ' ₽',
+  discount: '-' + discountAmount.value.toLocaleString('ru-RU') + ' ₽',
+  final: finalAmount.value.toLocaleString('ru-RU') + ' ₽',
+  empty: '0 ₽'
+}))
+
+onMounted(async () => {
+  await fetchUserData()
+  await fetchCartItems()
+})
 </script>
 
 <template>
   <div>
+    <div v-if="showSuccessMessage" class="fixed top-4 right-4 z-50">
+      <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+        {{ messageText }}
+      </div>
+    </div>
+    <div v-if="showErrorMessage" class="fixed top-4 right-4 z-50">
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        {{ messageText }}
+      </div>
+    </div>
+
     <div class="mx-auto w-full max-w-screen-2xl px-8 space-y-16 py-8">
       <div class="flex flex-col lg:flex-row gap-4 sm:gap-6">
         <div class="lg:w-3/4">
-          <CartHeader :cart-number="state.cartNumber" @search="handleSearch" />
+          <CartHeader cart-number="2741-0895-29725" />
 
-          <div v-if="isEmptyCart" class="bg-white rounded-xl p-6 mb-6 shadow-sm text-center">
+          <div v-if="loading" class="flex justify-center items-center h-64">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+          </div>
+
+          <div v-else-if="isEmptyCart" class="bg-white rounded-xl p-6 mb-6 shadow-sm text-center">
             <div class="mx-auto max-w-md">
-              <img src="" alt="" class="" />
+              <!-- <img src="" alt="Пустая корзина" class="mx-auto h-40 w-40" /> -->
               <h2 class="mt-3 sm:mt-4 text-lg sm:text-xl font-bold text-gray-800">Ваша корзина пока пуста</h2>
               <p class="mt-2 text-sm sm:text-base text-gray-600">
                 Акции и специальные предложения помогут вам определиться с выбором!
@@ -190,21 +243,20 @@ onMounted(fetchCartItems)
             </div>
           </div>
 
-          <CartItemsList
-            v-else
-            :items="state.items"
-            :select-all="state.selectAll"
-            @update:selectAll="val => (state.selectAll = val)"
-            :total-items-count="totalItemsCount"
-            @toggleSelectAll="toggleSelectAll"
-            @removeSelectedItems="removeSelectedItems"
-            @increaseQuantity="increaseQuantity"
-            @decreaseQuantity="decreaseQuantity"
-            @increaseRentalDays="increaseRentalDays"
-            @decreaseRentalDays="decreaseRentalDays"
-          />
+          <template v-else>
+            <CartItemsList
+              :items="state.items"
+              :select-all="state.selectAll"
+              @update:selectAll="val => (state.selectAll = val)"
+              :total-items-count="totalItemsCount"
+              @toggleSelectAll="toggleSelectAll"
+              @removeSelectedItems="removeSelectedItems"
+              @increaseQuantity="increaseQuantity"
+              @decreaseQuantity="decreaseQuantity"
+              @increaseRentalDays="increaseRentalDays"
+              @decreaseRentalDays="decreaseRentalDays"
+            />
 
-          <div v-if="!isEmptyCart">
             <RecipientData
               :customer="state.customer"
               :show-second-form="state.showSecondForm"
@@ -216,7 +268,7 @@ onMounted(fetchCartItems)
               @update:deliveryAddress="val => (state.deliveryAddress = val)"
               @update:paymentMethod="val => (state.paymentMethod = val)"
             />
-          </div>
+          </template>
         </div>
 
         <div class="lg:w-1/4">
@@ -225,11 +277,11 @@ onMounted(fetchCartItems)
             :customer="state.customer"
             :paymentMethod="state.paymentMethod"
             :totalItemsCount="totalItemsCount"
-            :totalWeight="totalWeight"
-            :formattedTotalAmount="formattedTotalAmount"
-            :formattedDiscountAmount="formattedDiscountAmount"
-            :formattedFinalAmount="formattedFinalAmount"
-            :emptyCartFinalAmount="emptyCartFinalAmount"
+            totalWeight="0"
+            :formattedTotalAmount="formattedValues.total"
+            :formattedDiscountAmount="formattedValues.discount"
+            :formattedFinalAmount="formattedValues.final"
+            :emptyCartFinalAmount="formattedValues.empty"
           />
         </div>
       </div>

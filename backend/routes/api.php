@@ -29,9 +29,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::middleware('auth:sanctum')->post('/purchase', [PurchaseController::class, 'processPurchase']);
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('cart', CartController::class)->except(['show']);
-    Route::delete('cart/clear', [CartController::class, 'clear']);
+Route::prefix('cart')->group(function () {
+    Route::get('/', [CartController::class, 'index']);
+    Route::post('/', [CartController::class, 'store']);
+    Route::delete('/{cartItem}', [CartController::class, 'destroy']);
+    Route::patch('/{cartItem}', [CartController::class, 'update']);
 });
 
 // Authentication routes with CSRF protection disabled
