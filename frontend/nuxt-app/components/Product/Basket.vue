@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import TextInput from '../ui/Inputs/TextInput.vue'
 import Button from '~/components/ui/Button/Button.vue'
 import { DatePicker } from 'v-calendar'
@@ -8,13 +8,21 @@ import 'v-calendar/dist/style.css'
 const props = defineProps({
   product: {
     type: Object,
-    required: true
+    required: true,
+    default: () => ({
+      id: null,
+      price: {
+        total: 0,
+        sum: 0,
+        discount: 0
+      }
+    })
   }
 })
 
 const isRentalModalOpen = ref(false)
 const rentalDays = ref(1)
-const rentalPrice = ref(props.product.price.final)
+const rentalPrice = ref(0)
 const showSuccessMessage = ref(false)
 const showErrorMessage = ref(false)
 const messageText = ref('')
@@ -24,6 +32,15 @@ const dateRange = ref({
   start: new Date(),
   end: new Date(new Date().setDate(new Date().getDate() + 1)),
 })
+
+const formatPrice = (value) => {
+  return Number(value || 0).toLocaleString('ru-RU')
+}
+
+const currentPrice = computed(() => formatPrice(props.product?.price?.total))
+const oldPrice = computed(() => formatPrice(props.product?.price?.sum))
+const discount = computed(() => formatPrice(props.product?.price?.discount))
+const hasDiscount = computed(() => props.product?.price?.sum && props.product.price.sum !== props.product.price.total)
 
 const showMessage = (message, isError = false) => {
   messageText.value = message
@@ -40,6 +57,7 @@ const showMessage = (message, isError = false) => {
 
 const openRentalModal = () => {
   isRentalModalOpen.value = true
+  calculateRentalPrice()
 }
 
 const closeRentalModal = () => {
@@ -48,10 +66,10 @@ const closeRentalModal = () => {
 
 const calculateRentalPrice = () => {
   if (dateRange.value.start && dateRange.value.end) {
-    const diffTime = Math.abs(dateRange.value.end.getTime() - dateRange.value.start.getTime())
+    const diffTime = Math.abs(dateRange.value.end - dateRange.value.start)
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-    rentalDays.value = diffDays > 0 ? diffDays : 1
-    rentalPrice.value = props.product.price.final * rentalDays.value
+    rentalDays.value = Math.max(diffDays, 1)
+    rentalPrice.value = Number(props.product?.price?.total || 0) * rentalDays.value
   }
 }
 
@@ -72,6 +90,11 @@ const confirmRental = async () => {
 }
 
 const addToCart = async (options = {}) => {
+  if (!props.product?.id) {
+    showMessage('Ошибка: товар не доступен', true)
+    return
+  }
+
   isLoading.value = true
   try {
     const response = await $fetch('http://127.0.0.1:8000/api/cart', {
@@ -100,59 +123,73 @@ const addToCart = async (options = {}) => {
 </script>
 
 <template>
-  <div class="space-y-6">
-    <div v-if="showSuccessMessage" class="fixed top-4 right-4 z-50">
-      <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-        {{ messageText }}
+  <div class="space-y-6 h-full flex flex-col">
+    <transition name="fade">
+      <div v-if="showSuccessMessage" class="fixed top-4 right-4 z-50">
+        <div class="bg-emerald-100 border border-emerald-400 text-emerald-800 px-4 py-3 rounded-lg shadow-lg flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          {{ messageText }}
+        </div>
       </div>
-    </div>
-    <div v-if="showErrorMessage" class="fixed top-4 right-4 z-50">
-      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-        {{ messageText }}
-      </div>
-    </div>
+    </transition>
 
-    <div class="bg-white rounded-lg shadow-md p-6">
-      <div class="flex flex-col gap-4">
+    <transition name="fade">
+      <div v-if="showErrorMessage" class="fixed top-4 right-4 z-50">
+        <div class="bg-rose-100 border border-rose-400 text-rose-800 px-4 py-3 rounded-lg shadow-lg flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          {{ messageText }}
+        </div>
+      </div>
+    </transition>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex-1 flex flex-col">
+      <div class="flex-1">
         <div>
           <h2 class="text-xl font-bold text-second mb-2">Цена товара</h2>
           <div class="flex items-center gap-4">
-            <p class="text-3xl font-bold">{{ product.price.final }} ₽</p>
+            <p class="text-3xl font-bold">{{ product.price }} ₽</p>
             <p
-              v-if="product.price.original && product.price.original !== product.price.final"
+              v-if="product.price.sum && product.price.sum !== product.price.total"
               class="text-lg line-through text-gray"
             >
-              {{ product.price.original }} ₽
+              {{ product.price.sum }} ₽
             </p>
-            <p v-if="product.price.savings" class="text-primary font-medium">
-              Экономия {{ product.price.savings }} ₽
+            <p v-if="product.price.discount" class="text-primary font-medium">
+              Экономия {{ product.price.discount }} ₽
             </p>
           </div>
         </div>
+      </div>
 
-        <div class="flex flex-col sm:flex-row gap-3">
-          <Button
-            @click="addToCart"
-            :disabled="isLoading"
-            class="bg-primary hover:bg-second-hover text-white py-3 px-6 rounded-lg font-medium transition"
-          >
-            <span v-if="!isLoading">В корзину</span>
-            <span v-else>Добавление...</span>
-          </Button>
-          <Button
-            @click="openRentalModal"
-            class="bg-primary hover:bg-second-hover text-white py-3 px-6 rounded-lg font-medium transition"
-          >
-            В аренду
-          </Button>
-        </div>
+      <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-100">
+        <Button
+          @click="addToCart"
+          :disabled="isLoading || !product?.id"
+          class="flex-1 bg-primary hover:bg-primary text-white py-3 px-6 rounded-lg font-medium transition 
+                shadow-sm hover:shadow-md flex items-center justify-center gap-2 disabled:opacity-70"
+        >
+          <Icon name="material-symbols:shopping-cart-rounded" class="h-6 w-6 text-white" />
+          <span>{{ isLoading ? 'Добавление...' : 'В корзину' }}</span>
+        </Button>
+        
+        <Button
+          @click="openRentalModal"
+          :disabled="!product?.id"
+        >
+          
+          <span>В аренду</span>
+        </Button>
       </div>
     </div>
 
     <Modal :isOpen="isRentalModalOpen" title="Аренда товара" @close="closeRentalModal">
-      <div class="mt-6 space-y-4">
+      <div class="mt-6 space-y-6">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Выберите даты аренды</label>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Выберите даты аренды</label>
           <DatePicker
             v-model.range="dateRange"
             @update:modelValue="calculateRentalPrice"
@@ -163,20 +200,20 @@ const addToCart = async (options = {}) => {
             locale="ru"
           >
             <template #default="{ inputValue, inputEvents }">
-              <div class="flex flex-col sm:flex-row gap-2">
-                <div class="w-full">
-                  <label class="block text-xs text-gray-500 mb-1">Начало</label>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-medium text-gray-500 mb-1">Начало аренды</label>
                   <TextInput
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     :value="inputValue.start"
                     v-on="inputEvents.start"
                     placeholder="Дата начала"
                   />
                 </div>
-                <div class="w-full">
-                  <label class="block text-xs text-gray-500 mb-1">Конец</label>
+                <div>
+                  <label class="block text-xs font-medium text-gray-500 mb-1">Окончание аренды</label>
                   <TextInput
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     :value="inputValue.end"
                     v-on="inputEvents.end"
                     placeholder="Дата окончания"
@@ -187,24 +224,55 @@ const addToCart = async (options = {}) => {
           </DatePicker>
         </div>
 
-        <div class="pt-2">
-          <p class="text-lg font-semibold">Итоговая стоимость:</p>
-          <p class="text-2xl font-bold text-primary">{{ rentalPrice }} ₽</p>
-          <p class="text-sm text-gray-500">
-            Цена за день: {{ product.price.final }} ₽ × {{ rentalDays }} {{ rentalDays === 1 ? 'день' : 'дней' }}
-          </p>
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-gray-600">Цена за день:</span>
+            <span class="font-medium">{{ currentPrice }} ₽</span>
+          </div>
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-gray-600">Количество дней:</span>
+            <span class="font-medium">{{ rentalDays }} {{ rentalDays === 1 ? 'день' : 'дней' }}</span>
+          </div>
+          <div class="border-t border-gray-200 mt-3 pt-3 flex justify-between items-center">
+            <span class="text-lg font-semibold">Итого:</span>
+            <span class="text-2xl font-bold text-primary">
+              {{ formatPrice(rentalPrice) }} ₽
+            </span>
+          </div>
         </div>
       </div>
 
-      <template #footer">
+      <template #footer>
         <div class="flex justify-end gap-3 mt-6">
-          <Button variant="outline" @click="closeRentalModal">Отмена</Button>
-          <Button @click="confirmRental" :disabled="isLoading">
-            <span v-if="!isLoading">Подтвердить аренду</span>
-            <span v-else>Обработка...</span>
+          <Button 
+            variant="outline" 
+            @click="closeRentalModal"
+            class="px-6 py-2.5 border-gray-300 text-gray-700 hover:bg-gray-50"
+          >
+            Отмена
+          </Button>
+          <Button 
+            @click="confirmRental" 
+            :disabled="isLoading"
+            class="px-6 py-2.5 bg-primary hover:bg-primary text-white flex items-center gap-2"
+          >
+            <svg v-if="!isLoading" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            {{ isLoading ? 'Обработка...' : 'Подтвердить аренду' }}
           </Button>
         </div>
       </template>
     </Modal>
   </div>
 </template>
+
+<style scoped>
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s, transform 0.3s;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+</style>
