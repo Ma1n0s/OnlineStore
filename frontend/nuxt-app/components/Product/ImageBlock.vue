@@ -2,48 +2,93 @@
   <div class="w-full md:w-2/5">
     <div class="bg-white rounded-lg shadow-md p-4 relative">
       <ClientOnly>
-        <swiper-container
-          ref="mainSwiper"
-          class="w-full h-80 mb-4"
-          :space-between="10"
-          :navigation="true"
-          :loop="false"
-          @slide-change="onMainSlideChange"
-        >
-          <swiper-slide v-for="(image, index) in product.images" :key="'main-' + index">
-            <NuxtImg
-              :src="image.url"
-              :alt="product.alt"
-              class="w-full h-full object-contain"
-              @click="openFullscreenImage(index)"
-            />
-          </swiper-slide>
-        </swiper-container>
+        <div class="flex flex-row-reverse gap-4">
+          <!-- Основной слайдер -->
+          <div class="w-[calc(100%-80px)]">
+            <swiper-container
+              ref="mainSwiper"
+              class="w-full h-80 mb-4"
+              :space-between="10"
+              :navigation="true"
+              :loop="false"
+              @slide-change="onMainSlideChange"
+            >
+              <swiper-slide v-for="(image, index) in product.images" :key="'main-' + index">
+                <NuxtImg
+                  :src="image.url"
+                  :alt="product.alt"
+                  class="w-full h-full object-contain"
+                  @click="openFullscreenImage(index)"
+                />
+              </swiper-slide>
+            </swiper-container>
+          </div>
 
-        <swiper-container
-          ref="thumbsSwiper"
-          class="thumbs-swiper h-16"
-          :space-between="8"
-          :slides-per-view="4"
-          :free-mode="true"
-          :watch-slides-progress="true"
-        >
-          <swiper-slide
-            v-for="(image, index) in product.images"
-            :key="'thumb-' + index"
-            @click="slideTo(index)"
-            :class="{ 'active-thumb': activeIndex === index }"
-          >
-            <NuxtImg
-              :src="image.url"
-              :alt="'Изображение ' + (index + 1)"
-              class="w-full h-full object-cover rounded cursor-pointer border"
-            />
-          </swiper-slide>
-        </swiper-container>
+          <!-- Вертикальный слайдер миниатюр с кастомными стрелками -->
+          <div class="w-16 relative">
+            <!-- Кнопка вверх -->
+            <button
+              v-if="product.images.length > 4"
+              @click="scrollThumbsUp"
+              class="absolute top-0 left-0 right-0 z-10 flex justify-center py-1 bg-gray-100 hover:bg-gray-200 transition-colors rounded-t"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4 text-gray-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+              </svg>
+            </button>
+
+            <swiper-container
+              ref="thumbsSwiper"
+              class="thumbs-swiper h-80"
+              :space-between="8"
+              :slides-per-view="4"
+              :direction="'vertical'"
+              :free-mode="true"
+              :watch-slides-progress="true"
+              :mousewheel="true"
+            >
+              <swiper-slide
+                v-for="(image, index) in product.images"
+                :key="'thumb-' + index"
+                @click="slideTo(index)"
+                :class="{ 'active-thumb': activeIndex === index }"
+              >
+                <NuxtImg
+                  :src="image.url"
+                  :alt="'Изображение ' + (index + 1)"
+                  class="w-full h-full object-cover rounded cursor-pointer border"
+                />
+              </swiper-slide>
+            </swiper-container>
+
+            <!-- Кнопка вниз -->
+            <button
+              v-if="product.images.length > 4"
+              @click="scrollThumbsDown"
+              class="absolute bottom-0 left-0 right-0 z-10 flex justify-center py-1 bg-gray-100 hover:bg-gray-200 transition-colors rounded-b"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4 text-gray-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+          </div>
+        </div>
       </ClientOnly>
     </div>
 
+    <!-- Fullscreen режим (оставляем без изменений) -->
     <div v-if="isFullscreenOpen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white p-4">
       <button
         class="absolute top-4 right-4 text-gray-800 text-2xl z-50 hover:text-red-500 transition-colors"
@@ -143,6 +188,20 @@ const onMainSlideChange = (e: any) => {
 const slideTo = (index: number) => {
   if (mainSwiper.value && mainSwiper.value.swiper) {
     mainSwiper.value.swiper.slideTo(index)
+  }
+}
+
+// Прокрутка миниатюр вверх
+const scrollThumbsUp = () => {
+  if (thumbsSwiper.value && thumbsSwiper.value.swiper) {
+    thumbsSwiper.value.swiper.slidePrev()
+  }
+}
+
+// Прокрутка миниатюр вниз
+const scrollThumbsDown = () => {
+  if (thumbsSwiper.value && thumbsSwiper.value.swiper) {
+    thumbsSwiper.value.swiper.slideNext()
   }
 }
 
