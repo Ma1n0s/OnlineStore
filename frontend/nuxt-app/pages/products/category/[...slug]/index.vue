@@ -5,10 +5,18 @@ import TextInput from '~/components/ui/Inputs/TextInput.vue'
 import Breadcrumbs from '~/components/BreadCrumbs/Breadcrumbs.vue'
 import { getBreadcrumbs } from '~/components/BreadCrumbs/helpers'
 
+const {
+  public: { backendUrl },
+} = useRuntimeConfig()
+
 const route = useRoute()
 const { slug } = route.params
 
-const { data } = await useFetch(() => `http://127.0.0.1:8000/api/products/category-slug/${slug.at(-1)}`)
+const { data } = await useAsyncData(
+  `products-list-${slug}`,
+  () => $fetch(`${backendUrl}/api/products/category-slug/${slug.at(-1)}`),
+  { revalidate: 3600 }
+)
 
 console.log(data.value, 'products')
 useHead({

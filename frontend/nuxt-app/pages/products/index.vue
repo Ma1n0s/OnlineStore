@@ -1,10 +1,16 @@
 <script setup>
+// УДАЛИТЬ ФАЙЛ ПОЗЖЕ
+
 const route = useRoute()
 
 const { slug } = route.params
 console.log(slug)
 
-const { data: category } = await useFetch(() => `http://127.0.0.1:8000/api/categories/${slug.at(-1)}`)
+const { data: category } = await useAsyncData(
+  'category-list',
+  () => $fetch(`http://127.0.0.1:8000/api/categories/${slug.at(-1)}`),
+  { revalidate: 3600 }
+)
 
 useHead({
   title: `${route.params.subsubcategory} | Абсолют техно`,

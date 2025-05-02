@@ -4,7 +4,15 @@ import CategoryList from '~/components/CategoryItems/CategoryList/CategoryList.v
 import WrapperHeader from '~/components/Wrapper/WrapperHeader.vue'
 import Advantages from '~/components/Advantages/Advantages.vue'
 
-const { data: category } = await useFetch(() => `http://127.0.0.1:8000/api/categories`)
+const {
+  public: { backendUrl },
+} = useRuntimeConfig()
+
+const { data: category } = await useAsyncData(`category-list`, () => $fetch(`${backendUrl}/api/categories`), {
+  revalidate: 3600,
+})
+
+console.log(category.value, 'category')
 </script>
 
 <template>

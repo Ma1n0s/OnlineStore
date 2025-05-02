@@ -2,10 +2,18 @@
 import { ref, onMounted } from 'vue'
 import type { Product } from '~/types/product.types'
 
+const {
+  public: { backendUrl },
+} = useRuntimeConfig()
+
 const route = useRoute()
 const { product_id } = route.params
 
-const { data: product } = await useFetch<Product>(() => `http://127.0.0.1:8000/api/products/slug/${product_id}`)
+const { data: product } = await useAsyncData<Product>(
+  `products-${product_id}`,
+  () => $fetch(`${backendUrl}/api/products/slug/${product_id}`),
+  { revalidate: 3600 }
+)
 
 if (!product.value) {
   navigateTo('/404')
