@@ -8,7 +8,9 @@
   >
     <slot></slot>
   </NuxtLink>
-  <button v-else :disabled="props.disabled" :class="buttonClasses"></button>
+  <button v-else :disabled="props.disabled" :class="buttonClasses">
+    <slot></slot>
+  </button>
   <!-- <component :is="asComponents" :disabled="props.disabled" :to="props.disabled ? '#' : props.to" :class="buttonClasses">
     <slot></slot>
   </component> -->
