@@ -5,7 +5,7 @@
     >
       <div class="h-48 overflow-hidden">
         <img
-          :src="article.image"
+          :src="article.image || 'no-photo.webp'"
           :alt="article.title"
           class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />

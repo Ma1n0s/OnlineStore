@@ -10,7 +10,7 @@ useHead({
   meta: [
     {
       name: 'description',
-      content: 'Оформление заказа в Абсолют техно'
+      content: 'Оформление заказа в Абсолют техно',
     },
   ],
 })
@@ -37,25 +37,25 @@ const loading = ref(true)
 const fetchCartItems = async () => {
   try {
     const { data, error } = await useFetch('http://127.0.0.1:8000/api/cart')
-    
+    console.log(data.value)
     if (error.value) {
       console.error('Error fetching cart items:', error.value)
     } else {
-      state.value.items = data.value.cartItems.map(item => ({
-        id: item.id,
-        name: item.product.name,
-        code: item.product.code,
-        description: item.product.description,
-        price: item.product.price,
-        quantity: item.quantity,
-        selected: false,
-        image: item.product.images?.[0]?.src || '',
-        rentalType: item.options?.rental_days ? 'short-term' : null,
-        rentalDays: item.options?.rental_days || null,
-        rentalStart: item.options?.rental_start || null,
-        rentalEnd: item.options?.rental_end || null,
-        isRented: !!item.options?.rental_days
-      }))
+      // state.value.items = data.value.cartItems.map(item => ({
+      //   id: item.id,
+      //   name: item.product.name,
+      //   code: item.product.code,
+      //   description: item.product.description,
+      //   price: item.product.price,
+      //   quantity: item.quantity,
+      //   selected: false,
+      //   image: item.product.images?.[0]?.src || '',
+      //   rentalType: item.options?.rental_days ? 'short-term' : null,
+      //   rentalDays: item.options?.rental_days || null,
+      //   rentalStart: item.options?.rental_start || null,
+      //   rentalEnd: item.options?.rental_end || null,
+      //   isRented: !!item.options?.rental_days
+      // }))
     }
   } catch (err) {
     console.error('Exception when fetching cart items:', err)
@@ -63,7 +63,6 @@ const fetchCartItems = async () => {
     loading.value = false
   }
 }
-
 
 const selectedItems = computed(() => state.value.items.filter(item => item.selected))
 const totalItemsCount = computed(() => selectedItems.value.length)

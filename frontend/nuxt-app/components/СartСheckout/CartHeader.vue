@@ -30,6 +30,7 @@ const handleSearch = event => {
         <Icon
           name="material-symbols:search-rounded"
           class="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 sm:h-6 sm:w-6"
+          alt="Поиск товара"
         />
       </TextInput>
     </div>

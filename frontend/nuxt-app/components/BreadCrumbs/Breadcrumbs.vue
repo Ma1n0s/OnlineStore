@@ -17,7 +17,7 @@ const props = defineProps<{ list: ICrumb[] }>()
     </NuxtLink>
 
     <template v-for="(crumb, index) in props.list" :key="index">
-      <Icon name="heroicons:chevron-right-20-solid" class="h-4 w-4 text-gray-400" />
+      <Icon name="material-symbols:chevron-right" class="h-4 w-4 text-gray-400" />
       <component
         :is="crumb.url ? NuxtLink : 'div'"
         :to="crumb.url"
