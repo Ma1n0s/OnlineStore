@@ -3,7 +3,19 @@ import Breadcrumbs from '~/components/BreadCrumbs/Breadcrumbs.vue'
 import CategoryDescription from '~/components/CategoryItems/CategoryDescription/CategoryDescription.vue'
 import CategoryList from '~/components/CategoryItems/CategoryList/CategoryList.vue'
 
-const { data: category } = await useFetch(() => `http://127.0.0.1:8000/api/categories`)
+const {
+  public: { backendUrl },
+} = useRuntimeConfig()
+
+const { data: category } = await useAsyncData(`category-list`, () => $fetch(`${backendUrl}/api/categories`), {
+  revalidate: 3600,
+})
+
+// getCachedData(key) {
+//       return useNuxtApp().payload.data[key] // Использование кешированных данных
+//     }
+
+console.log(category.value, 'category')
 
 useHead({
   title: `Категории | Абсолют техно`,

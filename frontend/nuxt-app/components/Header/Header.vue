@@ -20,18 +20,26 @@
                 to="tel:+79169999999"
                 class="text-primary font-bold text-nowrap text-xs xl:text-sm text-center flex items-center gap-1"
               >
-                <Icon name="material-symbols:phone-android-rounded" class="h-4 w-4" />
+                <Icon name="material-symbols:phone-android-rounded" class="h-4 w-4" alt="Телефон" />
                 +7 (916) 999-99-99</NuxtLink
               >
               <p class="text-gray font-bold text-nowrap text-xs xl:text-sm flex items-center gap-1">
-                <Icon name="material-symbols:nest-clock-farsight-analog-outline-rounded" class="h-4 w-4" />
+                <Icon
+                  name="material-symbols:nest-clock-farsight-analog-outline-rounded"
+                  class="h-4 w-4"
+                  alt="Время работы"
+                />
                 с 9:00 до 18:00 (Пн-Пт)
               </p>
             </div>
 
             <div>
               <p class="text-gray font-bold text-nowrap text-xs xl:text-sm flex items-start gap-1">
-                <Icon name="material-symbols:location-on-rounded" class="h-4 w-4 mt-[2px] inline text-gray" />
+                <Icon
+                  name="material-symbols:location-on-rounded"
+                  class="h-4 w-4 mt-[2px] inline text-gray"
+                  alt="Адрес"
+                />
                 Нижний Тагил, <br />
                 ул. Аганичева 101а
               </p>
@@ -48,7 +56,7 @@
       <div class="flex justify-between gap-2 items-center w-full max-w-screen-2xl px-8">
         <div class="flex items-center gap-2 w-full">
           <NuxtLink to="/" class="flex items-center gap-2 w-[210px]">
-            <NuxtImg src="full_logo_text.svg" class="h-[50px] w-fit" />
+            <NuxtImg src="full_logo_text.svg" class="h-[50px] w-fit" alt="Абсолют Техно" />
           </NuxtLink>
 
           <!-- <CatalogButton /> -->
@@ -59,13 +67,14 @@
 
         <div class="flex items-center gap-2">
           <Button variant="transparent" class="flex items-center gap-2 h-full !px-4" to="/account/cart-checkout"
-            ><Icon name="material-symbols:shopping-cart-rounded" class="h-8 w-8 text-dark"
+            ><Icon name="material-symbols:shopping-cart-rounded" class="h-8 w-8 text-dark" alt="Корзина"
           /></Button>
           <Button v-if="isAuth" variant="transparent" class="flex items-center gap-2 h-full !px-4" @click="handleLogout"
-            >{{ userDisplayName }} <Icon name="material-symbols:account-circle" class="h-8 w-8 text-dark"
+            >{{ userDisplayName }}
+            <Icon name="material-symbols:account-circle" class="h-8 w-8 text-dark" alt="Пользователь"
           /></Button>
           <Button variant="transparent" class="flex items-center gap-2 h-full !px-4" @click="openModal" v-else>
-            <Icon name="material-symbols:account-circle" class="h-8 w-8 text-dark"
+            <Icon name="material-symbols:account-circle" class="h-8 w-8 text-dark" alt="Вход"
           /></Button>
         </div>
       </div>
@@ -75,49 +84,49 @@
   <div class="bg-zinc-200 flex justify-center w-full px-2 lg:hidden fixed z-50">
     <div class="flex justify-around flex-col md:flex-row items-center gap-4 pt-[2px] w-full max-w-screen-xl">
       <div class="w-full h-full flex items-center gap-2" v-if="isMenuOpen">
-        <Button class="flex items-center gap-2 h-full !px-2" @click="isMenuOpen = false"
-          ><Icon name="material-symbols:close-rounded" class="h-6 w-6"
-        /></Button>
         <div class="w-full">
           <Search @close="isMenuOpen = false" />
         </div>
+        <Button variant="transparent" class="flex items-center gap-2 h-full" @click="isMenuOpen = false"
+          ><Icon name="material-symbols:close-rounded" class="h-8 w-8 text-danger" alt="Закрыть"
+        /></Button>
       </div>
 
       <div class="flex items-center justify-between gap-4 w-full" v-else>
         <div>
           <NuxtLink to="/" class="flex items-center gap-2 w-full">
-            <NuxtImg src="full_logo_text.svg" class="h-[40px] w-fit" />
+            <NuxtImg src="full_logo_text.svg" class="h-[40px] w-fit" alt="Абсолют Техно" />
           </NuxtLink>
         </div>
 
         <div class="flex items-center gap-2">
           <Button variant="transparent" class="flex items-center gap-2 h-full" @click="isMenuOpen = true"
-            ><Icon name="material-symbols:search-rounded" class="h-8 w-8"
+            ><Icon name="material-symbols:search-rounded" class="h-8 w-8" alt="Поиск"
           /></Button>
           <Button variant="transparent" class="flex items-center gap-2 h-full" @click="menuOpen = true"
-            ><Icon name="material-symbols:menu" class="h-8 w-8"
+            ><Icon name="material-symbols:menu" class="h-8 w-8" alt="Меню"
           /></Button>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="pb-[60px] lg:pb-[120px]"></div>
+  <div class="pb-[40px] lg:pb-[120px]"></div>
 
   <Modal class="min-h-[427px]" :isOpen="isModalOpen" @close="closeModal" @confirm="handleConfirm" title="">
     <AuthForm @close="closeModal" />
   </Modal>
 
   <Modal :isOpen="menuOpen" @close="closeMenu" @confirm="handleConfirm" title="">
-    <div class="flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
+    <div class="flex flex-col gap-4">
       <div>
         <NuxtLink to="/" class="flex items-center gap-2 w-[210px]">
-          <NuxtImg src="full_logo_text.svg" class="h-[50px] w-fit" />
+          <NuxtImg src="full_logo_text.svg" class="h-[50px] w-fit" alt="Абсолют Техно" />
         </NuxtLink>
       </div>
 
       <Button v-if="isAuth" class="flex items-center gap-2 h-full" @click="handleLogout">
-        <Icon name="solar:user-outline" class="h-8 w-8" />
+        <Icon name="solar:user-outline" class="h-8 w-8" alt="Пользователь" />
         <span class="text-lg font-bold">{{ userDisplayName }}</span>
       </Button>
 
@@ -131,39 +140,39 @@
         "
         v-else
       >
-        <Icon name="material-symbols:account-circle" class="h-8 w-8" />
+        <Icon name="material-symbols:account-circle" class="h-8 w-8" alt="Вход" />
         <span class="text-lg font-bold"> Вход </span>
       </Button>
 
       <Button to="/category" class="flex items-center gap-2 h-full" @click="closeMenu">
-        <Icon name="material-symbols:view-list-rounded" class="h-8 w-8" />
+        <Icon name="material-symbols:view-list-rounded" class="h-8 w-8" alt="Каталог" />
         <span class="text-lg font-bold">Каталог</span>
       </Button>
 
       <Button class="flex items-center gap-2 h-full w-full" to="/account/cart-checkout" @click="closeMenu">
-        <Icon name="material-symbols:shopping-cart-rounded" class="h-8 w-8" />
+        <Icon name="material-symbols:shopping-cart-rounded" class="h-8 w-8" alt="Корзина" />
         <span class="text-lg font-bold">Корзина</span>
       </Button>
 
       <div class="flex flex-col gap-2">
         <Button to="/contacts" class="flex items-center gap-2 h-full w-full" @click="closeMenu">
-          <Icon name="material-symbols:contact-phone-rounded" class="h-8 w-8" />
+          <Icon name="material-symbols:contact-phone-rounded" class="h-8 w-8" alt="Контакты" />
           <span class="text-lg font-bold">Контакты</span>
         </Button>
         <Button to="/about" class="flex items-center gap-2 h-full w-full" @click="closeMenu">
-          <Icon name="material-symbols:move-location-rounded" class="h-8 w-8" />
+          <Icon name="material-symbols:move-location-rounded" class="h-8 w-8" alt="О компании" />
           <span class="text-lg font-bold">О компании</span>
         </Button>
         <Button to="/about" class="flex items-center gap-2 h-full w-full" @click="closeMenu">
-          <Icon name="material-symbols:passkey-rounded" class="h-8 w-8" />
+          <Icon name="material-symbols:passkey-rounded" class="h-8 w-8" alt="Условия аренды" />
           <span class="text-lg font-bold">Условия аренды</span>
         </Button>
         <Button to="/about" class="flex items-center gap-2 h-full w-full" @click="closeMenu">
-          <Icon name="material-symbols:shield-rounded" class="h-8 w-8" />
+          <Icon name="material-symbols:shield-rounded" class="h-8 w-8" alt="Гарантия" />
           <span class="text-lg font-bold">Гарантия</span>
         </Button>
         <Button to="/about" class="flex items-center gap-2 h-full w-full" @click="closeMenu">
-          <Icon name="material-symbols:local-shipping-rounded" class="h-8 w-8" />
+          <Icon name="material-symbols:local-shipping-rounded" class="h-8 w-8" alt="Оплата и доставка" />
           <span class="text-lg font-bold">Оплата и доставка</span>
         </Button>
       </div>
@@ -175,18 +184,22 @@
               to="tel:+79169999999"
               class="text-primary font-bold text-nowrap text-sm text-center flex items-center gap-1"
             >
-              <Icon name="material-symbols:phone-android-rounded" class="h-4 w-4" />
+              <Icon name="material-symbols:phone-android-rounded" class="h-4 w-4" alt="Телефон" />
               +7 (916) 999-99-99</NuxtLink
             >
             <p class="text-gray font-bold text-nowrap text-sm flex items-center gap-1">
-              <Icon name="material-symbols:nest-clock-farsight-analog-outline-rounded" class="h-4 w-4" />
+              <Icon
+                name="material-symbols:nest-clock-farsight-analog-outline-rounded"
+                class="h-4 w-4"
+                alt="Время работы"
+              />
               с 9:00 до 18:00 (Пн-Пт)
             </p>
           </div>
 
           <div>
             <p class="text-gray font-bold text-nowrap text-sm flex items-start gap-1">
-              <Icon name="material-symbols:location-on-rounded" class="h-4 w-4 mt-[2px] inline text-gray" />
+              <Icon name="material-symbols:location-on-rounded" class="h-4 w-4 mt-[2px] inline text-gray" alt="Адрес" />
               Нижний Тагил, <br />
               ул. Аганичева 101а
             </p>

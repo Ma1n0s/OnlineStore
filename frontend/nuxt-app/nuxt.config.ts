@@ -23,7 +23,19 @@ export default defineNuxtConfig({
     'nuxt-auth-sanctum',
     '@samk-dev/nuxt-vcalendar',
     'nuxt-aos',
+    // '@nuxtjs/proxy',
   ],
+
+  // routeRules: {
+  //   // Статические страницы с перегенерацией каждые 60 сек
+  //   '/category': { isr: 3600 },
+  //   '/category/**': { isr: 3600 },
+  //   '/products/**': { isr: 3600 },
+  //   '/products/category': { isr: 3600 },
+  //   '/products/category/**': { isr: 3600 },
+  //   '/products': { isr: 3600 },
+  //   '/': { isr: 3600 },
+  // },
 
   googleFonts: {
     families: {
@@ -34,6 +46,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
+      backendUrl: process.env.BACKEND_URL || 'http://localhost:8000',
       sanctum: {
         baseUrl: process.env.BACKEND_URL || 'http://localhost:8000',
         mode: 'cookie',
@@ -60,6 +73,9 @@ export default defineNuxtConfig({
 
   // Добавляем настройки для axios и fetch
   nitro: {
+    prerender: {
+      crawlLinks: true, // Для автоматического обнаружения ссылок
+    },
     devProxy: {
       '/api': {
         target: process.env.BACKEND_URL || 'http://localhost:8000',
@@ -70,6 +86,7 @@ export default defineNuxtConfig({
         headers: {
           'X-Forwarded-Host': 'localhost:3000',
           'X-Forwarded-Proto': 'http',
+          // 'Access-Control-Allow-Origin': '*'
         },
         secure: false,
       },
@@ -80,6 +97,9 @@ export default defineNuxtConfig({
           '*': '',
         },
         secure: false,
+        headers: {
+          // 'Access-Control-Allow-Origin': '*',
+        },
       },
     },
   },

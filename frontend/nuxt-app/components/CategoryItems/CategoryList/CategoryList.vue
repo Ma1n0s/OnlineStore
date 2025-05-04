@@ -4,12 +4,13 @@
       v-for="(category, index) in categories"
       :to="getPath(category)"
       :key="index + category.name"
+      :alt="`Ссылка на категорию ${category.name}`"
       class="bg-gray/10 border h-fit sm:h-64 overflow-hidden cursor-pointer border-dark/20 hover:bg-gray/20 rounded-2xl shadow-xl hover:shadow-2xl"
     >
       <div class="relative h-32 sm:h-48 w-full">
         <NuxtImg
           :alt="category.title || category.name"
-          :src="category?.image_url || '#'"
+          :src="category?.image_url || 'no-photo.webp'"
           class="absolute h-full w-full object-cover"
           format="webp"
         />

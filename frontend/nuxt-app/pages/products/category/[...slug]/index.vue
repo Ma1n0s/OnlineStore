@@ -5,10 +5,18 @@ import TextInput from '~/components/ui/Inputs/TextInput.vue'
 import Breadcrumbs from '~/components/BreadCrumbs/Breadcrumbs.vue'
 import { getBreadcrumbs } from '~/components/BreadCrumbs/helpers'
 
+const {
+  public: { backendUrl },
+} = useRuntimeConfig()
+
 const route = useRoute()
 const { slug } = route.params
 
-const { data } = await useFetch(() => `http://127.0.0.1:8000/api/products/category-slug/${slug.at(-1)}`)
+const { data } = await useAsyncData(
+  `products-list-${slug}`,
+  () => $fetch(`${backendUrl}/api/products/category-slug/${slug.at(-1)}`),
+  { revalidate: 3600 }
+)
 
 console.log(data.value, 'products')
 useHead({
@@ -295,20 +303,14 @@ const breadcrumbs = [
             :class="{ 'bg-gray-100 text-red-600': state.ui.isGrid }"
             class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            <NuxtImg
-              src="four-squares-button-of-view-options.svg"
-              alt="Плитка"
-              width="20"
-              height="20"
-              class="h-5 w-5"
-            />
+            <Icon name="material-symbols:grid-view-rounded" class="w-5 h-5" />
           </button>
           <button
             @click="showList"
             :class="{ 'bg-gray-100 text-red-600': !state.ui.isGrid }"
             class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            <NuxtImg src="interface-design-structure-outline.svg" alt="Список" width="20" height="20" class="h-5 w-5" />
+            <Icon name="material-symbols:view-stream-rounded" class="w-5 h-5" />
           </button>
         </div>
       </div>
@@ -321,7 +323,7 @@ const breadcrumbs = [
         <div class="bg-white rounded-lg shadow-sm p-5 sticky top-4">
           <div class="mb-6">
             <div class="flex items-center text-gray-700 mb-2">
-              <NuxtImg src="arrow-left.svg" alt="Назад" width="16" height="16" class="h-4 w-4 mr-2" />
+              <Icon name="material-symbols:arrow-left-rounded" class="h-4 w-4 mr-2" />
               <span>Инструмент</span>
             </div>
             <div class="bg-gray-50 p-3 rounded-lg">
@@ -423,7 +425,7 @@ const breadcrumbs = [
               @click="toggleFilters"
               class="w-full flex items-center justify-center space-x-2 border border-gray-300 rounded-xl py-2 px-4 hover:bg-gray-50 transition-colors"
             >
-              <NuxtImg src="filter.svg" alt="Фильтры" width="20" height="20" class="h-5 w-5" />
+              <Icon name="material-symbols:filter-alt" class="h-5 w-5" />
               <span>Все фильтры</span>
             </button>
             <button
@@ -464,14 +466,14 @@ const breadcrumbs = [
                 :class="state.ui.isGrid ? 'absolute top-3 right-3' : 'absolute top-3 right-3'"
                 class="p-1 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
               >
-                <NuxtImg src="heart2.svg" alt="В избранное" width="20" height="20" class="h-5 w-5" />
+                <Icon name="material-symbols:heart-plus" class="h-5 w-5" />
               </button>
               <div
                 v-if="item.discount"
                 :class="state.ui.isGrid ? 'absolute top-3 left-3' : 'absolute top-3 left-3'"
                 class="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded"
               >
-                <select name="" id="" disabled="disabled"></select>
+                <select disabled="disabled"></select>
                 -{{ item.discount }}%
               </div>
             </div>
@@ -490,7 +492,7 @@ const breadcrumbs = [
               </NuxtLink>
 
               <p class="text-green-600 text-sm mb-3 flex items-center">
-                <NuxtImg src="check.svg" alt="В наличии" width="16" height="16" class="h-4 w-4 inline mr-1" />
+                <Icon name="material-symbols:check-rounded" class="h-4 w-4 inline mr-1" />
                 В наличии > {{ item.stock }} шт.
               </p>
 
@@ -557,7 +559,7 @@ const breadcrumbs = [
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-xl font-bold text-gray-900">Все фильтры</h2>
           <button @click="toggleFilters" class="text-gray-500 hover:text-gray-700 transition-colors">
-            <NuxtImg src="Krestiks.svg" alt="Закрыть" width="24" height="24" class="h-6 w-6" />
+            <Icon name="material-symbols:close-rounded" class="h-6 w-6" />
           </button>
         </div>
 

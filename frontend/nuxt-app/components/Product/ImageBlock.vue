@@ -274,7 +274,7 @@ onUnmounted(() => {
 <style scoped>
 @import 'swiper/css';
 @import 'swiper/css/navigation';
-@import 'swiper/css/thumbs';
+/* @import 'swiper/css/thumbs'; */
 
 swiper-container {
   --swiper-navigation-color: #d10026;

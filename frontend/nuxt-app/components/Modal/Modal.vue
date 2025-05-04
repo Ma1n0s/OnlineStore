@@ -34,7 +34,7 @@ const handleOverlayClick = event => {
   >
     <div
       v-bind="$attrs"
-      class="bg-white md:rounded-lg shadow-lg w-full h-full md:w-11/12 md:h-auto md:max-w-md lg:max-w-lg p-6"
+      class="bg-white md:rounded-lg shadow-lg w-full h-full md:w-11/12 md:h-auto md:max-w-md lg:max-w-lg p-6 max-h-screen overflow-y-auto"
     >
       <div class="flex justify-between items-center">
         <h3 class="text-xl font-semibold">{{ title }}</h3>

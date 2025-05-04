@@ -4,11 +4,18 @@ import { getBreadcrumbs } from '~/components/BreadCrumbs/helpers'
 import CategoryDescription from '~/components/CategoryItems/CategoryDescription/CategoryDescription.vue'
 import CategoryList from '~/components/CategoryItems/CategoryList/CategoryList.vue'
 
+const {
+  public: { backendUrl },
+} = useRuntimeConfig()
+
 const route = useRoute()
 const { slug } = route.params
 
-const { data: category } = await useFetch(() => `http://127.0.0.1:8000/api/categories/slug/${slug.at(-1)}`)
-
+const { data: category } = await useAsyncData(
+  `category-${slug}`,
+  () => $fetch(`${backendUrl}/api/categories/slug/${slug.at(-1)}`),
+  { revalidate: 3600 }
+)
 console.log(category.value)
 
 if (!category.value?.children?.length) {

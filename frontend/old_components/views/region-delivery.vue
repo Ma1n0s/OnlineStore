@@ -158,10 +158,13 @@ const toggleMkadInside = () => {
             <button @click="toggleMkadInside" class="px-4 py-2 rounded w-full text-left bg-transparent border-none">
               Памятка покупателя
             </button>
-            <img
-              :src="isMkadInsideVisible ? '/public/arrow-up.svg' : '/public/arrow-down.svg'"
-              alt="arrow"
-              class="w-4 h-4 mr-2"
+            <Icon
+              :name="
+                isMkadInsideVisible
+                  ? 'material-symbols:arrow-drop-up-rounded'
+                  : 'material-symbols:arrow-drop-down-rounded'
+              "
+              class="h-4 w-4 mr-2"
             />
           </div>
           <hr class="border-gray-300" />

@@ -10,7 +10,7 @@ useHead({
   meta: [
     {
       name: 'description',
-      content: 'Оформление заказа в Абсолют техно'
+      content: 'Оформление заказа в Абсолют техно',
     },
   ],
 })
@@ -53,14 +53,14 @@ const fetchUserData = async () => {
   try {
     const { data } = await useFetch('http://127.0.0.1:8000/api/user', {
       headers: {
-        'Authorization': `Bearer ${useAuthToken().value}`
-      }
+        Authorization: `Bearer ${useAuthToken().value}`,
+      },
     })
-    
+
     if (data.value) {
       state.value.customer = {
         name: data.value.name || '',
-        phone: data.value.phone || ''
+        phone: data.value.phone || '',
       }
     }
   } catch (error) {
@@ -72,10 +72,10 @@ const fetchCartItems = async () => {
   try {
     const { data, error } = await useFetch('http://127.0.0.1:8000/api/cart', {
       headers: {
-        'Authorization': `Bearer ${useAuthToken().value}`
-      }
+        Authorization: `Bearer ${useAuthToken().value}`,
+      },
     })
-    
+
     if (error.value) {
       throw error.value
     }
@@ -93,7 +93,7 @@ const fetchCartItems = async () => {
       rentalDays: item.options?.rental_days || null,
       rentalStart: item.options?.rental_start || null,
       rentalEnd: item.options?.rental_end || null,
-      isRented: !!item.options?.rental_days
+      isRented: !!item.options?.rental_days,
     }))
   } catch (error) {
     console.error('Error fetching cart items:', error)
@@ -108,16 +108,18 @@ const fetchCartItems = async () => {
 const removeSelectedItems = async () => {
   try {
     const selectedIds = selectedItems.value.map(item => item.id)
-    
-    await Promise.all(selectedIds.map(async id => {
-      await useFetch(`http://127.0.0.1:8000/api/cart/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${useAuthToken().value}`
-        }
+
+    await Promise.all(
+      selectedIds.map(async id => {
+        await useFetch(`http://127.0.0.1:8000/api/cart/${id}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${useAuthToken().value}`,
+          },
+        })
       })
-    }))
-    
+    )
+
     await fetchCartItems()
     showMessage('Товары удалены из корзины')
   } catch (error) {
@@ -131,13 +133,13 @@ const updateCartItem = async (item, newQuantity) => {
     await useFetch(`http://127.0.0.1:8000/api/cart/${item.id}`, {
       method: 'PATCH',
       body: {
-        quantity: newQuantity
+        quantity: newQuantity,
       },
       headers: {
-        'Authorization': `Bearer ${useAuthToken().value}`
-      }
+        Authorization: `Bearer ${useAuthToken().value}`,
+      },
     })
-    
+
     await fetchCartItems()
   } catch (error) {
     console.error('Error updating cart item:', error)
@@ -145,23 +147,23 @@ const updateCartItem = async (item, newQuantity) => {
   }
 }
 
-const increaseQuantity = (item) => {
+const increaseQuantity = item => {
   const newQuantity = item.quantity + 1
   updateCartItem(item, newQuantity)
 }
 
-const decreaseQuantity = (item) => {
+const decreaseQuantity = item => {
   if (item.quantity > 1) {
     const newQuantity = item.quantity - 1
     updateCartItem(item, newQuantity)
   }
 }
 
-const increaseRentalDays = (item) => {
+const increaseRentalDays = item => {
   item.rentalDays += 1
 }
 
-const decreaseRentalDays = (item) => {
+const decreaseRentalDays = item => {
   if (item.rentalDays > 1) {
     item.rentalDays -= 1
   }
@@ -196,7 +198,7 @@ const formattedValues = computed(() => ({
   total: totalAmount.value.toLocaleString('ru-RU') + ' ₽',
   discount: '-' + discountAmount.value.toLocaleString('ru-RU') + ' ₽',
   final: finalAmount.value.toLocaleString('ru-RU') + ' ₽',
-  empty: '0 ₽'
+  empty: '0 ₽',
 }))
 
 onMounted(async () => {
