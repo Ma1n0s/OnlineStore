@@ -3,7 +3,7 @@ import { reactive, ref } from 'vue'
 import TextInput from '~/components/ui/Inputs/TextInput.vue'
 import Button from '~/components/ui/Button/Button.vue'
 import { useUserStore } from '~/stores/user'
-import { emailRegex } from '~/shared/regexp'
+import { validateEmail } from './helpers'
 const { setUser } = useUserStore()
 
 const isSend = ref(false)
@@ -15,23 +15,6 @@ const form = reactive({
   emailError: '',
   authError: '',
 })
-
-const validateEmail = () => {
-  if (!form.email) {
-    form.emailError = 'Пожалуйста, введите email'
-    return false
-  }
-
-  const isValidEmail = emailRegex.test(form.email)
-
-  if (!isValidEmail) {
-    form.emailError = 'Введите корректный email'
-    return false
-  }
-
-  form.emailError = ''
-  return true
-}
 
 const emit = defineEmits(['close'])
 
@@ -120,7 +103,7 @@ const handleEmailLogin = async () => {
         class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:bg-white focus:border-transparent transition"
         :class="{ 'border-primary-active': form.emailError }"
         @keyup.enter="handleEmailLogin"
-        @blur="validateEmail"
+        @blur="() => validateEmail(form)"
       />
       <p v-if="form.emailError" class="text-primary text-xs mt-1">{{ form.emailError }}</p>
     </div>

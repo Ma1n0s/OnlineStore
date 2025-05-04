@@ -2,7 +2,7 @@
 import { reactive } from 'vue'
 import TextInput from '~/components/ui/Inputs/TextInput.vue'
 import Button from '~/components/ui/Button/Button.vue'
-import { emailRegex } from '~/shared/regexp'
+import { validate } from './helpers'
 
 const { setUser } = useUserStore()
 
@@ -17,36 +17,8 @@ const form = reactive({
   passwordError: '',
 })
 
-const validate = () => {
-  let valid = true
-
-  const isValidEmail = emailRegex.test(form.email)
-
-  if (!form.email) {
-    form.emailError = 'Пожалуйста, введите email'
-    valid = false
-  } else if (!isValidEmail) {
-    form.emailError = 'Введите корректный email'
-    valid = false
-  } else {
-    form.emailError = ''
-  }
-
-  if (!form.password) {
-    form.passwordError = 'Пожалуйста, введите пароль'
-    valid = false
-  } else if (form.password.length < 6) {
-    form.passwordError = 'Пароль должен быть не менее 6 символов'
-    valid = false
-  } else {
-    form.passwordError = ''
-  }
-
-  return valid
-}
-
 const handleLogin = async () => {
-  if (!validate()) return
+  if (!validate(form)) return
 
   try {
     form.isLoading = true

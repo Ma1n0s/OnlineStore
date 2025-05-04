@@ -2,7 +2,7 @@
   <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-4">
     <NuxtLink
       v-for="(category, index) in categories"
-      :to="getPath(category)"
+      :to="getPath(category, pathPrefix)"
       :key="index + category.name"
       :alt="`Ссылка на категорию ${category.name}`"
       class="bg-gray/10 border h-fit sm:h-64 overflow-hidden cursor-pointer border-dark/20 hover:bg-gray/20 rounded-2xl shadow-xl hover:shadow-2xl"
@@ -31,6 +31,7 @@
 
 <script lang="ts" setup>
 import type { PropType } from 'vue'
+import { getPath } from './CategoryList'
 
 interface Category {
   id: number
@@ -50,9 +51,4 @@ const { categories, pathPrefix } = defineProps({
     default: '/category/',
   },
 })
-
-const getPath = category => {
-  if (category.haveProducts) return `/products${pathPrefix}${category.slug}`
-  return `${pathPrefix}${category.slug}`
-}
 </script>
