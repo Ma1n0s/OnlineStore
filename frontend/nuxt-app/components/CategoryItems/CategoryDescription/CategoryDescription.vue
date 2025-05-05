@@ -13,7 +13,11 @@
       >
         {{ data.description }}
       </div>
-      <button @click="hideText = !hideText" class="w-full hover:bg-gray/10 py-1 flex items-center justify-center">
+      <button
+        v-if="data && data?.description?.length > 400"
+        @click="hideText = !hideText"
+        class="w-full hover:bg-gray/10 py-1 flex items-center justify-center"
+      >
         {{ hideText ? 'Показать больше' : 'Показать меньше' }}
         <Icon
           :name="hideText ? 'material-symbols:arrow-drop-down-rounded' : 'material-symbols:arrow-left-rounded'"

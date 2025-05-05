@@ -102,7 +102,7 @@ const submitForm = () => {
                 />
               </div>
             </div>
-            <div>
+            <div class="pt-4">
               <label for="subject" class="block text-sm font-medium text-neutral-dark mb-2">Тема</label>
               <TextInput
                 v-model="form.subject"

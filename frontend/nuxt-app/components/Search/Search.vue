@@ -1,6 +1,6 @@
 <template>
   <div class="relative w-full h-full shadow-2xl rounded-full" ref="target">
-    <TextInput @input="search" @click="search" class="!rounded-full !outline-none">
+    <TextInput :setAtr="true" @input="search" @click="search" class="!rounded-full !outline-none">
       <template v-slot:right>
         <div class="cursor-pointer h-full flex justify-center">
           <Icon name="material-symbols:search-rounded" class="mr-1 h-8 w-8" />
