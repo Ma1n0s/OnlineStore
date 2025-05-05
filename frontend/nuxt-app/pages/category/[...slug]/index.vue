@@ -88,57 +88,12 @@ const breadcrumbs = [
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-screen-2xl px-8 space-y-16 py-8">
+  <div class="mx-auto w-full max-w-screen-2xl px-8 py-8">
     <Breadcrumbs :list="breadcrumbs" />
     <div>
       <CategoryDescription :data="category" />
 
       <CategoryList :categories="category.children" :path-prefix="`/category/${slug.join('/')}/`" class="mb-8" />
-
-      <div class="mb-8">
-        <h2 class="text-xl font-semibold mb-4">Часто ищут</h2>
-        <div class="flex flex-wrap gap-2">
-          <NuxtLink
-            v-for="(tag, index) in state.popularTags"
-            :key="index"
-            to="#"
-            class="bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm hover:bg-gray-300 transition duration-200 ease-in-out shadow-md"
-          >
-            {{ tag }}
-          </NuxtLink>
-          <NuxtLink
-            to="#"
-            class="bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm hover:bg-gray-300 transition duration-200 ease-in-out shadow-md"
-          >
-            ... Показать ещё
-          </NuxtLink>
-        </div>
-      </div>
-
-      <div class="mb-8">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-xl font-bold">Статьи</h2>
-          <NuxtLink
-            to="#"
-            class="bg-gray-200 hover:bg-gray-300 rounded-md px-4 py-2 transition duration-200 ease-in-out"
-          >
-            Все статьи
-          </NuxtLink>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <NuxtLink
-            v-for="article in state.articles"
-            :key="article.id"
-            to="#"
-            class="bg-white rounded-lg shadow p-4 hover:shadow-lg transition duration-200 ease-in-out"
-          >
-            <h3 class="font-semibold text-lg mb-2">{{ article.title }}</h3>
-            <p class="text-gray-600 mb-4">{{ article.excerpt }}</p>
-            <p class="text-gray-400 text-sm">{{ article.date }}</p>
-          </NuxtLink>
-        </div>
-      </div>
     </div>
   </div>
 </template>
