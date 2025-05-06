@@ -1,13 +1,15 @@
 <template>
   <div class="pb-4">
-    <h1>{{ data.title }}</h1>
+    <h1 v-if="data.title" class="text-2xl font-bold">{{ data.title }}</h1>
     <div class="w-full flex flex-col py-2">
       <NuxtImg
+        v-if="data.description_image_url"
         :src="`${data.description_image_url}` || 'no-photo.webp'"
         :alt="data.name"
         class="object-fill h-fit max-h-[300px] float-start pb-2 md:pb-4"
       />
       <div
+        v-if="data.description"
         :class="['text-sm lg:text-lg overflow-hidden text-justify', hideText ? 'line-clamp-4' : 'line-clamp-none']"
         @click="hideText = !hideText"
       >
