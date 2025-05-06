@@ -13,33 +13,38 @@ return new class extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('parent_id')->nullable()->constrained('categories')->onDelete('cascade');
+            $table->unsignedBigInteger('parent_id')->nullable();
+            $table->unsignedBigInteger('_lft');
+            $table->unsignedBigInteger('_rgt');
+            $table->unsignedInteger('depth')->default(0); 
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('slug')->unique();
             $table->timestamps();
+            
+            $table->foreign('parent_id')->references('id')->on('categories')->onDelete('cascade');
         });
         
-        Schema::create('subcategories', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('category_id')->constrained()->onDelete('cascade');
-            $table->string('name');
-            $table->text('description')->nullable();
-            $table->string('slug');
-            $table->unique(['category_id', 'slug']);
-            $table->timestamps();
-        });
+        // Schema::create('subcategories', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->foreignId('category_id')->constrained()->onDelete('cascade');
+        //     $table->string('name');
+        //     $table->text('description')->nullable();
+        //     $table->string('slug');
+        //     $table->unique(['category_id', 'slug']);
+        //     $table->timestamps();
+        // });
         
-        // Проверяем существование колонок перед добавлением
-        if (!Schema::hasColumn('products', 'category_id')) {
+        if (Schema::hasColumn('products', 'subcategory_id')) {
             Schema::table('products', function (Blueprint $table) {
-                $table->foreignId('category_id')->nullable()->constrained();
+                $table->dropForeign(['subcategory_id']);
+                $table->dropColumn('subcategory_id');
             });
         }
         
-        if (!Schema::hasColumn('products', 'subcategory_id')) {
+        if (!Schema::hasColumn('products', 'category_id')) {
             Schema::table('products', function (Blueprint $table) {
-                $table->foreignId('subcategory_id')->nullable()->constrained('subcategories');
+                $table->foreignId('category_id')->nullable()->constrained('categories');
             });
         }
     }
@@ -50,18 +55,16 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            if (Schema::hasColumn('products', 'subcategory_id')) {
-                $table->dropForeign(['subcategory_id']);
-                $table->dropColumn('subcategory_id');
-            }
-            
             if (Schema::hasColumn('products', 'category_id')) {
                 $table->dropForeign(['category_id']);
                 $table->dropColumn('category_id');
             }
         });
         
-        Schema::dropIfExists('subcategories');
+        if (Schema::hasTable('subcategories')) {
+            Schema::dropIfExists('subcategories');
+        }
+        
         Schema::dropIfExists('categories');
     }
 };
