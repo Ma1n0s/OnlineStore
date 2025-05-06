@@ -57,15 +57,10 @@ const breadcrumbs = [
     name: 'Категории',
     url: '/category',
   },
-  // ...getBreadcrumbs(slug.slice(0, -1)),
-  // {
-  //   name: 'Список',
-  //   url: '/products/category/' + slug.join('/'),
-  // },
   ...getBreadcrumbsFromCategoryPath(product.value?.category),
   {
     name: product.value?.name || 'Продукт',
-    url: `${product_id}`,
+    url: `/products/${product_id}`,
   },
 ]
 </script>

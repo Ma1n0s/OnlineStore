@@ -4,6 +4,7 @@ import { reactive, computed } from 'vue'
 import TextInput from '~/components/ui/Inputs/TextInput.vue'
 import Breadcrumbs from '~/components/BreadCrumbs/Breadcrumbs.vue'
 import { getBreadcrumbs } from '~/components/BreadCrumbs/helpers'
+import HoverProductSwiper from '~/components/Swiper/ProductSwiper/HoverProductSwiper.vue'
 
 const {
   public: { backendUrl },
@@ -330,12 +331,13 @@ const breadcrumbs = [
             :key="item.id"
             :class="
               state.ui.isGrid
-                ? 'bg-white cursor-pointer rounded-2xl shadow-xl hover:shadow-2xl  transition-shadow border border-gray-100 overflow-hidden flex flex-col h-full'
-                : 'bg-white cursor-pointer rounded-2xl shadow-xl hover:shadow-2xl transition-shadow border border-gray-100 overflow-hidden flex'
+                ? 'bg-white border-dark/20 hover:bg-gray/20 cursor-pointer rounded-2xl shadow-xl hover:shadow-2xl  transition-shadow border border-gray-100 overflow-hidden flex flex-col h-full'
+                : 'bg-white border-dark/20 hover:bg-gray/20 cursor-pointer rounded-2xl shadow-xl hover:shadow-2xl transition-shadow border border-gray-100 overflow-hidden flex'
             "
           >
             <div :class="state.ui.isGrid ? 'relative h-48 flex-shrink-0' : 'relative w-1/3 flex-shrink-0'">
-              <NuxtImg
+              <HoverProductSwiper :slides="item.images" />
+              <!-- <NuxtImg
                 :src="item.main_image"
                 :alt="item.title"
                 :class="state.ui.isGrid ? 'w-full h-full object-contain p-4' : 'w-full h-full object-cover'"
@@ -343,13 +345,7 @@ const breadcrumbs = [
                 height="300"
                 loading="lazy"
                 format="webp"
-              />
-              <button
-                :class="state.ui.isGrid ? 'absolute top-3 right-3' : 'absolute top-3 right-3'"
-                class="p-1 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
-              >
-                <Icon name="material-symbols:heart-plus" class="h-5 w-5" />
-              </button>
+              /> -->
               <div
                 v-if="item.discount"
                 :class="state.ui.isGrid ? 'absolute top-3 left-3' : 'absolute top-3 left-3'"
@@ -365,13 +361,11 @@ const breadcrumbs = [
                 <span class="text-gray-500 text-xs">Код: {{ item.article }}</span>
               </div>
 
-              <NuxtLink :to="`/products/${item.slug}`" class="block">
-                <h3
-                  class="font-medium text-gray-900 hover:text-red-600 transition-colors line-clamp-2 mb-2 min-h-[2.5rem]"
-                >
-                  {{ item.name }}
-                </h3>
-              </NuxtLink>
+              <h3
+                class="font-medium text-gray-900 hover:text-red-600 transition-colors line-clamp-2 mb-2 min-h-[2.5rem]"
+              >
+                {{ item.name }}
+              </h3>
 
               <p class="text-green-600 text-sm mb-3 flex items-center">
                 <Icon name="material-symbols:check-rounded" class="h-4 w-4 inline mr-1" />
