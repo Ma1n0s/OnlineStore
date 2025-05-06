@@ -9,9 +9,9 @@
           <div class="flex items-center gap-8 xl:gap-16 justify-start w-full">
             <NuxtLink to="/contacts" class="text-dark hover:text-primary font-bold text-sm">Контакты</NuxtLink>
             <NuxtLink to="/about" class="text-dark hover:text-primary font-bold text-sm">О компании</NuxtLink>
-            <NuxtLink to="/about" class="text-dark hover:text-primary font-bold text-sm">Условия аренды</NuxtLink>
-            <NuxtLink to="/about" class="text-dark hover:text-primary font-bold text-sm">Гарантия</NuxtLink>
-            <NuxtLink to="/about" class="text-dark hover:text-primary font-bold text-sm">Оплата и доставка</NuxtLink>
+            <NuxtLink to="/news/3" class="text-dark hover:text-primary font-bold text-sm">Условия аренды</NuxtLink>
+            <NuxtLink to="/news/1" class="text-dark hover:text-primary font-bold text-sm">Гарантия</NuxtLink>
+            <NuxtLink to="/news/5" class="text-dark hover:text-primary font-bold text-sm">Оплата и доставка</NuxtLink>
           </div>
 
           <div class="flex items-center justify-between gap-4 xl:gap-8">
