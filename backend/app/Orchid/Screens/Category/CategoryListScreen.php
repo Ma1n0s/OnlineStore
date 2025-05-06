@@ -121,14 +121,14 @@ class CategoryListScreen extends Screen
                     })
                     ->sort(),
 
-                TD::make('products_count', 'Товаров')
-                    ->render(function (Category $category) {
-                        $count = Product::where('category_id', $category->id)->count();
-                        return $count > 0 
-                            ? "<span class='badge bg-primary'>{$count}</span>"
-                            : "<span class='badge bg-secondary'>{$count}</span>";
-                    })
-                    ->alignRight(),
+                // TD::make('products_count', 'Товаров')
+                //     ->render(function (Category $category) {
+                //         $count = Product::where('category_id', $category->id)->count();
+                //         return $count > 0 
+                //             ? "<span class='badge bg-primary'>{$count}</span>"
+                //             : "<span class='badge bg-secondary'>{$count}</span>";
+                //     })
+                //     ->alignRight(),
 
                 TD::make('actions', 'Действия')
                     ->alignRight()
