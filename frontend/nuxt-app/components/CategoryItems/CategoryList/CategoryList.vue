@@ -16,11 +16,11 @@
         />
       </div>
       <div class="flex items-center justify-start">
-        <div class="flex items-center justify-center bg-primary text-white">
+        <!-- <div class="flex items-center justify-center bg-primary text-white">
           <Icon name="material-symbols:navigate-before" class="w-8 h-8" />
-        </div>
+        </div> -->
         <div
-          class="w-full box-content h-14 p-1 pb-4 ~text-sm/xs md:text-lg text-dark font-medium text-center flex items-center justify-center"
+          class="w-full box-content h-14 p-1 pb-4 ~text-sm/xs md:text-lg text-dark font-medium text-center flex items-center justify-center text-wrap"
         >
           {{ category.title || category.name }}
         </div>
