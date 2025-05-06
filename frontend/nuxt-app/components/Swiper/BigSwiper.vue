@@ -11,11 +11,12 @@
       >
         <swiper-slide
           v-for="(slide, idx) in slides"
+          :lazy="true"
           :key="idx"
           class="bg-white flex items-center justify-center text-2xl font-bold w-full h-full lg:px-0 lg:rounded-2xl"
         >
           <NuxtImg
-            :alt="slide.brand"
+            :alt="`swiperslide - ${slide.src}`"
             :src="slide.src"
             format="webp"
             class="w-full h-full object-cover lg:rounded-2xl"
@@ -34,24 +35,12 @@
 </template>
 
 <script setup lang="ts">
-const slides = ref([
-  {
-    brand: 'Зубр',
-    src: 'https://cdn.vseinstrumenti.ru/res/content/page_templates/e37a4e459931bb202ac81144bf28a0a5.jpeg',
-  },
-  {
-    brand: 'STIHL',
-    src: 'https://cdn.vseinstrumenti.ru/res/content/page_templates/8cda9503758e95e5abf3820ae1278488.jpeg',
-  },
-  {
-    brand: 'Сибур',
-    src: 'https://cdn.vseinstrumenti.ru/res/content/page_templates/5db4e95cb28531ba151e5df026156bcd.jpeg',
-  },
-  {
-    brand: 'Haier',
-    src: 'https://cdn.vseinstrumenti.ru/res/content/page_templates/4ce23a87a706eaf19ce2b4d12471a56c.jpeg',
-  },
-])
+const { slides } = defineProps<{
+  slides: {
+    brand: string
+    src: string
+  }[]
+}>()
 
 const swiperRef = ref(null)
 
