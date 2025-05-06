@@ -5,34 +5,53 @@ namespace App\Orchid\Screens\Category;
 use App\Models\Category;
 use App\Models\Product;
 use Orchid\Screen\Actions\Link;
+use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Screen;
 use Orchid\Screen\TD;
 use Orchid\Screen\Actions\DropDown;
-use Orchid\Screen\Actions\Button;
 use Orchid\Support\Facades\Layout;
 use Orchid\Support\Facades\Alert;
 use Illuminate\Http\Request;
 use Orchid\Screen\Fields\Input;
-use Illuminate\Support\Facades\Storage;
-use Orchid\Attachment\Models\Attachment;
 
 class CategoryListScreen extends Screen
 {
-    public function query(): array
+    /**
+     * Query data.
+     */
+    public function query(Request $request): array
     {
         return [
             'categories' => Category::with(['parent', 'children'])
+                ->when($request->input('search'), function($query, $search) {
+                    $query->where('name', 'LIKE', "%{$search}%")
+                          ->orWhere('slug', 'LIKE', "%{$search}%");
+                })
                 ->orderBy('parent_id')
                 ->orderBy('name')
                 ->paginate(),
         ];
     }
 
+    /**
+     * Display header name.
+     */
     public function name(): ?string
     {
         return 'Категории товаров';
     }
 
+    /**
+     * Display header description.
+     */
+    public function description(): ?string
+    {
+        return 'Полный список категорий с поиском';
+    }
+
+    /**
+     * Button commands.
+     */
     public function commandBar(): array
     {
         return [
@@ -42,45 +61,75 @@ class CategoryListScreen extends Screen
         ];
     }
 
+    /**
+     * Views.
+     */
     public function layout(): array
     {
         return [
-            Layout::table('categories', [
-                // TD::make('name', 'Путь')
-                //     ->render(function (Category $category) {
-                //         $indent = str_repeat('&nbsp;&nbsp;', $category->getPath()->count() - 1);
-                //         return Link::make($indent . $category->name)
-                //             ->route('platform.category.action', $category);
-                //     }),
+            Layout::rows([
+                Input::make('search')
+                    ->type('text')
+                    ->placeholder('Поиск по названию')
+                    ->value(request()->input('search')),
                     
-                TD::make('title', 'Заголовок'),
-                
-                TD::make('parent.name', 'Родительская категория')
+                Button::make('Поиск')
+                    ->icon('magnifier')
+                    ->method('performSearch')
+                    ->class('btn btn-primary'),
+            ]),
+            
+            Layout::table('categories', [
+                TD::make('category_info', 'Категория')
                     ->render(function (Category $category) {
-                        return $category->parent
-                            ? Link::make($category->parent->name)
-                                ->route('platform.category.action', $category->parent)
-                            : 'Родительская';
-                    }),
+                        $path = [];
+                        $current = $category;
+                        while ($current) {
+                            array_unshift($path, $current);
+                            $current = $current->parent;
+                        }
 
-                // TD::make('children_count', 'Подкатегорий')
-                //     ->render(function (Category $category) {
-                //         return $category->children_count > 0 
-                //             ? "<span class='badge bg-info'>{$category->children_count}</span>"
-                //             : "<span class='badge bg-secondary'>{$category->children_count}</span>";
-                //     })
-                //     ->alignCenter()
-                //     ->width('120px'),
-                
+                        $html = '<div class="d-flex flex-column">';
+                        $html .= '<div class="d-flex align-items-center mb-1">';
+                        $html .= Link::make($category->name)
+                            ->route('platform.category.action', $category)
+                            ->class('font-weight-bold text-decoration-none');
+                        // $html .= '<span class="text-muted small ml-2">('.$category->slug.')</span>'; //url поле 
+                        $html .= '</div>';
+                        
+                        if (count($path) > 1) {
+                            $html .= '<div class="d-flex align-items-center small text-muted">';
+                            $html .= '<span class="mr-1">↳</span>';
+                            
+                            $links = [];
+                            foreach ($path as $index => $item) {
+                                if ($index === 0) {
+                                    $links[] = '<span>'.$item->name.'</span>';
+                                } else {
+                                    $links[] = Link::make($item->name)
+                                        ->route('platform.category.action', $item)
+                                        ->class('text-decoration-none');
+                                }
+                            }
+                            
+                            $html .= implode(' <span class="mx-1">›</span> ', $links);
+                            $html .= '</div>';
+                        }
+                        
+                        $html .= '</div>';
+                        return $html;
+                    })
+                    ->sort(),
+
                 TD::make('products_count', 'Товаров')
                     ->render(function (Category $category) {
-                        $categoryIds = $category->descendants()->pluck('id')->push($category->id);
-                        $count = Product::whereIn('category_id', $categoryIds)->count();
+                        $count = Product::where('category_id', $category->id)->count();
                         return $count > 0 
                             ? "<span class='badge bg-primary'>{$count}</span>"
                             : "<span class='badge bg-secondary'>{$count}</span>";
-                }),
-                
+                    })
+                    ->alignRight(),
+
                 TD::make('actions', 'Действия')
                     ->alignRight()
                     ->render(function (Category $category) {
@@ -91,14 +140,14 @@ class CategoryListScreen extends Screen
                                     ->route('platform.category.edit', $category)
                                     ->icon('pencil'),
                                     
-                                Link::make('Добавить категорию')
+                                Link::make('Добавить подкатегорию')
                                     ->route('platform.category.create', ['parent_id' => $category->id])
                                     ->icon('plus'),
                                     
                                 Button::make('Удалить')
                                     ->icon('trash')
                                     ->method('removeCategory')
-                                    ->confirm('This will delete the category, all its subcategories and products. Are you sure?')
+                                    ->confirm('Будет удалена категория, все подкатегории и товары. Вы уверены?')
                                     ->parameters(['id' => $category->id]),
                             ]);
                     }),
@@ -106,30 +155,35 @@ class CategoryListScreen extends Screen
         ];
     }
 
+    /**
+     * Perform search action.
+     */
+    public function performSearch(Request $request)
+    {
+        return redirect()->route('platform.category.list', [
+            'search' => $request->input('search')
+        ]);
+    }
+
+    /**
+     * Remove category.
+     */
     public function removeCategory(Request $request)
     {
         $category = Category::findOrFail($request->get('id'));
         
-        // Получаем ID всех категорий, которые нужно удалить (текущая + подкатегории)
         $categoryIds = $category->descendants()->pluck('id')->push($category->id);
+        Product::whereIn('category_id', $categoryIds)->delete();
         
-        // Удаляем продукты из категорий (без каскадного удаления)
-        Product::whereIn('subcategory_id', $categoryIds)->delete();
-        
-        // Найдем все категории, которые нужно удалить
         $categoriesToDelete = Category::whereIn('id', $categoryIds)->get();
-        
-        // Для каждой категории удаляем связанные изображения
         foreach ($categoriesToDelete as $categoryToDelete) {
-            // Удаляем все вложения категории, включая изображения
             $categoryToDelete->attachment()->delete();
         }
         
-        // Удаляем все подкатегории и саму категорию
         $category->descendants()->delete();
         $category->delete();
 
-        Alert::info('Category and all its contents were deleted successfully');
+        Alert::info('Категория и все её содержимое успешно удалены');
         return back();
     }
 }
