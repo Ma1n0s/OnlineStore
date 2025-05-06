@@ -18,15 +18,26 @@ class ProductListScreen extends Screen
     /**
      * Query data.
      *
+     * @param Request $request
      * @return array
      */
-    public function query(): array
+    public function query(Request $request): array
     {
         return [
             'products' => Product::with('category')
+                ->when($request->input('search'), function($query, $search) {
+                    $query->where('name', 'LIKE', "%{$search}%")
+                          ->orWhere('code', 'LIKE', "%{$search}%")
+                          ->orWhere('article', 'LIKE', "%{$search}%")
+                          ->orWhere('brand', 'LIKE', "%{$search}%")
+                          ->orWhereHas('category', function($q) use ($search) {
+                              $q->where('name', 'LIKE', "%{$search}%");
+                          });
+                })
                 ->filters()
                 ->defaultSort('id', 'desc')
                 ->paginate(),
+            'search' => $request->input('search')
         ];
     }
 
@@ -41,6 +52,16 @@ class ProductListScreen extends Screen
     }
 
     /**
+     * Display header description.
+     *
+     * @return string|null
+     */
+    public function description(): ?string
+    {
+        return 'Список товаров с возможностью поиска';
+    }
+
+    /**
      * The screen's action buttons.
      *
      * @return \Orchid\Screen\Action[]
@@ -52,6 +73,11 @@ class ProductListScreen extends Screen
                 ->icon('plus')
                 ->route('platform.product.create')
                 ->canSee(auth()->user()->hasAccess('platform.products.create')),
+
+            Button::make('Экспорт')
+                ->icon('cloud-download')
+                ->method('export')
+                ->canSee(auth()->user()->hasAccess('platform.products.export')),
         ];
     }
 
@@ -63,6 +89,18 @@ class ProductListScreen extends Screen
     public function layout(): array
     {
         return [
+            Layout::rows([
+                Input::make('search')
+                    ->type('text')
+                    ->placeholder('Поиск по названию')
+                    ->value(request()->input('search')),
+                    
+                Button::make('Поиск')
+                    ->icon('magnifier')
+                    ->method('performSearch')
+                    ->class('btn btn-primary'),
+            ]),
+
             Layout::table('products', [
                 TD::make('id', 'ID')
                     ->sort()
@@ -81,7 +119,7 @@ class ProductListScreen extends Screen
                 TD::make('code', 'Артикул')
                     ->sort()
                     ->filter(Input::make())
-                     ->render(function (Product $product) {
+                    ->render(function (Product $product) {
                         return $product->code;
                     }),
 
@@ -98,17 +136,13 @@ class ProductListScreen extends Screen
                         return $product->brand;
                     }),
 
-                TD::make('slug', 'Slug')
-                    ->sort()
-                    ->filter(Input::make())
-                    ->render(function (Product $product) {
-                        return $product->slug;
-                    }),
-
-                TD::make('category.name', 'категория')
+                TD::make('category.name', 'Категория')
                     ->sort()
                     ->render(function (Product $product) {
-                        return $product->category ? $product->category->name : '-';
+                        return $product->category 
+                            ? Link::make($product->category->name)
+                                ->route('platform.category.action', $product->category)
+                            : '-';
                     }),
 
                 TD::make('rating', 'Рейтинг')
@@ -116,11 +150,6 @@ class ProductListScreen extends Screen
                     ->render(function (Product $product) {
                         return number_format($product->rating, 1);
                     }),
-
-                // TD::make('category_id', 'Category')
-                //     ->render(function (Product $product) {
-                //         return $product->category->name ?? '-';
-                //     }),
 
                 TD::make('created_at', 'Дата создания')
                     ->sort()
@@ -152,8 +181,33 @@ class ProductListScreen extends Screen
     }
 
     /**
-     * @param Request $request
+     * Perform search action.
      *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function performSearch(Request $request)
+    {
+        return redirect()->route('platform.product.list', [
+            'search' => $request->input('search')
+        ]);
+    }
+
+    /**
+     * Export products
+     *
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function export()
+    {
+        // Реализация экспорта
+        return response()->download(storage_path('exports/products.csv'));
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function remove(Request $request)
@@ -161,11 +215,9 @@ class ProductListScreen extends Screen
         $product = Product::findOrFail($request->get('id'));
         
         $product->images()->delete();
-        
         $product->delete();
 
         Alert::info('Товар был удален');
-
         return redirect()->route('platform.product.list');
     }
 }
