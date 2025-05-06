@@ -10,13 +10,14 @@ use Orchid\Attachment\Attachable;
 use Orchid\Filters\Filterable;
 use Orchid\Screen\AsSource;
 use Illuminate\Support\Str;
+use Kalnoy\Nestedset\NodeTrait;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Orchid\Attachment\Models\Attachment;
 
 class Category extends Model
 {
-    use HasFactory, AsSource, Filterable, Attachable;
+    use HasFactory, AsSource, Filterable, Attachable,NodeTrait;
 
     /**
      * Атрибуты, которые можно массово присваивать.
@@ -309,5 +310,18 @@ class Category extends Model
             Log::error('Error getting category all images: ' . $e->getMessage());
             return collect();
         }
+    }
+
+    public function getFullPathAttribute(): string
+    {
+        $path = [];
+        $current = $this;
+
+        while ($current) {
+            array_unshift($path, $current->name);
+            $current = $current->parent;
+        }
+
+        return implode(' > ', $path);
     }
 } 
