@@ -17,14 +17,11 @@ class ProductListScreen extends Screen
 {
     /**
      * Query data.
-     *
-     * @param Request $request
-     * @return array
      */
     public function query(Request $request): array
     {
         return [
-            'products' => Product::with('category')
+            'products' => Product::with('category.parent')
                 ->when($request->input('search'), function($query, $search) {
                     $query->where('name', 'LIKE', "%{$search}%")
                           ->orWhere('code', 'LIKE', "%{$search}%")
@@ -42,9 +39,7 @@ class ProductListScreen extends Screen
     }
 
     /**
-     * The name of the screen displayed in the header.
-     *
-     * @return string|null
+     * Display header name.
      */
     public function name(): ?string
     {
@@ -53,18 +48,14 @@ class ProductListScreen extends Screen
 
     /**
      * Display header description.
-     *
-     * @return string|null
      */
     public function description(): ?string
     {
-        return 'Список товаров с возможностью поиска';
+        return 'Список товаров с категориями и поиском';
     }
 
     /**
      * The screen's action buttons.
-     *
-     * @return \Orchid\Screen\Action[]
      */
     public function commandBar(): array
     {
@@ -73,18 +64,11 @@ class ProductListScreen extends Screen
                 ->icon('plus')
                 ->route('platform.product.create')
                 ->canSee(auth()->user()->hasAccess('platform.products.create')),
-
-            Button::make('Экспорт')
-                ->icon('cloud-download')
-                ->method('export')
-                ->canSee(auth()->user()->hasAccess('platform.products.export')),
         ];
     }
 
     /**
      * The screen's layout elements.
-     *
-     * @return \Orchid\Screen\Layout[]|string[]
      */
     public function layout(): array
     {
@@ -92,7 +76,7 @@ class ProductListScreen extends Screen
             Layout::rows([
                 Input::make('search')
                     ->type('text')
-                    ->placeholder('Поиск по названию')
+                    ->placeholder('Поиск по названию, артикулу или бренду...')
                     ->value(request()->input('search')),
                     
                 Button::make('Поиск')
@@ -116,64 +100,104 @@ class ProductListScreen extends Screen
                             ->route('platform.product.edit', $product);
                     }),
 
-                TD::make('code', 'Артикул')
-                    ->sort()
-                    ->filter(Input::make())
+                    TD::make('category_path', 'Категория')
                     ->render(function (Product $product) {
-                        return $product->code;
-                    }),
+                        if (!$product->category) {
+                            return '-';
+                        }
+                
+                        $path = [];
+                        $current = $product->category;
+                        while ($current) {
+                            array_unshift($path, $current);
+                            $current = $current->parent;
+                        }
+                
+                        $html = '<div class="d-flex flex-column">';
+                        $html .= '<div class="d-flex align-items-center mb-1">';
+                        
+                        $html .= Link::make($product->category->name)
+                            ->route('platform.category.action', $product->category)
+                            ->class('font-weight-bold text-decoration-none');
+                        
+                        $html .= '</div>';
+                        
+                        if (count($path) > 1) {
+                            $html .= '<div class="d-flex align-items-center small text-muted">';
+                            $html .= '<span class="mr-1">↳</span>'; 
+                            
+                            $links = [];
+                            foreach ($path as $index => $item) {
+                                if ($index === 0) {
+
+                                    $links[] = '<span>'.$item->name.'</span>';
+                                } else {
+                                    $links[] = Link::make($item->name)
+                                        ->route('platform.category.action', $item)
+                                        ->class('text-decoration-none');
+                                }
+                            }
+                            
+                            $html .= implode(' <span class="mx-1">›</span> ', $links);
+                            $html .= '</div>';
+                        }
+                        
+                        $html .= '</div>';
+                        return $html;
+                    })
+                    ->sort(),
 
                 TD::make('price', 'Цена')
                     ->sort()
+                    ->width('150px')
                     ->render(function (Product $product) {
                         return '₽' . number_format((float)$product->price, 2);
                     }),
 
-                TD::make('brand', 'Бренд')
-                    ->sort()
-                    ->filter(Input::make())
-                    ->render(function (Product $product) {
-                        return $product->brand;
-                    }),
+                // TD::make('brand', 'Бренд')
+                //     ->sort()
+                //     ->filter(Input::make())
+                //     ->render(function (Product $product) {
+                //         return $product->brand;
+                //     }),
 
-                TD::make('category.name', 'Категория')
-                    ->sort()
-                    ->render(function (Product $product) {
-                        return $product->category 
-                            ? Link::make($product->category->name)
-                                ->route('platform.category.action', $product->category)
-                            : '-';
-                    }),
+                // TD::make('category.name', 'Категория')
+                //     ->sort()
+                //     ->render(function (Product $product) {
+                //         return $product->category 
+                //             ? Link::make($product->category->name)
+                //                 ->route('platform.category.action', $product->category)
+                //             : '-';
+                //     }),
 
-                TD::make('rating', 'Рейтинг')
-                    ->sort()
-                    ->render(function (Product $product) {
-                        return number_format($product->rating, 1);
-                    }),
+                // TD::make('rating', 'Рейтинг')
+                //     ->sort()
+                //     ->render(function (Product $product) {
+                //         return number_format($product->rating, 1);
+                //     }),
 
-                TD::make('created_at', 'Дата создания')
-                    ->sort()
-                    ->render(function (Product $product) {
-                        return $product->created_at->toDateTimeString();
-                    }),
+                // TD::make('created_at', 'Дата создания')
+                //     ->sort()
+                //     ->render(function (Product $product) {
+                //         return $product->created_at->toDateTimeString();
+                //     }),
 
-                TD::make('actions', 'Действия')
+                TD::make('actions', '')
                     ->alignRight()
+                    ->width('100px')
                     ->render(function (Product $product) {
                         return DropDown::make()
                             ->icon('three-dots-vertical')
                             ->list([
                                 Link::make('Редактировать')
                                     ->route('platform.product.edit', $product)
-                                    ->icon('pencil')
-                                    ->canSee(auth()->user()->hasAccess('platform.products.edit')),
+                                    ->icon('pencil'),
                                     
                                 Button::make('Удалить')
                                     ->icon('trash')
                                     ->method('remove')
-                                    ->confirm('Вы уверены, что хотите удалить этот товар?')
-                                    ->parameters(['id' => $product->id])
-                                    ->canSee(auth()->user()->hasAccess('platform.products.delete')),
+                                    ->confirm('Удалить этот товар?')
+                                    ->parameters(['id' => $product->id]),
                             ]);
                     }),
             ]),
@@ -182,9 +206,6 @@ class ProductListScreen extends Screen
 
     /**
      * Perform search action.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function performSearch(Request $request)
     {
@@ -194,30 +215,13 @@ class ProductListScreen extends Screen
     }
 
     /**
-     * Export products
-     *
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
-     */
-    public function export()
-    {
-        // Реализация экспорта
-        return response()->download(storage_path('exports/products.csv'));
-    }
-
-    /**
      * Remove the specified resource from storage.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function remove(Request $request)
     {
         $product = Product::findOrFail($request->get('id'));
-        
-        $product->images()->delete();
         $product->delete();
-
-        Alert::info('Товар был удален');
-        return redirect()->route('platform.product.list');
+        Alert::info('Товар удален');
+        return back();
     }
 }
