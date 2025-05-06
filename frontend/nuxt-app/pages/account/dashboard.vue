@@ -38,7 +38,7 @@ const secondRowCards = [
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-screen-2xl px-8 space-y-16 py-8">
+  <div class="mx-auto w-full max-w-screen-2xl px-8 space-y-8 py-8">
     <h2 class="font-semibold text-3xl mb-6 max-w-6xl mx-auto">Настройки профиля</h2>
 
     <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6">

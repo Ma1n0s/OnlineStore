@@ -17,7 +17,7 @@ console.log(category.value, 'category')
 
 <template>
   <div class="bg-white w-full ~text-sm/xs ~pb-4/8">
-    <div class="mx-auto w-full max-w-screen-2xl px-8 space-y-16 py-8">
+    <div class="mx-auto w-full max-w-screen-2xl px-8 space-y-8 py-8">
       <div>
         <BigSwiper />
       </div>

@@ -20,7 +20,7 @@ const profile = ref({
 })
 </script>
 <template>
-  <div class="mx-auto w-full max-w-screen-2xl px-8 space-y-16 py-8">
+  <div class="mx-auto w-full max-w-screen-2xl px-8 space-y-8 py-8">
     <div class="bg-white shadow rounded-lg p-6">
       <h2 class="text-lg font-medium mb-6">Личные данные</h2>
 

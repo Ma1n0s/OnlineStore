@@ -64,7 +64,7 @@ const article = articles.find(article => article.id === Number(id))
 
 <template>
   <div class="min-h-screen bg-gray-50 py-12">
-    <div class="mx-auto w-full max-w-screen-2xl px-8 space-y-16 py-8">
+    <div class="mx-auto w-full max-w-screen-2xl px-8 space-y-8 py-8">
       <article class="bg-white rounded-lg shadow-lg overflow-hidden">
         <img :src="article.image || 'no-photo.webp'" :alt="article.title" class="w-full h-96 object-cover" />
 

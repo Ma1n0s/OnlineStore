@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-auto w-full max-w-screen-2xl px-8 space-y-16 py-8">
+  <div class="mx-auto w-full max-w-screen-2xl px-8 space-y-8 py-8">
     <UserCard />
 
     <div class="bg-white shadow rounded-lg p-6">

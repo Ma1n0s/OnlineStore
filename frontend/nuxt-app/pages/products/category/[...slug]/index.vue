@@ -272,7 +272,7 @@ const breadcrumbs = [
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-screen-2xl px-8 space-y-16 py-8">
+  <div class="mx-auto w-full max-w-screen-2xl px-8 py-8">
     <Breadcrumbs :list="breadcrumbs" />
     <CategoryDescription :data="data.category" />
 
@@ -443,13 +443,14 @@ const breadcrumbs = [
           v-if="filteredItems.length > 0"
           :class="state.ui.isGrid ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5' : 'space-y-5'"
         >
-          <div
+          <NuxtLink
+            :to="`/products/${item.slug}`"
             v-for="item in visibleItems"
             :key="item.id"
             :class="
               state.ui.isGrid
-                ? 'bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 overflow-hidden flex flex-col h-full'
-                : 'bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 overflow-hidden flex'
+                ? 'bg-white cursor-pointer rounded-2xl shadow-xl hover:shadow-2xl  transition-shadow border border-gray-100 overflow-hidden flex flex-col h-full'
+                : 'bg-white cursor-pointer rounded-2xl shadow-xl hover:shadow-2xl transition-shadow border border-gray-100 overflow-hidden flex'
             "
           >
             <div :class="state.ui.isGrid ? 'relative h-48 flex-shrink-0' : 'relative w-1/3 flex-shrink-0'">
@@ -504,12 +505,17 @@ const breadcrumbs = [
               </div>
 
               <button
+                @click.prevent="
+                  () => {
+                    console.log('Добавлено')
+                  }
+                "
                 class="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors font-medium"
               >
                 В корзину
               </button>
             </div>
-          </div>
+          </NuxtLink>
         </div>
 
         <!-- Нет результатов -->

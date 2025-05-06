@@ -220,7 +220,7 @@ onMounted(async () => {
       </div>
     </div>
 
-    <div class="mx-auto w-full max-w-screen-2xl px-8 space-y-16 py-8">
+    <div class="mx-auto w-full max-w-screen-2xl px-8 space-y-8 py-8">
       <div class="flex flex-col lg:flex-row gap-4 sm:gap-6">
         <div class="lg:w-3/4">
           <CartHeader cart-number="2741-0895-29725" />
