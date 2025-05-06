@@ -49,96 +49,7 @@ const state = reactive({
   filters: {
     selectedBrands: [],
   },
-  items: [
-    {
-      id: 1,
-      code: '15640682',
-      title: 'Дрель-шуруповерт Ryobi ONE+ R18DD3-220S 5133003348',
-      image: 'Categories/Instruments.png',
-      price: 13290,
-      oldPrice: 15990,
-      discount: 17,
-      stock: 100,
-      brand: 'Ryobi',
-    },
-    {
-      id: 2,
-      code: '15640683',
-      title: 'Дрель-шуруповерт Bosch GSR 12V-15 06019A8021',
-      image: 'Categories/Instruments.png',
-      price: 14290,
-      oldPrice: 16990,
-      discount: 16,
-      stock: 50,
-      brand: 'Bosch',
-    },
-    {
-      id: 3,
-      code: '15640684',
-      title: 'Шуруповерт Makita DF457DWE 165024-8',
-      image: 'Categories/Instruments.png',
-      price: 15290,
-      oldPrice: 17990,
-      discount: 15,
-      stock: 30,
-      brand: 'Makita',
-    },
-    {
-      id: 4,
-      code: '15640685',
-      title: 'Шуруповерт DeWalt DCD771C2',
-      image: 'Categories/Instruments.png',
-      price: 18990,
-      oldPrice: 21990,
-      discount: 14,
-      stock: 25,
-      brand: 'DeWalt',
-    },
-    {
-      id: 5,
-      code: '15640686',
-      title: 'Шуруповерт Metabo BS 18 LTX 600129700',
-      image: 'Categories/Instruments.png',
-      price: 16290,
-      oldPrice: 18990,
-      discount: 14,
-      stock: 20,
-      brand: 'Metabo',
-    },
-    {
-      id: 6,
-      code: '15640687',
-      title: 'Шуруповерт Hitachi DS18DSAL',
-      image: 'Categories/Instruments.png',
-      price: 13990,
-      oldPrice: 16990,
-      discount: 18,
-      stock: 15,
-      brand: 'Hitachi',
-    },
-    {
-      id: 7,
-      code: '15640688',
-      title: 'Шуруповерт AEG BSB 12C2-120X',
-      image: 'Categories/Instruments.png',
-      price: 14990,
-      oldPrice: 17990,
-      discount: 17,
-      stock: 10,
-      brand: 'AEG',
-    },
-    {
-      id: 8,
-      code: '15640689',
-      title: 'Шуруповерт Black+Decker BDCDD12K',
-      image: 'Categories/Instruments.png',
-      price: 8990,
-      oldPrice: 11990,
-      discount: 25,
-      stock: 40,
-      brand: 'Black+Decker',
-    },
-  ],
+  items: [],
 })
 
 // Вычисляемые свойства
@@ -152,36 +63,6 @@ const visibleItems = computed(() => filteredItems.value.slice(0, state.ui.visibl
 const loadMoreItems = () => {
   if (state.ui.isLoading) return
   state.ui.isLoading = true
-
-  setTimeout(() => {
-    const newItems = [
-      {
-        id: state.items.length + 1,
-        code: '15640690',
-        title: 'Шуруповерт Hilti SF 6H-A22',
-        image: 'Categories/Instruments.png',
-        price: 24990,
-        oldPrice: 28990,
-        discount: 14,
-        stock: 5,
-        brand: 'Hilti',
-      },
-      {
-        id: state.items.length + 2,
-        code: '15640691',
-        title: 'Шуруповерт Milwaukee M18 BPS-0',
-        image: 'Categories/Instruments.png',
-        price: 21990,
-        oldPrice: 25990,
-        discount: 15,
-        stock: 8,
-        brand: 'Milwaukee',
-      },
-    ]
-    state.items = [...state.items, ...newItems]
-    state.ui.visibleItems += 2
-    state.ui.isLoading = false
-  }, 1000)
 }
 
 const toggleFilters = () => {
@@ -265,7 +146,7 @@ const breadcrumbs = [
   },
   ...getBreadcrumbs(slug.slice(0, -1)),
   {
-    name: 'Список',
+    name: data.value.category.name,
     url: '/products/category/' + slug.join('/'),
   },
 ]
