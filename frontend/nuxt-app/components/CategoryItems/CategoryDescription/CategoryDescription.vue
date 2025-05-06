@@ -6,7 +6,7 @@
         v-if="data.description_image_url"
         :src="`${data.description_image_url}` || 'no-photo.webp'"
         :alt="data.name"
-        class="object-fill h-fit max-h-[300px] float-start pb-2 md:pb-4"
+        class="object-cover h-fit max-h-[300px] float-start pb-2 md:pb-4"
       />
       <div
         v-if="data.description"
