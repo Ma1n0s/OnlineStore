@@ -22,7 +22,7 @@ useHead({
 
     <div class="flex flex-col items-center">
       <div class="w-24 h-24 mb-4">
-        <img src="~/public/red-heart.svg" alt="Heart icon" class="w-full h-full" />
+        <img src="" alt="Heart icon" class="w-full h-full" />
       </div>
       <p class="text-lg text-center mb-4">В избранном пока нет товаров</p>
       <p class="text-center mb-6">
