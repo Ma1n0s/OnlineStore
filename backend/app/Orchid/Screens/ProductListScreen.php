@@ -86,105 +86,61 @@ class ProductListScreen extends Screen
             ]),
 
             Layout::table('products', [
-                TD::make('id', 'ID')
+                TD::make('id', '№')
+                    ->width('50px')
+                    ->align(TD::ALIGN_CENTER)
                     ->sort()
                     ->render(function (Product $product) {
                         return $product->id;
                     }),
-
+                    
                 TD::make('name', 'Название')
                     ->sort()
                     ->filter(Input::make())
                     ->render(function (Product $product) {
-                        return Link::make($product->name)
-                            ->route('platform.product.edit', $product);
-                    }),
-
-                    TD::make('category_path', 'Категория')
-                    ->render(function (Product $product) {
-                        if (!$product->category) {
-                            return '-';
-                        }
-                
-                        $path = [];
-                        $current = $product->category;
-                        while ($current) {
-                            array_unshift($path, $current);
-                            $current = $current->parent;
-                        }
-                
                         $html = '<div class="d-flex flex-column">';
-                        $html .= '<div class="d-flex align-items-center mb-1">';
                         
-                        $html .= Link::make($product->category->name)
-                            ->route('platform.category.action', $product->category)
-                            ->class('font-weight-bold text-decoration-none');
+                        // Название товара
+                        $html .= '<div>' . Link::make($product->name)
+                            ->route('platform.product.edit', $product) . '</div>';
                         
-                        $html .= '</div>';
-                        
-                        if (count($path) > 1) {
-                            $html .= '<div class="d-flex align-items-center small text-muted">';
-                            $html .= '<span class="mr-1">↳</span>'; 
+                        // Категории (путь)
+                        if ($product->category) {
+                            $html .= '<div class="w-100 pt-1" style="font-size: 0.875rem; display: flex; align-items: center;">';
                             
-                            $links = [];
-                            foreach ($path as $index => $item) {
-                                if ($index === 0) {
-
-                                    $links[] = '<span>'.$item->name.'</span>';
-                                } else {
-                                    $links[] = Link::make($item->name)
-                                        ->route('platform.category.action', $item)
-                                        ->class('text-decoration-none');
-                                }
+                            $path = [];
+                            $current = $product->category;
+                            while ($current) {
+                                array_unshift($path, $current);
+                                $current = $current->parent;
                             }
                             
-                            $html .= implode(' <span class="mx-1">›</span> ', $links);
+                            $breadcrumbs = [];
+                            foreach ($path as $item) {
+                                $breadcrumbs[] = Link::make($item->name)
+                                    ->route('platform.category.action', $item)
+                                    ->class('text-decoration-none');
+                            }
+                            
+                            $html .= implode(' <span class="mx-1">›</span> ', $breadcrumbs);
                             $html .= '</div>';
                         }
                         
                         $html .= '</div>';
                         return $html;
-                    })
-                    ->sort(),
-
+                    }),
+                    
                 TD::make('price', 'Цена')
-                    ->sort()
                     ->width('150px')
+                    ->sort()
+                    ->align(TD::ALIGN_RIGHT)
                     ->render(function (Product $product) {
                         return '₽' . number_format((float)$product->price, 2);
                     }),
-
-                // TD::make('brand', 'Бренд')
-                //     ->sort()
-                //     ->filter(Input::make())
-                //     ->render(function (Product $product) {
-                //         return $product->brand;
-                //     }),
-
-                // TD::make('category.name', 'Категория')
-                //     ->sort()
-                //     ->render(function (Product $product) {
-                //         return $product->category 
-                //             ? Link::make($product->category->name)
-                //                 ->route('platform.category.action', $product->category)
-                //             : '-';
-                //     }),
-
-                // TD::make('rating', 'Рейтинг')
-                //     ->sort()
-                //     ->render(function (Product $product) {
-                //         return number_format($product->rating, 1);
-                //     }),
-
-                // TD::make('created_at', 'Дата создания')
-                //     ->sort()
-                //     ->render(function (Product $product) {
-                //         return $product->created_at->toDateTimeString();
-                //     }),
-
+                    
                 TD::make('actions', '')
-                    ->alignRight()
                     ->width('100px')
+                    ->alignRight()
                     ->render(function (Product $product) {
                         return DropDown::make()
                             ->icon('three-dots-vertical')
@@ -200,7 +156,7 @@ class ProductListScreen extends Screen
                                     ->parameters(['id' => $product->id]),
                             ]);
                     }),
-            ]),
+            ])->title('Список товаров'),
         ];
     }
 
