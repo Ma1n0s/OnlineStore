@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\NewsController;
 use App\Models\User;
 use App\Http\Controllers\PurchaseController;
 use Illuminate\Support\Facades\Hash;
@@ -175,3 +176,6 @@ Route::post('/auth/logout', function(Request $request) {
         'status' => 'success'
     ]);
 });
+
+// Маршруты для новостей
+Route::apiResource('news', NewsController::class);

@@ -10,7 +10,7 @@ class NewsController extends Controller
 {
     public function index()
     {
-        $News = News::orderBy('sort_order')->get();
+        $News = News::latest()->get();
         return response()->json($News);
     }
 
@@ -18,12 +18,10 @@ class NewsController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'icon' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'link' => 'nullable|string|max:255',
+            'image' => 'nullable|string|max:255',
+            'description' => 'nullable',
             'is_special' => 'boolean',
-            'tags' => 'nullable|array',
-            'sort_order' => 'integer'
+            'tags' => 'nullable|array'
         ]);
 
         $News = News::create($validated);
@@ -34,12 +32,10 @@ class NewsController extends Controller
     {
         $validated = $request->validate([
             'title' => 'sometimes|string|max:255',
-            'icon' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'link' => 'nullable|string|max:255',
+            'image' => 'nullable|string|max:255',
+            'description' => 'nullable',
             'is_special' => 'boolean',
-            'tags' => 'nullable|array',
-            'sort_order' => 'integer'
+            'tags' => 'nullable|array'
         ]);
 
         $News->update($validated);

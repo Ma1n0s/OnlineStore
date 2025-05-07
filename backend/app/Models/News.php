@@ -4,23 +4,53 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Orchid\Attachment\Attachable;
+use Orchid\Attachment\Models\Attachment;
 
 class News extends Model
 {
-    use HasFactory;
+    use HasFactory, Attachable;
 
     protected $fillable = [
         'title',
-        'icon',
+        'image',
         'description',
-        'link',
-        'is_special',
-        'tags',
-        'sort_order'
+        'tags'
     ];
 
     protected $casts = [
         'tags' => 'array',
-        'is_special' => 'boolean'
     ];
+    
+    /**
+     * Получить содержимое новости
+     * Для обратной совместимости возвращает поле description
+     * 
+     * @return string|null
+     */
+    public function getContent()
+    {
+        return $this->description;
+    }
+
+    /**
+     * Получить URL изображения новости
+     * 
+     * @return string|null
+     */
+    public function getImageUrlAttribute()
+    {
+        // Проверяем, является ли image ID вложения
+        if (!empty($this->image) && is_numeric($this->image)) {
+            $attachment = Attachment::find($this->image);
+            return $attachment ? $attachment->url : null;
+        }
+        
+        // Проверяем, является ли image путем к файлу
+        if (!empty($this->image)) {
+            return asset('storage/' . $this->image);
+        }
+        
+        return null;
+    }
 }

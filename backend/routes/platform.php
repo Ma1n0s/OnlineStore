@@ -62,7 +62,7 @@ Route::screen('product/create', ProductScreen::class)
 
 Route::screen('news', NewsListScreen::class)->name('platform.news.list');
 Route::screen('news/create', NewsScreen::class)->name('platform.news.create');
-Route::screen('news/{advantage}/edit', NewsScreen::class)->name('platform.news.edit');
+Route::screen('news/{news}/edit', NewsScreen::class)->name('platform.news.edit');
 
 Route::screen('products', ProductListScreen::class)
     ->name('platform.product.list');

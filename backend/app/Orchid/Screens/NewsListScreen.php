@@ -13,7 +13,7 @@ class NewsListScreen extends Screen
     public function query(): array
     {
         return [
-            'news' => News::orderBy('sort_order')->get()
+            'news' => News::latest()->get()
         ];
     }
 
@@ -34,14 +34,14 @@ class NewsListScreen extends Screen
     public function layout(): array
     {
         return [
-            Layout::table('News', [
-                TD::make('title', 'Заголовок'),
-                TD::make('icon', 'Иконка'),
-                TD::make('is_special', 'Специальный')->render(fn($a) => $a->is_special ? 'Да' : 'Нет'),
-                TD::make('sort_order', 'Порядок'),
-                TD::make('actions', 'Действия')->render(function (News $News) {
+            Layout::table('news', [
+                TD::make('title', 'Заголовок')->render(function ($news) {
+                    return $news->title;
+                }),
+                TD::make('created_at', 'Дата создания')->render(fn($news) => $news->created_at->format('d.m.Y')),
+                TD::make('actions', 'Действия')->render(function (News $news) {
                     return Link::make('Редактировать')
-                        ->route('platform.news.edit', $News);
+                        ->route('platform.news.edit', $news);
                 }),
             ])
         ];
