@@ -10,8 +10,20 @@ class NewsController extends Controller
 {
     public function index()
     {
-        $News = News::latest()->get();
-        return response()->json($News);
+        $news = News::latest()->get()->map(function ($item) {
+            // Трансформируем данные для API
+            return [
+                'id' => $item->id,
+                'title' => $item->title,
+                'image' => $item->image_url, // Используем аксессор image_url вместо прямого поля
+                'description' => $item->description,
+                'tags' => $item->tags,
+                'created_at' => $item->created_at,
+                'updated_at' => $item->updated_at
+            ];
+        });
+        
+        return response()->json($news);
     }
 
     public function store(Request $request)
@@ -24,11 +36,19 @@ class NewsController extends Controller
             'tags' => 'nullable|array'
         ]);
 
-        $News = News::create($validated);
-        return response()->json($News, 201);
+        $news = News::create($validated);
+        return response()->json([
+            'id' => $news->id,
+            'title' => $news->title,
+            'image' => $news->image_url,
+            'description' => $news->description,
+            'tags' => $news->tags,
+            'created_at' => $news->created_at,
+            'updated_at' => $news->updated_at
+        ], 201);
     }
 
-    public function update(Request $request, News $News)
+    public function update(Request $request, News $news)
     {
         $validated = $request->validate([
             'title' => 'sometimes|string|max:255',
@@ -38,13 +58,21 @@ class NewsController extends Controller
             'tags' => 'nullable|array'
         ]);
 
-        $News->update($validated);
-        return response()->json($News);
+        $news->update($validated);
+        return response()->json([
+            'id' => $news->id,
+            'title' => $news->title,
+            'image' => $news->image_url,
+            'description' => $news->description,
+            'tags' => $news->tags,
+            'created_at' => $news->created_at,
+            'updated_at' => $news->updated_at
+        ]);
     }
 
-    public function destroy(News $News)
+    public function destroy(News $news)
     {
-        $News->delete();
+        $news->delete();
         return response()->noContent();
     }
 }
