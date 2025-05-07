@@ -3,16 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\AdvantageResource;
-use App\Models\Advantage;
+use App\Models\News;
 use Illuminate\Http\Request;
 
-class AdvantageController extends Controller
+class NewsController extends Controller
 {
     public function index()
     {
-        $advantages = Advantage::orderBy('sort_order')->get();
-        return AdvantageResource::collection($advantages);
+        $News = News::orderBy('sort_order')->get();
+        return response()->json($News);
     }
 
     public function store(Request $request)
@@ -27,11 +26,11 @@ class AdvantageController extends Controller
             'sort_order' => 'integer'
         ]);
 
-        $advantage = Advantage::create($validated);
-        return new AdvantageResource($advantage);
+        $News = News::create($validated);
+        return response()->json($News, 201);
     }
 
-    public function update(Request $request, Advantage $advantage)
+    public function update(Request $request, News $News)
     {
         $validated = $request->validate([
             'title' => 'sometimes|string|max:255',
@@ -43,13 +42,13 @@ class AdvantageController extends Controller
             'sort_order' => 'integer'
         ]);
 
-        $advantage->update($validated);
-        return new AdvantageResource($advantage);
+        $News->update($validated);
+        return response()->json($News);
     }
 
-    public function destroy(Advantage $advantage)
+    public function destroy(News $News)
     {
-        $advantage->delete();
+        $News->delete();
         return response()->noContent();
     }
 }

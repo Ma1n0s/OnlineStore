@@ -39,6 +39,12 @@ class PlatformProvider extends OrchidServiceProvider
         return [
             $this->buildCategoriesMenu(),
             
+            Menu::make('Новости')
+                ->icon('pencil')
+                ->route('platform.news.list')
+                ->permission('platform.news.view')
+                ->title('Управление контентом'),
+            
             Menu::make('Продукты')
                 ->icon('bag')
                 ->route('platform.product.list')
@@ -150,6 +156,12 @@ class PlatformProvider extends OrchidServiceProvider
                 ->addPermission('platform.categories.edit', 'Edit categories')
                 ->addPermission('platform.categories.delete', 'Delete categories'),
 
+            ItemPermission::group('Новости')
+                ->addPermission('platform.news.view', 'Просмотр новостей')
+                ->addPermission('platform.news.create', 'Создание новостей')
+                ->addPermission('platform.news.edit', 'Редактирование новостей')
+                ->addPermission('platform.news.delete', 'Удаление новостей'),
+
             ItemPermission::group('Applications')
                 ->addPermission('platform.applications.view', 'View applications')
                 ->addPermission('platform.applications.create', 'Create applications')
@@ -172,6 +184,8 @@ class PlatformProvider extends OrchidServiceProvider
         return [
             \App\Orchid\Screens\ProductScreen::class,
             \App\Orchid\Screens\ProductListScreen::class,
+            \App\Orchid\Screens\NewsListScreen::class,
+            \App\Orchid\Screens\NewsScreen::class,
             \App\Orchid\Screens\Category\CategoryListScreen::class,
             \App\Orchid\Screens\Category\CategoryEditScreen::class,
             \App\Orchid\Screens\Category\CategoryActionScreen::class,
