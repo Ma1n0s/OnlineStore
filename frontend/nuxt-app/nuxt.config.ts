@@ -26,6 +26,15 @@ export default defineNuxtConfig({
     // '@nuxtjs/proxy',
   ],
 
+  // Конфигурация для Iconify, чтобы решить проблему с загрузкой иконок
+  icon: {
+    // Добавляем кэширование иконок на стороне клиента
+    clientBundle: {
+      scan: true,
+      sizeLimitKb: 256,
+    },
+  },
+
   // routeRules: {
   //   // Статические страницы с перегенерацией каждые 60 сек
   //   '/category': { isr: 3600 },
@@ -37,6 +46,12 @@ export default defineNuxtConfig({
   //   '/': { isr: 3600 },
   // },
 
+  // Добавляем правила маршрутизации для API
+  routeRules: {
+    '/api/**': { proxy: { to: process.env.VITE_BACKEND || 'http://127.0.0.1:8000' } },
+    '/sanctum/**': { proxy: { to: process.env.VITE_BACKEND || 'http://127.0.0.1:8000' } },
+  },
+
   googleFonts: {
     families: {
       Montserrat: [400, 500, 600, 700, 800],
@@ -46,9 +61,9 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      backendUrl: process.env.BACKEND_URL || 'http://localhost:8000',
+      backendUrl: process.env.VITE_BACKEND || 'http://127.0.0.1:8000',
       sanctum: {
-        baseUrl: process.env.BACKEND_URL || 'http://localhost:8000',
+        baseUrl: process.env.VITE_BACKEND || 'http://127.0.0.1:8000',
         mode: 'cookie',
         userStateKey: 'sanctum.user.identity',
         endpoints: {
@@ -76,36 +91,47 @@ export default defineNuxtConfig({
     prerender: {
       crawlLinks: true, // Для автоматического обнаружения ссылок
     },
+    // Настраиваем проксирование
     devProxy: {
-      '/api': {
-        target: process.env.BACKEND_URL || 'http://localhost:8000',
+      '/api/**': {
+        target: process.env.VITE_BACKEND || 'http://127.0.0.1:8000',
         changeOrigin: true,
         cookieDomainRewrite: {
           '*': '',
         },
         headers: {
-          'X-Forwarded-Host': 'localhost:3000',
-          'X-Forwarded-Proto': 'http',
-          // 'Access-Control-Allow-Origin': '*'
+          'X-Forwarded-Host': '127.0.0.1:3000',
+          'X-Forwarded-Proto': 'https', // Изменяем на https
+          Origin: 'http://127.0.0.1:3000',
         },
-        secure: false,
+        secure: true, // Разрешаем безопасное соединение
+        xfwd: true,
       },
-      '/sanctum': {
-        target: process.env.BACKEND_URL || 'http://localhost:8000',
+      '/sanctum/**': {
+        target: process.env.VITE_BACKEND || 'http://127.0.0.1:8000',
         changeOrigin: true,
         cookieDomainRewrite: {
           '*': '',
         },
-        secure: false,
         headers: {
-          // 'Access-Control-Allow-Origin': '*',
+          'X-Forwarded-Host': '127.0.0.1:3000',
+          'X-Forwarded-Proto': 'https', // Изменяем на https
+          Origin: 'http://127.0.0.1:3000',
         },
+        secure: true, // Разрешаем безопасное соединение
+        xfwd: true,
       },
     },
   },
 
   // Настройка cookie для SSR
   ssr: true,
+
+  // Глобальные настройки для HTTP
+  experimental: {
+    // Включаем экспериментальные функции для поддержки безопасных cookie
+    cookieStore: true,
+  },
 
   app: {
     head: {
