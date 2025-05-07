@@ -1,7 +1,7 @@
 <?php
 
 declare(strict_types=1);
-namespace App\Orchid\Screens\Product;
+
 use App\Models\Category;
 use App\Orchid\Screens\Examples\ExampleActionsScreen;
 use App\Orchid\Screens\Examples\ExampleCardsScreen;
@@ -32,6 +32,8 @@ use App\Orchid\Screens\NewsListScreen;
 use App\Orchid\Screens\NewsScreen;
 use Illuminate\Support\Facades\Route;
 use Tabuna\Breadcrumbs\Trail;
+use App\Orchid\Screens\SwiperItemListScreen;
+use App\Orchid\Screens\SwiperItemEditScreen;
 
 /*
 |--------------------------------------------------------------------------
@@ -249,3 +251,22 @@ Route::screen('/examples/charts', ExampleChartsScreen::class)->name('platform.ex
 Route::screen('/examples/cards', ExampleCardsScreen::class)->name('platform.example.cards');
 
 // Route::screen('idea', Idea::class, 'platform.screens.idea');
+
+// Swiper routes
+Route::screen('swiper', SwiperItemListScreen::class)
+    ->name('platform.swiper')
+    ->breadcrumbs(fn (Trail $trail) => $trail
+        ->parent('platform.main')
+        ->push('Свайпер'));
+
+Route::screen('swiper/create', SwiperItemEditScreen::class)
+    ->name('platform.swiper.create')
+    ->breadcrumbs(fn (Trail $trail) => $trail
+        ->parent('platform.swiper')
+        ->push('Создать элемент'));
+
+Route::screen('swiper/{swiperItem}/edit', SwiperItemEditScreen::class)
+    ->name('platform.swiper.edit')
+    ->breadcrumbs(fn (Trail $trail, $swiperItem) => $trail
+        ->parent('platform.swiper')
+        ->push('Редактировать элемент'));

@@ -49,6 +49,12 @@ class PlatformProvider extends OrchidServiceProvider
                 ->route('platform.product.list')
                 ->permission('platform.products.view'),
 
+            Menu::make('Свайпер')
+                ->icon('bs.image')
+                ->route('platform.swiper')
+                ->canSee(true)
+                ->title('Управление контентом'),
+
             Menu::make('Заявки')
                 ->icon('bs.card-list')
                 ->route('platform.application.list')
@@ -160,6 +166,12 @@ class PlatformProvider extends OrchidServiceProvider
                 ->addPermission('platform.news.edit', 'Редактирование новостей')
                 ->addPermission('platform.news.delete', 'Удаление новостей'),
 
+            ItemPermission::group('Свайпер')
+                ->addPermission('platform.swiper.view', 'Просмотр свайпера')
+                ->addPermission('platform.swiper.create', 'Создание элементов свайпера')
+                ->addPermission('platform.swiper.edit', 'Редактирование элементов свайпера')
+                ->addPermission('platform.swiper.delete', 'Удаление элементов свайпера'),
+
             ItemPermission::group('Applications')
                 ->addPermission('platform.applications.view', 'View applications')
                 ->addPermission('platform.applications.create', 'Create applications')
@@ -191,6 +203,8 @@ class PlatformProvider extends OrchidServiceProvider
             \App\Orchid\Screens\ApplicationEditScreen::class,
             \App\Orchid\Screens\ProfileListScreen::class,
             \App\Orchid\Screens\ProfileEditScreen::class,
+            \App\Orchid\Screens\SwiperItemListScreen::class,
+            \App\Orchid\Screens\SwiperItemEditScreen::class,
         ];
     }
 }
