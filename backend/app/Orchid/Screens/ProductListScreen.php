@@ -33,7 +33,7 @@ class ProductListScreen extends Screen
                 })
                 ->filters()
                 ->defaultSort('id', 'desc')
-                ->paginate(),
+                ->paginate(2),
             'search' => $request->input('search')
         ];
     }
