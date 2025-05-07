@@ -2,64 +2,13 @@
 const route = useRoute()
 const { id } = route.params
 
-const articles = [
-  {
-    id: 1,
-    title: 'Создание странички',
-    content: 'Полный текст статьи 1...',
-    excerpt: 'Небольшой тестовый текст по проверка внешнего вида.',
-    date: 'Апреля 10, 2025',
-    image:
-      'https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
-  },
-  {
-    id: 2,
-    title: 'Создание странички',
-    content: 'Полный текст статьи 2...',
-    excerpt: 'Небольшой тестовый текст по проверка внешнего вида.',
-    date: 'Апреля 10, 2025',
-    image:
-      'https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
-  },
-  {
-    id: 3,
-    title: 'Создание странички',
-    content: 'Полный текст статьи 3...',
-    excerpt: 'Небольшой тестовый текст по проверка внешнего вида.',
-    date: 'Апреля 10, 2025',
-    image:
-      'https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
-  },
-  {
-    id: 4,
-    title: 'Создание странички',
-    content: 'Полный текст статьи 4...',
-    excerpt: 'Небольшой тестовый текст по проверка внешнего вида.',
-    date: 'Апреля 10, 2025',
-    image:
-      'https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
-  },
-  {
-    id: 5,
-    title: 'Создание странички',
-    content: 'Полный текст статьи 5...',
-    excerpt: 'Небольшой тестовый текст по проверка внешнего вида.',
-    date: 'Апреля 10, 2025',
-    image:
-      'https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
-  },
-  {
-    id: 6,
-    title: 'Создание странички',
-    content: 'Полный текст статьи 6...',
-    excerpt: 'Небольшой тестовый текст по проверка внешнего вида.',
-    date: 'Апреля 10, 2025',
-    image:
-      'https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
-  },
-]
+const {
+  public: { backendUrl },
+} = useRuntimeConfig()
 
-const article = articles.find(article => article.id === Number(id))
+const { data: article } = await useAsyncData(`news-${id}`, () => $fetch(`${backendUrl}/api/news/${id}`), {
+  revalidate: 3600,
+})
 </script>
 
 <template>
@@ -78,7 +27,7 @@ const article = articles.find(article => article.id === Number(id))
           </h1>
 
           <div class="prose max-w-none">
-            <p>{{ article.content }}</p>
+            <p v-html="article.description"></p>
           </div>
         </div>
       </article>

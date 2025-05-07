@@ -75,4 +75,18 @@ class NewsController extends Controller
         $news->delete();
         return response()->noContent();
     }
+
+    public function show($id)
+    {
+        $news = News::find($id);
+        return response()->json([
+            'id' => $news->id,
+            'title' => $news->title,
+            'image' => $news->image_url,
+            'description' => $news->description,
+            'tags' => $news->tags,
+            'created_at' => $news->created_at,
+            'updated_at' => $news->updated_at
+        ]);
+    }
 }

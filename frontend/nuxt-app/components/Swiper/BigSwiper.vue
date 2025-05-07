@@ -15,12 +15,14 @@
           :key="idx"
           class="bg-white flex items-center justify-center text-2xl font-bold w-full h-full lg:px-0 lg:rounded-2xl"
         >
-          <NuxtImg
-            :alt="`swiperslide - ${slide.src}`"
-            :src="slide.src"
-            format="webp"
-            class="w-full h-full object-cover lg:rounded-2xl"
-          />
+          <NuxtLink :to="slide.link || '#'" class="w-full h-full">
+            <NuxtImg
+              :alt="`swiperslide - ${idx}`"
+              :src="slide.image"
+              format="webp"
+              class="w-full h-full object-cover lg:rounded-2xl"
+            />
+          </NuxtLink>
         </swiper-slide>
       </swiper-container>
 
