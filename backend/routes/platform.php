@@ -28,6 +28,8 @@ use App\Orchid\Screens\Category\CategoryListScreen;
 use App\Orchid\Screens\ProfileListScreen;
 use App\Orchid\Screens\ProfileEditScreen;
 use App\Models\User;
+use App\Orchid\Screens\AdvantageListScreen;
+use App\Orchid\Screens\AdvantageScreen;
 use Illuminate\Support\Facades\Route;
 use Tabuna\Breadcrumbs\Trail;
 
@@ -57,6 +59,10 @@ Route::screen('product/create', ProductScreen::class)
             ->parent('platform.product.list')
             ->push('Create');
     });
+
+Route::screen('advantages', AdvantageListScreen::class)->name('platform.advantages.list');
+Route::screen('advantages/create', AdvantageScreen::class)->name('platform.advantages.create');
+Route::screen('advantages/{advantage}/edit', AdvantageScreen::class)->name('platform.advantages.edit');
 
 Route::screen('products', ProductListScreen::class)
     ->name('platform.product.list');

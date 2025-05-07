@@ -27,6 +27,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::apiResource('advantages', \App\Http\Controllers\Api\AdvantageController::class);
+
 Route::middleware('auth:sanctum')->post('/purchase', [PurchaseController::class, 'processPurchase']);
 
 Route::prefix('cart')->group(function () {
