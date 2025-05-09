@@ -71,4 +71,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(UserProfile::class);
     }
+
+    public function bonusCard()
+    {
+        return $this->hasOne(BonusCard::class);
+    }
 }

@@ -3,6 +3,7 @@
 namespace App\Orchid\Screens;
 
 use App\Models\User;
+use App\Models\BonusCard;
 use Illuminate\Http\Request;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Fields\Input;
@@ -16,17 +17,16 @@ class ProfileEditScreen extends Screen
     public $name = 'Редактирование профиля';
     public $description = 'Полная информация о пользователе и компании';
 
-    // Добавляем свойство для хранения пользователя
     protected $user;
 
     public function query(User $user): array
     {
-        // Сохраняем пользователя в свойство
         $this->user = $user;
         
         return [
-            'user' => $user->load('profile'),
-            'profile' => $user->profile ?? $user->profile()->create()
+            'user' => $user->load(['profile', 'bonusCard']),
+            'profile' => $user->profile ?? $user->profile()->create(),
+            'bonus_card' => $user->bonusCard
         ];
     }
 
@@ -40,7 +40,7 @@ class ProfileEditScreen extends Screen
             Button::make('Удалить профиль')
                 ->icon('trash')
                 ->method('remove')
-                ->canSee($this->user->profile !== null), // Теперь $this->user доступен
+                ->canSee($this->user->profile !== null),
         ];
     }
 
@@ -85,6 +85,32 @@ class ProfileEditScreen extends Screen
                         ->title('Юридический адрес')
                         ->rows(3),
                 ]),
+
+                'Бонусная карта' => Layout::rows([
+                    Input::make('bonus_card.card_number')
+                        ->title('Номер карты')
+                        ->disabled()
+                        ->canSee($this->user->bonusCard !== null),
+                        
+                    // Input::make('bonus_card.current_level')
+                    //     ->title('Текущий уровень')
+                    //     ->type('number')
+                    //     ->canSee($this->user->bonusCard !== null),
+                        
+                    Input::make('bonus_card.points')
+                        ->title('Баллы')
+                        ->type('number')
+                        ->canSee($this->user->bonusCard !== null),
+                        
+                    // Input::make('bonus_card.points_to_next_level')
+                    //     ->title('Баллов до следующего уровня')
+                    //     ->type('number')
+                    //     ->canSee($this->user->bonusCard !== null),
+                        
+                    Button::make('Создать бонусную карту')
+                        ->method('createBonusCard')
+                        ->canSee($this->user->bonusCard === null),
+                ]),
             ])
         ];
     }
@@ -101,6 +127,10 @@ class ProfileEditScreen extends Screen
         $user->update($request->input('user'));
         $user->profile()->updateOrCreate([], $request->input('profile'));
 
+        if ($user->bonusCard && $request->has('bonus_card')) {
+            $user->bonusCard->update($request->input('bonus_card'));
+        }
+
         Alert::success('Данные успешно сохранены.');
     }
 
@@ -110,5 +140,20 @@ class ProfileEditScreen extends Screen
         Alert::info('Профиль удален.');
         
         return redirect()->route('platform.profiles.list');
+    }
+
+    public function createBonusCard(User $user)
+    {
+        $bonusCard = new BonusCard();
+        $bonusCard->user_id = $user->id;
+        $bonusCard->card_number = $bonusCard->generateCardNumber();
+        $bonusCard->max_level = 5;
+        $bonusCard->current_level = 1;
+        $bonusCard->points = 0;
+        $bonusCard->points_to_next_level = 100;
+        $bonusCard->save();
+
+        Alert::success('Бонусная карта создана.');
+        return back();
     }
 }
