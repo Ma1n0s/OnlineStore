@@ -1,32 +1,20 @@
 <script setup>
-useHead({
-  title: 'Личные данные | Абсолют техно',
-  meta: [
-    {
-      name: 'description',
-      content:
-        'Личные данные в личном кабинете Абсолют техно. Управление данными, просмотр и редактирование личных данных.',
-    },
-  ],
-})
-
-import { ref } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import SidebarMenu from '~/components/Account/SidebarMenu.vue'
-import Modal from '~/components/Modal/Modal.vue'
+import TextInput from '~/components/ui/Inputs/TextInput.vue'
 
-const isModalOpen = ref(false)
-const isCompanyModalOpen = ref(false)
-const isEditingCompany = ref(false)
-const showCompanyDetails = ref(false)
 
-const passwordForm = ref({
-  currentPassword: '',
-  newPassword: '',
-  confirmPassword: '',
+
+const uiState = reactive({
+  isModalOpen: false,
+  isCompanyModalOpen: false,
+  isEditingCompany: false,
+  showCompanyDetails: false,
+  isLoading: false,
+  error: null
 })
-const passwordErrors = ref({})
 
-const profile = ref({
+const profile = reactive({
   lastname: 'Иванов',
   firstname: 'Иван',
   middlename: 'Иванович',
@@ -42,117 +30,180 @@ const profile = ref({
   },
   email: 'ivanov@example.com',
   phone: '+7 (999) 123-45-67',
+  registrationDate: '2023-07-13',
 })
 
-const companyForm = ref({
-  name: '',
-  inn: '',
-  kpp: '',
-  address: '',
-  director: '',
-  phone: '',
-  email: '',
+const forms = reactive({
+  password: {
+    current: '',
+    new: '',
+    confirm: '',
+    errors: {}
+  },
+  company: {
+    name: '',
+    inn: '',
+    kpp: '',
+    address: '',
+    director: '',
+    phone: '',
+    email: '',
+    errors: {}
+  }
 })
+
+const fullName = computed(() => `${profile.lastname} ${profile.firstname} ${profile.middlename}`)
+const formattedRegistrationDate = computed(() => new Date(profile.registrationDate).toLocaleDateString('ru-RU'))
+const hasCompanyDetails = computed(() => Boolean(profile.companyDetails?.inn))
+
+watch(
+  () => forms.password.new,
+  (newVal) => {
+    if (newVal && forms.password.confirm && newVal !== forms.password.confirm) {
+      forms.password.errors.confirm = 'Пароли не совпадают'
+    } else {
+      delete forms.password.errors.confirm
+    }
+  }
+)
 
 const toggleCompanyDetails = () => {
-  showCompanyDetails.value = !showCompanyDetails.value
+  uiState.showCompanyDetails = !uiState.showCompanyDetails
 }
 
-const openModal = () => {
-  isModalOpen.value = true
-  passwordForm.value = { currentPassword: '', newPassword: '', confirmPassword: '' }
-  passwordErrors.value = {}
+const resetPasswordForm = () => {
+  forms.password = {
+    current: '',
+    new: '',
+    confirm: '',
+    errors: {}
+  }
 }
 
-const closeModal = () => {
-  isModalOpen.value = false
+const openPasswordModal = () => {
+  uiState.isModalOpen = true
+  resetPasswordForm()
 }
 
 const validatePassword = () => {
   let isValid = true
-  passwordErrors.value = {}
+  forms.password.errors = {}
 
-  if (!passwordForm.value.currentPassword) {
-    passwordErrors.value.currentPassword = 'Введите текущий пароль'
+  if (!forms.password.current) {
+    forms.password.errors.current = 'Введите текущий пароль'
     isValid = false
   }
 
-  if (!passwordForm.value.newPassword) {
-    passwordErrors.value.newPassword = 'Введите новый пароль'
+  if (!forms.password.new) {
+    forms.password.errors.new = 'Введите новый пароль'
     isValid = false
-  } else if (passwordForm.value.newPassword.length < 8) {
-    passwordErrors.value.newPassword = 'Пароль должен содержать минимум 8 символов'
+  } else if (forms.password.new.length < 8) {
+    forms.password.errors.new = 'Пароль должен содержать минимум 8 символов'
     isValid = false
   }
 
-  if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
-    passwordErrors.value.confirmPassword = 'Пароли не совпадают'
+  if (forms.password.new !== forms.password.confirm) {
+    forms.password.errors.confirm = 'Пароли не совпадают'
     isValid = false
   }
 
   return isValid
 }
 
-const handlePasswordChange = () => {
-  if (validatePassword()) {
-    console.log('Пароль изменен:', passwordForm.value)
-    closeModal()
+const changePassword = async () => {
+  if (!validatePassword()) return
+
+  uiState.isLoading = true
+  try {
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    uiState.isModalOpen = false
+  } catch (error) {
+    uiState.error = error.message
+  } finally {
+    uiState.isLoading = false
   }
 }
 
-const openCompanyModal = () => {
-  isCompanyModalOpen.value = true
-}
-
-const closeCompanyModal = () => {
-  isCompanyModalOpen.value = false
-  isEditingCompany.value = false
-}
-
-const handleCompanyConfirm = () => {
-  if (companyForm.value.name) {
-    profile.value.company = companyForm.value.name
-    profile.value.companyDetails = { ...companyForm.value }
+const prepareCompanyForm = () => {
+  if (profile.companyDetails) {
+    Object.assign(forms.company, profile.companyDetails)
+  } else {
+    forms.company.name = profile.company
   }
-  closeCompanyModal()
 }
 
-const startEditCompany = () => {
-  if (profile.value.companyDetails) {
-    companyForm.value = { ...profile.value.companyDetails }
+const openCompanyModal = (editMode = false) => {
+  uiState.isEditingCompany = editMode
+  prepareCompanyForm()
+  uiState.isCompanyModalOpen = true
+}
+
+const validateCompany = () => {
+  let isValid = true
+  forms.company.errors = {}
+
+  if (!forms.company.name.trim()) {
+    forms.company.errors.name = 'Введите название компании'
+    isValid = false
   }
-  isEditingCompany.value = true
-  openCompanyModal()
+
+  if (!forms.company.inn.trim()) {
+    forms.company.errors.inn = 'Введите ИНН компании'
+    isValid = false
+  }
+
+  return isValid
+}
+
+const saveCompany = async () => {
+  if (!validateCompany()) return
+
+  uiState.isLoading = true
+  try {
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    profile.company = forms.company.name
+    profile.companyDetails = { ...forms.company }
+    
+    uiState.isCompanyModalOpen = false
+  } catch (error) {
+    uiState.error = error.message
+  } finally {
+    uiState.isLoading = false
+  }
+}
+
+const saveProfile = async () => {
+  uiState.isLoading = true
+  try {
+    await new Promise(resolve => setTimeout(resolve, 1000))
+  } catch (error) {
+    uiState.error = error.message
+  } finally {
+    uiState.isLoading = false
+  }
 }
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="min-h-screen bg-slate-100 py-8">
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div v-if="uiState.error" class="mb-6 p-4 bg-red-50 text-red-700 rounded-lg shadow">
+        {{ uiState.error }}
+        <button @click="uiState.error = null" class="float-right font-bold">×</button>
+      </div>
+
       <div class="flex flex-col md:flex-row gap-6">
         <SidebarMenu />
 
         <div class="flex-1 space-y-6">
-          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div class="bg-white p-6 rounded-xl shadow">
             <div class="flex items-start gap-4">
               <div class="relative flex-shrink-0">
                 <div
-                  class="w-14 h-14 rounded-full bg-gradient-to-tr from-blue-100 to-purple-200 flex items-center justify-center overflow-hidden"
+                  class="w-14 h-14 rounded-full bg-gradient-to-tr from-blue-100 to-purple-200 flex items-center justify-center overflow-hidden shadow"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-7 w-7 text-purple-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="1.5"
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
+                  <Icon name="mdi:account" class="h-7 w-7 text-purple-600" />
                 </div>
                 <span class="absolute bottom-1 right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
               </div>
@@ -160,54 +211,42 @@ const startEditCompany = () => {
               <div class="flex-1 min-w-0">
                 <div class="flex items-baseline gap-2 flex-wrap">
                   <h1 class="text-2xl font-bold text-gray-900 truncate">
-                    {{ profile.lastname }} {{ profile.firstname }} {{ profile.middlename }}
+                    {{ fullName }}
                   </h1>
                 </div>
 
                 <p class="text-gray-500 text-sm mt-1 flex items-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4 mr-1.5 opacity-70"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                  Зарегистрирован: <span class="font-medium ml-1">13.07.2023</span>
+                  <Icon name="mdi:calendar" class="h-4 w-4 mr-1.5 opacity-70" />
+                  Зарегистрирован: <span class="font-medium ml-1">{{ formattedRegistrationDate }}</span>
                 </p>
               </div>
             </div>
           </div>
 
-          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div class="bg-white p-6 rounded-xl shadow">
             <h2 class="text-lg font-semibold text-gray-900 mb-6">Личная информация</h2>
 
-            <form class="space-y-6">
+            <form @submit.prevent="saveProfile" class="space-y-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label for="firstname" class="block text-sm font-medium text-gray-700 mb-1">Имя</label>
+                  <TextInput
+                    type="text"
+                    id="firstname"
+                    v-model="profile.firstname"
+                    class=""
+                  />
+                </div>
                 <div>
                   <label for="lastname" class="block text-sm font-medium text-gray-700 mb-1">Фамилия</label>
                   <input
                     type="text"
                     id="lastname"
                     v-model="profile.lastname"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    class="w-full px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition"
                   />
                 </div>
-                <div>
-                  <label for="firstname" class="block text-sm font-medium text-gray-700 mb-1">Имя</label>
-                  <input
-                    type="text"
-                    id="firstname"
-                    v-model="profile.firstname"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                  />
-                </div>
+              
               </div>
 
               <div>
@@ -216,7 +255,7 @@ const startEditCompany = () => {
                   type="text"
                   id="middlename"
                   v-model="profile.middlename"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                  class="w-full px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition"
                 />
               </div>
 
@@ -228,46 +267,34 @@ const startEditCompany = () => {
                       type="text"
                       id="company"
                       v-model="profile.company"
-                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                      class="w-full px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition"
                     />
                   </div>
                   <button
                     type="button"
-                    @click="startEditCompany"
-                    class="h-10 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                    @click="openCompanyModal(true)"
+                    class="h-10 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm"
                   >
-                    <Icon name="tabler:edit" class="w-5 h-5" />
-                    {{ profile.companyDetails ? 'Изменить' : 'Добавить' }}
+                    <Icon name="mdi:pencil" class="w-5 h-5" />
+                    {{ hasCompanyDetails ? 'Изменить' : 'Добавить' }}
                   </button>
                 </div>
 
-                <div v-if="profile.companyDetails" class="mt-3">
+                <div v-if="hasCompanyDetails" class="mt-3">
                   <div
-                    class="flex items-center justify-between bg-gray-50 p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                    class="flex items-center justify-between bg-gray-50 p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors shadow-sm"
                     @click="toggleCompanyDetails"
                   >
                     <span class="text-sm font-medium text-gray-700">Данные компании</span>
-                    <button
-                      @click.stop="toggleCompanyDetails"
-                      class="text-gray-500 hover:text-gray-700 transition-colors"
-                      :title="showCompanyDetails ? 'Скрыть детали' : 'Показать детали'"
-                    >
-                      <Icon
-                        name="tabler:chevron-down"
-                        class="w-5 h-5 transition-transform duration-200"
-                        :class="{ 'transform rotate-180': showCompanyDetails }"
-                      />
-                    </button>
+                    <Icon
+                      name="mdi:chevron-down"
+                      class="w-5 h-5 transition-transform duration-200"
+                      :class="{ 'transform rotate-180': uiState.showCompanyDetails }"
+                    />
                   </div>
-                  <transition
-                    enter-active-class="transition duration-200 ease-out"
-                    enter-from-class="transform opacity-0 -translate-y-2"
-                    enter-to-class="transform opacity-100 translate-y-0"
-                    leave-active-class="transition duration-150 ease-in"
-                    leave-from-class="transform opacity-100 translate-y-0"
-                    leave-to-class="transform opacity-0 -translate-y-2"
-                  >
-                    <div v-show="showCompanyDetails" class="bg-gray-50 p-4 rounded-b-lg border-t border-gray-200 mt-0">
+                  
+                  <TransitionExpand>
+                    <div v-if="uiState.showCompanyDetails" class="bg-gray-50 p-4 rounded-b-lg shadow-sm mt-0">
                       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <p class="text-xs text-gray-500 mb-1">ИНН</p>
@@ -295,7 +322,7 @@ const startEditCompany = () => {
                         </div>
                       </div>
                     </div>
-                  </transition>
+                  </TransitionExpand>
                 </div>
               </div>
 
@@ -306,7 +333,7 @@ const startEditCompany = () => {
                     type="email"
                     id="email"
                     v-model="profile.email"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    class="w-full px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition"
                   />
                 </div>
 
@@ -316,7 +343,7 @@ const startEditCompany = () => {
                     type="tel"
                     id="phone"
                     v-model="profile.phone"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    class="w-full px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition"
                   />
                 </div>
               </div>
@@ -324,76 +351,59 @@ const startEditCompany = () => {
               <div class="pt-4 flex justify-end">
                 <button
                   type="submit"
-                  class="inline-flex justify-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition"
+                  :disabled="uiState.isLoading"
+                  class="inline-flex justify-center py-2.5 px-6 shadow-sm text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  Сохранить изменения
+                  <span v-if="uiState.isLoading" class="flex items-center">
+                    <Icon name="mdi:loading" class="animate-spin mr-2" />
+                    Сохранение...
+                  </span>
+                  <span v-else>Сохранить изменения</span>
                 </button>
               </div>
             </form>
-          </div>
-
-          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <div class="border-t pt-4">
-              <h3 class="font-medium mb-4 text-gray-900">Безопасность</h3>
-              <div class="space-y-4">
-                <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <p class="text-sm font-medium text-gray-900 mb-1">Desktop Windows 10</p>
-                  <p class="text-xs text-gray-600">123 - Текущий сеанс</p>
-                </div>
-
-                <div class="flex flex-wrap gap-4 pt-2">
-                  <button
-                    @click="openModal"
-                    class="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-2 transition"
-                  >
-                    <Icon name="tabler:key" class="w-5 h-5" />
-                    Сменить пароль
-                  </button>
-
-                  <button
-                    class="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-2 transition"
-                  >
-                    <Icon name="tabler:arrow-down-left" class="w-5 h-5" />
-                    Выйти
-                  </button>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
     </div>
 
     <Modal
-      :isOpen="isModalOpen"
-      @close="closeModal"
-      @confirm="handlePasswordChange"
+      :isOpen="uiState.isModalOpen"
+      @close="uiState.isModalOpen = false"
+      @confirm="changePassword"
       title="Смена пароля"
       confirmText="Сохранить новый пароль"
+      :isLoading="uiState.isLoading"
     >
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Текущий пароль</label>
           <input
             type="password"
-            v-model="passwordForm.currentPassword"
-            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-            :class="{ 'border-red-500 focus:ring-red-200': passwordErrors.currentPassword }"
+            v-model="forms.password.current"
+            :class="{
+              'shadow-red-100 focus:ring-red-200': forms.password.errors.current,
+              'shadow-sm focus:ring-primary': !forms.password.errors.current
+            }"
+            class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-opacity-50 transition shadow-sm"
           />
-          <p v-if="passwordErrors.currentPassword" class="mt-1 text-sm text-red-600">
-            {{ passwordErrors.currentPassword }}
+          <p v-if="forms.password.errors.current" class="mt-1 text-sm text-red-600">
+            {{ forms.password.errors.current }}
           </p>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Новый пароль</label>
           <input
             type="password"
-            v-model="passwordForm.newPassword"
-            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-            :class="{ 'border-red-500 focus:ring-red-200': passwordErrors.newPassword }"
+            v-model="forms.password.new"
+            :class="{
+              'shadow-red-100 focus:ring-red-200': forms.password.errors.new,
+              'shadow-sm focus:ring-primary': !forms.password.errors.new
+            }"
+            class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-opacity-50 transition shadow-sm"
           />
-          <p v-if="passwordErrors.newPassword" class="mt-1 text-sm text-red-600">
-            {{ passwordErrors.newPassword }}
+          <p v-if="forms.password.errors.new" class="mt-1 text-sm text-red-600">
+            {{ forms.password.errors.new }}
           </p>
           <p class="mt-1 text-xs text-gray-500">Пароль должен содержать минимум 8 символов</p>
         </div>
@@ -401,48 +411,66 @@ const startEditCompany = () => {
           <label class="block text-sm font-medium text-gray-700 mb-1">Подтвердите новый пароль</label>
           <input
             type="password"
-            v-model="passwordForm.confirmPassword"
-            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-            :class="{ 'border-red-500 focus:ring-red-200': passwordErrors.confirmPassword }"
+            v-model="forms.password.confirm"
+            :class="{
+              'shadow-red-100 focus:ring-red-200': forms.password.errors.confirm,
+              'shadow-sm focus:ring-primary': !forms.password.errors.confirm
+            }"
+            class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-opacity-50 transition shadow-sm"
           />
-          <p v-if="passwordErrors.confirmPassword" class="mt-1 text-sm text-red-600">
-            {{ passwordErrors.confirmPassword }}
+          <p v-if="forms.password.errors.confirm" class="mt-1 text-sm text-red-600">
+            {{ forms.password.errors.confirm }}
           </p>
         </div>
       </div>
     </Modal>
 
     <Modal
-      :isOpen="isCompanyModalOpen"
-      @close="closeCompanyModal"
-      @confirm="handleCompanyConfirm"
-      :title="isEditingCompany ? 'Редактирование данных компании' : 'Добавление данных компании'"
+      :isOpen="uiState.isCompanyModalOpen"
+      @close="uiState.isCompanyModalOpen = false"
+      @confirm="saveCompany"
+      :title="uiState.isEditingCompany ? 'Редактирование данных компании' : 'Добавление данных компании'"
       large
+      :isLoading="uiState.isLoading"
     >
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Название компании</label>
           <input
             type="text"
-            v-model="companyForm.name"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            v-model="forms.company.name"
+            :class="{
+              'shadow-red-100 focus:ring-red-200': forms.company.errors.name,
+              'shadow-sm focus:ring-primary': !forms.company.errors.name
+            }"
+            class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-opacity-50 transition shadow-sm"
           />
+          <p v-if="forms.company.errors.name" class="mt-1 text-sm text-red-600">
+            {{ forms.company.errors.name }}
+          </p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">ИНН</label>
             <input
               type="text"
-              v-model="companyForm.inn"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              v-model="forms.company.inn"
+              :class="{
+                'shadow-red-100 focus:ring-red-200': forms.company.errors.inn,
+                'shadow-sm focus:ring-primary': !forms.company.errors.inn
+              }"
+              class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-opacity-50 transition shadow-sm"
             />
+            <p v-if="forms.company.errors.inn" class="mt-1 text-sm text-red-600">
+              {{ forms.company.errors.inn }}
+            </p>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">КПП</label>
             <input
               type="text"
-              v-model="companyForm.kpp"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              v-model="forms.company.kpp"
+              class="w-full px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition"
             />
           </div>
         </div>
@@ -450,16 +478,16 @@ const startEditCompany = () => {
           <label class="block text-sm font-medium text-gray-700 mb-1">Юридический адрес</label>
           <input
             type="text"
-            v-model="companyForm.address"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            v-model="forms.company.address"
+            class="w-full px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition"
           />
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Директор</label>
           <input
             type="text"
-            v-model="companyForm.director"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            v-model="forms.company.director"
+            class="w-full px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition"
           />
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -467,16 +495,16 @@ const startEditCompany = () => {
             <label class="block text-sm font-medium text-gray-700 mb-1">Контактный телефон</label>
             <input
               type="tel"
-              v-model="companyForm.phone"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              v-model="forms.company.phone"
+              class="w-full px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition"
             />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Email компании</label>
             <input
               type="email"
-              v-model="companyForm.email"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              v-model="forms.company.email"
+              class="w-full px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition"
             />
           </div>
         </div>
@@ -484,3 +512,22 @@ const startEditCompany = () => {
     </Modal>
   </div>
 </template>
+<style>
+.transition-expand-enter-active,
+.transition-expand-leave-active {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.transition-expand-enter-from,
+.transition-expand-leave-to {
+  max-height: 0;
+  opacity: 0;
+}
+
+.transition-expand-enter-to,
+.transition-expand-leave-from {
+  max-height: 500px;
+  opacity: 1;
+}
+</style>

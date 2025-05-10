@@ -12,11 +12,15 @@ class UserProfile extends Model
     protected $fillable = [
         'user_id',
         'last_name',
+        'first_name',
         'patronymic',
         'company_name',
         'inn',
         'kpp',
-        'legal_address'
+        'legal_address',
+        'director',
+        'company_phone',
+        'company_email'
     ];
 
     public function user()
