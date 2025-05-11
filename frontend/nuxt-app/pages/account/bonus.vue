@@ -1,18 +1,9 @@
-<!-- pages/account/bon.vue -->
 <script setup>
 import { ref } from 'vue'
 import SidebarMenu from '~/components/Account/SidebarMenu.vue'
 import bonuses from '~/components/Account/bonuses.vue'
 
-useHead({
-  title: 'Бонусная программа | Абсолют техно',
-  meta: [
-    {
-      name: 'description',
-      content: 'Ваша бонусная карта и история операций в программе лояльности Абсолют техно.'
-    }
-  ]
-})
+
 
 const transactions = ref([
   { id: 1, date: '15.03.2023', operation: 'Начисление бонусов', amount: 150, status: 'Завершено' },
@@ -29,7 +20,7 @@ const transactions = ref([
       <div class="flex flex-col md:flex-row gap-6">
         <SidebarMenu />
         <div class="flex-1 space-y-6">
-          <bonuses />
+
           
           <div class="bg-white shadow rounded-lg p-6">
             <h2 class="text-lg font-medium mb-4">История операций</h2>
