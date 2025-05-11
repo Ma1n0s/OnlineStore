@@ -5,7 +5,7 @@ import SidebarMenu from '~/components/Account/SidebarMenu.vue'
 const uiState = reactive({
   isEditing: false,
   isLoading: false,
-  error: null
+  error: null,
 })
 
 const company = ref({
@@ -15,7 +15,7 @@ const company = ref({
   address: 'г. Москва, ул. Ленина, д. 1',
   director: 'Иванов Иван Иванович',
   phone: '+7 (999) 123-45-67',
-  email: 'info@technoprom.ru'
+  email: 'info@technoprom.ru',
 })
 
 const form = reactive({
@@ -26,7 +26,7 @@ const form = reactive({
   director: '',
   phone: '',
   email: '',
-  errors: {}
+  errors: {},
 })
 
 const startEditing = () => {
@@ -68,7 +68,7 @@ const saveCompany = async () => {
     Object.assign(company.value, form)
     uiState.isEditing = false
   } catch (error) {
-    uiState.error = 'Ошибка при сохранении'
+    uiState.error = 'Ошибка при сохранении' + error.message
   } finally {
     uiState.isLoading = false
   }
@@ -77,7 +77,7 @@ const saveCompany = async () => {
 
 <template>
   <div class="min-h-screen bg-slate-100 py-8">
-    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-screen-2xl mx-auto px-1 sm:px-4 lg:px-8">
       <div class="flex flex-col md:flex-row gap-6">
         <SidebarMenu />
 

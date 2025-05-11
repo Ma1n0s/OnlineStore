@@ -1,16 +1,15 @@
 <template>
   <div class="w-full md:w-64 flex-shrink-0 h-full">
     <div class="bg-white p-5 rounded-xl shadow h-full flex flex-col">
-      <div class="flex items-center gap-3 mb-6 p-2 bg-gray-50 rounded-lg shadow-sm">
+      <nav class="space-y-2 flex-1">
         <NuxtLink
           to="/account/personal"
           class="flex items-center gap-3 p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors text-sm hover:shadow-sm"
         >
-          <Icon name="tabler:user-circle" class="w-6 h-6" />
-            <span class="font-medium text-gray-700">Мой кабинет</span>
+          <Icon name="tabler:user" class="w-6 h-6" />
+          Личные данные
         </NuxtLink>
-      </div>
-      <nav class="space-y-2 flex-1">
+
         <NuxtLink
           to="/account/cart-checkout"
           class="flex items-center gap-3 p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors text-sm hover:shadow-sm"
@@ -28,14 +27,6 @@
         </NuxtLink>
 
         <NuxtLink
-          to="/account/personal"
-          class="flex items-center gap-3 p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors text-sm hover:shadow-sm"
-        >
-          <Icon name="tabler:user" class="w-6 h-6" />
-          Личные данные
-        </NuxtLink>
-
-        <NuxtLink
           to="/account/companies"
           class="flex items-center gap-3 p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors text-sm hover:shadow-sm"
         >
@@ -48,7 +39,7 @@
           class="flex items-center gap-3 p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors text-sm hover:shadow-sm"
         >
           <Icon name="tabler:clipboard-list" class="w-6 h-6" />
-          История покупок
+          История заказов
         </NuxtLink>
 
         <NuxtLink

@@ -184,7 +184,17 @@ const decreaseRentalDays = item => {
             v-model="item.selected"
             class="h-4 w-4 sm:h-5 sm:w-5 text-primary rounded focus:ring-primary-active border-gray-300 mt-1 sm:mt-0"
           />
-          <NuxtImg :src="item.image" :alt="item.name" class="w-16 h-16 sm:w-20 sm:h-20 object-contain rounded-lg" />
+          <NuxtImg
+            :src="item.image"
+            :alt="item.name"
+            width="80"
+            height="80"
+            format="webp"
+            loading="lazy"
+            decoding="async"
+            class="w-16 h-16 sm:w-20 sm:h-20 object-contain rounded-lg"
+            sizes="(max-width: 640px) 64px, 80px"
+          />
           <div class="flex-1 min-w-0">
             <h3 class="text-sm sm:text-base font-medium text-gray-900 truncate">{{ item.name }}</h3>
             <p class="text-xs sm:text-sm text-gray-500">Код: {{ item.code }}</p>

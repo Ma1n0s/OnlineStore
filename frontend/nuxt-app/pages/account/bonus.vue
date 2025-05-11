@@ -1,9 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import SidebarMenu from '~/components/Account/SidebarMenu.vue'
-import bonuses from '~/components/Account/bonuses.vue'
-
-
+// import bonuses from '~/components/Account/bonuses.vue'
 
 const transactions = ref([
   { id: 1, date: '15.03.2023', operation: 'Начисление бонусов', amount: 150, status: 'Завершено' },
@@ -15,29 +13,39 @@ const transactions = ref([
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-100 py-8 ">
-    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="min-h-screen bg-slate-100 py-8">
+    <div class="max-w-screen-2xl mx-auto px-1 sm:px-4 lg:px-8">
       <div class="flex flex-col md:flex-row gap-6">
         <SidebarMenu />
         <div class="flex-1 space-y-6">
-
-          
           <div class="bg-white shadow rounded-lg p-6">
             <h2 class="text-lg font-medium mb-4">История операций</h2>
             <div class="overflow-x-auto">
               <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                   <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th
+                      scope="col"
+                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
                       Дата
                     </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th
+                      scope="col"
+                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
                       Операция
                     </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th
+                      scope="col"
+                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
                       Сумма
                     </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th
+                      scope="col"
+                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
                       Статус
                     </th>
                   </tr>
@@ -45,7 +53,9 @@ const transactions = ref([
                 <tbody class="bg-white divide-y divide-gray-200">
                   <tr v-for="transaction in transactions" :key="transaction.id">
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ transaction.date }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ transaction.operation }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {{ transaction.operation }}
+                    </td>
                     <td
                       class="px-6 py-4 whitespace-nowrap text-sm"
                       :class="transaction.amount > 0 ? 'text-green-600' : 'text-red-600'"
@@ -56,7 +66,9 @@ const transactions = ref([
                       <span
                         class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
                         :class="
-                          transaction.status === 'Завершено' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                          transaction.status === 'Завершено'
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-yellow-100 text-yellow-800'
                         "
                       >
                         {{ transaction.status }}

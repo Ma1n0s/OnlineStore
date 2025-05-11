@@ -24,6 +24,7 @@ export const useUserStore = defineStore('user', () => {
       if (data.value) {
         user.value = data.value
         isAuth.value = true
+        console.log('User data set:', user.value)
       }
     } catch (error) {
       console.error('Error fetching user:', error)

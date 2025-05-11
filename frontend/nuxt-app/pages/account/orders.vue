@@ -1,5 +1,4 @@
 <script setup>
-import { reactive } from 'vue'
 import SidebarMenu from '~/components/Account/SidebarMenu.vue'
 
 const orders = [
@@ -19,7 +18,7 @@ const orders = [
 
 <template>
   <div class="min-h-screen bg-slate-100 py-8">
-    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-screen-2xl mx-auto px-1 sm:px-4 lg:px-8">
       <div class="flex flex-col lg:flex-row gap-6">
         <SidebarMenu />
 
