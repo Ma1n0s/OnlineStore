@@ -48,7 +48,7 @@
           class="flex items-center gap-3 p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors text-sm hover:shadow-sm"
         >
           <Icon name="tabler:clipboard-list" class="w-6 h-6" />
-          История покупок
+          История заказов
         </NuxtLink>
 
         <NuxtLink
