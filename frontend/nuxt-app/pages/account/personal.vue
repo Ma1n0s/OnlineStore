@@ -3,34 +3,31 @@ import { ref, reactive, computed, watch } from 'vue'
 import SidebarMenu from '~/components/Account/SidebarMenu.vue'
 import TextInput from '~/components/ui/Inputs/TextInput.vue'
 
+const user = ref({
+  firstname: '',
+  lastname: '',
+  middlename: '',
+  email: '',
+  phone: '',
+  company: '',
+  inn: '',
+  kpp: '',
+  address: '',
+  director: '',
+  company_phone: '',
+  company_email: '',
+  created_at: ''
+})
 
+const loading = ref(false)
+const error = ref(null)
+const successMessage = ref(null)
 
 const uiState = reactive({
   isModalOpen: false,
   isCompanyModalOpen: false,
   isEditingCompany: false,
-  showCompanyDetails: false,
-  isLoading: false,
-  error: null
-})
-
-const profile = reactive({
-  lastname: 'Иванов',
-  firstname: 'Иван',
-  middlename: 'Иванович',
-  company: 'ООО "ТехноПром"',
-  companyDetails: {
-    name: 'ООО "ТехноПром"',
-    inn: '1234567890',
-    kpp: '987654321',
-    address: 'г. Москва, ул. Ленина, д. 1',
-    director: 'Иванов Иван Иванович',
-    phone: '+7 (999) 123-45-67',
-    email: 'info@technoprom.ru',
-  },
-  email: 'ivanov@example.com',
-  phone: '+7 (999) 123-45-67',
-  registrationDate: '2023-07-13',
+  showCompanyDetails: false
 })
 
 const forms = reactive({
@@ -39,36 +36,100 @@ const forms = reactive({
     new: '',
     confirm: '',
     errors: {}
-  },
-  company: {
-    name: '',
-    inn: '',
-    kpp: '',
-    address: '',
-    director: '',
-    phone: '',
-    email: '',
-    errors: {}
   }
 })
 
-const fullName = computed(() => `${profile.lastname} ${profile.firstname} ${profile.middlename}`)
-const formattedRegistrationDate = computed(() => new Date(profile.registrationDate).toLocaleDateString('ru-RU'))
-const hasCompanyDetails = computed(() => Boolean(profile.companyDetails?.inn))
-
-watch(
-  () => forms.password.new,
-  (newVal) => {
-    if (newVal && forms.password.confirm && newVal !== forms.password.confirm) {
-      forms.password.errors.confirm = 'Пароли не совпадают'
-    } else {
-      delete forms.password.errors.confirm
-    }
+// Получаем данные пользователя
+const fetchUser = async () => {
+  try {
+    loading.value = true
+    const { data } = await useFetch('/api/profile', {
+      headers: useRequestHeaders(['cookie'])
+    })
+    user.value = data.value.user
+  } catch (err) {
+    error.value = err.data?.message || 'Ошибка загрузки данных'
+  } finally {
+    loading.value = false
   }
-)
+}
 
-const toggleCompanyDetails = () => {
-  uiState.showCompanyDetails = !uiState.showCompanyDetails
+// Обновление профиля
+const updateProfile = async () => {
+  try {
+    loading.value = true
+    await $fetch('/api/profile', {
+      method: 'PUT',
+      body: {
+        firstname: user.value.firstname,
+        lastname: user.value.lastname,
+        middlename: user.value.middlename,
+        email: user.value.email,
+        phone: user.value.phone
+      },
+      headers: useRequestHeaders(['cookie'])
+    })
+    successMessage.value = 'Данные успешно сохранены'
+    error.value = null
+    setTimeout(() => successMessage.value = null, 3000)
+  } catch (err) {
+    error.value = err.data?.message || 'Ошибка обновления данных'
+  } finally {
+    loading.value = false
+  }
+}
+
+// Обновление компании
+const updateCompany = async () => {
+  try {
+    loading.value = true
+    await $fetch('/api/profile/company', {
+      method: 'PUT',
+      body: {
+        company: user.value.company,
+        inn: user.value.inn,
+        kpp: user.value.kpp,
+        address: user.value.address,
+        director: user.value.director,
+        company_phone: user.value.company_phone,
+        company_email: user.value.company_email
+      },
+      headers: useRequestHeaders(['cookie'])
+    })
+    successMessage.value = 'Данные компании успешно сохранены'
+    error.value = null
+    uiState.isCompanyModalOpen = false
+    setTimeout(() => successMessage.value = null, 3000)
+  } catch (err) {
+    error.value = err.data?.message || 'Ошибка обновления данных компании'
+  } finally {
+    loading.value = false
+  }
+}
+
+// Обновление пароля
+const updatePassword = async () => {
+  try {
+    loading.value = true
+    await $fetch('/api/profile/password', {
+      method: 'PUT',
+      body: {
+        current_password: forms.password.current,
+        password: forms.password.new,
+        password_confirmation: forms.password.confirm
+      },
+      headers: useRequestHeaders(['cookie'])
+    })
+    successMessage.value = 'Пароль успешно изменен'
+    error.value = null
+    uiState.isModalOpen = false
+    resetPasswordForm()
+    setTimeout(() => successMessage.value = null, 3000)
+  } catch (err) {
+    error.value = err.data?.message || 'Ошибка смены пароля'
+  } finally {
+    loading.value = false
+  }
 }
 
 const resetPasswordForm = () => {
@@ -112,77 +173,25 @@ const validatePassword = () => {
 
 const changePassword = async () => {
   if (!validatePassword()) return
-
-  uiState.isLoading = true
-  try {
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    uiState.isModalOpen = false
-  } catch (error) {
-    uiState.error = error.message
-  } finally {
-    uiState.isLoading = false
-  }
+  await updatePassword()
 }
 
 const prepareCompanyForm = () => {
-  if (profile.companyDetails) {
-    Object.assign(forms.company, profile.companyDetails)
-  } else {
-    forms.company.name = profile.company
-  }
+  uiState.isEditingCompany = true
 }
 
-const openCompanyModal = (editMode = false) => {
-  uiState.isEditingCompany = editMode
+const openCompanyModal = () => {
   prepareCompanyForm()
   uiState.isCompanyModalOpen = true
 }
 
-const validateCompany = () => {
-  let isValid = true
-  forms.company.errors = {}
+const fullName = computed(() => `${user.value.lastname} ${user.value.firstname} ${user.value.middlename}`)
+const formattedRegistrationDate = computed(() => new Date(user.value.created_at).toLocaleDateString('ru-RU'))
+const hasCompanyDetails = computed(() => Boolean(user.value.inn))
 
-  if (!forms.company.name.trim()) {
-    forms.company.errors.name = 'Введите название компании'
-    isValid = false
-  }
-
-  if (!forms.company.inn.trim()) {
-    forms.company.errors.inn = 'Введите ИНН компании'
-    isValid = false
-  }
-
-  return isValid
-}
-
-const saveCompany = async () => {
-  if (!validateCompany()) return
-
-  uiState.isLoading = true
-  try {
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    profile.company = forms.company.name
-    profile.companyDetails = { ...forms.company }
-    
-    uiState.isCompanyModalOpen = false
-  } catch (error) {
-    uiState.error = error.message
-  } finally {
-    uiState.isLoading = false
-  }
-}
-
-const saveProfile = async () => {
-  uiState.isLoading = true
-  try {
-    await new Promise(resolve => setTimeout(resolve, 1000))
-  } catch (error) {
-    uiState.error = error.message
-  } finally {
-    uiState.isLoading = false
-  }
-}
+onMounted(() => {
+  fetchUser()
+})
 </script>
 
 <template>
@@ -233,7 +242,7 @@ const saveProfile = async () => {
                   <TextInput
                     type="text"
                     id="firstname"
-                    v-model="profile.firstname"
+                    v-model="user.firstname"
                     class=""
                   />
                 </div>
@@ -242,7 +251,7 @@ const saveProfile = async () => {
                   <input
                     type="text"
                     id="lastname"
-                    v-model="profile.lastname"
+                    v-model="user.lastname"
                     class="w-full px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition"
                   />
                 </div>
@@ -254,7 +263,7 @@ const saveProfile = async () => {
                 <input
                   type="text"
                   id="middlename"
-                  v-model="profile.middlename"
+                  v-model="user.middlename"
                   class="w-full px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition"
                 />
               </div>
@@ -266,7 +275,7 @@ const saveProfile = async () => {
                     <input
                       type="text"
                       id="company"
-                      v-model="profile.company"
+                      v-model="user.company"
                       class="w-full px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition"
                     />
                   </div>
@@ -298,27 +307,27 @@ const saveProfile = async () => {
                       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <p class="text-xs text-gray-500 mb-1">ИНН</p>
-                          <p class="text-sm font-medium text-gray-900">{{ profile.companyDetails.inn }}</p>
+                          <p class="text-sm font-medium text-gray-900">{{ user.companyDetails.inn }}</p>
                         </div>
                         <div>
                           <p class="text-xs text-gray-500 mb-1">КПП</p>
-                          <p class="text-sm font-medium text-gray-900">{{ profile.companyDetails.kpp }}</p>
+                          <p class="text-sm font-medium text-gray-900">{{ user.companyDetails.kpp }}</p>
                         </div>
                         <div class="md:col-span-2">
                           <p class="text-xs text-gray-500 mb-1">Юридический адрес</p>
-                          <p class="text-sm font-medium text-gray-900">{{ profile.companyDetails.address }}</p>
+                          <p class="text-sm font-medium text-gray-900">{{ user.companyDetails.address }}</p>
                         </div>
                         <div>
                           <p class="text-xs text-gray-500 mb-1">Директор</p>
-                          <p class="text-sm font-medium text-gray-900">{{ profile.companyDetails.director }}</p>
+                          <p class="text-sm font-medium text-gray-900">{{ user.companyDetails.director }}</p>
                         </div>
                         <div>
                           <p class="text-xs text-gray-500 mb-1">Контактный телефон</p>
-                          <p class="text-sm font-medium text-gray-900">{{ profile.companyDetails.phone }}</p>
+                          <p class="text-sm font-medium text-gray-900">{{ user.companyDetails.phone }}</p>
                         </div>
                         <div class="md:col-span-2">
                           <p class="text-xs text-gray-500 mb-1">Email компании</p>
-                          <p class="text-sm font-medium text-gray-900">{{ profile.companyDetails.email }}</p>
+                          <p class="text-sm font-medium text-gray-900">{{ user.companyDetails.email }}</p>
                         </div>
                       </div>
                     </div>
@@ -332,7 +341,7 @@ const saveProfile = async () => {
                   <input
                     type="email"
                     id="email"
-                    v-model="profile.email"
+                    v-model="user.email"
                     class="w-full px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition"
                   />
                 </div>
@@ -342,7 +351,7 @@ const saveProfile = async () => {
                   <input
                     type="tel"
                     id="phone"
-                    v-model="profile.phone"
+                    v-model="user.phone"
                     class="w-full px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition"
                   />
                 </div>
