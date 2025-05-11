@@ -1,9 +1,12 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue';
-import SidebarMenu from '~/components/Account/SidebarMenu.vue'
-import TextInput from '~/components/ui/Inputs/TextInput.vue'
+import { useUserStore } from '~/stores/user';
+import SidebarMenu from '~/components/Account/SidebarMenu.vue';
+import TextInput from '~/components/ui/Inputs/TextInput.vue';
+import Modal from '~/components/Modal/Modal.vue';
 
-const authStore = useAuthStore();
+
+const userStore = useUserStore();
 const uiState = reactive({
   isModalOpen: false,
   isCompanyModalOpen: false,
@@ -11,17 +14,6 @@ const uiState = reactive({
   showCompanyDetails: false,
   isLoading: false,
   error: null,
-});
-
-const profile = reactive({
-  lastname: '',
-  firstname: '',
-  middlename: '',
-  company: '',
-  companyDetails: null,
-  email: '',
-  phone: '',
-  registrationDate: '',
 });
 
 const forms = reactive({
@@ -43,21 +35,100 @@ const forms = reactive({
   },
 });
 
-const fullName = computed(() => `${profile.lastname} ${profile.firstname} ${profile.middlename}`);
-const formattedRegistrationDate = computed(() => new Date(profile.registrationDate).toLocaleDateString('ru-RU'));
-const hasCompanyDetails = computed(() => Boolean(profile.companyDetails?.inn));
+const profile = computed(() => ({
+  lastname: userStore.user?.last_name || '',
+  firstname: userStore.user?.first_name || '',
+  middlename: userStore.user?.patronymic || '',
+  company: userStore.user?.company_name || '',
+  companyDetails: userStore.user ? {
+    name: userStore.user.company_name,
+    inn: userStore.user.inn,
+    kpp: userStore.user.kpp,
+    address: userStore.user.legal_address,
+    director: userStore.user.director,
+    phone: userStore.user.company_phone,
+    email: userStore.user.company_email,
+  } : null,
+  email: userStore.user?.email || '',
+  phone: userStore.user?.phone || '',
+  registrationDate: userStore.user?.created_at || '',
+}));
+
+const fullName = computed(() => `${profile.value.lastname} ${profile.value.firstname} ${profile.value.middlename}`);
+const formattedRegistrationDate = computed(() => new Date(profile.value.registrationDate).toLocaleDateString('ru-RU'));
+const hasCompanyDetails = computed(() => Boolean(profile.value.companyDetails?.inn));
+
+const validateCompany = () => {
+  let isValid = true;
+  forms.company.errors = {};
+
+  if (!forms.company.name.trim()) {
+    forms.company.errors.name = 'Введите название компании';
+    isValid = false;
+  }
+
+  if (!forms.company.inn.trim()) {
+    forms.company.errors.inn = 'Введите ИНН компании';
+    isValid = false;
+  }
+
+  return isValid;
+};
+
+const validatePassword = () => {
+  let isValid = true;
+  forms.password.errors = {};
+
+  if (!forms.password.current) {
+    forms.password.errors.current = 'Введите текущий пароль';
+    isValid = false;
+  }
+
+  if (!forms.password.new) {
+    forms.password.errors.new = 'Введите новый пароль';
+    isValid = false;
+  } else if (forms.password.new.length < 8) {
+    forms.password.errors.new = 'Пароль должен содержать минимум 8 символов';
+    isValid = false;
+  }
+
+  if (forms.password.new !== forms.password.confirm) {
+    forms.password.errors.confirm = 'Пароли не совпадают';
+    isValid = false;
+  }
+
+  return isValid;
+};
+
+const resetPasswordForm = () => {
+  forms.password = {
+    current: '',
+    new: '',
+    confirm: '',
+    errors: {},
+  };
+};
+
+const openCompanyModal = (editMode = false) => {
+  uiState.isEditingCompany = editMode;
+  if (profile.value.companyDetails) {
+    Object.assign(forms.company, profile.value.companyDetails);
+  } else {
+    forms.company.name = profile.value.company;
+  }
+  uiState.isCompanyModalOpen = true;
+};
+
+const toggleCompanyDetails = () => {
+  uiState.showCompanyDetails = !uiState.showCompanyDetails;
+};
 
 const loadProfile = async () => {
   uiState.isLoading = true;
   try {
-    const response = await $fetch('/api/profile', {
-      headers: {
-        Authorization: `Bearer ${authStore.token}`,
-      },
-    });
-    Object.assign(profile, response.profile);
+    await userStore.fetchUser();
   } catch (error) {
-    uiState.error = error.message;
+    uiState.error = error.data?.message || error.message;
   } finally {
     uiState.isLoading = false;
   }
@@ -68,20 +139,17 @@ const saveProfile = async () => {
   try {
     await $fetch('/api/profile', {
       method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${authStore.token}`,
-      },
       body: {
-        lastname: profile.lastname,
-        firstname: profile.firstname,
-        middlename: profile.middlename,
-        email: profile.email,
-        phone: profile.phone,
+        lastname: profile.value.lastname,
+        firstname: profile.value.firstname,
+        middlename: profile.value.middlename,
+        email: profile.value.email,
+        phone: profile.value.phone,
       },
     });
     await loadProfile();
   } catch (error) {
-    uiState.error = error.message;
+    uiState.error = error.data?.message || error.message;
   } finally {
     uiState.isLoading = false;
   }
@@ -93,15 +161,12 @@ const saveCompany = async () => {
   try {
     await $fetch('/api/profile/company', {
       method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${authStore.token}`,
-      },
       body: forms.company,
     });
     await loadProfile();
     uiState.isCompanyModalOpen = false;
   } catch (error) {
-    uiState.error = error.message;
+    uiState.error = error.data?.message || error.message;
   } finally {
     uiState.isLoading = false;
   }
@@ -113,9 +178,6 @@ const changePassword = async () => {
   try {
     await $fetch('/api/profile/password', {
       method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${authStore.token}`,
-      },
       body: {
         current_password: forms.password.current,
         new_password: forms.password.new,
@@ -124,7 +186,7 @@ const changePassword = async () => {
     uiState.isModalOpen = false;
     resetPasswordForm();
   } catch (error) {
-    uiState.error = error.message;
+    uiState.error = error.data?.message || error.message;
   } finally {
     uiState.isLoading = false;
   }
@@ -180,11 +242,11 @@ onMounted(() => {
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label for="firstname" class="block text-sm font-medium text-gray-700 mb-1">Имя</label>
-                  <TextInput
+                  <input
                     type="text"
                     id="firstname"
                     v-model="profile.firstname"
-                    class=""
+                    class="w-full px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition"
                   />
                 </div>
                 <div>
@@ -196,7 +258,6 @@ onMounted(() => {
                     class="w-full px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition"
                   />
                 </div>
-              
               </div>
 
               <div>
@@ -292,6 +353,8 @@ onMounted(() => {
                   <input
                     type="tel"
                     id="phone"
+                    maxlength="18"
+                    placeholder="+7 (___) ___-__-__"
                     v-model="profile.phone"
                     class="w-full px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition"
                   />
@@ -317,7 +380,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <Modal
+        <Modal
       :isOpen="uiState.isModalOpen"
       @close="uiState.isModalOpen = false"
       @confirm="changePassword"
@@ -462,6 +525,7 @@ onMounted(() => {
     </Modal>
   </div>
 </template>
+
 <style>
 .transition-expand-enter-active,
 .transition-expand-leave-active {
