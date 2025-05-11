@@ -43,7 +43,7 @@ const state = reactive({
   },
   ui: {
     showFilters: false,
-    isGrid: true,
+    isGrid: false,
     visibleItems: 8,
     isLoading: false,
   },
@@ -203,16 +203,6 @@ const breadcrumbs = [
       <!-- Боковая панель фильтров -->
       <div class="w-full lg:w-1/4">
         <div class="bg-white rounded-lg shadow-sm p-5 sticky top-4">
-          <div class="mb-6">
-            <div class="flex items-center text-gray-700 mb-2">
-              <Icon name="material-symbols:arrow-left-rounded" class="h-4 w-4 mr-2" />
-              <span>Инструмент</span>
-            </div>
-            <div class="bg-gray-50 p-3 rounded-lg">
-              <span class="font-medium">Шуруповерты</span>
-            </div>
-          </div>
-
           <!-- Фильтр по цене -->
           <div class="mb-6">
             <div class="flex justify-between items-center mb-3">
