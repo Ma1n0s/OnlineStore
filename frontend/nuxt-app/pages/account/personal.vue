@@ -200,7 +200,7 @@ onMounted(() => {
 
 <template>
   <div class="min-h-screen bg-slate-100 py-8">
-    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-screen-2xl mx-auto px-1 sm:px-2 lg:px-8">
       <div v-if="uiState.error" class="mb-6 p-4 bg-red-50 text-red-700 rounded-lg shadow">
         {{ uiState.error }}
         <button @click="uiState.error = null" class="float-right font-bold">×</button>

@@ -46,7 +46,7 @@ console.log(category.value, 'category')
 
 <template>
   <div class="bg-white w-full ~text-sm/xs ~pb-4/8">
-    <div class="mx-auto w-full max-w-screen-2xl lg:px-8 space-y-8 py-8">
+    <div class="max-w-screen-2xl mx-auto px-1 sm:px-2 lg:px-8">
       <div>
         <BigSwiper :slides="slides.data" />
       </div>
