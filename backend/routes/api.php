@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\ProfileController;
 use App\Mail\VerificationCodeMail;
 
 /*
@@ -38,6 +39,13 @@ Route::prefix('cart')->group(function () {
     Route::post('/', [CartController::class, 'store']);
     Route::delete('/{cartItem}', [CartController::class, 'destroy']);
     Route::patch('/{cartItem}', [CartController::class, 'update']);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'show']);
+    Route::put('/profile', [ProfileController::class, 'update']);
+    Route::put('/profile/company', [ProfileController::class, 'updateCompany']);
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword']);
 });
 
 // Authentication routes with CSRF protection disabled
