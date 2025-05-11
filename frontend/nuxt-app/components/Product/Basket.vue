@@ -146,7 +146,7 @@ const addToCart = async (options = {}) => {
       </div>
     </transition>
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex-1 flex flex-col">
+    <div class="bg-white rounded-xl shadow-md  border-gray-100 p-6 flex-1 flex flex-col">
       <div class="flex-1">
         <div>
           <h2 class="text-xl font-bold text-second mb-2">Цена товара</h2>
