@@ -10,9 +10,64 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Orchid\Attachment\Models\Attachment;
 use Orchid\Attachment\File;
+use Illuminate\Support\Facades\Cache;
 
 class CategoryController extends Controller
 {
+
+
+    function getRootParent(Category $category)
+    {
+        $current = $category;
+        
+        while ($current->parent) {
+            $current = $current->parent;
+        }
+        
+        return $current;
+    }
+
+    function hasProducts(Category $category): bool
+    {
+        return Cache::remember("category_{$category->id}_has_products", 3600, function() use ($category) {
+            return $category->products()->exists();
+        });
+    }
+
+    function getCategoryPath(Category $category)
+    {
+        $slugs = [];
+        
+        // Начинаем с текущей категории
+        $current = $category;
+        
+        // Поднимаемся вверх по иерархии
+        while ($current) {
+            $slugs[] = $current->slug;
+            $current = $current->parent;
+        }
+        
+        // Разворачиваем массив, чтобы получить правильный порядок (от корня к текущей)
+        $slugs = array_reverse($slugs);
+        
+        // Соединяем через /
+        return implode('/', $slugs);
+    }
+
+    function getCategoryParents(Category $category)
+    {
+        $parents = collect();
+        
+        $currentCategory = $category;
+        
+        while ($currentCategory) {
+            $parents->push($currentCategory);
+            $currentCategory = $currentCategory->parent;
+        }
+        
+        return $parents;
+    }
+
     /**
      * Получить все категории с их дочерними категориями
      * 

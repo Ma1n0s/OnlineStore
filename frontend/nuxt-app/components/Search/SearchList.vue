@@ -1,64 +1,42 @@
 <template>
   <div class="box-border absolute mt-1 w-full bg-white shadow-2xl p-1 rounded-xl z-20">
-    <div
-      v-for="(item, index) in data.categories"
-      :key="index"
-      class="flex items-center p-1 py-1 cursor-pointer first:rounded-t-xl hover:bg-red-100"
-    >
-      <NuxtImg :src="item.src" width="40" height="40" />
-      <div class="p-1 pl-2">
-        <div class="">{{ item.subcategory }}</div>
-        <div class="text-dark/50 text-sm">{{ item.category }}</div>
-      </div>
+    <div v-if="categories.length === 0 && products.length === 0">
+      <p class="p-4 text-xl">Ничего не найдено</p>
     </div>
+    <NuxtLink
+      v-for="item in categories"
+      :key="`${item.id} - category search`"
+      class="flex items-center p-1 py-1 cursor-pointer first:rounded-t-xl hover:bg-red-100"
+      :to="formatCategorySlug(item)"
+      @click="closeSearch"
+    >
+      <NuxtImg :src="item.image_url || 'no-photo.webp'" width="40" height="40" />
+      <div class="p-1 pl-2">
+        <div class="text-dark/90">{{ item.title }}</div>
+        <div class="text-dark/50 text-sm" v-if="item.root !== item.name">{{ item.root }}</div>
+      </div>
+    </NuxtLink>
     <hr class="border-primary/50 my-1" />
-    <div
-      v-for="(item, index) in data.items"
-      :key="index"
+    <NuxtLink
+      v-for="item in products"
+      :key="`${item.id} - product search`"
+      :to="`/products/${item.slug}`"
+      @click="closeSearch"
       class="flex items-center p-1 py-1 cursor-pointer last:rounded-b-xl hover:bg-red-100"
     >
-      <NuxtImg :src="item.src" width="60" height="60" />
+      <NuxtImg :src="item.main_image || 'no-photo.webp'" width="60" height="60" />
       <div>
         <div class="p-1 pl-2">
           {{ item.name }}
         </div>
         <div class="p-1 pl-2">{{ item.price }} руб.</div>
       </div>
-    </div>
+    </NuxtLink>
   </div>
 </template>
 
 <script setup lang="ts">
-const data = ref({
-  categories: [
-    {
-      subcategory: 'Шуруповерты',
-      category: 'Инструменты',
-      src: 'https://fi.makitamedia.com/images/3_Makita/301_machines/3011_a_GS1/30118_PNG_web/M8301D002_C2L0.png',
-    },
-    {
-      subcategory: 'Шурупы',
-      category: 'Крепеж',
-      src: 'https://princefastener.com/wp-content/uploads/2022/03/figure-1.-screws-300x300.png',
-    },
-  ],
-  items: [
-    {
-      name: 'Шуруповерт Makita',
-      category: 'Инструменты',
-      subcategory: 'Шуруповерты',
-      src: 'https://fi.makitamedia.com/images/3_Makita/301_machines/3011_a_GS1/30118_PNG_web/M8301D002_C2L0.png',
-      price: 10000,
-    },
-    {
-      name: 'Шуруповерт Ingersoll Rand L5110-K1',
-      category: 'Инструменты',
-      subcategory: 'Шуруповерты',
-      src: 'https://hotech-ms.com/wp-content/uploads/2020/11/W7150EU-WEB-01-300x300.png',
-      price: 7000,
-    },
-  ],
-})
+import { onClickOutside } from '@vueuse/core'
 
 const { target } = defineProps<{
   target: HTMLElement
@@ -66,10 +44,18 @@ const { target } = defineProps<{
 
 const emit = defineEmits(['close'])
 
-const showSearch = defineModel<boolean>('showSearch', { required: true })
+const products = defineModel<[]>('products', { required: true })
+const categories = defineModel<[]>('categories', { required: true })
 
-onClickOutside(target, () => {
-  showSearch.value = false
-  emit('close')
-})
+const closeSearch = () => emit('close')
+
+const formatCategorySlug = category => {
+  if (category.haveChildren) {
+    return `products/category/${category.path}`
+  }
+
+  return `/category/${category.path}`
+}
+
+onClickOutside(target, closeSearch)
 </script>

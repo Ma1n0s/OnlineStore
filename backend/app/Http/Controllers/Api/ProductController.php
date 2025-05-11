@@ -41,6 +41,46 @@ class ProductController extends Controller
         ];
     }
 
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+        
+        if (empty($query)) {
+            return response()->json([
+                'products' => [],
+                'categories' => []
+            ]);
+        }
+
+        // Поиск продуктов
+        $products = Product::where('name', 'like', "%{$query}%")
+            ->limit(5)
+            ->get();
+
+        // Поиск категорий
+        $categories = Category::where('name', 'like', "%{$query}%")
+            ->limit(5)
+            ->get();
+
+        $categoryController = app('App\Http\Controllers\Api\CategoryController');
+        if ($categories) {
+            $temp = [];
+            foreach ($categories as $child) {
+                $transformedChild = $categoryController->transformImagesPaths($child);
+                $transformedChild->path = $categoryController->getCategoryPath($child);
+                $transformedChild->haveProducts = $categoryController->hasProducts($child);
+                $transformedChild->root = $categoryController->getRootParent($child)->name;
+                $temp[] = $transformedChild;
+            }
+            $categories = $temp;
+        }
+
+        return response()->json([
+            'products' => $products,
+            'categories' => $categories
+        ]);
+    }
+
     /**
      * Получить список всех продуктов
      *

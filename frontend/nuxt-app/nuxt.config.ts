@@ -74,7 +74,7 @@ export default defineNuxtConfig({
   // Добавляем настройки для axios и fetch
   nitro: {
     prerender: {
-      crawlLinks: true, // Для автоматического обнаружения ссылок
+      crawlLinks: true,
     },
     devProxy: {
       '/api': {
@@ -86,9 +86,30 @@ export default defineNuxtConfig({
         headers: {
           'X-Forwarded-Host': 'localhost:3000',
           'X-Forwarded-Proto': 'http',
-          // 'Access-Control-Allow-Origin': '*'
         },
         secure: false,
+        // bypass: req => {
+        //   // Полный путь без домена
+        //   const fullPath = req.url || ''
+
+        //   // Разделяем путь и query-параметры
+        //   const [path] = fullPath.split('?')
+
+        //   // Маршруты, которые должны обрабатываться локально
+        //   const localRoutes = [
+        //     '/api/search', // Будет обработан server/api/search.ts
+        //     // '/api/another-local-route',
+        //   ]
+
+        //   // Проверяем совпадение с локальными маршрутами
+        //   if (localRoutes.some(route => path === route)) {
+        //     console.log(`[PROXY] Bypassing: ${fullPath} -> local Nitro handler`)
+        //     return fullPath // Возвращаем оригинальный URL
+        //   }
+
+        //   console.log(`[PROXY] Forwarding: ${fullPath} -> ${this.target}`)
+        //   return null // Продолжаем проксирование
+        // },
       },
       '/sanctum': {
         target: process.env.BACKEND_URL || 'http://localhost:8000',
@@ -97,9 +118,6 @@ export default defineNuxtConfig({
           '*': '',
         },
         secure: false,
-        headers: {
-          // 'Access-Control-Allow-Origin': '*',
-        },
       },
     },
   },

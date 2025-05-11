@@ -6,7 +6,7 @@
   >
     <slot name="left"></slot>
     <input
-      class="text__element text-dark p-2 h-full w-full rounded-lg bg-inherit"
+      class="text__element text-dark p-2 pl-3 h-full w-full rounded-lg bg-inherit"
       v-model="model"
       type="text"
       v-bind="$attrs"
@@ -20,7 +20,7 @@ defineOptions({
   inheritAttrs: false,
 })
 
-const { setAtr = false, ...props } = defineProps<{
+const { setAtr = false } = defineProps<{
   setAtr?: boolean
 }>()
 

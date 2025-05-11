@@ -191,3 +191,6 @@ Route::apiResource('news', NewsController::class);
 
 // Маршрут для свайпера
 Route::get('/swiper', [SwiperController::class, 'index']);
+
+// Маршрут для поиска
+Route::get('/search', [ProductController::class, 'search']);

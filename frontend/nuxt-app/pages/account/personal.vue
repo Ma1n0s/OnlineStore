@@ -1,9 +1,9 @@
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue';
+import { reactive, computed, onMounted } from 'vue'
 import SidebarMenu from '~/components/Account/SidebarMenu.vue'
 import TextInput from '~/components/ui/Inputs/TextInput.vue'
 
-const authStore = useAuthStore();
+const authStore = useAuthStore()
 const uiState = reactive({
   isModalOpen: false,
   isCompanyModalOpen: false,
@@ -11,7 +11,7 @@ const uiState = reactive({
   showCompanyDetails: false,
   isLoading: false,
   error: null,
-});
+})
 
 const profile = reactive({
   lastname: '',
@@ -22,7 +22,7 @@ const profile = reactive({
   email: '',
   phone: '',
   registrationDate: '',
-});
+})
 
 const forms = reactive({
   password: {
@@ -41,30 +41,30 @@ const forms = reactive({
     email: '',
     errors: {},
   },
-});
+})
 
-const fullName = computed(() => `${profile.lastname} ${profile.firstname} ${profile.middlename}`);
-const formattedRegistrationDate = computed(() => new Date(profile.registrationDate).toLocaleDateString('ru-RU'));
-const hasCompanyDetails = computed(() => Boolean(profile.companyDetails?.inn));
+const fullName = computed(() => `${profile.lastname} ${profile.firstname} ${profile.middlename}`)
+const formattedRegistrationDate = computed(() => new Date(profile.registrationDate).toLocaleDateString('ru-RU'))
+const hasCompanyDetails = computed(() => Boolean(profile.companyDetails?.inn))
 
 const loadProfile = async () => {
-  uiState.isLoading = true;
+  uiState.isLoading = true
   try {
     const response = await $fetch('/api/profile', {
       headers: {
         Authorization: `Bearer ${authStore.token}`,
       },
-    });
-    Object.assign(profile, response.profile);
+    })
+    Object.assign(profile, response.profile)
   } catch (error) {
-    uiState.error = error.message;
+    uiState.error = error.message
   } finally {
-    uiState.isLoading = false;
+    uiState.isLoading = false
   }
-};
+}
 
 const saveProfile = async () => {
-  uiState.isLoading = true;
+  uiState.isLoading = true
   try {
     await $fetch('/api/profile', {
       method: 'PUT',
@@ -78,18 +78,18 @@ const saveProfile = async () => {
         email: profile.email,
         phone: profile.phone,
       },
-    });
-    await loadProfile();
+    })
+    await loadProfile()
   } catch (error) {
-    uiState.error = error.message;
+    uiState.error = error.message
   } finally {
-    uiState.isLoading = false;
+    uiState.isLoading = false
   }
-};
+}
 
 const saveCompany = async () => {
-  if (!validateCompany()) return;
-  uiState.isLoading = true;
+  if (!validateCompany()) return
+  uiState.isLoading = true
   try {
     await $fetch('/api/profile/company', {
       method: 'PUT',
@@ -97,19 +97,19 @@ const saveCompany = async () => {
         Authorization: `Bearer ${authStore.token}`,
       },
       body: forms.company,
-    });
-    await loadProfile();
-    uiState.isCompanyModalOpen = false;
+    })
+    await loadProfile()
+    uiState.isCompanyModalOpen = false
   } catch (error) {
-    uiState.error = error.message;
+    uiState.error = error.message
   } finally {
-    uiState.isLoading = false;
+    uiState.isLoading = false
   }
-};
+}
 
 const changePassword = async () => {
-  if (!validatePassword()) return;
-  uiState.isLoading = true;
+  if (!validatePassword()) return
+  uiState.isLoading = true
   try {
     await $fetch('/api/profile/password', {
       method: 'PUT',
@@ -120,19 +120,19 @@ const changePassword = async () => {
         current_password: forms.password.current,
         new_password: forms.password.new,
       },
-    });
-    uiState.isModalOpen = false;
-    resetPasswordForm();
+    })
+    uiState.isModalOpen = false
+    resetPasswordForm()
   } catch (error) {
-    uiState.error = error.message;
+    uiState.error = error.message
   } finally {
-    uiState.isLoading = false;
+    uiState.isLoading = false
   }
-};
+}
 
 onMounted(() => {
-  loadProfile();
-});
+  loadProfile()
+})
 </script>
 
 <template>
@@ -180,12 +180,7 @@ onMounted(() => {
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label for="firstname" class="block text-sm font-medium text-gray-700 mb-1">Имя</label>
-                  <TextInput
-                    type="text"
-                    id="firstname"
-                    v-model="profile.firstname"
-                    class=""
-                  />
+                  <TextInput type="text" id="firstname" v-model="profile.firstname" class="" />
                 </div>
                 <div>
                   <label for="lastname" class="block text-sm font-medium text-gray-700 mb-1">Фамилия</label>
@@ -196,7 +191,6 @@ onMounted(() => {
                     class="w-full px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition"
                   />
                 </div>
-              
               </div>
 
               <div>
@@ -242,7 +236,7 @@ onMounted(() => {
                       :class="{ 'transform rotate-180': uiState.showCompanyDetails }"
                     />
                   </div>
-                  
+
                   <TransitionExpand>
                     <div v-if="uiState.showCompanyDetails" class="bg-gray-50 p-4 rounded-b-lg shadow-sm mt-0">
                       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -333,7 +327,7 @@ onMounted(() => {
             v-model="forms.password.current"
             :class="{
               'shadow-red-100 focus:ring-red-200': forms.password.errors.current,
-              'shadow-sm focus:ring-primary': !forms.password.errors.current
+              'shadow-sm focus:ring-primary': !forms.password.errors.current,
             }"
             class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-opacity-50 transition shadow-sm"
           />
@@ -348,7 +342,7 @@ onMounted(() => {
             v-model="forms.password.new"
             :class="{
               'shadow-red-100 focus:ring-red-200': forms.password.errors.new,
-              'shadow-sm focus:ring-primary': !forms.password.errors.new
+              'shadow-sm focus:ring-primary': !forms.password.errors.new,
             }"
             class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-opacity-50 transition shadow-sm"
           />
@@ -364,7 +358,7 @@ onMounted(() => {
             v-model="forms.password.confirm"
             :class="{
               'shadow-red-100 focus:ring-red-200': forms.password.errors.confirm,
-              'shadow-sm focus:ring-primary': !forms.password.errors.confirm
+              'shadow-sm focus:ring-primary': !forms.password.errors.confirm,
             }"
             class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-opacity-50 transition shadow-sm"
           />
@@ -391,7 +385,7 @@ onMounted(() => {
             v-model="forms.company.name"
             :class="{
               'shadow-red-100 focus:ring-red-200': forms.company.errors.name,
-              'shadow-sm focus:ring-primary': !forms.company.errors.name
+              'shadow-sm focus:ring-primary': !forms.company.errors.name,
             }"
             class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-opacity-50 transition shadow-sm"
           />
@@ -407,7 +401,7 @@ onMounted(() => {
               v-model="forms.company.inn"
               :class="{
                 'shadow-red-100 focus:ring-red-200': forms.company.errors.inn,
-                'shadow-sm focus:ring-primary': !forms.company.errors.inn
+                'shadow-sm focus:ring-primary': !forms.company.errors.inn,
               }"
               class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-opacity-50 transition shadow-sm"
             />
