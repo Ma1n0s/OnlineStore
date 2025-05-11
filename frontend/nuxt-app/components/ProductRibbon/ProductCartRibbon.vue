@@ -220,7 +220,18 @@ setTimeout(() => {
 
     <!-- Нет результатов -->
     <div v-else class="bg-white rounded-lg shadow-sm p-8 text-center">
-      <NuxtImg src="/images/empty-state.png" alt="Товары не найдены" width="200" height="200" class="mx-auto" />
+      <NuxtImg
+        src="/images/empty-state.png"
+        alt="Товары не найдены"
+        width="200"
+        height="200"
+        format="webp"
+        loading="lazy"
+        decoding="async"
+        class="mx-auto block max-w-full h-auto"
+        sizes="(max-width: 768px) 50vw, 200px"
+        densities="x1 x2"
+      />
       <h3 class="mt-4 text-lg font-medium text-gray-900">Товары не найдены</h3>
       <p class="mt-1 text-gray-500">Попробуйте изменить параметры фильтрации</p>
       <button

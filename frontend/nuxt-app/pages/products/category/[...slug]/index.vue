@@ -385,7 +385,16 @@ const breadcrumbs = [
 
         <!-- Нет результатов -->
         <div v-else class="bg-white rounded-lg shadow-sm p-8 text-center">
-          <NuxtImg src="/images/empty-state.png" alt="Товары не найдены" width="200" height="200" class="mx-auto" />
+          <NuxtImg
+              format="webp"
+              src="/images/empty-state.png"
+              alt="Товары не найдены"
+              width="200"
+              height="200"
+              class="mx-auto block max-w-full h-auto"
+              loading="lazy"
+              decoding="async"
+            />
           <h3 class="mt-4 text-lg font-medium text-gray-900">Товары не найдены</h3>
           <p class="mt-1 text-gray-500">Попробуйте изменить параметры фильтрации</p>
           <button

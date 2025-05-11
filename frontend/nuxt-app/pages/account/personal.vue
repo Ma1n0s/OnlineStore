@@ -36,6 +36,7 @@ const forms = reactive({
 });
 
 const profile = computed(() => ({
+  name: userStore.user?.name || '',
   lastname: userStore.user?.last_name || '',
   firstname: userStore.user?.first_name || '',
   middlename: userStore.user?.patronymic || '',
@@ -209,31 +210,7 @@ onMounted(() => {
         <SidebarMenu />
 
         <div class="flex-1 space-y-6">
-          <div class="bg-white p-6 rounded-xl shadow">
-            <div class="flex items-start gap-4">
-              <div class="relative flex-shrink-0">
-                <div
-                  class="w-14 h-14 rounded-full bg-gradient-to-tr from-blue-100 to-purple-200 flex items-center justify-center overflow-hidden shadow"
-                >
-                  <Icon name="mdi:account" class="h-7 w-7 text-purple-600" />
-                </div>
-                <span class="absolute bottom-1 right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
-              </div>
-
-              <div class="flex-1 min-w-0">
-                <div class="flex items-baseline gap-2 flex-wrap">
-                  <h1 class="text-2xl font-bold text-gray-900 truncate">
-                    {{ fullName }}
-                  </h1>
-                </div>
-
-                <p class="text-gray-500 text-sm mt-1 flex items-center">
-                  <Icon name="mdi:calendar" class="h-4 w-4 mr-1.5 opacity-70" />
-                  Зарегистрирован: <span class="font-medium ml-1">{{ formattedRegistrationDate }}</span>
-                </p>
-              </div>
-            </div>
-          </div>
+          
 
           <div class="bg-white p-6 rounded-xl shadow">
             <h2 class="text-lg font-semibold text-gray-900 mb-6">Личная информация</h2>
@@ -241,33 +218,14 @@ onMounted(() => {
             <form @submit.prevent="saveProfile" class="space-y-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label for="firstname" class="block text-sm font-medium text-gray-700 mb-1">Имя</label>
+                  <label for="firstname" class="block text-sm font-medium text-gray-700 mb-1">ФИО</label>
                   <input
                     type="text"
                     id="firstname"
-                    v-model="profile.firstname"
+                    v-model="profile.name"
                     class="w-full px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition"
                   />
                 </div>
-                <div>
-                  <label for="lastname" class="block text-sm font-medium text-gray-700 mb-1">Фамилия</label>
-                  <input
-                    type="text"
-                    id="lastname"
-                    v-model="profile.lastname"
-                    class="w-full px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label for="middlename" class="block text-sm font-medium text-gray-700 mb-1">Отчество</label>
-                <input
-                  type="text"
-                  id="middlename"
-                  v-model="profile.middlename"
-                  class="w-full px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition"
-                />
               </div>
 
               <div>
