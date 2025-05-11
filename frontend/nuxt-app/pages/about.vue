@@ -24,7 +24,7 @@
           </div>
           <div class="lg:w-1/2 bg-gray-100 rounded-xl overflow-hidden">
             <NuxtImg
-              src="~/public/full_logo_text.svg"
+              src="full_logo_text.svg"
               alt="Шоурум Абсолют техно"
               class="w-full h-auto object-cover"
               loading="lazy"
@@ -171,7 +171,7 @@
         </p>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           <div class="rounded-lg overflow-hidden shadow-md">
-            <NuxtImg src="~/public/88.1.jpg" alt="Иван Петров" class="w-full h-64 object-cover" />
+            <NuxtImg src="88.1.jpg" alt="Иван Петров" class="w-full h-64 object-cover" />
             <div class="p-6">
               <h3 class="text-xl font-bold mb-1">Иван Петров</h3>
               <p class="text-second font-medium mb-3">Генеральный директор</p>
@@ -181,7 +181,7 @@
             </div>
           </div>
           <div class="rounded-lg overflow-hidden shadow-md">
-            <NuxtImg src="~/public/88.1.jpg" alt="Александра Смирнова" class="w-full h-64 object-cover" />
+            <NuxtImg src="88.1.jpg" alt="Александра Смирнова" class="w-full h-64 object-cover" />
             <div class="p-6">
               <h3 class="text-xl font-bold mb-1">Александра Смирнова</h3>
               <p class="text-second font-medium mb-3">Технический директор</p>
@@ -191,7 +191,7 @@
             </div>
           </div>
           <div class="rounded-lg overflow-hidden shadow-md">
-            <NuxtImg src="~/public/88.1.jpg" alt="Дмитрий Волков" class="w-full h-64 object-cover" />
+            <NuxtImg src="88.1.jpg" alt="Дмитрий Волков" class="w-full h-64 object-cover" />
             <div class="p-6">
               <h3 class="text-xl font-bold mb-1">Дмитрий Волков</h3>
               <p class="text-second font-medium mb-3">Руководитель отдела продаж</p>
@@ -199,7 +199,7 @@
             </div>
           </div>
           <div class="rounded-lg overflow-hidden shadow-md">
-            <NuxtImg src="~/public/88.1.jpg" alt="Екатерина Козлова" class="w-full h-64 object-cover" />
+            <NuxtImg src="88.1.jpg" alt="Екатерина Козлова" class="w-full h-64 object-cover" />
             <div class="p-6">
               <h3 class="text-xl font-bold mb-1">Екатерина Козлова</h3>
               <p class="text-second font-medium mb-3">Менеджер по маркетингу</p>
