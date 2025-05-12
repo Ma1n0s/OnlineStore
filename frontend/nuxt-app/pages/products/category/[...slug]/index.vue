@@ -1,6 +1,6 @@
 <script setup>
 import CategoryDescription from '~/components/CategoryItems/CategoryDescription/CategoryDescription.vue'
-import { reactive, computed } from 'vue'
+import { reactive } from 'vue'
 import TextInput from '~/components/ui/Inputs/TextInput.vue'
 import Breadcrumbs from '~/components/BreadCrumbs/Breadcrumbs.vue'
 import { getBreadcrumbs } from '~/components/BreadCrumbs/helpers'
@@ -15,7 +15,10 @@ const { slug } = route.params
 
 const { data } = await useAsyncData(
   `products-list-${slug}`,
-  () => $fetch(`${backendUrl}/api/products/category-slug/${slug.at(-1)}`),
+  () =>
+    $fetch(`${backendUrl}/api/products/category-slug/${slug.at(-1)}`, {
+      query: { addition_data: 1 },
+    }),
   { revalidate: 3600 }
 )
 
@@ -30,14 +33,26 @@ useHead({
   ],
 })
 
+const breadcrumbs = [
+  {
+    name: 'Категории',
+    url: '/category',
+  },
+  ...getBreadcrumbs(slug.slice(0, -1)),
+  {
+    name: data.value.category.name,
+    url: '/products/category/' + slug.join('/'),
+  },
+]
+
 const state = reactive({
   priceRange: {
-    min: 0,
-    max: 30000,
-    currentMin: 0,
-    currentMax: 30000,
-    inputMin: 0,
-    inputMax: 30000,
+    min: data.value.category.min_price,
+    max: data.value.category.max_price,
+    currentMin: data.value.category.min_price,
+    currentMax: data.value.category.max_price,
+    inputMin: data.value.category.min_price,
+    inputMax: data.value.category.max_price,
     minTimeout: null,
     maxTimeout: null,
   },
@@ -46,19 +61,55 @@ const state = reactive({
     isGrid: false,
     visibleItems: 8,
     isLoading: false,
+    products: data.value.pagination.total,
   },
   filters: {
     selectedBrands: [],
   },
-  items: [],
+  sort: '',
+  products: data.value.products || [],
+  pagination: data.value.pagination,
 })
 
-// Вычисляемые свойства
-const filteredItems = computed(() => {
-  return data.value.products
-})
+const searchData = async () => {
+  const query = {
+    addition_data: 0,
+  }
 
-const visibleItems = computed(() => filteredItems.value.slice(0, state.ui.visibleItems))
+  if (state.sort) query.sort = state.sort
+
+  const { currentMin, min, currentMax, max } = state.priceRange
+  if (currentMin !== min || currentMax !== max) {
+    query.price_min = currentMin
+    query.price_max = currentMax
+  }
+
+  if (state.filters.selectedBrands.length > 0) {
+    query['brands[]'] = state.filters.selectedBrands
+  }
+
+  const data = await $fetch(`${backendUrl}/api/products/category-slug/${slug.at(-1)}`, {
+    query,
+  })
+
+  console.log(data, 'new data', query)
+
+  state.products = data.products
+}
+
+// onMounted(() => {
+//   setInterval(() => {
+//     console.log(state)
+//   }, 2000)
+// })
+
+const showGrid = () => {
+  state.ui.isGrid = true
+}
+
+const showList = () => {
+  state.ui.isGrid = false
+}
 
 // Методы
 const loadMoreItems = () => {
@@ -70,35 +121,36 @@ const toggleFilters = () => {
   state.ui.showFilters = !state.ui.showFilters
 }
 
-const showGrid = () => {
-  state.ui.isGrid = true
-}
-
-const showList = () => {
-  state.ui.isGrid = false
-}
-
 const handleMinPriceInput = value => {
   if (!isNaN(value)) {
-    state.priceRange.inputMin = value
+    if (value >= state.priceRange.min && value <= state.priceRange.max) {
+      state.priceRange.inputMin = value
 
-    if (state.priceRange.minTimeout) clearTimeout(state.priceRange.minTimeout)
+      state.priceRange.currentMin = value
+      // if (state.priceRange.minTimeout) clearTimeout(state.priceRange.minTimeout)
 
-    state.priceRange.minTimeout = setTimeout(() => {
-      state.priceRange.currentMin = Math.min(Math.max(value, state.priceRange.min), state.priceRange.currentMax - 1)
-    }, 500)
+      state.priceRange.minTimeout = setTimeout(() => {
+        state.priceRange.currentMin = Math.min(Math.max(value, state.priceRange.min), state.priceRange.currentMax - 1)
+      }, 500)
+    } else {
+      state.priceRange.inputMin = state.priceRange.min
+    }
   }
 }
 
 const handleMaxPriceInput = value => {
   if (!isNaN(value)) {
-    state.priceRange.inputMax = value
+    if (value >= state.priceRange.min && value <= state.priceRange.max) {
+      state.priceRange.inputMax = value
 
-    if (state.priceRange.maxTimeout) clearTimeout(state.priceRange.maxTimeout)
+      if (state.priceRange.maxTimeout) clearTimeout(state.priceRange.maxTimeout)
 
-    state.priceRange.maxTimeout = setTimeout(() => {
-      state.priceRange.currentMax = Math.max(Math.min(value, state.priceRange.max), state.priceRange.currentMin + 1)
-    }, 500)
+      state.priceRange.maxTimeout = setTimeout(() => {
+        state.priceRange.currentMax = Math.max(Math.min(value, state.priceRange.max), state.priceRange.currentMin + 1)
+      }, 500)
+    } else {
+      state.priceRange.inputMax = state.priceRange.max
+    }
   }
 }
 
@@ -139,18 +191,6 @@ const toggleBrand = brand => {
     state.filters.selectedBrands = [...state.filters.selectedBrands, brand]
   }
 }
-
-const breadcrumbs = [
-  {
-    name: 'Категории',
-    url: '/category',
-  },
-  ...getBreadcrumbs(slug.slice(0, -1)),
-  {
-    name: data.value.category.name,
-    url: '/products/category/' + slug.join('/'),
-  },
-]
 </script>
 
 <template>
@@ -163,19 +203,18 @@ const breadcrumbs = [
       class="flex flex-col md:flex-row items-start md:items-center justify-between bg-white rounded-lg shadow-sm p-4 mb-6"
     >
       <p class="text-gray-700 mb-3 md:mb-0">
-        Найдено <span class="font-semibold">{{ filteredItems.length }} товара</span>
+        Найдено <span class="font-semibold">{{ state.ui.products }} товара</span>
       </p>
 
       <div class="flex items-center space-x-4">
         <div class="flex items-center">
           <span class="text-gray-700 mr-2">Сортировать по:</span>
           <select
+            v-model="state.sort"
             class="bg-gray-50 border border-gray-300 text-gray-700 rounded-lg px-3 py-1 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
           >
-            <option>По популярности</option>
-            <option>Отзывам</option>
-            <option>Рейтингу</option>
-            <option>Цене</option>
+            <option value="price_asc">Cначала недорогие</option>
+            <option value="price_desc">Сначала дорогие</option>
           </select>
         </div>
 
@@ -215,6 +254,9 @@ const breadcrumbs = [
             <div class="flex items-center space-x-3 mb-4">
               <div class="relative flex-1">
                 <TextInput
+                  type="number"
+                  :min="state.priceRange.min"
+                  :max="state.priceRange.max"
                   :modelValue="state.priceRange.inputMin"
                   @update:modelValue="handleMinPriceInput"
                   @keyup.enter="updateMinPriceFromInput"
@@ -224,6 +266,9 @@ const breadcrumbs = [
               <span class="text-gray-400">—</span>
               <div class="relative flex-1">
                 <TextInput
+                  type="number"
+                  :min="state.priceRange.min"
+                  :max="state.priceRange.max"
                   :modelValue="state.priceRange.inputMax"
                   @update:modelValue="handleMaxPriceInput"
                   @keyup.enter="updateMaxPriceFromInput"
@@ -236,7 +281,7 @@ const breadcrumbs = [
               <div class="relative h-8">
                 <div class="absolute w-full h-1 bg-gray-200 rounded-full top-1/2 transform -translate-y-1/2"></div>
                 <div
-                  class="absolute h-1 bg-red-500 rounded-full top-1/2 transform -translate-y-1/2"
+                  class="absolute h-1 bg-red-500 rounded-full top-2"
                   :style="{
                     left: `${
                       ((state.priceRange.currentMin - state.priceRange.min) /
@@ -274,20 +319,15 @@ const breadcrumbs = [
           <div class="mb-6">
             <h3 class="font-semibold text-gray-900 mb-3">Производители</h3>
             <div class="space-y-2 max-h-60 overflow-y-auto pr-2">
-              <label
-                v-for="brand in ['Ryobi', 'Bosch', 'Makita', 'DeWalt', 'Metabo', 'Hitachi', 'AEG', 'Black+Decker']"
-                :key="brand"
-                class="flex items-center space-x-2 py-1 hover:bg-gray-50 px-2 rounded cursor-pointer"
-                @click="toggleBrand(brand)"
-              >
+              <div class="flex gap-2" v-for="brand in data.category.brands" @click="toggleBrand(brand)" :key="brand">
+                <!-- <label class="flex items-center space-x-2 py-1 hover:bg-gray-50 px-2 rounded cursor-pointer"> </label> -->
                 <input
                   type="checkbox"
                   :checked="state.filters.selectedBrands.includes(brand)"
                   class="rounded text-red-600 focus:ring-red-500 border-gray-300"
-                  @change="toggleBrand(brand)"
                 />
                 <span class="text-gray-700">{{ brand }}</span>
-              </label>
+              </div>
             </div>
           </div>
 
@@ -301,9 +341,10 @@ const breadcrumbs = [
               <span>Все фильтры</span>
             </button>
             <button
+              @click="searchData"
               class="w-full bg-red-600 hover:bg-red-700 text-white rounded-xl py-2 px-4 transition-colors font-medium"
             >
-              Показать {{ filteredItems.length }} товаров
+              Показать товаровы
             </button>
           </div>
         </div>
@@ -312,12 +353,12 @@ const breadcrumbs = [
       <!-- Список товаров -->
       <div class="w-full lg:w-3/4">
         <div
-          v-if="filteredItems.length > 0"
+          v-if="state.products.length > 0"
           :class="state.ui.isGrid ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5' : 'space-y-5'"
         >
           <NuxtLink
             :to="`/products/${item.slug}`"
-            v-for="item in visibleItems"
+            v-for="item in state.products"
             :key="item.id"
             :class="
               state.ui.isGrid
@@ -359,7 +400,7 @@ const breadcrumbs = [
 
               <p class="text-green-600 text-sm mb-3 flex items-center">
                 <Icon name="material-symbols:check-rounded" class="h-4 w-4 inline mr-1" />
-                В наличии > {{ item.stock }} шт.
+                В наличии
               </p>
 
               <div class="mb-3 flex-grow flex items-end">
@@ -405,10 +446,9 @@ const breadcrumbs = [
           </button>
         </div>
 
-        <!-- Кнопка "Показать еще" -->
         <div
           class="flex justify-center mt-8"
-          v-if="state.ui.visibleItems < filteredItems.length && filteredItems.length > 0"
+          v-if="state.ui.visibleItems < state.products.length && state.products.length > 0"
         >
           <button
             @click="loadMoreItems"
@@ -423,7 +463,7 @@ const breadcrumbs = [
               fill="none"
               viewBox="0 0 24 24"
             >
-              4444444444
+              ...Загрузка
             </div>
           </button>
         </div>
@@ -465,7 +505,7 @@ const breadcrumbs = [
               <div class="relative h-8">
                 <div class="absolute w-full h-1 bg-gray-200 rounded-full top-1/2 transform -translate-y-1/2"></div>
                 <div
-                  class="absolute h-1 bg-red-500 rounded-full top-1/2 transform -translate-y-1/2"
+                  class="absolute h-1 bg-red-500 rounded-full top-2"
                   :style="{
                     left: `${
                       ((state.priceRange.currentMin - state.priceRange.min) /
@@ -499,30 +539,30 @@ const breadcrumbs = [
             </div>
           </div>
 
-          <div>
+          <div class="mb-6">
             <h3 class="font-semibold text-gray-900 mb-3">Производители</h3>
             <div class="space-y-2 max-h-60 overflow-y-auto pr-2">
-              <label
-                v-for="brand in ['Ryobi', 'Bosch', 'Makita', 'DeWalt', 'Metabo', 'Hitachi', 'AEG', 'Black+Decker']"
-                :key="brand"
-                class="flex items-center space-x-2 py-1 hover:bg-gray-50 px-2 rounded cursor-pointer"
-                @click="toggleBrand(brand)"
-              >
+              <div class="flex gap-2" v-for="brand in data.category.brands" @click="toggleBrand(brand)" :key="brand">
+                <!-- <label class="flex items-center space-x-2 py-1 hover:bg-gray-50 px-2 rounded cursor-pointer"> </label> -->
                 <input
                   type="checkbox"
                   :checked="state.filters.selectedBrands.includes(brand)"
                   class="rounded text-red-600 focus:ring-red-500 border-gray-300"
-                  @change="toggleBrand(brand)"
                 />
-                <span class="text-gray-700">{{ brand }}</span>
-              </label>
+                <span class="text-gray-700 text-xl">{{ brand }}</span>
+              </div>
             </div>
           </div>
           <button
-            @click="toggleFilters"
+            @click="
+              () => {
+                toggleFilters()
+                searchData()
+              }
+            "
             class="w-full bg-red-600 hover:bg-red-700 text-white rounded-xl py-3 px-4 transition-colors duration-200 font-medium shadow-md hover:shadow-lg active:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
           >
-            Показать {{ filteredItems.length }} товаров
+            Показать товаровы
           </button>
         </div>
       </div>

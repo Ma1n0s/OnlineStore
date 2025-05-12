@@ -587,12 +587,18 @@ class ProductController extends Controller
         $request->validate([
             'page' => 'nullable|integer|min:1',
             'limit' => 'nullable|integer|min:1|max:50',
-            'sort' => 'nullable|string|in:price_asc,price_desc,newest,oldest,name_asc,name_desc',
+            'sort' => 'nullable|string|in:price_asc,price_desc',
+            'price_min' => 'nullable|numeric|min:0',
+            'price_max' => 'nullable|numeric|min:0|gt:price_min',
+            'brands' => 'nullable|array',
+            'brands.*' => 'string',
+            'addition_data' => 'nullable|boolean'
         ]);
         
         $page = $request->input('page', 1);
         $limit = $request->input('limit', 12);
         $sort = $request->input('sort', 'newest');
+        $additionData = $request->boolean('addition_data', false);
         
         // Преобразуем ID изображений категории в URL
         $category = app('App\Http\Controllers\Api\CategoryController')->transformImagesPaths($category);
@@ -606,12 +612,27 @@ class ProductController extends Controller
         // Рекурсивно собираем всех потомков
         $this->collectDescendantIds($category, $categoryIds);
         
+        $minPrice = $request->input('price_min');
+        $maxPrice = $request->input('price_max');
+
+        $brands = $request->input('brands', []);
+
         // Фильтруем продукты по всем категориям
         $query = Product::with(['category', 'images'])
-            ->where(function($query) use ($categoryIds) {
+            ->where(function($query) use ($categoryIds, $brands, $minPrice, $maxPrice) {
                 $query->where(function($subQuery) use ($categoryIds) {
                     $subQuery->whereIn('category_id', $categoryIds);
                 });
+
+                // Добавляем фильтр по цене, если заданы min и max
+                if (!is_null($minPrice) && !is_null($maxPrice)) {
+                    $query->whereBetween('price', [$minPrice, $maxPrice]);
+                }
+
+                // Фильтр по брендам
+                if (!empty($brands)) {
+                    $query->whereIn('brand', (array)$brands);
+                }
             });
             
         // Применяем сортировку
@@ -622,22 +643,19 @@ class ProductController extends Controller
             case 'price_desc':
                 $query->orderBy('price', 'desc');
                 break;
-            case 'oldest':
-                $query->orderBy('created_at', 'asc');
-                break;
-            case 'newest':
-                $query->orderBy('created_at', 'desc');
-                break;
-            case 'name_asc':
-                $query->orderBy('name', 'asc');
-                break;
-            case 'name_desc':
-                $query->orderBy('name', 'desc');
-                break;
         }
         
         $products = $query->paginate($limit, ['*'], 'page', $page);
         
+        if($additionData){
+            $categoryProducts = Product::where('category_id', $category->id)->get();
+            $brandsList = $categoryProducts->pluck('brand')->filter()->unique()->values();
+            // Минимальная и максимальная цена
+            $minPriceValue = $categoryProducts->min('price');
+            $maxPriceValue = $categoryProducts->max('price');
+        }
+        
+
         // Форматируем данные для каждого продукта
         $formattedProducts = collect($products->items())->map(function($product) {
             $images = $this->transformProductImages($product);
@@ -654,29 +672,37 @@ class ProductController extends Controller
                 'brand' => $product->brand,
                 'article' => $product->article,
                 'slug' => $product->slug,
-                'category' => $product->category ? [
-                    'id' => $product->category->id,
-                    'name' => $product->category->name,
-                    'title' => $product->category->title,
-                    'slug' => $product->category->slug,
-                    'image_url' => $product->category->image_url,
-                    'description_image_url' => $product->category->description_image_url,
-                ] : null,
+                // 'category' => $product->category ? [
+                //     'id' => $product->category->id,
+                //     'name' => $product->category->name,
+                //     'title' => $product->category->title,
+                //     'slug' => $product->category->slug,
+                //     'image_url' => $product->category->image_url,
+                //     'description_image_url' => $product->category->description_image_url,
+                // ] : null,
                 'images' => $images['images'],
                 'main_image' => $images['main_image'],
             ];
         });
+
+        $categoryResponse = [
+            'id' => $category->id,
+            'name' => $category->name,
+            'title' => $category->title,
+            'slug' => $category->slug,
+            'description' => $category->description,
+            'image_url' => $category->image_url,
+            'description_image_url' => $category->description_image_url,
+        ];
+
+        if ($additionData) {
+            $categoryResponse['brands'] = $brandsList;
+            $categoryResponse['min_price'] = $minPriceValue;
+            $categoryResponse['max_price'] = $maxPriceValue;
+        }
         
         return response()->json([
-            'category' => [
-                'id' => $category->id,
-                'name' => $category->name,
-                'title' => $category->title,
-                'slug' => $category->slug,
-                'description' => $category->description,
-                'image_url' => $category->image_url,
-                'description_image_url' => $category->description_image_url,
-            ],
+            'category' => $categoryResponse,
             'products' => $formattedProducts,
             'pagination' => [
                 'total' => $products->total(),

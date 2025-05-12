@@ -4,12 +4,6 @@ import type { Product } from '~/types/product.types'
 defineProps<{
   product: Product
 }>()
-
-const isFavorite = ref(false)
-
-const toggleFavorite = async () => {
-  isFavorite.value = !isFavorite.value
-}
 </script>
 
 <template>
@@ -54,19 +48,5 @@ const toggleFavorite = async () => {
     </div>
 
     <!-- Избранное -->
-    <div
-      class="flex items-center gap-2 px-3 py-2 rounded-lg transition-colors cursor-pointer"
-      :class="[isFavorite ? 'bg-red-50' : 'bg-gray-50 hover:bg-gray-100']"
-      @click="toggleFavorite"
-    >
-      <Icon
-        :name="isFavorite ? 'tabler:heart-filled' : 'tabler:heart'"
-        class="w-5 h-5 transition-colors"
-        :class="[isFavorite ? 'text-red-500' : 'text-gray-500 hover:text-red-400']"
-      />
-      <p class="text-sm transition-colors" :class="[isFavorite ? 'text-red-600 font-medium' : 'text-gray-600']">
-        {{ isFavorite ? 'В избранном' : 'В избранное' }}
-      </p>
-    </div>
   </div>
 </template>

@@ -111,7 +111,7 @@
     </div>
   </div>
 
-  <div class="pb-[40px] lg:pb-[120px]"></div>
+  <div class="pb-[65px] lg:pb-[140px]"></div>
 
   <Modal class="min-h-[427px]" :isOpen="isModalOpen" @close="closeModal" @confirm="handleConfirm" title="">
     <AuthForm @close="closeModal" />
