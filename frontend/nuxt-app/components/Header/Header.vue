@@ -69,13 +69,22 @@
           <Button variant="transparent" class="flex items-center gap-2 h-full !px-4" to="/account/cart-checkout"
             ><Icon name="material-symbols:shopping-cart-rounded" class="h-8 w-8 text-dark" alt="Корзина"
           /></Button>
-          <Button v-if="isAuth" variant="transparent" class="flex items-center gap-2 h-full !px-4" @click="handleLogout"
-            >{{ userDisplayName }}
-            <Icon name="material-symbols:account-circle" class="h-8 w-8 text-dark" alt="Пользователь"
-          /></Button>
-          <Button variant="transparent" class="flex items-center gap-2 h-full !px-4" @click="openModal" v-else>
-            <Icon name="material-symbols:account-circle" class="h-8 w-8 text-dark" alt="Вход"
-          /></Button>
+
+          <div class="relative w-full h-full">
+            <Button
+              v-if="isAuth"
+              variant="transparent"
+              class="flex items-center gap-2 h-full !px-4"
+              @click="miniMenu = true"
+              >{{ userDisplayName }}
+              <Icon name="material-symbols:account-circle" class="h-8 w-8 text-dark" alt="Пользователь" />
+            </Button>
+            <Button variant="transparent" class="flex items-center gap-2 h-full !px-4" @click="openModal" v-else>
+              <Icon name="material-symbols:account-circle" class="h-8 w-8 text-dark" alt="Вход"
+            /></Button>
+
+            <Menu v-if="miniMenu" v-model="miniMenu" />
+          </div>
         </div>
       </div>
     </div>
@@ -125,7 +134,7 @@
         </NuxtLink>
       </div>
 
-      <Button v-if="isAuth" class="flex items-center gap-2 h-full" @click="handleLogout">
+      <Button v-if="isAuth" class="flex items-center gap-2 h-full relative" @click="handleLogout">
         <Icon name="solar:user-outline" class="h-8 w-8" alt="Пользователь" />
         <span class="text-lg font-bold">{{ userDisplayName }}</span>
       </Button>
@@ -213,9 +222,9 @@
 <script setup lang="ts">
 import Button from '~/components/ui/Button/Button.vue'
 import { useUserStore } from '~/stores/user'
-// import CatalogButton from '../CatalogButton/CatalogButton.vue'
 import Search from '../Search/Search.vue'
 import Modal from '../Modal/Modal.vue'
+import Menu from './Menu.vue'
 import AuthForm from '../Forms/AuthForm.vue'
 
 const menuOpen = ref(false)
@@ -235,6 +244,8 @@ const userDisplayName = computed(() => {
   if (!user.value) return 'Пользователь'
   return user.value.name || user.value.email || 'Пользователь'
 })
+
+const miniMenu = ref(false)
 
 const isMenuOpen = ref(false)
 
