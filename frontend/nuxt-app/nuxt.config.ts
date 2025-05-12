@@ -26,6 +26,10 @@ export default defineNuxtConfig({
     // '@nuxtjs/proxy',
   ],
 
+  icon: {
+    provider: 'iconify',
+  },
+
   // routeRules: {
   //   // Статические страницы с перегенерацией каждые 60 сек
   //   '/category': { isr: 3600 },
