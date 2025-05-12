@@ -6,6 +6,10 @@ import Breadcrumbs from '~/components/BreadCrumbs/Breadcrumbs.vue'
 import { getBreadcrumbs } from '~/components/BreadCrumbs/helpers'
 import HoverProductSwiper from '~/components/Swiper/ProductSwiper/HoverProductSwiper.vue'
 
+import { useCartStore } from '~/stores/cart'
+
+const { addToCart } = useCartStore()
+
 const {
   public: { backendUrl },
 } = useRuntimeConfig()
@@ -413,7 +417,7 @@ const toggleBrand = brand => {
               <button
                 @click.prevent="
                   () => {
-                    console.log('Добавлено')
+                    addToCart(item)
                   }
                 "
                 class="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors font-medium"

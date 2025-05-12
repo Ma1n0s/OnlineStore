@@ -1,6 +1,5 @@
 <script setup>
 import TextInput from '~/components/ui/Inputs/TextInput.vue'
-import Button from '../ui/Button/Button.vue'
 import Modal from '../Modal/Modal.vue'
 import axios from 'axios'
 
@@ -369,7 +368,7 @@ const updateSecondCustomer = (field, value) => {
       </Modal>
     </div>
 
-    <div class="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-gray-100">
+    <!-- <div class="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-gray-100">
       <h3 class="text-lg sm:text-xl font-bold mb-4 sm:mb-5 text-gray-900">Способ оплаты</h3>
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
         <label
@@ -420,6 +419,6 @@ const updateSecondCustomer = (field, value) => {
           </div>
         </label>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>

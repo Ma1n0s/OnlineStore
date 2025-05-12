@@ -150,14 +150,6 @@ const decreaseRentalDays = item => {
           class="text-xs sm:text-sm text-gray-500 hover:text-gray-600 whitespace-nowrap"
         >
           <img src="" alt="" class="" />
-          Поделиться
-        </Button>
-        <Button
-          variant="transparent"
-          size="small"
-          class="text-xs sm:text-sm text-gray-500 hover:text-gray-600 whitespace-nowrap"
-        >
-          <img src="" alt="" class="" />
           Скачать
         </Button>
         <Button
@@ -165,7 +157,6 @@ const decreaseRentalDays = item => {
           size="small"
           class="text-xs sm:text-sm text-gray-500 hover:text-gray-600 whitespace-nowrap"
         >
-          <img src="" alt="" class="" />
           Печать
         </Button>
       </div>
@@ -185,7 +176,7 @@ const decreaseRentalDays = item => {
             class="h-4 w-4 sm:h-5 sm:w-5 text-primary rounded focus:ring-primary-active border-gray-300 mt-1 sm:mt-0"
           />
           <NuxtImg
-            :src="item.image"
+            :src="item.main_image"
             :alt="item.name"
             width="80"
             height="80"
@@ -259,16 +250,18 @@ const decreaseRentalDays = item => {
             class="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300 mt-1 sm:mt-0"
           />
           <NuxtImg
-            :src="item.image"
+            :src="item.main_image"
             :alt="item.name"
             class="w-16 h-16 sm:w-20 sm:h-20 object-contain rounded-lg border border-gray-200"
           />
           <div class="flex-1 min-w-0">
             <h3 class="text-sm sm:text-base font-medium text-gray-900 truncate">{{ item.name }}</h3>
             <p class="text-xs sm:text-sm text-gray-500">Код: {{ item.code }}</p>
-            <p v-if="item.description" class="text-xs sm:text-sm text-gray-700 mt-1 line-clamp-2">
-              {{ item.description }}
-            </p>
+            <p
+              v-if="item.description"
+              class="text-xs sm:text-sm text-gray-700 mt-1 line-clamp-2"
+              v-html="item.description"
+            ></p>
           </div>
         </div>
 

@@ -54,7 +54,7 @@ const orderDate = computed(() => {
 })
 </script>
 <template>
-  <div class="bg-white rounded-xl p-4 sm:p-6 shadow-sm sticky top-4 sm:top-6 border border-gray-200">
+  <div class="bg-white rounded-xl p-4 sm:p-6 shadow-sm sticky top-8 sm:top-20 border border-gray-200">
     <h2 class="text-base sm:text-lg font-bold mb-3 sm:mb-4 text-gray-800" v-if="!isEmptyCart">Ваш заказ</h2>
     <h2 class="text-base sm:text-lg font-bold mb-3 sm:mb-4 text-gray-800" v-else>Оформление</h2>
 
@@ -71,15 +71,6 @@ const orderDate = computed(() => {
         <p class="text-xs sm:text-sm text-gray-500">Покупатель</p>
         <p class="text-sm sm:text-base font-medium" v-if="customer.name">{{ customer.name }}</p>
         <p class="text-xs sm:text-sm text-gray-400 italic" v-else>Не указано</p>
-      </div>
-      <div>
-        <p class="text-xs sm:text-sm text-gray-500">Способ оплаты</p>
-        <p class="text-sm sm:text-base font-medium">
-          <span v-if="paymentMethod === 'qr'">QR-код</span>
-          <span v-else-if="paymentMethod === 'cash'">Наличные</span>
-          <span v-else-if="paymentMethod === 'card'">Картой</span>
-          <span v-else-if="paymentMethod === 'installment'">Рассрочка</span>
-        </p>
       </div>
     </div>
 

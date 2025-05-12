@@ -1,10 +1,15 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import OrderSummary from '~/components/СartСheckout/OrderSummary.vue'
 import CartHeader from '~/components/СartСheckout/CartHeader.vue'
 import CartItemsList from '~/components/СartСheckout/CartItemsList.vue'
 import RecipientData from '~/components/СartСheckout/RecipientData.vue'
+import { useCartStore } from '~/stores/cart'
 
+const cartStore = useCartStore()
+const cart = computed(() => cartStore.cart)
+
+console.log(cart.value)
 useHead({
   title: 'Корзина | Абсолют техно',
   meta: [
@@ -15,7 +20,7 @@ useHead({
   ],
 })
 
-const loading = ref(true)
+const loading = ref(false)
 const showSuccessMessage = ref(false)
 const showErrorMessage = ref(false)
 const messageText = ref('')
@@ -27,7 +32,7 @@ const state = ref({
     phone: '',
   },
   selectAll: false,
-  items: [],
+  items: cart,
   customer: {
     name: '',
     phone: '',
@@ -36,116 +41,116 @@ const state = ref({
   paymentMethod: 'cash',
 })
 
-const showMessage = (message, isError = false) => {
-  messageText.value = message
-  if (isError) {
-    showErrorMessage.value = true
-  } else {
-    showSuccessMessage.value = true
-  }
-  setTimeout(() => {
-    showSuccessMessage.value = false
-    showErrorMessage.value = false
-  }, 3000)
-}
+// const showMessage = (message, isError = false) => {
+//   messageText.value = message
+//   if (isError) {
+//     showErrorMessage.value = true
+//   } else {
+//     showSuccessMessage.value = true
+//   }
+//   setTimeout(() => {
+//     showSuccessMessage.value = false
+//     showErrorMessage.value = false
+//   }, 3000)
+// }
 
-const fetchUserData = async () => {
-  try {
-    const { data } = await useFetch('http://127.0.0.1:8000/api/user', {
-      headers: {
-        Authorization: `Bearer ${useAuthToken().value}`,
-      },
-    })
+// const fetchUserData = async () => {
+//   try {
+//     const { data } = await useFetch('http://127.0.0.1:8000/api/user', {
+//       headers: {
+//         Authorization: `Bearer ${useAuthToken().value}`,
+//       },
+//     })
 
-    if (data.value) {
-      state.value.customer = {
-        name: data.value.name || '',
-        phone: data.value.phone || '',
-      }
-    }
-  } catch (error) {
-    console.error('Error fetching user data:', error)
-  }
-}
+//     if (data.value) {
+//       state.value.customer = {
+//         name: data.value.name || '',
+//         phone: data.value.phone || '',
+//       }
+//     }
+//   } catch (error) {
+//     console.error('Error fetching user data:', error)
+//   }
+// }
 
-const fetchCartItems = async () => {
-  try {
-    const { data, error } = await useFetch('http://127.0.0.1:8000/api/cart', {
-      headers: {
-        Authorization: `Bearer ${useAuthToken().value}`,
-      },
-    })
+// const fetchCartItems = async () => {
+//   try {
+//     const { data, error } = await useFetch('http://127.0.0.1:8000/api/cart', {
+//       headers: {
+//         Authorization: `Bearer ${useAuthToken().value}`,
+//       },
+//     })
 
-    if (error.value) {
-      throw error.value
-    }
+//     if (error.value) {
+//       throw error.value
+//     }
 
-    state.value.items = data.value.cartItems.map(item => ({
-      id: item.id,
-      name: item.product.name,
-      code: item.product.code,
-      description: item.product.description,
-      price: item.product.price.final,
-      quantity: item.quantity,
-      selected: false,
-      image: item.product.images?.[0]?.src || '/images/Logo.png',
-      rentalType: item.options?.rental_days ? 'short-term' : null,
-      rentalDays: item.options?.rental_days || null,
-      rentalStart: item.options?.rental_start || null,
-      rentalEnd: item.options?.rental_end || null,
-      isRented: !!item.options?.rental_days,
-    }))
-  } catch (error) {
-    console.error('Error fetching cart items:', error)
-    if (error.statusCode === 401) {
-      navigateTo('/login')
-    }
-  } finally {
-    loading.value = false
-  }
-}
+//     state.value.items = data.value.cartItems.map(item => ({
+//       id: item.id,
+//       name: item.product.name,
+//       code: item.product.code,
+//       description: item.product.description,
+//       price: item.product.price.final,
+//       quantity: item.quantity,
+//       selected: false,
+//       image: item.product.images?.[0]?.src || '/images/Logo.png',
+//       rentalType: item.options?.rental_days ? 'short-term' : null,
+//       rentalDays: item.options?.rental_days || null,
+//       rentalStart: item.options?.rental_start || null,
+//       rentalEnd: item.options?.rental_end || null,
+//       isRented: !!item.options?.rental_days,
+//     }))
+//   } catch (error) {
+//     console.error('Error fetching cart items:', error)
+//     if (error.statusCode === 401) {
+//       navigateTo('/login')
+//     }
+//   } finally {
+//     loading.value = false
+//   }
+// }
 
-const removeSelectedItems = async () => {
-  try {
-    const selectedIds = selectedItems.value.map(item => item.id)
+// const removeSelectedItems = async () => {
+//   try {
+//     const selectedIds = selectedItems.value.map(item => item.id)
 
-    await Promise.all(
-      selectedIds.map(async id => {
-        await useFetch(`http://127.0.0.1:8000/api/cart/${id}`, {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${useAuthToken().value}`,
-          },
-        })
-      })
-    )
+//     await Promise.all(
+//       selectedIds.map(async id => {
+//         await useFetch(`http://127.0.0.1:8000/api/cart/${id}`, {
+//           method: 'DELETE',
+//           headers: {
+//             Authorization: `Bearer ${useAuthToken().value}`,
+//           },
+//         })
+//       })
+//     )
 
-    await fetchCartItems()
-    showMessage('Товары удалены из корзины')
-  } catch (error) {
-    console.error('Error removing items:', error)
-    showMessage('Не удалось удалить товары', true)
-  }
-}
+//     // await fetchCartItems()
+//     showMessage('Товары удалены из корзины')
+//   } catch (error) {
+//     console.error('Error removing items:', error)
+//     showMessage('Не удалось удалить товары', true)
+//   }
+// }
 
-const updateCartItem = async (item, newQuantity) => {
-  try {
-    await useFetch(`http://127.0.0.1:8000/api/cart/${item.id}`, {
-      method: 'PATCH',
-      body: {
-        quantity: newQuantity,
-      },
-      headers: {
-        Authorization: `Bearer ${useAuthToken().value}`,
-      },
-    })
+// const updateCartItem = async (item, newQuantity) => {
+//   try {
+//     await useFetch(`http://127.0.0.1:8000/api/cart/${item.id}`, {
+//       method: 'PATCH',
+//       body: {
+//         quantity: newQuantity,
+//       },
+//       headers: {
+//         Authorization: `Bearer ${useAuthToken().value}`,
+//       },
+//     })
 
-    await fetchCartItems()
-  } catch (error) {
-    console.error('Error updating cart item:', error)
-    showMessage('Не удалось изменить количество', true)
-  }
-}
+//     // await fetchCartItems()
+//   } catch (error) {
+//     console.error('Error updating cart item:', error)
+//     showMessage('Не удалось изменить количество', true)
+//   }
+// }
 
 const increaseQuantity = item => {
   const newQuantity = item.quantity + 1
@@ -175,7 +180,7 @@ const toggleSelectAll = () => {
   })
 }
 
-const selectedItems = computed(() => state.value.items.filter(item => item.selected))
+// const selectedItems = computed(() => state.value.items.filter(item => item.selected))
 const totalItemsCount = computed(() => state.value.items.length)
 const isEmptyCart = computed(() => state.value.items.length === 0)
 
@@ -201,10 +206,10 @@ const formattedValues = computed(() => ({
   empty: '0 ₽',
 }))
 
-onMounted(async () => {
-  await fetchUserData()
-  await fetchCartItems()
-})
+// onMounted(async () => {
+//   await fetchUserData()
+//   await fetchCartItems()
+// })
 </script>
 
 <template>
@@ -223,7 +228,7 @@ onMounted(async () => {
     <div class="mx-auto w-full max-w-screen-2xl px-8 space-y-8 py-8">
       <div class="flex flex-col lg:flex-row gap-4 sm:gap-6">
         <div class="lg:w-3/4">
-          <CartHeader cart-number="2741-0895-29725" />
+          <CartHeader />
 
           <div v-if="loading" class="flex justify-center items-center h-64">
             <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -247,7 +252,7 @@ onMounted(async () => {
 
           <template v-else>
             <CartItemsList
-              :items="state.items"
+              :items="cart"
               :select-all="state.selectAll"
               @update:selectAll="val => (state.selectAll = val)"
               :total-items-count="totalItemsCount"
