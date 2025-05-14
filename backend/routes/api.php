@@ -45,6 +45,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user()->load('profile');
 });
 
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'show']);
+    Route::put('/profile', [ProfileController::class, 'update']);
+    Route::put('/profile/company', [ProfileController::class, 'updateCompany']);
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword']);
+});
+
 // Authentication routes with CSRF protection disabled
 Route::group(['middleware' => [ 'guest']], function() {
     // Запрос кода верификации по email
