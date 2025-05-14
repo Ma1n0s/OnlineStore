@@ -142,44 +142,46 @@ const loadProfile = async () => {
 }
 
 const saveProfile = async () => {
-  uiState.isLoading = true
+  uiState.isLoading = true;
   try {
-    await $fetch('/api/profile', {
+    const response = await $fetch(`http://127.0.0.1:8000/api/profile`, { 
       method: 'PUT',
       body: {
         name: profile.value.name,
         email: profile.value.email,
         phone: profile.value.phone,
       },
-    })
-    await loadProfile()
+    });
+    
+    userStore.setUser(response.user);
+    uiState.error = null;
   } catch (error) {
-    uiState.error = error.data?.message || error.message
+    uiState.error = error.data?.message || error.message || 'Ошибка при сохранении профиля';
   } finally {
-    uiState.isLoading = false
+    uiState.isLoading = false;
   }
-}
+};
 
 const saveCompany = async () => {
-  if (!validateCompany()) return
-  uiState.isLoading = true
+  if (!validateCompany()) return;
+  uiState.isLoading = true;
   try {
     await $fetch('/api/profile/company', {
       method: 'PUT',
       body: forms.company,
-    })
-    await loadProfile()
-    uiState.isCompanyModalOpen = false
+    });
+    await loadProfile();
+    uiState.isCompanyModalOpen = false;
   } catch (error) {
-    uiState.error = error.data?.message || error.message
+    uiState.error = error.data?.message || error.message;
   } finally {
-    uiState.isLoading = false
+    uiState.isLoading = false;
   }
-}
+};
 
 const changePassword = async () => {
-  if (!validatePassword()) return
-  uiState.isLoading = true
+  if (!validatePassword()) return;
+  uiState.isLoading = true;
   try {
     await $fetch('/api/profile/password', {
       method: 'PUT',
@@ -187,15 +189,15 @@ const changePassword = async () => {
         current_password: forms.password.current,
         new_password: forms.password.new,
       },
-    })
-    uiState.isModalOpen = false
-    resetPasswordForm()
+    });
+    uiState.isModalOpen = false;
+    resetPasswordForm();
   } catch (error) {
-    uiState.error = error.data?.message || error.message
+    uiState.error = error.data?.message || error.message;
   } finally {
-    uiState.isLoading = false
+    uiState.isLoading = false;
   }
-}
+};
 
 onMounted(() => {
   loadProfile()
@@ -322,7 +324,7 @@ onMounted(() => {
               </div>
 
               <div class="pt-4 flex justify-end">
-                <button
+               <button
                   type="submit"
                   :disabled="uiState.isLoading"
                   class="inline-flex justify-center py-2.5 px-6 shadow-sm text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition disabled:opacity-70 disabled:cursor-not-allowed"
