@@ -35,21 +35,6 @@ const forms = reactive({
 
 const profile = computed(() => ({
   name: userStore.user?.name || '',
-  lastname: userStore.user?.last_name || '',
-  firstname: userStore.user?.first_name || '',
-  middlename: userStore.user?.patronymic || '',
-  company: userStore.user?.company_name || '',
-  companyDetails: userStore.user
-    ? {
-        name: userStore.user.company_name,
-        inn: userStore.user.inn,
-        kpp: userStore.user.kpp,
-        address: userStore.user.legal_address,
-        director: userStore.user.director,
-        phone: userStore.user.company_phone,
-        email: userStore.user.company_email,
-      }
-    : null,
   email: userStore.user?.email || '',
   phone: userStore.user?.phone || '',
   registrationDate: userStore.user?.created_at || '',
@@ -141,9 +126,7 @@ const saveProfile = async () => {
     await $fetch('/api/profile', {
       method: 'PUT',
       body: {
-        lastname: profile.value.lastname,
-        firstname: profile.value.firstname,
-        middlename: profile.value.middlename,
+        name: profile.value.name,
         email: profile.value.email,
         phone: profile.value.phone,
       },
