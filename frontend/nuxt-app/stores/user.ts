@@ -1,3 +1,4 @@
+// user.ts
 import { defineStore } from 'pinia'
 import type { User } from '~/types/user.types'
 
@@ -22,7 +23,19 @@ export const useUserStore = defineStore('user', () => {
       })
 
       if (data.value) {
-        user.value = data.value
+        user.value = {
+          ...data.value,
+          ...data.value.profile,
+          companyDetails: {
+            name: data.value.profile?.company_name,
+            inn: data.value.profile?.inn,
+            kpp: data.value.profile?.kpp,
+            address: data.value.profile?.legal_address,
+            director: data.value.profile?.director,
+            phone: data.value.profile?.company_phone,
+            email: data.value.profile?.company_email
+          }
+        }
         isAuth.value = true
         console.log('User data set:', user.value)
       }
