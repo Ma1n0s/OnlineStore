@@ -124,7 +124,20 @@ class ProfileEditScreen extends Screen
             'profile.kpp' => 'nullable|digits:9',
         ]);
 
-        $user->update($request->input('user'));
+        $userData = $request->input('user');
+        
+        if (isset($userData['phone'])) {
+            $phoneDigits = preg_replace('/[^0-9]/', '', $userData['phone']);
+            
+            if (strlen($phoneDigits) === 11 && in_array($phoneDigits[0], ['7'])) {
+                $userData['phone'] = '+' . $phoneDigits[0] . ' (' . substr($phoneDigits, 1, 3) . ') ' . substr($phoneDigits, 4, 3) . '-' . substr($phoneDigits, 7, 2) . '-' . substr($phoneDigits, 9, 2);
+            }
+            else {
+                $userData['phone'] = $userData['phone'];
+            }
+        }
+
+        $user->update($userData);
         $user->profile()->updateOrCreate([], $request->input('profile'));
 
         if ($user->bonusCard && $request->has('bonus_card')) {
