@@ -38,6 +38,8 @@ const profile = computed(() => ({
   email: userStore.user?.email || '',
   phone: userStore.user?.phone || '',
   registrationDate: userStore.user?.created_at || '',
+  company: userStore.user?.company_name || '',
+  companyDetails: userStore.user?.companyDetails || null
 }))
 
 // const fullName = computed(() => `${profile.value.lastname} ${profile.value.firstname} ${profile.value.middlename}`)
@@ -97,11 +99,30 @@ const resetPasswordForm = () => {
 
 const openCompanyModal = (editMode = false) => {
   uiState.isEditingCompany = editMode
-  if (profile.value.companyDetails) {
-    Object.assign(forms.company, profile.value.companyDetails)
-  } else {
-    forms.company.name = profile.value.company
+  
+  forms.company = {
+    name: '',
+    inn: '',
+    kpp: '',
+    address: '',
+    director: '',
+    phone: '',
+    email: '',
+    errors: {}
   }
+
+  if (profile.value.companyDetails) {
+    forms.company.name = profile.value.companyDetails.name || ''
+    forms.company.inn = profile.value.companyDetails.inn || ''
+    forms.company.kpp = profile.value.companyDetails.kpp || ''
+    forms.company.address = profile.value.companyDetails.address || ''
+    forms.company.director = profile.value.companyDetails.director || ''
+    forms.company.phone = profile.value.companyDetails.phone || ''
+    forms.company.email = profile.value.companyDetails.email || ''
+  } else if (profile.value.company) {
+    forms.company.name = profile.value.company || ''
+  }
+  
   uiState.isCompanyModalOpen = true
 }
 
