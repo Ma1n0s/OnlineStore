@@ -41,11 +41,8 @@ Route::prefix('cart')->group(function () {
     Route::patch('/{cartItem}', [CartController::class, 'update']);
 });
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'show']);
-    Route::put('/profile', [ProfileController::class, 'update']);
-    Route::put('/profile/company', [ProfileController::class, 'updateCompany']);
-    Route::put('/profile/password', [ProfileController::class, 'updatePassword']);
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user()->load('profile');
 });
 
 // Authentication routes with CSRF protection disabled
