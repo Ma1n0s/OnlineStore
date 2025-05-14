@@ -1,12 +1,9 @@
 <script setup>
 import { reactive } from 'vue'
+import { useUserStore } from '~/stores/user'
 import SidebarMenu from '~/components/Account/SidebarMenu.vue'
 
-const userData = reactive({
-  name: 'Иванов Иван Иванович',
-  email: 'ivanov@example.com',
-  phone: '+7 (999) 123-45-67',
-})
+const userStore = useUserStore()
 
 const form = reactive({
   subject: 'Вопрос по заказу',
@@ -22,12 +19,6 @@ const subjects = reactive([
   'Жалоба',
   'Другое',
 ])
-
-// const contactMethods = reactive([
-//   { value: 'email', label: 'Email' },
-//   { value: 'phone', label: 'Телефон' },
-//   { value: 'whatsapp', label: 'WhatsApp' }
-// ])
 
 const state = reactive({
   hoverRating: 0,
@@ -47,25 +38,15 @@ const resetHoverRating = () => {
   state.hoverRating = form.rating
 }
 
-const submitForm = () => {
-  state.isSubmitting = true
+const profile = computed(() => ({
+  name: userStore.user?.name || '',
+  email: userStore.user?.email || '',
+  phone: userStore.user?.phone || '',
+  registrationDate: userStore.user?.created_at || '',
+  company: userStore.user?.company_name || '',
+  companyDetails: userStore.user?.companyDetails || null
+}));
 
-  setTimeout(() => {
-    state.isSubmitting = false
-    state.isSuccess = true
-
-    Object.assign(form, {
-      subject: 'Вопрос по заказу',
-      message: '',
-      rating: 0,
-    })
-    state.hoverRating = 0
-
-    setTimeout(() => {
-      state.isSuccess = false
-    }, 5000)
-  }, 1500)
-}
 </script>
 
 <template>
@@ -93,15 +74,15 @@ const submitForm = () => {
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <p class="text-xs text-gray-500">Имя</p>
-                    <p class="text-sm font-medium">{{ userData.name }}</p>
+                    <p class="text-sm font-medium">{{ profile.name }}</p>
                   </div>
                   <div>
                     <p class="text-xs text-gray-500">Email</p>
-                    <p class="text-sm font-medium">{{ userData.email }}</p>
+                    <p class="text-sm font-medium">{{ profile.email }}</p>
                   </div>
                   <div>
                     <p class="text-xs text-gray-500">Телефон</p>
-                    <p class="text-sm font-medium">{{ userData.phone }}</p>
+                    <p class="text-sm font-medium">{{ profile.phone }}</p>
                   </div>
                 </div>
               </div>
