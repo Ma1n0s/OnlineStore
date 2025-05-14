@@ -1,7 +1,9 @@
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
+import { useUserStore } from '~/stores/user'
 import SidebarMenu from '~/components/Account/SidebarMenu.vue'
 
+const userStore = useUserStore()
 const uiState = reactive({
   isEditing: false,
   isLoading: false,
@@ -9,13 +11,13 @@ const uiState = reactive({
 })
 
 const company = ref({
-  name: 'ООО "ТехноПром"',
-  inn: '1234567890',
-  kpp: '987654321',
-  address: 'г. Москва, ул. Ленина, д. 1',
-  director: 'Иванов Иван Иванович',
-  phone: '+7 (999) 123-45-67',
-  email: 'info@technoprom.ru',
+  name: '',
+  inn: '',
+  kpp: '',
+  address: '',
+  director: '',
+  phone: '',
+  email: '',
 })
 
 const form = reactive({
@@ -28,6 +30,33 @@ const form = reactive({
   email: '',
   errors: {},
 })
+
+onMounted(async () => {
+  await loadCompanyData()
+})
+
+const loadCompanyData = async () => {
+  uiState.isLoading = true
+  try {
+    await userStore.fetchUser()
+    
+    if (userStore.user?.profile) {
+      company.value = {
+        name: userStore.user.profile.company_name || '',
+        inn: userStore.user.profile.inn || '',
+        kpp: userStore.user.profile.kpp || '',
+        address: userStore.user.profile.legal_address || '',
+        director: userStore.user.profile.director || '',
+        phone: userStore.user.profile.company_phone || '',
+        email: userStore.user.profile.company_email || '',
+      }
+    }
+  } catch (error) {
+    uiState.error = 'Ошибка при загрузке данных компании: ' + error.message
+  } finally {
+    uiState.isLoading = false
+  }
+}
 
 const startEditing = () => {
   Object.assign(form, company.value)
@@ -62,13 +91,29 @@ const saveCompany = async () => {
   if (!validate()) return
 
   uiState.isLoading = true
+  uiState.error = null
 
   try {
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    const response = await $fetch('/api/profile/company', {
+      method: 'PUT',
+      body: {
+        name: form.name,
+        inn: form.inn,
+        kpp: form.kpp,
+        address: form.address,
+        director: form.director,
+        phone: form.phone,
+        email: form.email,
+      },
+    })
+
+
     Object.assign(company.value, form)
     uiState.isEditing = false
+    
+    await userStore.fetchUser()
   } catch (error) {
-    uiState.error = 'Ошибка при сохранении' + error.message
+    uiState.error = 'Ошибка при сохранении: ' + (error.data?.message || error.message)
   } finally {
     uiState.isLoading = false
   }
@@ -78,6 +123,11 @@ const saveCompany = async () => {
 <template>
   <div class="min-h-screen bg-slate-100 py-8">
     <div class="max-w-screen-2xl mx-auto px-1 sm:px-4 lg:px-8">
+      <div v-if="uiState.error" class="mb-6 p-4 bg-red-50 text-red-700 rounded-lg shadow">
+        {{ uiState.error }}
+        <button @click="uiState.error = null" class="float-right font-bold">×</button>
+      </div>
+
       <div class="flex flex-col md:flex-row gap-6">
         <SidebarMenu />
 
@@ -85,16 +135,24 @@ const saveCompany = async () => {
           <div class="flex items-center justify-between">
             <h1 class="text-2xl font-bold text-gray-900">Моя организация</h1>
             <button
-              v-if="!uiState.isEditing"
+              v-if="!uiState.isEditing && company.inn"
               @click="startEditing"
               class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition flex items-center gap-2"
             >
               <Icon name="mdi:pencil" class="w-5 h-5" />
               Редактировать
             </button>
+            <button
+              v-if="!company.inn"
+              @click="startEditing"
+              class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition flex items-center gap-2"
+            >
+              <Icon name="mdi:plus" class="w-5 h-5" />
+              Добавить данные компании
+            </button>
           </div>
 
-          <div v-if="!uiState.isEditing" class="bg-white shadow rounded-lg overflow-hidden">
+          <div v-if="!uiState.isEditing && company.inn" class="bg-white shadow rounded-lg overflow-hidden">
             <div class="p-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -140,7 +198,22 @@ const saveCompany = async () => {
             </div>
           </div>
 
-          <div v-else class="bg-white shadow rounded-lg overflow-hidden">
+          <div v-if="!uiState.isEditing && !company.inn" class="bg-white shadow rounded-lg overflow-hidden">
+            <div class="p-6 text-center py-12">
+              <Icon name="mdi:office-building" class="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 class="text-lg font-medium text-gray-900 mb-2">Данные компании не добавлены</h3>
+              <p class="text-gray-500 mb-6">Добавьте информацию о вашей компании для работы с документами</p>
+              <button
+                @click="startEditing"
+                class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition flex items-center gap-2 mx-auto"
+              >
+                <Icon name="mdi:plus" class="w-5 h-5" />
+                Добавить данные компании
+              </button>
+            </div>
+          </div>
+
+          <div v-if="uiState.isEditing" class="bg-white shadow rounded-lg overflow-hidden">
             <div class="p-6">
               <form @submit.prevent="saveCompany" class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
