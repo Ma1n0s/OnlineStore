@@ -76,7 +76,7 @@ const validatePassword = () => {
     forms.password.errors.new = 'Введите новый пароль'
     isValid = false
   } else if (forms.password.new.length < 8) {
-    forms.password.errors.new = 'Пароль должен содержать минимум 8 символов'
+    forms.password.errors.new = 'Пароль должен содержать минимум 6 символов'
     isValid = false
   }
 
@@ -323,18 +323,26 @@ onMounted(() => {
                 </div>
               </div>
 
-              <div class="pt-4 flex justify-end">
-               <button
-                  type="submit"
-                  :disabled="uiState.isLoading"
-                  class="inline-flex justify-center py-2.5 px-6 shadow-sm text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition disabled:opacity-70 disabled:cursor-not-allowed"
-                >
-                  <span v-if="uiState.isLoading" class="flex items-center">
-                    <Icon name="mdi:loading" class="animate-spin mr-2" />
-                    Сохранение...
-                  </span>
-                  <span v-else>Сохранить изменения</span>
-                </button>
+                <div class="pt-4 flex justify-between">
+                  <button
+                    type="button"
+                    @click="uiState.isModalOpen = true"
+                    class="bg-primary text-white inline-flex justify-center py-2.5 px-6 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-gray-100 hover:bg-primary-hover focus:outline-none focus:ring-2"
+                  >
+                    Изменить пароль
+                  </button>
+                  
+                  <button
+                    type="submit"
+                    :disabled="uiState.isLoading"
+                    class="inline-flex justify-center py-2.5 px-6 shadow-sm text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    <span v-if="uiState.isLoading" class="flex items-center">
+                      <Icon name="mdi:loading" class="animate-spin mr-2" />
+                      Сохранение...
+                    </span>
+                    <span v-else>Сохранить изменения</span>
+                  </button>
               </div>
             </form>
           </div>
@@ -380,7 +388,7 @@ onMounted(() => {
           <p v-if="forms.password.errors.new" class="mt-1 text-sm text-red-600">
             {{ forms.password.errors.new }}
           </p>
-          <p class="mt-1 text-xs text-gray-500">Пароль должен содержать минимум 8 символов</p>
+          <p class="mt-1 text-xs text-gray-500">Пароль должен содержать минимум 6 символов</p>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Подтвердите новый пароль</label>

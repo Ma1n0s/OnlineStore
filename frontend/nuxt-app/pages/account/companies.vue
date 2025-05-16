@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useUserStore } from '~/stores/user'
 import SidebarMenu from '~/components/Account/SidebarMenu.vue'
 
@@ -8,6 +8,7 @@ const uiState = reactive({
   isEditing: false,
   isLoading: false,
   error: null,
+  isFirstAdd: false,
 })
 
 const company = ref({
@@ -29,6 +30,16 @@ const form = reactive({
   phone: '',
   email: '',
   errors: {},
+})
+
+const companySuggestions = ref([])
+const selectedCompany = ref(null)
+const innError = ref('')
+const isLoadingSuggestions = ref(false)
+
+// Вычисляемое свойство для валидности ИНН
+const isInnValid = computed(() => {
+  return form.inn && !innError.value && (form.inn.length === 10 || form.inn.length === 12)
 })
 
 onMounted(async () => {
@@ -61,10 +72,86 @@ const loadCompanyData = async () => {
 const startEditing = () => {
   Object.assign(form, company.value)
   uiState.isEditing = true
+  
+  if (!company.value.inn) {
+    uiState.isFirstAdd = true
+  }
 }
 
 const cancelEditing = () => {
   uiState.isEditing = false
+  uiState.isFirstAdd = false
+  companySuggestions.value = []
+  selectedCompany.value = null
+  innError.value = ''
+}
+
+const validateInn = async () => {
+  if (!form.inn) {
+    innError.value = 'Поле обязательно для заполнения'
+    return false
+  }
+
+  const innRegex = /^\d+$/
+  if (!innRegex.test(form.inn)) {
+    innError.value = 'ИНН должен содержать только цифры'
+    return false
+  }
+
+  if (form.inn.length !== 10 && form.inn.length !== 12) {
+    innError.value = 'ИНН должен содержать 10 или 12 цифр'
+    return false
+  }
+
+  innError.value = ''
+  await searchCompanyByINN()
+  return true
+}
+
+const searchCompanyByINN = async () => {
+  if (!isInnValid.value) return
+
+  isLoadingSuggestions.value = true
+  companySuggestions.value = []
+
+  try {
+    const { data } = await axios.get('https://www.tinkoff.ru/api/common/dadata/suggestions/api/4_1/rs/suggest/party', {
+      params: {
+        appName: 'company-pages',
+        query: form.inn,
+      },
+      withCredentials: false,
+    })
+
+    if (data.suggestions?.length) {
+      companySuggestions.value = data.suggestions
+    } else {
+      innError.value = 'Компания с таким ИНН не найдена'
+    }
+  } catch (err) {
+    console.error('Ошибка при проверке ИНН:', err)
+    innError.value = 'Ошибка при проверке ИНН'
+  } finally {
+    isLoadingSuggestions.value = false
+  }
+}
+
+const selectCompanySuggestion = (suggestion) => {
+  selectedCompany.value = suggestion
+  form.name = suggestion.value || ''
+  form.kpp = suggestion.data.kpp || ''
+  form.address = suggestion.data.address?.unrestricted_value || ''
+  form.director = suggestion.data.management?.name || ''
+  companySuggestions.value = []
+}
+
+const resetCompanySelection = () => {
+  selectedCompany.value = null
+  companySuggestions.value = []
+  form.name = ''
+  form.kpp = ''
+  form.address = ''
+  form.director = ''
 }
 
 const validate = () => {
@@ -79,13 +166,22 @@ const validate = () => {
   if (!form.inn.trim()) {
     form.errors.inn = 'Введите ИНН компании'
     isValid = false
-  } else if (!/^\d{10,12}$/.test(form.inn)) {
-    form.errors.inn = 'ИНН должен содержать 10 или 12 цифр'
+  } else if (!isInnValid.value) {
+    form.errors.inn = innError.value || 'Некорректный ИНН'
     isValid = false
   }
 
   return isValid
 }
+
+watch(() => form.inn, (newVal) => {
+  if (newVal.length >= 10 && uiState.isFirstAdd) {
+    const delaySearch = setTimeout(() => {
+      validateInn()
+      clearTimeout(delaySearch)
+    }, 800)
+  }
+})
 
 const saveCompany = async () => {
   if (!validate()) return
@@ -107,9 +203,11 @@ const saveCompany = async () => {
       },
     })
 
-
     Object.assign(company.value, form)
     uiState.isEditing = false
+    uiState.isFirstAdd = false
+    companySuggestions.value = []
+    selectedCompany.value = null
     
     await userStore.fetchUser()
   } catch (error) {
@@ -213,14 +311,57 @@ const saveCompany = async () => {
             </div>
           </div>
 
-          <div v-if="uiState.isEditing" class="bg-white shadow rounded-lg overflow-hidden">
-            <div class="p-6">
-              <form @submit.prevent="saveCompany" class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Основная информация</h3>
-                    <div class="space-y-4">
-                      <div>
+      <div v-if="uiState.isEditing" class="bg-white shadow rounded-lg overflow-hidden">
+          <div class="p-6">
+            <form @submit.prevent="saveCompany" class="space-y-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 class="text-lg font-medium text-gray-900 mb-4">Основная информация</h3>
+                  <div class="space-y-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">ИНН *</label>
+                      <input
+                        v-model="form.inn"
+                        @blur="validateInn"
+                        :class="{ 'border-red-300': form.errors.inn || innError }"
+                        class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Введите ИНН компании"
+                      />
+                      <p v-if="form.errors.inn" class="mt-1 text-sm text-red-600">{{ form.errors.inn }}</p>
+                      <p v-if="innError && !form.errors.inn" class="mt-1 text-sm text-red-600">{{ innError }}</p>
+                      
+                      <div v-if="isLoadingSuggestions" class="mt-2 flex items-center text-gray-500">
+                        <Icon name="mdi:loading" class="animate-spin mr-2" />
+                        Поиск компании...
+                      </div>
+                      
+                      <div v-if="companySuggestions.length > 0" class="mt-2 border rounded-lg shadow-sm">
+                        <div 
+                          v-for="suggestion in companySuggestions" 
+                          :key="suggestion.data.inn"
+                          @click="selectCompanySuggestion(suggestion)"
+                          class="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
+                        >
+                          <div class="font-medium">{{ suggestion.value }}</div>
+                          <div class="text-sm text-gray-500">
+                            ИНН: {{ suggestion.data.inn }}, 
+                            КПП: {{ suggestion.data.kpp || 'не указан' }}
+                          </div>
+                          <div class="text-sm text-gray-500">{{ suggestion.data.address?.unrestricted_value }}</div>
+                        </div>
+                      </div>
+                      
+                      <button
+                        v-if="selectedCompany"
+                        @click="resetCompanySelection"
+                        type="button"
+                        class="mt-2 text-sm text-blue-600 hover:text-blue-800"
+                      >
+                        Сбросить выбор компании
+                      </button>
+                    </div>
+                      
+                      <div v-if="!uiState.isFirstAdd || (uiState.isFirstAdd && form.name)">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Название *</label>
                         <input
                           v-model="form.name"
@@ -229,15 +370,7 @@ const saveCompany = async () => {
                         />
                         <p v-if="form.errors.name" class="mt-1 text-sm text-red-600">{{ form.errors.name }}</p>
                       </div>
-                      <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">ИНН *</label>
-                        <input
-                          v-model="form.inn"
-                          :class="{ 'border-red-300': form.errors.inn }"
-                          class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                        />
-                        <p v-if="form.errors.inn" class="mt-1 text-sm text-red-600">{{ form.errors.inn }}</p>
-                      </div>
+                      
                       <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">КПП</label>
                         <input
