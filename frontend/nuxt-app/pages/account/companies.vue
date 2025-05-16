@@ -159,10 +159,10 @@ const validate = () => {
   let isValid = true
   form.errors = {}
 
-  if (!form.name.trim()) {
-    form.errors.name = 'Введите название компании'
-    isValid = false
-  }
+  // if (!form.name.trim()) {
+  //   form.errors.name = 'Введите название компании'
+  //   isValid = false
+  // }
 
   if (!form.inn.trim()) {
     form.errors.inn = 'Введите ИНН компании'
@@ -312,55 +312,69 @@ const saveCompany = async () => {
             </div>
           </div>
 
-      <div v-if="uiState.isEditing" class="bg-white shadow rounded-lg overflow-hidden">
-          <div class="p-6">
-            <form @submit.prevent="saveCompany" class="space-y-6">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h3 class="text-lg font-medium text-gray-900 mb-4">Основная информация</h3>
-                  <div class="space-y-4">
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-1">ИНН *</label>
-                      <input
-                        v-model="form.inn"
-                        @blur="validateInn"
-                        :class="{ 'border-red-300': form.errors.inn || innError }"
-                        class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Введите ИНН компании"
-                      />
-                      <p v-if="form.errors.inn" class="mt-1 text-sm text-red-600">{{ form.errors.inn }}</p>
-                      <p v-if="innError && !form.errors.inn" class="mt-1 text-sm text-red-600">{{ innError }}</p>
-                      
-                      <div v-if="isLoadingSuggestions" class="mt-2 flex items-center text-gray-500">
-                        <Icon name="mdi:loading" class="animate-spin mr-2" />
-                        Поиск компании...
-                      </div>
-                      
-                      <div v-if="companySuggestions.length > 0" class="mt-2 border rounded-lg shadow-sm">
-                        <div 
-                          v-for="suggestion in companySuggestions" 
-                          :key="suggestion.data.inn"
-                          @click="selectCompanySuggestion(suggestion)"
-                          class="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
-                        >
-                          <div class="font-medium">{{ suggestion.value }}</div>
-                          <div class="text-sm text-gray-500">
-                            ИНН: {{ suggestion.data.inn }}, 
-                            КПП: {{ suggestion.data.kpp || 'не указан' }}
-                          </div>
-                          <div class="text-sm text-gray-500">{{ suggestion.data.address?.unrestricted_value }}</div>
+          <div v-if="uiState.isEditing" class="bg-white shadow rounded-lg overflow-hidden">
+            <div class="p-6">
+              <form @submit.prevent="saveCompany" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Основная информация</h3>
+                    <div class="space-y-4">
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ИНН *</label>
+                        <input
+                          v-model="form.inn"
+                          @blur="validateInn"
+                          :class="{ 'border-red-300': form.errors.inn || innError }"
+                          class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="Введите ИНН компании"
+                        />
+                        <p v-if="form.errors.inn" class="mt-1 text-sm text-red-600">{{ form.errors.inn }}</p>
+                        <p v-if="innError && !form.errors.inn" class="mt-1 text-sm text-red-600">{{ innError }}</p>
+                        
+                        <div v-if="isLoadingSuggestions" class="mt-2 flex items-center text-gray-500">
+                          <Icon name="mdi:loading" class="animate-spin mr-2" />
+                          Поиск компании...
                         </div>
+                        
+                        <div 
+                          v-if="companySuggestions.length > 0"
+                          class="mt-2 border rounded-lg shadow-sm bg-white"
+                          style="max-height: 300px; overflow-y: auto;"
+                        >
+                          <div 
+                            v-for="suggestion in companySuggestions" 
+                            :key="suggestion.data.inn"
+                            @click="selectCompanySuggestion(suggestion)"
+                            class="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 transition-colors"
+                          >
+                            <div class="font-medium">{{ suggestion.value }}</div>
+                            <div class="text-sm text-gray-500 mt-1">
+                              <span class="font-semibold">ИНН:</span> {{ suggestion.data.inn }}
+                              <span v-if="suggestion.data.kpp" class="ml-2">
+                                <span class="font-semibold">КПП:</span> {{ suggestion.data.kpp }}
+                              </span>
+                            </div>
+                            <div class="text-sm text-gray-500 mt-1">
+                              <span class="font-semibold">Адрес:</span> {{ suggestion.data.address?.unrestricted_value || 'не указан' }}
+                            </div>
+                            <div 
+                              v-if="suggestion.data.management?.name"
+                              class="text-sm text-gray-500 mt-1"
+                            >
+                              <span class="font-semibold">Руководитель:</span> {{ suggestion.data.management.name }}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <button
+                          v-if="selectedCompany"
+                          @click="resetCompanySelection"
+                          type="button"
+                          class="mt-2 text-sm text-blue-600 hover:text-blue-800"
+                        >
+                          Сбросить выбор компании
+                        </button>
                       </div>
-                      
-                      <button
-                        v-if="selectedCompany"
-                        @click="resetCompanySelection"
-                        type="button"
-                        class="mt-2 text-sm text-blue-600 hover:text-blue-800"
-                      >
-                        Сбросить выбор компании
-                      </button>
-                    </div>
                       
                       <div v-if="!uiState.isFirstAdd || (uiState.isFirstAdd && form.name)">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Название *</label>
