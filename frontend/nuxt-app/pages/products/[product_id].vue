@@ -9,10 +9,8 @@ const {
 const route = useRoute()
 const { product_id } = route.params
 
-const { data: product } = await useAsyncData<Product>(
-  `products-${product_id}`,
-  () => $fetch(`${backendUrl}/api/products/slug/${product_id}`),
-  { revalidate: 3600 }
+const { data: product } = await useAsyncData<Product>(`products-${product_id}`, () =>
+  $fetch(`${backendUrl}/api/products/slug/${product_id}`)
 )
 
 if (!product.value) {

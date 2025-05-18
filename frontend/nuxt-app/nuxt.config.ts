@@ -41,6 +41,10 @@ export default defineNuxtConfig({
   //   '/': { isr: 3600 },
   // },
 
+  routeRules: {
+    '/products/**': { isr: 60 },
+  },
+
   googleFonts: {
     families: {
       Montserrat: [400, 500, 600, 700, 800],
