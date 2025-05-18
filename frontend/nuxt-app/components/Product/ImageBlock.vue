@@ -25,16 +25,16 @@
           </div>
 
           <!-- Вертикальный слайдер миниатюр с кастомными стрелками -->
-          <div class="w-16 relative">
-            <!-- Кнопка вверх -->
+          <div class="w-16 flex flex-col">
+            <!-- Кнопка вверх - теперь черная и выше -->
             <button
               v-if="product.images.length > 4"
               @click="scrollThumbsUp"
-              class="absolute top-0 left-0 right-0 z-10 flex justify-center py-1 bg-gray-100 hover:bg-gray-200 transition-colors rounded-t"
+              class="z-10 flex justify-center items-center p-2 bg-black text-white hover:bg-gray-800 transition-colors rounded-t-lg mb-1"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="h-4 w-4 text-gray-600"
+                class="h-4 w-4"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -54,28 +54,28 @@
               :mousewheel="true"
             >
               <swiper-slide
-                v-for="(image, index) in product.images"
-                :key="'thumb-' + index"
-                @click="slideTo(index)"
-                :class="{ 'active-thumb': activeIndex === index }"
-              >
-                <NuxtImg
-                  :src="image.url"
-                  :alt="'Изображение ' + (index + 1)"
-                  class="w-full h-full object-cover rounded cursor-pointer border"
-                />
-              </swiper-slide>
+                  v-for="(image, index) in product.images"
+                  :key="'thumb-' + index"
+                  @click="slideTo(index)"
+                  :class="{ 'border-red-500': activeIndex === index, 'border-transparent': activeIndex !== index }"
+                >
+                  <NuxtImg
+                    :src="image.url"
+                    :alt="'Изображение ' + (index + 1)"
+                    class="w-full h-full object-cover rounded cursor-pointer "
+                  />
+                </swiper-slide>
             </swiper-container>
 
             <!-- Кнопка вниз -->
-            <button
+           <button
               v-if="product.images.length > 4"
               @click="scrollThumbsDown"
-              class="absolute bottom-0 left-0 right-0 z-10 flex justify-center py-1 bg-gray-100 hover:bg-gray-200 transition-colors rounded-b"
+              class="z-10 flex justify-center items-center p-2 bg-black text-white hover:bg-gray-800 transition-colors rounded-b-lg mt-1"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="h-4 w-4 text-gray-600"
+                class="h-4 w-4"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -188,17 +188,16 @@ const onMainSlideChange = (e: any) => {
 const slideTo = (index: number) => {
   if (mainSwiper.value && mainSwiper.value.swiper) {
     mainSwiper.value.swiper.slideTo(index)
+    activeIndex.value = index 
   }
 }
 
-// Прокрутка миниатюр вверх
 const scrollThumbsUp = () => {
   if (thumbsSwiper.value && thumbsSwiper.value.swiper) {
     thumbsSwiper.value.swiper.slidePrev()
   }
 }
 
-// Прокрутка миниатюр вниз
 const scrollThumbsDown = () => {
   if (thumbsSwiper.value && thumbsSwiper.value.swiper) {
     thumbsSwiper.value.swiper.slideNext()
@@ -286,22 +285,25 @@ swiper-container {
   padding: 4px 0;
 }
 
-.thumbs-swiper swiper-slide,
-.fullscreen-thumbs-swiper swiper-slide {
-  opacity: 0.6;
-  transition: opacity 0.3s;
+.thumbs-swiper swiper-slide {
+  opacity: 0.8;
+  transition: all 0.3s ease;
   border: 2px solid transparent;
+  border-radius: 0.375rem;
 }
 
-.thumbs-swiper swiper-slide:hover,
-.fullscreen-thumbs-swiper swiper-slide:hover {
+.thumbs-swiper swiper-slide:hover {
   opacity: 1;
+  transform: scale(1.03);
 }
 
-.thumbs-swiper .active-thumb,
-.fullscreen-thumbs-swiper .active-thumb {
+.thumbs-swiper swiper-slide.border-red-500 {
   opacity: 1;
-  border-color: #d10026 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.5);
+}
+
+.thumbs-swiper swiper-slide.border-red-500 img {
+  filter: brightness(1.05);
 }
 
 .cursor-zoom-in {
