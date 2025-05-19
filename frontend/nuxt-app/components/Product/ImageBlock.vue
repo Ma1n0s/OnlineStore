@@ -1,6 +1,6 @@
 <template>
   <div class="w-full md:w-2/5">
-    <div class="bg-white rounded-lg shadow-md p-4 relative">
+    <div class="bg-white rounded-lg  p-4 relative">
       <ClientOnly>
         <div class="flex flex-row-reverse gap-4">
           <!-- Основной слайдер -->
@@ -32,15 +32,7 @@
               @click="scrollThumbsUp"
               class="z-10 flex justify-center items-center p-2 bg-black text-white hover:bg-gray-800 transition-colors rounded-t-lg mb-1"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-              </svg>
+              <Icon name="material-symbols:keyboard-arrow-up" class="w-5 h-5"/>
             </button>
 
             <swiper-container
@@ -73,15 +65,7 @@
               @click="scrollThumbsDown"
               class="z-10 flex justify-center items-center p-2 bg-black text-white hover:bg-gray-800 transition-colors rounded-b-lg mt-1"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
+              <Icon name="material-symbols:keyboard-arrow-down" class="w-5 h-5"/>
             </button>
           </div>
         </div>
@@ -109,15 +93,7 @@
           class="absolute left-4 top-1/2 transform -translate-y-1/2 text-red-500 text-4xl z-50 hover:text-red-700 transition-colors"
           @click="prevFullscreenImage"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-6 w-6 text-red-500"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-          </svg>
+          <Icon name="material-symbols:arrow-left-alt"/>
         </button>
 
         <button
@@ -125,15 +101,7 @@
           class="absolute right-4 top-1/2 transform -translate-y-1/2 text-red-500 text-4xl z-50 hover:text-red-700 transition-colors"
           @click="nextFullscreenImage"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-6 w-6 text-red-500"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
+          <Icon name="material-symbols:arrow-right-alt"/>
         </button>
       </div>
 
