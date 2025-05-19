@@ -7,7 +7,7 @@ defineProps<{
 
 <template>
   <div class="bg-white rounded-lg p-6 h-full flex flex-col">
-    <h2 class="text-sm font-bold mb-4">характеристики</h2>
+    <h2 class="text-sm font-bold mb-4">характеристики:</h2>
     <div class="flex-1 overflow-y-auto pr-2">
       <ul class="space-y-3">
         <li 

@@ -19,10 +19,7 @@ if (!product.value) {
   navigateTo('/404')
 }
 
-console.log(product.value, 'products')
-
 // Импорты компонентов
-// import DescriptionBlock from '~/components/Product/DescriptionBlock.vue'
 import SpecificationsBlock from '~/components/Product/SpecificationsBlock.vue'
 import Breadcrumbs from '~/components/BreadCrumbs/Breadcrumbs.vue'
 import ImageBlock from '~/components/Product/ImageBlock.vue'
@@ -30,16 +27,12 @@ import BasicDescriptionBlock from '~/components/Product/BasicDescriptionBlock.vu
 import BrandBlock from '~/components/Product/BrandBlock.vue'
 import Basket from '~/components/Product/Basket.vue'
 import ActionsPanel from '~/components/Product/ActionsPanel.vue'
-// import InformationCart from '~/components/Product/InformationCart.vue'
-// import Reviews from '~/components/Product/Reviews.vue'
 import DescriptionBlock from '~/components/Product/DescriptionBlock.vue'
 import { getBreadcrumbsFromCategoryPath } from '~/components/BreadCrumbs/helpers'
 
 // Вкладки
 const tabs = ref([
   { id: 'description', title: 'ОПИСАНИЕ И ХАРАКТЕРИСТИКИ' },
-  // { id: "reviews", title: "ОТЗЫВЫ" },
-  // { id: "questions", title: "ВОПРОСЫ И ОТВЕТЫ" },
 ])
 
 const activeTab = ref('description')
@@ -76,9 +69,13 @@ const breadcrumbs = [
         <div class="lg:flex-1 flex flex-col">
           <ActionsPanel :product="product" />
           
-          <div class="grid grid-cols-2 gap-4 mt-4 flex-grow">
-            <DescriptionBlock :product="product" />
-            <Basket :product="product" />
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4 flex-grow">
+            <div class="lg:col-span-2 pr-24"> 
+              <DescriptionBlock :product="product" />
+            </div>
+            <div class="lg:col-span-1">
+              <Basket :product="product" />
+            </div>
           </div>
         </div>
       </div>
@@ -102,15 +99,11 @@ const breadcrumbs = [
 
       <div>
         <div v-show="activeTab === 'description'" class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          <!-- Основной контент (описание и характеристики) -->
           <div class="lg:col-span-3">
-            <!-- Описание -->
             <BasicDescriptionBlock :product="product" />
-            <!-- Техническое описание -->
             <SpecificationsBlock :product="product" />
           </div>
 
-          <!-- Боковая панель с брендом -->
           <div class="sticky top-4 h-fit">
             <BrandBlock :product="product" />
           </div>

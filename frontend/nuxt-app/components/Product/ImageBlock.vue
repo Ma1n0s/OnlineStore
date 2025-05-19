@@ -30,7 +30,7 @@
             <button
               v-if="product.images.length > 4"
               @click="scrollThumbsUp"
-              class="z-10 flex justify-center items-center p-2 bg-black text-white hover:bg-gray-800 transition-colors rounded-t-lg mb-1"
+              
             >
               <Icon name="material-symbols:keyboard-arrow-up" class="w-5 h-5"/>
             </button>
@@ -63,7 +63,7 @@
            <button
               v-if="product.images.length > 4"
               @click="scrollThumbsDown"
-              class="z-10 flex justify-center items-center p-2 bg-black text-white hover:bg-gray-800 transition-colors rounded-b-lg mt-1"
+              
             >
               <Icon name="material-symbols:keyboard-arrow-down" class="w-5 h-5"/>
             </button>
@@ -267,7 +267,7 @@ swiper-container {
 
 .thumbs-swiper swiper-slide.border-red-500 {
   opacity: 1;
-  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.5);
+  /* box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.5); */
 }
 
 .thumbs-swiper swiper-slide.border-red-500 img {

@@ -123,15 +123,11 @@ const addToCart = async (options = {}) => {
 </script>
 
 <template>
-  <div class="space-y-6 h-full flex flex-col">
+  <div class="space-y-3 h-full flex flex-col">
     <transition name="fade">
       <div v-if="showSuccessMessage" class="fixed top-4 right-4 z-50">
-        <div
-          class="bg-emerald-100 border border-emerald-400 text-emerald-800 px-4 py-3 rounded-lg shadow-lg flex items-center"
-        >
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-          </svg>
+        <div class="bg-emerald-100 border border-emerald-400 text-emerald-800 px-3 py-2 rounded-lg shadow-lg flex items-center text-sm">
+          <Icon name="material-symbols:check-circle" class="w-4 h-4 mr-1" />
           {{ messageText }}
         </div>
       </div>
@@ -139,46 +135,50 @@ const addToCart = async (options = {}) => {
 
     <transition name="fade">
       <div v-if="showErrorMessage" class="fixed top-4 right-4 z-50">
-        <div class="bg-rose-100 border border-rose-400 text-rose-800 px-4 py-3 rounded-lg shadow-lg flex items-center">
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
+        <div class="bg-rose-100 border border-rose-400 text-rose-800 px-3 py-2 rounded-lg shadow-lg flex items-center text-sm">
+          <Icon name="material-symbols:error" class="w-4 h-4 mr-1" />
           {{ messageText }}
         </div>
       </div>
     </transition>
 
-    <div class="bg-slate-100 rounded-xl shadow-md border-gray-100 p-6 flex-1 flex flex-col">
-      <div class="flex-1">
-        <div>
-          <div class="flex items-center gap-4">
-            <p class="text-3xl font-bold">{{ product.price }} ₽</p>
-            <p
-              v-if="product.price.sum && product.price.sum !== product.price.total"
-              class="text-lg line-through text-gray"
-            >
-              {{ product.price.sum }} ₽
-            </p>
-            <p v-if="product.price.discount" class="text-primary font-medium">
-              Экономия {{ product.price.discount }} ₽
-            </p>
-          </div>
-        </div>
+    <div class="bg-slate-100 rounded-xl shadow-md border-gray-100 p-4">
+      <div class="flex items-center justify-between mb-2">
+        <p class="text-2xl font-bold">{{ product.price }} ₽</p>
+        <p v-if="product.price.discount" class="text-primary font-medium text-sm">
+          Экономия {{ product.price.discount }} ₽
+        </p>
       </div>
+      
+      <Button
+        @click="addToCart"
+        :disabled="isLoading || !product?.id"
+        class="w-full bg-primary hover:bg-primary text-white py-2 px-4 rounded-lg font-medium text-sm flex items-center justify-center gap-1"
+      >
+        <Icon name="material-symbols:shopping-cart-rounded" class="h-4 w-4" />
+        <span>{{ isLoading ? 'Добавление...' : 'В корзину' }}</span>
+      </Button>
+    </div>
 
-      <div class="flex flex-col sm:flex-row gap-3 pt-4">
-        <Button
-          @click="addToCart"
-          :disabled="isLoading || !product?.id"
-          class="flex-1 bg-primary hover:bg-primary text-white py-3 px-6 rounded-lg font-medium transition shadow-sm hover:shadow-md flex items-center justify-center gap-2 disabled:opacity-70"
-        >
-          <Icon name="material-symbols:shopping-cart-rounded" class="h-6 w-6 text-white" />
-          <span>{{ isLoading ? 'Добавление...' : 'Добавить в корзину' }}</span>
-        </Button>
+    <div class="bg-slate-100 rounded-xl shadow-md border-gray-100 p-3 flex items-center gap-2">
+      <div class="bg-primary/10 p-1.5 rounded-lg">
+        <Icon name="mdi:percent-box" class="h-4 w-4 text-primary" />
+      </div>
+      <div>
+        <p class="font-medium text-sm">+900 Кешбэк</p>
+        <p class="text-xs text-gray-500">Баллы для следующих покупок</p>
+      </div>
+    </div>
 
-        <!-- <Button @click="openRentalModal" :disabled="!product?.id">
-          <span>В аренду</span>
-        </Button> -->
+    <div class="bg-slate-100 rounded-xl shadow-md border-gray-100 p-3">
+      <div class="flex items-start gap-2 mb-1">
+        <div class="bg-primary/10 p-1.5 rounded-lg">
+          <Icon name="mdi:store" class="h-4 w-4 text-primary" />
+        </div>
+        <div>
+          <p class="font-medium text-sm">Самовывоз сегодня</p>
+          <p class="text-xs text-gray-500">Из 13 магазинов, бесплатно</p>
+        </div>
       </div>
     </div>
 
