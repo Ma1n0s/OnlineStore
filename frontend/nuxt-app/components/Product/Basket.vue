@@ -148,10 +148,9 @@ const addToCart = async (options = {}) => {
       </div>
     </transition>
 
-    <div class="bg-white rounded-xl shadow-md border-gray-100 p-6 flex-1 flex flex-col">
+    <div class="bg-slate-100 rounded-xl shadow-md border-gray-100 p-6 flex-1 flex flex-col">
       <div class="flex-1">
         <div>
-          <h2 class="text-xl font-bold text-second mb-2">Цена товара</h2>
           <div class="flex items-center gap-4">
             <p class="text-3xl font-bold">{{ product.price }} ₽</p>
             <p
@@ -167,19 +166,19 @@ const addToCart = async (options = {}) => {
         </div>
       </div>
 
-      <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-100">
+      <div class="flex flex-col sm:flex-row gap-3 pt-4">
         <Button
           @click="addToCart"
           :disabled="isLoading || !product?.id"
           class="flex-1 bg-primary hover:bg-primary text-white py-3 px-6 rounded-lg font-medium transition shadow-sm hover:shadow-md flex items-center justify-center gap-2 disabled:opacity-70"
         >
           <Icon name="material-symbols:shopping-cart-rounded" class="h-6 w-6 text-white" />
-          <span>{{ isLoading ? 'Добавление...' : 'В корзину' }}</span>
+          <span>{{ isLoading ? 'Добавление...' : 'Добавить в корзину' }}</span>
         </Button>
 
-        <Button @click="openRentalModal" :disabled="!product?.id">
+        <!-- <Button @click="openRentalModal" :disabled="!product?.id">
           <span>В аренду</span>
-        </Button>
+        </Button> -->
       </div>
     </div>
 
