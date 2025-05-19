@@ -6,8 +6,8 @@ defineProps<{
 </script>
 
 <template>
-  <div class="bg-white rounded-lg shadow-md p-6 h-full flex flex-col">
-    <h2 class="text-xl font-bold mb-4">Основные характеристики</h2>
+  <div class="bg-white rounded-lg p-6 h-full flex flex-col">
+    <h2 class="text-sm font-bold mb-4">характеристики</h2>
     <div class="flex-1 overflow-y-auto pr-2">
       <ul class="space-y-3">
         <li 
@@ -15,10 +15,10 @@ defineProps<{
           :key="value.name" 
           class="flex justify-between gap-4"
         >
-          <span class="text-gray-500 flex-shrink-0">
+          <span class="text-gray-500 text-sm flex-shrink-0">
             {{ value.name }}
           </span>
-          <span class="font-medium text-right min-w-0">
+          <span class="font-medium text-right text-sm min-w-0">
             {{ value.value }}
           </span>
         </li>
