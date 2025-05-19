@@ -70,15 +70,16 @@ const breadcrumbs = [
     <Breadcrumbs :list="breadcrumbs" />
 
     <div v-if="!loading">
-      <ActionsPanel :product="product" />
-      <div class="flex flex-col md:flex-row gap-8">
-        <!-- Свой Свайпер по img -->
+      <div class="flex flex-col lg:flex-row gap-8">
         <ImageBlock :product="product" />
 
-        <div class="grid grid-cols-2 gap-4">
-          <!-- Основные характеристики -->
-          <DescriptionBlock :product="product" />
-          <Basket :product="product" />
+        <div class="lg:flex-1 flex flex-col">
+          <ActionsPanel :product="product" />
+          
+          <div class="grid grid-cols-2 gap-4 mt-4 flex-grow">
+            <DescriptionBlock :product="product" />
+            <Basket :product="product" />
+          </div>
         </div>
       </div>
 
@@ -107,7 +108,6 @@ const breadcrumbs = [
             <BasicDescriptionBlock :product="product" />
             <!-- Техническое описание -->
             <SpecificationsBlock :product="product" />
-            <!-- <InformationCart /> -->
           </div>
 
           <!-- Боковая панель с брендом -->
@@ -116,7 +116,6 @@ const breadcrumbs = [
           </div>
         </div>
       </div>
-      <!-- <Reviews /> -->
     </div>
 
     <div v-else class="flex justify-center items-center h-64">
