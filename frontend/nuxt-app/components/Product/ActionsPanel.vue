@@ -23,7 +23,7 @@ defineProps<{
     </div>
 
     <!-- Рейтинг и отзывы -->
-    <div
+    <!-- <div
       v-if="product.reviewsCount || product.questionsCount"
       class="flex items-center gap-3 px-3 py-2 bg-gray-50 rounded-lg"
     >
@@ -37,15 +37,15 @@ defineProps<{
         <span class="w-px h-4 bg-gray-300"></span>
         <span class="hover:underline cursor-pointer">{{ product.questionsCount || 5 }} вопросов</span>
       </div>
-    </div>
+    </div> -->
 
     <!-- Гарантия -->
-    <div v-if="product.warranty" class="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg">
+    <!-- <div v-if="product.warranty" class="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg">
       <Icon name="tabler:shield-check" class="w-5 h-5 text-blue-500" />
       <p class="text-sm text-gray-600">
         Гарантия <span class="font-medium text-blue-600">{{ product.warranty }}</span>
       </p>
-    </div>
+    </div> -->
 
     <!-- Избранное -->
   </div>
