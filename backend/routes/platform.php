@@ -206,11 +206,11 @@ Route::screen('users/create', UserEditScreen::class)
         ->push(__('Create'), route('platform.systems.users.create')));
 
 // Platform > System > Users
-Route::screen('users', UserListScreen::class)
-    ->name('platform.systems.users')
-    ->breadcrumbs(fn (Trail $trail) => $trail
-        ->parent('platform.index')
-        ->push(__('Users'), route('platform.systems.users')));
+// Route::screen('users', UserListScreen::class)
+//     ->name('platform.systems.users')
+//     ->breadcrumbs(fn (Trail $trail) => $trail
+//         ->parent('platform.index')
+//         ->push(__('Users'), route('platform.systems.users')));
 
 // Platform > System > Roles > Role
 Route::screen('roles/{role}/edit', RoleEditScreen::class)
@@ -227,11 +227,11 @@ Route::screen('roles/create', RoleEditScreen::class)
         ->push(__('Create'), route('platform.systems.roles.create')));
 
 // Platform > System > Roles
-Route::screen('roles', RoleListScreen::class)
-    ->name('platform.systems.roles')
-    ->breadcrumbs(fn (Trail $trail) => $trail
-        ->parent('platform.index')
-        ->push(__('Roles'), route('platform.systems.roles')));
+// Route::screen('roles', RoleListScreen::class)
+//     ->name('platform.systems.roles')
+//     ->breadcrumbs(fn (Trail $trail) => $trail
+//         ->parent('platform.index')
+//         ->push(__('Roles'), route('platform.systems.roles')));
 
 // Example...
 Route::screen('example', ExampleScreen::class)
