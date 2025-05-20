@@ -170,11 +170,11 @@ public function query(Category $category): array
                         return $product->category ? $product->category->name : '-'; 
                     }),
 
-                TD::make('rating', 'Рейтинг')
-                    ->sort()
-                    ->render(function (Product $product) {
-                        return number_format($product->rating, 1);
-                    }),
+                // TD::make('rating', 'Рейтинг')
+                //     ->sort()
+                //     ->render(function (Product $product) {
+                //         return number_format($product->rating, 1);
+                //     }),
 
                 TD::make('created_at', 'Дата создания')
                     ->sort()

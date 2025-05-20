@@ -189,13 +189,13 @@ class ProductScreen extends Screen
                             ->help('Основная цена товара в рублях')
                             ->disabled($this->product->exists),
                             
-                        Input::make('product.rating')
-                            ->title('Рейтинг')
-                            ->type('number')
-                            ->step('0.1')
-                            ->min(0)
-                            ->max(5)
-                            ->help('Рейтинг товара от 0 до 5'),
+                        // Input::make('product.rating')
+                        //     ->title('Рейтинг')
+                        //     ->type('number')
+                        //     ->step('0.1')
+                        //     ->min(0)
+                        //     ->max(5)
+                        //     ->help('Рейтинг товара от 0 до 5'),
 
                         Input::make('product.quantity')
                             ->title('Количество на складе')
