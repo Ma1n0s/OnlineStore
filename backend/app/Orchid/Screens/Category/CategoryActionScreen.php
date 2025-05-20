@@ -210,39 +210,37 @@ public function query(Category $category): array
     public function removeCategory(Request $request)
     {
         $category = Category::findOrFail($request->get('id'));
-        
-        // Получаем все ID категорий для удаления (включая подкатегории)
-        $categoryIds = $category->descendants()->pluck('id')->push($category->id);
-        
-        // Удаляем все товары и их изображения
-        $products = Product::whereIn('subcategory_id', $categoryIds)->get();
-        
-        foreach ($products as $product) {
-            $this->deleteProductImages($product);
-            $product->delete();
+
+        if ($category->products()->exists()) {
+            Alert::error('Нельзя удалить категорию, в которой есть товары');
+            return back();
         }
-        
-        // Удаляем все подкатегории и их изображения
-        $descendants = $category->descendants()->get();
-        foreach ($descendants as $descendant) {
-            $this->deleteCategoryImages($descendant);
-            $descendant->delete();
+
+        $categoriesToDelete = $category->descendants()->with('products')->get();
+
+        foreach ($categoriesToDelete as $subCategory) {
+            if ($subCategory->products()->exists()) {
+                Alert::error('Нельзя удалить категорию, так как в её подкатегориях есть товары');
+                return back();
+            }
         }
-        
-        // Удаляем изображения самой категории
+
         $this->deleteCategoryImages($category);
-        
-        // Удаляем саму категорию
+        foreach ($categoriesToDelete as $subCategory) {
+            $this->deleteCategoryImages($subCategory);
+        }
+
+        foreach ($categoriesToDelete as $subCategory) {
+            $subCategory->products()->delete(); 
+            $subCategory->delete();
+        }
+
         $category->delete();
 
-        Alert::success('Категория и все её содержимое успешно удалены');
-        
-        if ($category->parent_id) {
-            return redirect()->route('platform.category.action', $category->parent);
-        }
-        
+        Alert::info('Категория и все её подкатегории успешно удалены');
         return redirect()->route('platform.category.list');
     }
+
 
     protected function deleteCategoryImages(Category $category)
     {
