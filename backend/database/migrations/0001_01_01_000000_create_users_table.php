@@ -19,6 +19,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
             $table->boolean('is_guest')->default(false);
+            $table->string('role')->default('user'); 
             $table->rememberToken();
             $table->timestamps();
             $table->timestamp('expires_at')->nullable();
@@ -26,6 +27,7 @@ return new class extends Migration
             $table->index('email');
             $table->index('phone');
             $table->index('is_guest');
+            $table->index('role');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
