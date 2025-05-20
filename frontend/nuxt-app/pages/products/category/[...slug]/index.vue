@@ -101,6 +101,25 @@ const searchData = async () => {
   state.products = data.products
 }
 
+const validProducts = computed(() => {
+  return state.products.filter(
+    item =>
+      item.slug &&
+      typeof item.slug === 'string' &&
+      !item.slug.includes('.') && // Исключаем ссылки на файлы
+      item.slug.trim() !== '' // Исключаем пустые slug
+  )
+})
+
+// Безопасное формирование ссылки
+const getProductLink = item => {
+  if (!item.slug || typeof item.slug !== 'string') {
+    console.error('Invalid product slug:', item)
+    return '/404'
+  }
+  return `/products/${encodeURIComponent(item.slug)}`
+}
+
 // onMounted(() => {
 //   setInterval(() => {
 //     console.log(state)
@@ -361,8 +380,8 @@ const toggleBrand = brand => {
           :class="state.ui.isGrid ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5' : 'space-y-5'"
         >
           <NuxtLink
-            :to="`/products/${item.slug}`"
-            v-for="item in state.products"
+            v-for="item in validProducts"
+            :to="getProductLink(item)"
             :key="item.id"
             :class="
               state.ui.isGrid

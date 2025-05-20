@@ -2,6 +2,8 @@
 import { ref, onMounted } from 'vue'
 import type { Product } from '~/types/product.types'
 
+// const nuxtApp = useNuxtApp()
+
 const {
   public: { backendUrl },
 } = useRuntimeConfig()
@@ -9,15 +11,59 @@ const {
 const route = useRoute()
 const { product_id } = route.params
 
-const { data: product } = await useAsyncData<Product>(`products-${product_id}`, () =>
-  $fetch(`${backendUrl}/api/products/slug/${product_id}`)
+// const { data: product } = await useFetch<Product>(`/api/products/slug/${product_id}`, {
+//   baseURL: backendUrl,
+//   key: `product-${product_id}`,
+// })
+
+// const { data: product, error } = await useAsyncData<Product>(
+//   `products-${product_id}`,
+//   async () => {
+//     try {
+//       return await $fetch(`${backendUrl}/api/products/slug/${product_id}`)
+//     } catch (err) {
+//       console.error('Ошибка загрузки продукта:', err)
+//       throw createError({
+//         statusCode: 500,
+//         message: 'Не удалось загрузить данные продукта',
+//       })
+//     }
+//   },
+//   {
+//     getCachedData(key) {
+//       return useNuxtApp().payload.data[key]
+//     },
+//   }
+// )
+
+// const {
+//   data: product,
+//   pending,
+//   error,
+// } = await useFetch<Product>(`${backendUrl}/api/products/slug/${product_id}`, {
+//   key: `product-${product_id}`,
+//   getCachedData(key) {
+//     // Используем кэшированные данные из payload или статического кэша
+//     return nuxtApp.payload.data[key] || nuxtApp.static.data[key]
+//   },
+// })
+
+// const { data: product } = await useFetch<Product>(`${backendUrl}/api/products/slug/${product_id}`, {
+//   key: `product-${product_id}`,
+//   getCachedData(key) {
+//     return useNuxtApp().payload.data[key]
+//   },
+// })
+
+const { data: product, refresh } = await useAsyncData<Product>(
+  `product-${product_id}`,
+  () => $fetch(`${backendUrl}/api/products/slug/${product_id}`),
+  {
+    getCachedData(key) {
+      return useNuxtApp().payload.data[key]
+    },
+  }
 )
-
-if (!product.value) {
-  navigateTo('/404')
-}
-
-console.log(product.value, 'products')
 
 // Импорты компонентов
 // import DescriptionBlock from '~/components/Product/DescriptionBlock.vue'
@@ -44,11 +90,27 @@ const activeTab = ref('description')
 const isFavorite = ref(false)
 const loading = ref(true)
 
-onMounted(() => {
+onMounted(async () => {
   activeTab.value = 'description'
   isFavorite.value = false
   loading.value = false
+
+  console.log('mounted')
+
+  await refresh()
+
+  // if (process.client && product_id && !product.value) {
+  //   await refresh()
+  // }
+
+  // if (!product.value) {
+  //   navigateTo('/404')
+  // }
 })
+
+// onUnmounted(() => {
+//   delete nuxtApp.payload.data[`products-${product_id}`]
+// })
 
 const breadcrumbs = [
   {

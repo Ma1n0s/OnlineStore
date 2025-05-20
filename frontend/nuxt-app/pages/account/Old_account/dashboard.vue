@@ -18,7 +18,7 @@ const firstRowCards = [
 ]
 
 const secondRowCards = [
-  { icon: '', alt: 'favorites', title: 'Избранное', count: 0 },
+  // { icon: '', alt: 'favorites', title: 'Избранное', count: 0 },
   { icon: '', alt: 'comparison', title: 'Сравнение', count: 0 },
 ]
 
@@ -168,7 +168,7 @@ const secondRowCards = [
               Корзина
             </NuxtLink>
 
-            <NuxtLink
+            <!-- <NuxtLink
               to="/account/favorites"
               class="flex items-center gap-3 p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors text-sm"
             >
@@ -187,7 +187,7 @@ const secondRowCards = [
                 />
               </svg>
               Избранное
-            </NuxtLink>
+            </NuxtLink> -->
 
             <NuxtLink
               to="#"
