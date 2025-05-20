@@ -150,7 +150,8 @@ class ProductScreen extends Screen
                             ->title('Название товара')
                             ->placeholder('Введите название товара')
                             ->required()
-                            ->help('Полное название товара, которое будет отображаться на сайте'),
+                            ->help('Полное название товара, которое будет отображаться на сайте')
+                            ->disabled($this->product->exists),
                             
                         Input::make('product.slug')
                             ->title('URL-адрес (slug)')
@@ -163,12 +164,14 @@ class ProductScreen extends Screen
                         Input::make('product.article')
                             ->title('Артикул')
                             ->required()
-                            ->help('Уникальный артикул товара'),
+                            ->help('Уникальный артикул товара')
+                            ->disabled($this->product->exists),
                             
                         Input::make('product.code')
                             ->title('Код товара')
                             ->required()
-                            ->help('Внутренний код товара'),
+                            ->help('Внутренний код товара')
+                            ->disabled($this->product->exists),
                     ]),
                     
                     Quill::make('product.description')
@@ -183,7 +186,8 @@ class ProductScreen extends Screen
                             ->type('number')
                             ->step('0.01')
                             ->required()
-                            ->help('Основная цена товара в рублях'),
+                            ->help('Основная цена товара в рублях')
+                            ->disabled($this->product->exists),
                             
                         Input::make('product.rating')
                             ->title('Рейтинг')
@@ -192,12 +196,18 @@ class ProductScreen extends Screen
                             ->min(0)
                             ->max(5)
                             ->help('Рейтинг товара от 0 до 5'),
+
+                        Input::make('product.quantity')
+                            ->title('Количество на складе')
+                            ->type('number')
+                            ->min(0)
+                            ->required()
+                            ->help('Доступное количество товара на складе'),
                     ]),
                     
                     Group::make([
                         Input::make('product.brand')
                             ->title('Бренд')
-                            ->required()
                             ->help('Производитель товара'),
                             
                         Input::make('product.warranty')
@@ -336,6 +346,7 @@ class ProductScreen extends Screen
                 'product.code' => 'required|string|max:100',
                 'product.brand' => 'required|string|max:100',
                 'product.category_id' => 'required|exists:categories,id',
+                'product.quantity' => 'required|integer|min:0', 
             ]);
 
             $data = $request->get('product');
@@ -347,6 +358,7 @@ class ProductScreen extends Screen
 
             $data['rating'] = $data['rating'] ?? 0;
             $data['price'] = (float)$data['price'];
+            $data['quantity'] = (int)$data['quantity'];
             
             if (isset($data['images'])) {
                 unset($data['images']);
