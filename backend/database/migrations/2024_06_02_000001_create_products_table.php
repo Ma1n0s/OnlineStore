@@ -27,6 +27,7 @@ return new class extends Migration
             $table->string('warranty')->nullable();
             $table->integer('reviews_count')->default(0);
             $table->integer('questions_count')->default(0);
+            $table->string('bonuses')->nullable();
             $table->integer('quantity')->default(0); 
             $table->timestamps();
         });
