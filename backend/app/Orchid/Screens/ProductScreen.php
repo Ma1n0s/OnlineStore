@@ -208,11 +208,16 @@ class ProductScreen extends Screen
                     Group::make([
                         Input::make('product.brand')
                             ->title('Бренд')
+                            ->required()
                             ->help('Производитель товара'),
                             
                         Input::make('product.warranty')
                             ->title('Гарантия')
                             ->help('Срок гарантии (например, "12 месяцев")'),
+
+                        Input::make('product.bonuses')
+                            ->title('Бонусы')
+                            ->help('Начисляемые бонусы за покупку'),
                     ]),
                     
                     $isCreatingInCategory

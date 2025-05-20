@@ -46,6 +46,9 @@ public function query(Category $category): array
 
     public function commandBar(): array
     {
+        $hasProducts = Product::where('category_id', $this->category->id)->exists();
+        $hasSubcategories = $this->category->children()->exists();
+        
         return [
             Link::make('Назад')
                 ->icon('arrow-left')
@@ -53,12 +56,14 @@ public function query(Category $category): array
                 
             Link::make('Добавить подкатегорию')
                 ->icon('folder-plus')
-                ->route('platform.category.create', ['parent_id' => $this->category->id]),
+                ->route('platform.category.create', ['parent_id' => $this->category->id])
+                ->canSee(!$hasProducts),
                 
             Link::make('Добавить товар')
                 ->icon('bag')
-                ->route('platform.product.create', ['category_id' => $this->category->id]),
-                
+                ->route('platform.product.create', ['category_id' => $this->category->id])
+                ->canSee(!$hasSubcategories),
+
             Link::make('Редактировать')
                 ->icon('pencil')
                 ->route('platform.category.edit', $this->category),
@@ -71,7 +76,7 @@ public function query(Category $category): array
                 ->parameters(['id' => $this->category->id]),
         ];
     }
-
+    
     public function layout(): array
     {
         $layouts = [

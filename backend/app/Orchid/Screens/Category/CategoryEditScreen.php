@@ -17,17 +17,25 @@ use Illuminate\Support\Facades\Storage;
 use Orchid\Attachment\Models\Attachment;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use App\Models\Product;
 
 class CategoryEditScreen extends Screen
 {
     public $category;
+    public $hasProducts;
 
     public function query(Category $category): array
     {
         $parentId = request()->input('parent_id');
+        $hasProducts = false;
+        
+        if ($parentId) {
+            $hasProducts = Product::where('category_id', $parentId)->exists();
+        }
         
         return [
             'category' => $category,
+            'hasProducts' => $hasProducts,
             'parentCategories' => Category::when($category->exists, function($query) use ($category) {
                     $query->whereNotIn('id', $category->descendants()->pluck('id'))
                         ->where('id', '!=', $category->id);
@@ -60,7 +68,6 @@ class CategoryEditScreen extends Screen
         $parentId = request()->input('parent_id');
         $isCreatingSubcategory = !$this->category->exists && $parentId;
         
-        // Подготовка данных для полей Upload
         $imageIds = [];
         $descImageIds = [];
 
@@ -77,7 +84,7 @@ class CategoryEditScreen extends Screen
                 ];
             }
         }
-        
+
         return [
             Layout::rows([
                 Input::make('category.name')
@@ -98,11 +105,17 @@ class CategoryEditScreen extends Screen
                     ->help('Подробное описание категории'),
 
                 $isCreatingSubcategory 
-                    ? Input::make('category.parent_id')
-                        ->title('Родительская категория')
-                        ->value($parentId)
-                        ->readonly()
-                        ->help('Эта категория будет подкатегорией для: ' . Category::find($parentId)->name)
+                    ? ($this->hasProducts 
+                        ? Input::make('category.parent_id')
+                            ->title('Родительская категория')
+                            ->value($parentId)
+                            ->readonly()
+                            ->help('Нельзя создать подкатегорию - в этой категории уже есть товары')
+                        : Input::make('category.parent_id')
+                            ->title('Родительская категория')
+                            ->value($parentId)
+                            ->readonly()
+                            ->help('Эта категория будет подкатегорией для: ' . Category::find($parentId)->name))
                     : Select::make('category.parent_id')
                         ->title('Родительская категория')
                         ->empty('Без родителя (корневая категория)', '0')
