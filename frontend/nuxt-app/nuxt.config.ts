@@ -30,15 +30,8 @@ export default defineNuxtConfig({
     provider: 'iconify',
   },
 
-  // routeRules: {
-  //   // Статические страницы с перегенерацией каждые 60 сек
-  //   '/category': { isr: 3600 },
-  //   '/category/**': { isr: 3600 },
-  //   '/products/**': { isr: 3600 },
-  //   '/products/category': { isr: 3600 },
-  //   '/products/category/**': { isr: 3600 },
-  //   '/products': { isr: 3600 },
-  //   '/': { isr: 3600 },
+  // experimental: {
+  //   payloadExtraction: false, // отключаем генерацию _payload.json
   // },
 
   googleFonts: {
@@ -75,10 +68,57 @@ export default defineNuxtConfig({
     },
   },
 
-  // Добавляем настройки для axios и fetch
+  routeRules: {
+    '/products/**': {
+      isr: 10,
+      cache: {
+        swr: true,
+      },
+    },
+    '/news': { isr: 10 },
+    '/news/**': { isr: 10 },
+    '/category': { isr: 10 },
+    '/category/**': { isr: 10 },
+    '/': { isr: 10 },
+    '/about': { static: true },
+    '/contacts': { static: true },
+    '/account/**': { ssr: true },
+  },
+
+  ssr: false,
   nitro: {
     prerender: {
-      crawlLinks: true,
+      crawlLinks: false,
+      routes: ['/about', '/contacts', 'condition'],
+
+      ignore: [
+        // Игнорируем файлы
+        '/**/*.js',
+        '/**/*.map',
+        '/**/*.json',
+
+        // Игнорируем API-маршруты
+        '/api/**',
+
+        // Динамические маршруты с потенциально битыми параметрами
+        '/**/undefined',
+        '/**/[object%20Object]',
+        '/**/null',
+        '/**/undefined/**',
+
+        // Тестовые и служебные пути
+        '/**/test/**',
+        '/**/dev/**',
+        '/**/admin/**',
+      ],
+      // failOnError: false,
+    },
+
+    storage: {
+      'cache:isr': {
+        driver: 'fs', // Храним кэш на диске
+        base: './.nitro/cache/isr',
+      },
     },
     devProxy: {
       '/api': {
@@ -127,7 +167,6 @@ export default defineNuxtConfig({
   },
 
   // Настройка cookie для SSR
-  ssr: true,
 
   app: {
     head: {
