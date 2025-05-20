@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\TextArea;
+use Orchid\Screen\Fields\Select;
 use Orchid\Support\Facades\Layout;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Alert;
@@ -67,6 +68,13 @@ class ProfileEditScreen extends Screen
                     Input::make('user.phone')
                         ->title('Телефон')
                         ->mask('+7 (999) 999-99-99'),
+
+                     Select::make('user.role')
+                        ->title('Роль')
+                        ->options([
+                            'user' => 'Пользователь',
+                            'admin' => 'Администратор',
+                        ]),
                 ]),
                 
                 'Компания' => Layout::rows([
@@ -120,6 +128,7 @@ class ProfileEditScreen extends Screen
         $request->validate([
             'user.name' => 'required',
             'user.email' => 'required|email',
+            'user.role' => 'required|in:user,admin',
             'profile.inn' => 'nullable|digits:10',
             'profile.kpp' => 'nullable|digits:9',
         ]);

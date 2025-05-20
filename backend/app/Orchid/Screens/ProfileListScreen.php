@@ -66,6 +66,12 @@ class ProfileListScreen extends Screen
                         return $user->profile->company_name ?? '-';
                     }),
 
+                TD::make('role', 'Роль')
+                    ->sort()
+                    ->render(function (User $user) {
+                        return $user->role === 'admin' ? 'Администратор' : 'Пользователь';
+                    }),
+
                 TD::make('Действия')
                     ->alignRight()
                     ->render(function (User $user) {

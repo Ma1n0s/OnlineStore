@@ -64,9 +64,13 @@ class User extends Authenticatable
         'id',
         'name',
         'email',
+        'role',
         'updated_at',
         'created_at',
     ];
+
+    public const ROLE_USER = 'user';
+    public const ROLE_ADMIN = 'admin';
 
     public function profile()
     {
@@ -76,5 +80,10 @@ class User extends Authenticatable
     public function bonusCard()
     {
         return $this->hasOne(BonusCard::class);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === self::ROLE_ADMIN;
     }
 }
