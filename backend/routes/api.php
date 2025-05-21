@@ -26,9 +26,8 @@ use App\Mail\VerificationCodeMail;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+
+
 
 Route::apiResource('advantages', \App\Http\Controllers\Api\AdvantageController::class);
 
@@ -41,16 +40,21 @@ Route::prefix('cart')->group(function () {
     Route::patch('/{cartItem}', [CartController::class, 'update']);
 });
 
+
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user()->load('profile');
 });
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'show']);
-    Route::put('/profile', [ProfileController::class, 'update']);
-    Route::put('/profile/company', [ProfileController::class, 'updateCompany']);
-    Route::put('/profile/password', [ProfileController::class, 'updatePassword']);
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    $user = $request->user()->load(['profile', 'bonusTransactions']);
+    return [
+        ...$user->toArray(),
+        'bonus_balance' => $user->bonus_balance,
+        'bonus_transactions' => $user->bonusTransactions
+    ];
 });
+
 
 // Authentication routes with CSRF protection disabled
 Route::group(['middleware' => [ 'guest']], function() {
