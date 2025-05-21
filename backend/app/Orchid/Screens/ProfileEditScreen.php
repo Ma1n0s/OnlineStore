@@ -10,6 +10,7 @@ use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\TextArea;
 use Orchid\Screen\Fields\Select;
 use Orchid\Support\Facades\Layout;
+use Orchid\Screen\TD;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Alert;
 
@@ -27,7 +28,8 @@ class ProfileEditScreen extends Screen
         return [
             'user' => $user->load(['profile', 'bonusCard']),
             'profile' => $user->profile ?? $user->profile()->create(),
-            'bonus_card' => $user->bonusCard
+            'bonus_card' => $user->bonusCard,
+            'bonus_transactions' => $user->bonusTransactions()->latest()->get(),
         ];
     }
 
@@ -45,82 +47,118 @@ class ProfileEditScreen extends Screen
         ];
     }
 
-    public function layout(): array
-    {
-        return [
-            Layout::tabs([
-                'Личная информация' => Layout::rows([
-                    Input::make('user.name')
-                        ->title('Имя')
-                        ->required(),
-                        
-                    Input::make('profile.last_name')
-                        ->title('Фамилия'),
-                        
-                    Input::make('profile.patronymic')
-                        ->title('Отчество'),
-                        
-                    Input::make('user.email')
-                        ->title('Email')
-                        ->required()
-                        ->type('email'),
-                        
-                    Input::make('user.phone')
-                        ->title('Телефон')
-                        ->mask('+7 (999) 999-99-99'),
+public function layout(): array
+{
+    return [
+        Layout::tabs([
+            'Личная информация' => Layout::rows([
+                Input::make('user.name')
+                    ->title('Имя')
+                    ->required(),
+                      
+                Input::make('user.email')
+                    ->title('Email')
+                    ->required()
+                    ->type('email'),
+                    
+                Input::make('user.phone')
+                    ->title('Телефон')
+                    ->mask('+7 (999) 999-99-99'),
 
-                     Select::make('user.role')
-                        ->title('Роль')
-                        ->options([
-                            'user' => 'Пользователь',
-                            'admin' => 'Администратор',
-                        ]),
+                Select::make('user.role')
+                    ->title('Роль')
+                    ->options([
+                        'user' => 'Пользователь',
+                        'admin' => 'Администратор',
+                    ]),
+            ]),
+            
+            'Компания' => Layout::rows([
+                Input::make('profile.company_name')
+                    ->title('Название компании'),
+                    
+                Input::make('profile.inn')
+                    ->title('ИНН')
+                    ->mask('9999999999'),
+                    
+                Input::make('profile.kpp')
+                    ->title('КПП')
+                    ->mask('999999999'),
+                    
+                TextArea::make('profile.legal_address')
+                    ->title('Юридический адрес')
+                    ->rows(3),
+            ]),
+
+'Бонусы' => [
+                Layout::rows([
+                    Input::make('bonus_balance')
+                        ->title('Текущий баланс бонусов')
+                        ->value($this->user->bonusTransactions()->sum('amount'))
+                        ->readonly(),
                 ]),
                 
-                'Компания' => Layout::rows([
-                    Input::make('profile.company_name')
-                        ->title('Название компании'),
+                // Форма для добавления новой операции
+                Layout::rows([
+                    Select::make('operation')
+                        ->title('Тип операции')
+                        ->options([
+                            'Начисление бонусов' => 'Начисление',
+                            'Списание бонусов' => 'Списание',
+                        ])
+                        ->required(),
                         
-                    Input::make('profile.inn')
-                        ->title('ИНН')
-                        ->mask('9999999999'),
+                    Input::make('amount')
+                        ->title('Сумма')
+                        ->type('number'),
                         
-                    Input::make('profile.kpp')
-                        ->title('КПП')
-                        ->mask('999999999'),
-                        
-                    TextArea::make('profile.legal_address')
-                        ->title('Юридический адрес')
-                        ->rows(3),
+                    Button::make('Добавить операцию')
+                        ->method('addBonusTransaction')
+                        ->icon('plus')
+                        ->class('btn btn-primary'),
                 ]),
+                
+                Layout::table('bonus_transactions', [
+                    TD::make('date', 'Дата')
+                        ->sort()
+                        ->render(function ($transaction) {
+                            return $transaction->date->format('d.m.Y');
+                        }),
+                        
+                    TD::make('operation', 'Операция'),
+                    
+                    TD::make('amount', 'Сумма')
+                        ->render(function ($transaction) {
+                            return ($transaction->amount > 0 ? '+' : '') . $transaction->amount;
+                        }),
+                    
+                    TD::make('status', 'Статус'),
+                    
+                ]),
+            ],     
+        ])
+    ];
+}
 
-                'Бонусная карта' => Layout::rows([
-                    Input::make('bonus_card.card_number')
-                        ->title('Номер карты')
-                        ->disabled()
-                        ->canSee($this->user->bonusCard !== null),
-                        
-                    // Input::make('bonus_card.current_level')
-                    //     ->title('Текущий уровень')
-                    //     ->type('number')
-                    //     ->canSee($this->user->bonusCard !== null),
-                        
-                    Input::make('bonus_card.points')
-                        ->title('Баллы')
-                        ->type('number')
-                        ->canSee($this->user->bonusCard !== null),
-                        
-                    // Input::make('bonus_card.points_to_next_level')
-                    //     ->title('Баллов до следующего уровня')
-                    //     ->type('number')
-                    //     ->canSee($this->user->bonusCard !== null),
-                        
-                    Button::make('Создать бонусную карту')
-                        ->method('createBonusCard')
-                        ->canSee($this->user->bonusCard === null),
-                ]),
-            ])
-        ];
+    public function addBonusTransaction(User $user, Request $request)
+    {
+        $request->validate([
+            'amount' => 'required|integer|min:1',
+            'operation' => 'required|in:Начисление бонусов,Списание бонусов',
+        ]);
+        
+        $user->bonusTransactions()->create([
+            'date' => now(),
+            'operation' => $request->operation,
+            'amount' => $request->operation === 'Начисление бонусов' 
+                ? abs($request->amount) 
+                : -abs($request->amount),
+            'status' => 'Завершено',
+        ]);
+        
+        Alert::success('Бонусная операция успешно добавлена');
+        
+        return back();
     }
 
     public function save(User $user, Request $request)
@@ -162,20 +200,5 @@ class ProfileEditScreen extends Screen
         Alert::info('Профиль удален.');
         
         return redirect()->route('platform.profiles.list');
-    }
-
-    public function createBonusCard(User $user)
-    {
-        $bonusCard = new BonusCard();
-        $bonusCard->user_id = $user->id;
-        $bonusCard->card_number = $bonusCard->generateCardNumber();
-        $bonusCard->max_level = 5;
-        $bonusCard->current_level = 1;
-        $bonusCard->points = 0;
-        $bonusCard->points_to_next_level = 100;
-        $bonusCard->save();
-
-        Alert::success('Бонусная карта создана.');
-        return back();
     }
 }
