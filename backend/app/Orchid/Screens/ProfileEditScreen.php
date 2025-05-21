@@ -13,6 +13,9 @@ use Orchid\Support\Facades\Layout;
 use Orchid\Screen\TD;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Alert;
+use Orchid\Screen\Fields\CheckBox;
+use Orchid\Screen\Actions\DropDown;
+use Orchid\Screen\Actions\Link;
 
 class ProfileEditScreen extends Screen
 {
@@ -30,6 +33,7 @@ class ProfileEditScreen extends Screen
             'profile' => $user->profile ?? $user->profile()->create(),
             'bonus_card' => $user->bonusCard,
             'bonus_transactions' => $user->bonusTransactions()->latest()->get(),
+              'orders' => $user->orders()->latest()->get(),
         ];
     }
 
@@ -47,98 +51,195 @@ class ProfileEditScreen extends Screen
         ];
     }
 
-public function layout(): array
-{
-    return [
-        Layout::tabs([
-            'Личная информация' => Layout::rows([
-                Input::make('user.name')
-                    ->title('Имя')
-                    ->required(),
-                      
-                Input::make('user.email')
-                    ->title('Email')
-                    ->required()
-                    ->type('email'),
-                    
-                Input::make('user.phone')
-                    ->title('Телефон')
-                    ->mask('+7 (999) 999-99-99'),
-
-                Select::make('user.role')
-                    ->title('Роль')
-                    ->options([
-                        'user' => 'Пользователь',
-                        'admin' => 'Администратор',
-                    ]),
-            ]),
-            
-            'Компания' => Layout::rows([
-                Input::make('profile.company_name')
-                    ->title('Название компании'),
-                    
-                Input::make('profile.inn')
-                    ->title('ИНН')
-                    ->mask('9999999999'),
-                    
-                Input::make('profile.kpp')
-                    ->title('КПП')
-                    ->mask('999999999'),
-                    
-                TextArea::make('profile.legal_address')
-                    ->title('Юридический адрес')
-                    ->rows(3),
-            ]),
-
-'Бонусы' => [
-                Layout::rows([
-                    Input::make('bonus_balance')
-                        ->title('Текущий баланс бонусов')
-                        ->value($this->user->bonusTransactions()->sum('amount'))
-                        ->readonly(),
-                ]),
-                
-                // Форма для добавления новой операции
-                Layout::rows([
-                    Select::make('operation')
-                        ->title('Тип операции')
-                        ->options([
-                            'Начисление бонусов' => 'Начисление',
-                            'Списание бонусов' => 'Списание',
-                        ])
+    public function layout(): array
+    {
+        return [
+            Layout::tabs([
+                'Личная информация' => Layout::rows([
+                    Input::make('user.name')
+                        ->title('Имя')
                         ->required(),
                         
-                    Input::make('amount')
-                        ->title('Сумма')
-                        ->type('number'),
+                    Input::make('user.email')
+                        ->title('Email')
+                        ->required()
+                        ->type('email'),
                         
-                    Button::make('Добавить операцию')
-                        ->method('addBonusTransaction')
-                        ->icon('plus')
-                        ->class('btn btn-primary'),
+                    Input::make('user.phone')
+                        ->title('Телефон')
+                        ->mask('+7 (999) 999-99-99'),
+
+                    Select::make('user.role')
+                        ->title('Роль')
+                        ->options([
+                            'user' => 'Пользователь',
+                            'admin' => 'Администратор',
+                        ]),
                 ]),
                 
-                Layout::table('bonus_transactions', [
-                    TD::make('date', 'Дата')
-                        ->sort()
-                        ->render(function ($transaction) {
-                            return $transaction->date->format('d.m.Y');
-                        }),
+                'Компания' => Layout::rows([
+                    Input::make('profile.company_name')
+                        ->title('Название компании'),
                         
-                    TD::make('operation', 'Операция'),
-                    
-                    TD::make('amount', 'Сумма')
-                        ->render(function ($transaction) {
-                            return ($transaction->amount > 0 ? '+' : '') . $transaction->amount;
-                        }),
-                    
-                    TD::make('status', 'Статус'),
-                    
+                    Input::make('profile.inn')
+                        ->title('ИНН')
+                        ->mask('9999999999'),
+                        
+                    Input::make('profile.kpp')
+                        ->title('КПП')
+                        ->mask('999999999'),
+                        
+                    TextArea::make('profile.legal_address')
+                        ->title('Юридический адрес')
+                        ->rows(3),
                 ]),
-            ],     
-        ])
-    ];
-}
+
+                'Бонусы' => [
+                    Layout::rows([
+                        Input::make('bonus_balance')
+                            ->title('Текущий баланс бонусов')
+                            ->value($this->user->bonusTransactions()->sum('amount'))
+                            ->readonly(),
+                    ]),
+                
+                    Layout::rows([
+                        Select::make('operation')
+                            ->title('Тип операции')
+                            ->options([
+                                'Начисление бонусов' => 'Начисление',
+                                'Списание бонусов' => 'Списание',
+                            ])
+                            ->required(),
+                            
+                        Input::make('amount')
+                            ->title('Сумма')
+                            ->type('number'),
+                            
+                        Button::make('Добавить операцию')
+                            ->method('addBonusTransaction')
+                            ->icon('plus')
+                            ->class('btn btn-primary'),
+                    ]),
+                    
+                    Layout::table('bonus_transactions', [
+                        TD::make('date', 'Дата')
+                            ->sort()
+                            ->render(function ($transaction) {
+                                return $transaction->date->format('d.m.Y');
+                            }),
+                            
+                        TD::make('operation', 'Операция'),
+                        
+                        TD::make('amount', 'Сумма')
+                            ->render(function ($transaction) {
+                                return ($transaction->amount > 0 ? '+' : '') . $transaction->amount;
+                            }),
+                        
+                        TD::make('status', 'Статус'),
+                        
+                    ]),
+                ],
+                
+                'Заказы' => [
+                    Layout::table('orders', [
+                        TD::make('order_number', 'Номер заказа')
+                            ->sort()
+                            ->filter(TD::FILTER_TEXT),
+                            
+                        TD::make('created_at', 'Дата')
+                            ->sort()
+                            ->render(function ($order) {
+                                return $order->created_at->format('d.m.Y H:i');
+                            }),
+                            
+                        TD::make('total_amount', 'Сумма')
+                            ->sort()
+                            ->render(function ($order) {
+                                return number_format($order->total_amount, 2, '.', ' ') . ' ₽';
+                            }),
+                            
+                        TD::make('status', 'Статус')
+                            ->sort()
+                            ->render(function ($order) {
+                                return Select::make("orders.{$order->id}.status")
+                                    ->options([
+                                        'pending' => 'В обработке',
+                                        'processing' => 'В процессе',
+                                        'completed' => 'Завершен',
+                                        'cancelled' => 'Отменен'
+                                    ])
+                                    ->value($order->status);
+                            }),
+                            
+                        TD::make('is_paid', 'Оплата')
+                            ->sort()
+                            ->render(function ($order) {
+                                return CheckBox::make("orders.{$order->id}.is_paid")
+                                    ->value($order->is_paid)
+                                    ->sendTrueOrFalse();
+                            }),
+                            
+                        TD::make('Действия')
+                            ->render(function ($order) {
+                                return DropDown::make()
+                                    ->icon('options-vertical')
+                                    ->list([
+                                        Link::make('Просмотр')
+                                            ->route('platform.orders.view', $order->id)
+                                            ->icon('eye'),
+                                            
+                                        Button::make('Удалить')
+                                            ->method('removeOrder')
+                                            ->parameters(['id' => $order->id])
+                                            ->icon('trash')
+                                            ->confirm('Вы уверены что хотите удалить этот заказ?'),
+                                    ]);
+                            }),
+                    ]),
+                    
+                    // Layout::rows([
+                    //     Button::make('Сохранить изменения')
+                    //         ->method('saveOrders')
+                    //         ->icon('check'),
+                    // ]),
+                ],
+            ])
+        ];
+    }
+
+    public function saveOrders(User $user, Request $request)
+    {
+        $request->validate([
+            'orders' => 'sometimes|array',
+            'orders.*.status' => 'sometimes|in:pending,processing,completed,cancelled',
+            'orders.*.is_paid' => 'sometimes|boolean',
+        ]);
+        
+        foreach ($request->input('orders', []) as $id => $data) {
+            $order = $user->orders()->find($id);
+            
+            if ($order) {
+                $order->update([
+                    'status' => $data['status'] ?? $order->status,
+                    'is_paid' => $data['is_paid'] ?? $order->is_paid,
+                ]);
+            }
+        }
+        
+        Alert::success('Изменения в заказах сохранены.');
+    }
+
+    public function removeOrder(User $user, Request $request)
+    {
+        $order = $user->orders()->find($request->input('id'));
+        
+        if ($order) {
+            $order->delete();
+            Alert::info('Заказ удален.');
+        }
+        
+        return back();
+    }
 
     public function addBonusTransaction(User $user, Request $request)
     {

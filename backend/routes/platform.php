@@ -34,6 +34,7 @@ use Illuminate\Support\Facades\Route;
 use Tabuna\Breadcrumbs\Trail;
 use App\Orchid\Screens\SwiperItemListScreen;
 use App\Orchid\Screens\SwiperItemEditScreen;
+use App\Orchid\Screens\OrderViewScreen;
 
 /*
 |--------------------------------------------------------------------------
@@ -183,6 +184,9 @@ Route::screen('profiles/{user}/edit', ProfileEditScreen::class)
             ->parent('platform.profiles.list')
             ->push('Редактирование профиля', $user->name);
     });
+
+Route::screen('orders/{order}', OrderViewScreen::class)
+    ->name('platform.orders.view');
 
 // Platform > Profile
 Route::screen('profile', UserProfileScreen::class)

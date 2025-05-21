@@ -37,7 +37,8 @@ const fetchUser = async () => {
           email: data.value.profile?.company_email
         },
         bonusBalance: data.value.bonus_balance,
-        bonusTransactions: data.value.bonus_transactions || []
+        bonusTransactions: data.value.bonus_transactions || [],
+        orders: data.value.orders || []
       }
       isAuth.value = true
       console.log('User data after processing:', user.value) 

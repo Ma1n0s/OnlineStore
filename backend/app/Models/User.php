@@ -94,6 +94,12 @@ class User extends Authenticatable
         return $this->bonusTransactions()->sum('amount');
     }
 
+    public function orders()
+    {
+        return $this->hasMany(Order::class)->latest();
+    }
+    
+
     public function isAdmin(): bool
     {
         return $this->role === self::ROLE_ADMIN;
