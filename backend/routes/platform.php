@@ -35,6 +35,9 @@ use Tabuna\Breadcrumbs\Trail;
 use App\Orchid\Screens\SwiperItemListScreen;
 use App\Orchid\Screens\SwiperItemEditScreen;
 use App\Orchid\Screens\OrderViewScreen;
+use App\Orchid\Screens\FeedbackListScreen;
+use App\Orchid\Screens\FeedbackEditScreen;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -69,6 +72,20 @@ Route::screen('news/{news}/edit', NewsScreen::class)->name('platform.news.edit')
 
 Route::screen('products', ProductListScreen::class)
     ->name('platform.product.list');
+
+Route::screen('feedback', FeedbackListScreen::class)
+    ->name('platform.feedback.list')
+    ->breadcrumbs(fn (Trail $trail) => $trail
+        ->parent('platform.main')
+        ->push('Обратная связь'));
+
+Route::screen('feedback/{feedback}/edit', FeedbackEditScreen::class)
+    ->name('platform.feedback.edit')
+    ->breadcrumbs(function (Trail $trail, Feedback $feedback) {
+        return $trail
+            ->parent('platform.feedback.list')
+            ->push('Редактирование обращения');
+    });
 
 Route::screen('product/{product}/edit', ProductScreen::class)
     ->name('platform.product.edit');

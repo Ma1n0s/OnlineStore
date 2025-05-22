@@ -1,5 +1,5 @@
 <script setup>
-import { reactive } from 'vue'
+import { reactive, computed } from 'vue'
 import { useUserStore } from '~/stores/user'
 import SidebarMenu from '~/components/Account/SidebarMenu.vue'
 
@@ -45,8 +45,34 @@ const profile = computed(() => ({
   registrationDate: userStore.user?.created_at || '',
   company: userStore.user?.company_name || '',
   companyDetails: userStore.user?.companyDetails || null
-}));
+}))
 
+const submitForm = async () => {
+  state.isSubmitting = true
+  
+  try {
+    const response = await $fetch('/api/feedback', {
+      method: 'POST',
+      body: form,
+      headers: {
+        'Accept': 'application/json',
+        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+      },
+      credentials: 'include',
+    })
+    
+    if (response.status === 'success') {
+      state.isSuccess = true
+      form.message = ''
+      form.rating = 0
+    }
+  } catch (error) {
+    console.error('Error submitting feedback:', error)
+    alert('Произошла ошибка при отправке обращения. Пожалуйста, попробуйте позже.')
+  } finally {
+    state.isSubmitting = false
+  }
+}
 </script>
 
 <template>

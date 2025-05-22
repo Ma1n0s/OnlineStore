@@ -72,6 +72,12 @@ class PlatformProvider extends OrchidServiceProvider
                 ->permission('platform.profiles.view')
                 ->title('Управление профилями'),
 
+             Menu::make('Обратная связь')
+                ->icon('chat')
+                ->route('platform.feedback.list')
+                ->permission('platform.feedback.view')
+                ->title('Управление обращениями'),
+
             // Menu::make(__('Пользователи'))
             //     ->icon('bs.people')
             //     ->route('platform.systems.users')
@@ -181,6 +187,10 @@ class PlatformProvider extends OrchidServiceProvider
             ItemPermission::group('Профили')
                 ->addPermission('platform.profiles.view', 'Просмотр профилей')
                 ->addPermission('platform.profiles.edit', 'Редактирование профилей'),
+                
+            ItemPermission::group('Обратная связь')
+                ->addPermission('platform.feedback.view', 'Просмотр обратной связи')
+                ->addPermission('platform.feedback.edit', 'Редактирование обратной связи'), 
         ];
     }
     
@@ -205,6 +215,8 @@ class PlatformProvider extends OrchidServiceProvider
             \App\Orchid\Screens\ProfileEditScreen::class,
             \App\Orchid\Screens\SwiperItemListScreen::class,
             \App\Orchid\Screens\SwiperItemEditScreen::class,
+            \App\Orchid\Screens\FeedbackListScreen::class,
+            \App\Orchid\Screens\FeedbackEditScreen::class,
         ];
     }
 }
