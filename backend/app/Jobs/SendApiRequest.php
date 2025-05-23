@@ -8,6 +8,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+
 class SendApiRequest implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -16,9 +18,7 @@ class SendApiRequest implements ShouldQueue
      * Create a new job instance.
      */
 
-     public $tries = 7; // Максимальное количество попыток
-    
-     public $backoff = [300, 3600, 43200, 86400, 86400*3, 86400*7, 86400*30]; // Задержки между попытками (в секундах)
+     public $timeout = 30; // Таймаут в секундах
 
     public function __construct(
         protected string $url,
@@ -32,13 +32,18 @@ class SendApiRequest implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle()
     {
         $response = Http::withHeaders($this->headers)
             ->timeout(30)
             ->post($this->url, $this->data);
             
         if ($response->failed()) {
+            Log::error('API request failed', [
+                'url' => $this->url,
+                'status' => $response->status(),
+                'response' => $response->body()
+            ]);
             throw new \Exception("API request failed with status: " . $response->status());
         }
         

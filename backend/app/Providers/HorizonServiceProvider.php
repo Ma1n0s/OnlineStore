@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Horizon\Horizon;
 use Laravel\Horizon\HorizonApplicationServiceProvider;
+use App\Notifications\HorizonAlertNotification;
 
 class HorizonServiceProvider extends HorizonApplicationServiceProvider
 {
@@ -17,8 +18,13 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
         parent::boot();
 
         // Horizon::routeSmsNotificationsTo('15556667777');
-        // Horizon::routeMailNotificationsTo('example@example.com');
+        // Horizon::routeMailNotificationsTo();
+        Horizon::routeMailNotificationsTo(env('HORIZON_ALERT_EMAIL', 'admin@example.com'));
         // Horizon::routeSlackNotificationsTo('slack-webhook-url', '#channel');
+
+        // Horizon::notification(function ($notification) {
+        //     return new HorizonAlertNotification($notification);
+        // });
     }
 
     /**

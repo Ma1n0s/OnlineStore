@@ -84,7 +84,9 @@ return [
     */
 
     'waits' => [
-        'redis:default' => 60,
+        'redis:critical' => 30,
+        'redis:default' => 2,
+        'redis:batch' => 120,
     ],
 
     /*
@@ -179,19 +181,19 @@ return [
     |
     */
 
+    'notifications' => [
+        'enabled' => true,
+        'email' => env('HORIZON_ALERT_EMAIL', 'admin@example.com'),
+    ],
+
     'defaults' => [
         'supervisor-1' => [
             'connection' => 'redis',
             'queue' => ['default'],
             'balance' => 'auto',
-            'autoScalingStrategy' => 'time',
             'maxProcesses' => 1,
-            'maxTime' => 0,
-            'maxJobs' => 0,
-            'memory' => 128,
             'tries' => 1,
             'timeout' => 60,
-            'nice' => 0,
         ],
     ],
 
@@ -202,14 +204,21 @@ return [
                 'queue' => ['default', 'api-requests'],
                 'balance' => 'auto',
                 'processes' => 10,
-                'tries' => 3, // Глобальная настройка попыток
-                'timeout' => 60,
+                'tries' => 7,
+                'backoff' => [300, 3600, 3600, 3600, 3600, 43200, 86400],
+                'timeout' => 120,
             ],
         ],
 
         'local' => [
             'supervisor-1' => [
-                'maxProcesses' => 3,
+                'connection' => 'redis',
+                'queue' => ['default', 'api-requests'], // Явно добавляем очередь
+                'backoff' => [10, 10, 10],
+                'balance' => 'simple',
+                'processes' => 3, // Количество процессов для локальной разработки
+                'tries' => 3,
+                'timeout' => 60,
             ],
         ],
     ],

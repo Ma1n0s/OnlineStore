@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CategoryController;
@@ -198,3 +199,25 @@ Route::get('/swiper', [SwiperController::class, 'index']);
 
 // Маршрут для поиска
 Route::get('/search', [ProductController::class, 'search']);
+
+
+use App\Jobs\SendApiRequest;
+
+Route::get('/test', function(Request $request) {
+    $data = [
+        'title' => 'foo',
+        'body' => 'bar',
+        'userId' => 1,
+    ];
+
+    SendApiRequest::dispatch(
+        'https://jsonplaceholder.typicode.com/posts',
+        $data,
+        ['Authorization' => 'Bearer '.config('services.api.token')]
+    )->onQueue('api-requests');
+
+    // $response = SendApiRequest::dispatch('', $data)->onQueue('high-priority');
+    
+
+    return response()->json(['message' => 'Request queued successfully']);;
+});
