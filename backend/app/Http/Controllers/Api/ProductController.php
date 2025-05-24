@@ -158,6 +158,15 @@ class ProductController extends Controller
             });
         }
 
+        $count = $product->quantity;
+            if($count == 0){
+                $count = 'Нет в наличии';
+            } else if($count > 5){
+                $count = 'Много';
+            } else {
+                $count = 'В наличии';
+            }
+
         $response = [
             'id' => $product->id,
             'name' => $product->name,
@@ -169,7 +178,7 @@ class ProductController extends Controller
             'is_featured' => (bool)$product->is_featured,
             'sku' => $product->sku,
             'barcode' => $product->barcode,
-            'quantity' => $product->quantity,
+            'count' => $count,
             'rating' => $product->rating,
             'slug' => $product->slug,
             'brand' => $product->brand,
@@ -660,6 +669,15 @@ class ProductController extends Controller
         $formattedProducts = collect($products->items())->map(function($product) {
             $images = $this->transformProductImages($product);
             
+            $count = $product->quantity;
+            if($count == 0){
+                $count = 'Нет в наличии';
+            } else if($count > 5){
+                $count = 'Много';
+            } else {
+                $count = 'В наличии';
+            }
+
             return [
                 'id' => $product->id,
                 'name' => $product->name,
@@ -672,6 +690,7 @@ class ProductController extends Controller
                 'brand' => $product->brand,
                 'article' => $product->article,
                 'slug' => $product->slug,
+                'count' => $count,
                 // 'category' => $product->category ? [
                 //     'id' => $product->category->id,
                 //     'name' => $product->category->name,

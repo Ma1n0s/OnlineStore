@@ -421,9 +421,17 @@ const toggleBrand = brand => {
                 {{ item.name }}
               </h3>
 
-              <p class="text-green-600 text-sm mb-3 flex items-center">
-                <Icon name="material-symbols:check-rounded" class="h-4 w-4 inline mr-1" />
-                В наличии
+              <p
+                class="text-sm mb-3 flex items-center"
+                :class="item.count === 'Нет в наличии' ? 'text-red-600' : 'text-green-600'"
+              >
+                <Icon
+                  :name="
+                    item.count === 'Нет в наличии' ? 'material-symbols:close-rounded' : 'material-symbols:check-rounded'
+                  "
+                  class="h-4 w-4 inline mr-1"
+                />
+                {{ item.count }}
               </p>
 
               <div class="mb-3 flex-grow flex items-end">
@@ -434,12 +442,14 @@ const toggleBrand = brand => {
               </div>
 
               <button
+                :disabled="item.count === 'Нет в наличии'"
                 @click.prevent="
                   () => {
                     addToCart(item)
                   }
                 "
-                class="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors font-medium"
+                class="w-full text-white py-2 px-4 rounded-lg transition-colors font-medium"
+                :class="item.count === 'Нет в наличии' ? 'bg-gray' : 'bg-red-600 hover:bg-red-700'"
               >
                 В корзину
               </button>
