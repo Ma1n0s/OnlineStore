@@ -27,7 +27,8 @@ return new class extends Migration
             $table->index('email');
             $table->index('phone');
             $table->index('is_guest');
-            $table->index('role');
+            $table->string('role', 45)->nullable();
+            // $table->string('role', 45)->default('admin');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

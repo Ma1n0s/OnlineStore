@@ -79,7 +79,7 @@ export default defineNuxtConfig({
     '/news/**': { isr: 10 },
     '/category': { isr: 10 },
     '/category/**': { isr: 10 },
-    '/': { isr: 10 },
+    // '/': { isr: 10 },
     '/about': { static: true },
     '/contacts': { static: true },
     '/account/**': { ssr: true },
