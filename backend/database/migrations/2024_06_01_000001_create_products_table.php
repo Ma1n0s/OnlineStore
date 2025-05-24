@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('article');
             $table->string('brand');
             $table->decimal('rating', 3, 1)->default(0);
-            $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('set null');
+            // $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('set null');
             $table->string('slug')->unique();
             $table->string('warranty')->nullable();
             $table->integer('reviews_count')->default(0);
