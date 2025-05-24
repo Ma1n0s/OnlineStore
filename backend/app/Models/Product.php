@@ -33,6 +33,7 @@ class Product extends Model
         'rating',
         'category_id',
         'warranty',
+        'bonuses',
         'reviews_count',
         'questions_count',
     ];

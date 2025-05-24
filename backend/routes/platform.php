@@ -34,6 +34,10 @@ use Illuminate\Support\Facades\Route;
 use Tabuna\Breadcrumbs\Trail;
 use App\Orchid\Screens\SwiperItemListScreen;
 use App\Orchid\Screens\SwiperItemEditScreen;
+use App\Orchid\Screens\OrderViewScreen;
+use App\Orchid\Screens\FeedbackListScreen;
+use App\Orchid\Screens\FeedbackEditScreen;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -68,6 +72,20 @@ Route::screen('news/{news}/edit', NewsScreen::class)->name('platform.news.edit')
 
 Route::screen('products', ProductListScreen::class)
     ->name('platform.product.list');
+
+Route::screen('feedback', FeedbackListScreen::class)
+    ->name('platform.feedback.list')
+    ->breadcrumbs(fn (Trail $trail) => $trail
+        ->parent('platform.main')
+        ->push('Обратная связь'));
+
+Route::screen('feedback/{feedback}/edit', FeedbackEditScreen::class)
+    ->name('platform.feedback.edit')
+    ->breadcrumbs(function (Trail $trail, Feedback $feedback) {
+        return $trail
+            ->parent('platform.feedback.list')
+            ->push('Редактирование обращения');
+    });
 
 Route::screen('product/{product}/edit', ProductScreen::class)
     ->name('platform.product.edit');
@@ -184,6 +202,9 @@ Route::screen('profiles/{user}/edit', ProfileEditScreen::class)
             ->push('Редактирование профиля', $user->name);
     });
 
+Route::screen('orders/{order}', OrderViewScreen::class)
+    ->name('platform.orders.view');
+
 // Platform > Profile
 Route::screen('profile', UserProfileScreen::class)
     ->name('platform.profile')
@@ -206,11 +227,11 @@ Route::screen('users/create', UserEditScreen::class)
         ->push(__('Create'), route('platform.systems.users.create')));
 
 // Platform > System > Users
-Route::screen('users', UserListScreen::class)
-    ->name('platform.systems.users')
-    ->breadcrumbs(fn (Trail $trail) => $trail
-        ->parent('platform.index')
-        ->push(__('Users'), route('platform.systems.users')));
+// Route::screen('users', UserListScreen::class)
+//     ->name('platform.systems.users')
+//     ->breadcrumbs(fn (Trail $trail) => $trail
+//         ->parent('platform.index')
+//         ->push(__('Users'), route('platform.systems.users')));
 
 // Platform > System > Roles > Role
 Route::screen('roles/{role}/edit', RoleEditScreen::class)
@@ -227,11 +248,11 @@ Route::screen('roles/create', RoleEditScreen::class)
         ->push(__('Create'), route('platform.systems.roles.create')));
 
 // Platform > System > Roles
-Route::screen('roles', RoleListScreen::class)
-    ->name('platform.systems.roles')
-    ->breadcrumbs(fn (Trail $trail) => $trail
-        ->parent('platform.index')
-        ->push(__('Roles'), route('platform.systems.roles')));
+// Route::screen('roles', RoleListScreen::class)
+//     ->name('platform.systems.roles')
+//     ->breadcrumbs(fn (Trail $trail) => $trail
+//         ->parent('platform.index')
+//         ->push(__('Roles'), route('platform.systems.roles')));
 
 // Example...
 Route::screen('example', ExampleScreen::class)

@@ -1,19 +1,40 @@
 <script setup>
-import SidebarMenu from '~/components/Account/SidebarMenu.vue'
+import { computed } from 'vue';
+import SidebarMenu from '~/components/Account/SidebarMenu.vue';
+const userStore = useUserStore();
 
-const orders = [
-  {
-    id: '2503-211902-06296',
-    status: 'Отказ от заказа',
-    date: '3 марта 2024',
-    amount: '6 734 ₽',
-    paid: false,
-    products: [
-      { id: 1, name: 'Товар 1', image: 'Categories/Instruments.png' },
-      { id: 2, name: 'Товар 2', image: 'Categories/Instruments.png' },
-    ],
-  },
-]
+const orders = computed(() => {
+  return userStore.user?.orders?.map(order => ({
+    id: order.order_number,
+    status: getStatusText(order.status),
+    date: new Date(order.created_at).toLocaleDateString('ru-RU', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    }),
+    amount: new Intl.NumberFormat('ru-RU', {
+      style: 'currency',
+      currency: 'RUB',
+      maximumFractionDigits: 0
+    }).format(order.total_amount),
+    paid: order.is_paid,
+    products: order.products?.map(p => ({
+      id: p.id,
+      name: p.name,
+      image: p.image || '/images/placeholder-product.png'
+    })) || []
+  })) || [];
+});
+
+function getStatusText(status) {
+  const statuses = {
+    pending: 'В обработке',
+    processing: 'В процессе',
+    completed: 'Завершен',
+    cancelled: 'Отменен'
+  };
+  return statuses[status] || status;
+}
 </script>
 
 <template>

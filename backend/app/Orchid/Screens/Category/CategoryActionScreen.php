@@ -46,6 +46,9 @@ public function query(Category $category): array
 
     public function commandBar(): array
     {
+        $hasProducts = Product::where('category_id', $this->category->id)->exists();
+        $hasSubcategories = $this->category->children()->exists();
+        
         return [
             Link::make('Назад')
                 ->icon('arrow-left')
@@ -53,12 +56,14 @@ public function query(Category $category): array
                 
             Link::make('Добавить подкатегорию')
                 ->icon('folder-plus')
-                ->route('platform.category.create', ['parent_id' => $this->category->id]),
+                ->route('platform.category.create', ['parent_id' => $this->category->id])
+                ->canSee(!$hasProducts),
                 
             Link::make('Добавить товар')
                 ->icon('bag')
-                ->route('platform.product.create', ['category_id' => $this->category->id]),
-                
+                ->route('platform.product.create', ['category_id' => $this->category->id])
+                ->canSee(!$hasSubcategories),
+
             Link::make('Редактировать')
                 ->icon('pencil')
                 ->route('platform.category.edit', $this->category),
@@ -71,7 +76,7 @@ public function query(Category $category): array
                 ->parameters(['id' => $this->category->id]),
         ];
     }
-
+    
     public function layout(): array
     {
         $layouts = [
@@ -165,11 +170,11 @@ public function query(Category $category): array
                         return $product->category ? $product->category->name : '-'; 
                     }),
 
-                TD::make('rating', 'Рейтинг')
-                    ->sort()
-                    ->render(function (Product $product) {
-                        return number_format($product->rating, 1);
-                    }),
+                // TD::make('rating', 'Рейтинг')
+                //     ->sort()
+                //     ->render(function (Product $product) {
+                //         return number_format($product->rating, 1);
+                //     }),
 
                 TD::make('created_at', 'Дата создания')
                     ->sort()
@@ -205,39 +210,37 @@ public function query(Category $category): array
     public function removeCategory(Request $request)
     {
         $category = Category::findOrFail($request->get('id'));
-        
-        // Получаем все ID категорий для удаления (включая подкатегории)
-        $categoryIds = $category->descendants()->pluck('id')->push($category->id);
-        
-        // Удаляем все товары и их изображения
-        $products = Product::whereIn('subcategory_id', $categoryIds)->get();
-        
-        foreach ($products as $product) {
-            $this->deleteProductImages($product);
-            $product->delete();
+
+        if ($category->products()->exists()) {
+            Alert::error('Нельзя удалить категорию, в которой есть товары');
+            return back();
         }
-        
-        // Удаляем все подкатегории и их изображения
-        $descendants = $category->descendants()->get();
-        foreach ($descendants as $descendant) {
-            $this->deleteCategoryImages($descendant);
-            $descendant->delete();
+
+        $categoriesToDelete = $category->descendants()->with('products')->get();
+
+        foreach ($categoriesToDelete as $subCategory) {
+            if ($subCategory->products()->exists()) {
+                Alert::error('Нельзя удалить категорию, так как в её подкатегориях есть товары');
+                return back();
+            }
         }
-        
-        // Удаляем изображения самой категории
+
         $this->deleteCategoryImages($category);
-        
-        // Удаляем саму категорию
+        foreach ($categoriesToDelete as $subCategory) {
+            $this->deleteCategoryImages($subCategory);
+        }
+
+        foreach ($categoriesToDelete as $subCategory) {
+            $subCategory->products()->delete(); 
+            $subCategory->delete();
+        }
+
         $category->delete();
 
-        Alert::success('Категория и все её содержимое успешно удалены');
-        
-        if ($category->parent_id) {
-            return redirect()->route('platform.category.action', $category->parent);
-        }
-        
+        Alert::info('Категория и все её подкатегории успешно удалены');
         return redirect()->route('platform.category.list');
     }
+
 
     protected function deleteCategoryImages(Category $category)
     {

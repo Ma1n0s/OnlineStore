@@ -1,4 +1,3 @@
-// user.ts
 import { defineStore } from 'pinia'
 import type { User } from '~/types/user.types'
 
@@ -16,35 +15,40 @@ export const useUserStore = defineStore('user', () => {
     isAuth.value = false
   }
 
-  const fetchUser = async () => {
-    try {
-      const { data } = await useSanctumFetch('/api/user', {
-        credentials: 'include',
-      })
+const fetchUser = async () => {
+  try {
+    const { data } = await useSanctumFetch('/api/user', {
+      credentials: 'include',
+    })
 
-      if (data.value) {
-        user.value = {
-          ...data.value,
-          ...data.value.profile,
-          companyDetails: {
-            name: data.value.profile?.company_name,
-            inn: data.value.profile?.inn,
-            kpp: data.value.profile?.kpp,
-            address: data.value.profile?.legal_address,
-            director: data.value.profile?.director,
-            phone: data.value.profile?.company_phone,
-            email: data.value.profile?.company_email
-          }
-        }
-        isAuth.value = true
-        console.log('User data set:', user.value)
+    if (data.value) {
+      console.log('API Response:', data.value)
+      
+      user.value = {
+        ...data.value,
+        ...data.value.profile,
+        companyDetails: {
+          name: data.value.profile?.company_name,
+          inn: data.value.profile?.inn,
+          kpp: data.value.profile?.kpp,
+          address: data.value.profile?.legal_address,
+          director: data.value.profile?.director,
+          phone: data.value.profile?.company_phone,
+          email: data.value.profile?.company_email
+        },
+        bonusBalance: data.value.bonus_balance,
+        bonusTransactions: data.value.bonus_transactions || [],
+        orders: data.value.orders || []
       }
-    } catch (error) {
-      console.error('Error fetching user:', error)
-      user.value = null
-      isAuth.value = false
+      isAuth.value = true
+      console.log('User data after processing:', user.value) 
     }
+  } catch (error) {
+    console.error('Error fetching user:', error)
+    user.value = null
+    isAuth.value = false
   }
+}
 
   return { user, isAuth, fetchUser, setUser, clearUser }
 })

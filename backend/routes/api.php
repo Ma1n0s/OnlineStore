@@ -27,9 +27,8 @@ use App\Mail\VerificationCodeMail;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+
+
 
 Route::apiResource('advantages', \App\Http\Controllers\Api\AdvantageController::class);
 
@@ -42,16 +41,44 @@ Route::prefix('cart')->group(function () {
     Route::patch('/{cartItem}', [CartController::class, 'update']);
 });
 
+Route::middleware('auth:sanctum')->post('/feedback', function (Request $request) {
+    $request->validate([
+        'subject' => 'required|string|max:255',
+        'message' => 'required|string',
+        'rating' => 'nullable|integer|min:0|max:5',
+        'contact_method' => 'nullable|string|in:email,phone',
+    ]);
+
+    $feedback = new \App\Models\Feedback([
+        'user_id' => $request->user()->id,
+        'subject' => $request->subject,
+        'message' => $request->message,
+        'rating' => $request->rating ?? 0,
+        'contact_method' => $request->contact_method ?? 'email',
+        'status' => 'new',
+    ]);
+
+    $feedback->save();
+
+    return response()->json([
+        'message' => 'Ваше обращение успешно отправлено!',
+        'status' => 'success',
+    ]);
+});
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user()->load('profile');
 });
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'show']);
-    Route::put('/profile', [ProfileController::class, 'update']);
-    Route::put('/profile/company', [ProfileController::class, 'updateCompany']);
-    Route::put('/profile/password', [ProfileController::class, 'updatePassword']);
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    $user = $request->user()->load(['profile', 'bonusTransactions']);
+    return [
+        ...$user->toArray(),
+        'bonus_balance' => $user->bonus_balance,
+        'bonus_transactions' => $user->bonusTransactions
+    ];
 });
+
 
 // Authentication routes with CSRF protection disabled
 Route::group(['middleware' => [ 'guest']], function() {

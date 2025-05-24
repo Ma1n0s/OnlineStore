@@ -1,15 +1,23 @@
 <script setup>
-import { ref } from 'vue'
+import { computed } from 'vue'
 import SidebarMenu from '~/components/Account/SidebarMenu.vue'
-// import bonuses from '~/components/Account/bonuses.vue'
+const userStore = useUserStore()
 
-const transactions = ref([
-  { id: 1, date: '15.03.2023', operation: 'Начисление бонусов', amount: 150, status: 'Завершено' },
-  { id: 2, date: '10.03.2023', operation: 'Списание бонусов', amount: -50, status: 'Завершено' },
-  { id: 3, date: '05.03.2023', operation: 'Начисление бонусов', amount: 200, status: 'Завершено' },
-  { id: 4, date: '28.02.2023', operation: 'Начисление бонусов', amount: 100, status: 'Завершено' },
-  { id: 5, date: '25.02.2023', operation: 'Списание бонусов', amount: -75, status: 'Завершено' },
-])
+const transactions = computed(() => {
+  if (!userStore.user?.bonusTransactions) return []
+  
+  return userStore.user.bonusTransactions.map(t => ({
+    id: t.id,
+    date: t.date ? new Date(t.date).toLocaleDateString('ru-RU') : 'Нет даты',
+    operation: t.operation || 'Не указано',
+    amount: t.amount || 0,
+    status: t.status || 'Не указан',
+  }))
+})
+
+const bonusBalance = computed(() => {
+  return userStore.user?.bonusBalance || 0
+})
 </script>
 
 <template>
@@ -19,35 +27,19 @@ const transactions = ref([
         <SidebarMenu />
         <div class="flex-1 space-y-6">
           <div class="bg-white shadow rounded-lg p-6">
+            <h2 class="text-lg font-medium mb-4">Бонусный баланс: {{ bonusBalance }}</h2>
+          </div>
+          
+          <div class="bg-white shadow rounded-lg p-6">
             <h2 class="text-lg font-medium mb-4">История операций</h2>
-            <div class="overflow-x-auto">
+            <div v-if="transactions.length > 0" class="overflow-x-auto">
               <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                   <tr>
-                    <th
-                      scope="col"
-                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Дата
-                    </th>
-                    <th
-                      scope="col"
-                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Операция
-                    </th>
-                    <th
-                      scope="col"
-                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Сумма
-                    </th>
-                    <th
-                      scope="col"
-                      class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Статус
-                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дата</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Операция</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Сумма</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Статус</th>
                   </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -56,27 +48,24 @@ const transactions = ref([
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {{ transaction.operation }}
                     </td>
-                    <td
-                      class="px-6 py-4 whitespace-nowrap text-sm"
-                      :class="transaction.amount > 0 ? 'text-green-600' : 'text-red-600'"
-                    >
+                    <td class="px-6 py-4 whitespace-nowrap text-sm" 
+                        :class="transaction.amount > 0 ? 'text-green-600' : 'text-red-600'">
                       {{ transaction.amount > 0 ? '+' : '' }}{{ transaction.amount }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                      <span
-                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                        :class="
-                          transaction.status === 'Завершено'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        "
-                      >
+                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                            :class="transaction.status === 'Завершено' 
+                                   ? 'bg-green-100 text-green-800' 
+                                   : 'bg-yellow-100 text-yellow-800'">
                         {{ transaction.status }}
                       </span>
                     </td>
                   </tr>
                 </tbody>
               </table>
+            </div>
+            <div v-else class="text-center py-4 text-gray-500">
+              Нет данных о бонусных операциях
             </div>
           </div>
         </div>

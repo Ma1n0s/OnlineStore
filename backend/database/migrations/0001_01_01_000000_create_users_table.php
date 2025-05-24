@@ -19,6 +19,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
             $table->boolean('is_guest')->default(false);
+            $table->string('role')->default('user'); 
             $table->rememberToken();
             $table->timestamps();
             $table->timestamp('expires_at')->nullable();

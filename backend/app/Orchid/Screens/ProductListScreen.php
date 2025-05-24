@@ -137,6 +137,14 @@ class ProductListScreen extends Screen
                     ->render(function (Product $product) {
                         return '₽' . number_format((float)$product->price, 2);
                     }),
+
+                TD::make('quantity', 'Количество')
+                    ->width('120px')
+                    ->sort()
+                    ->align(TD::ALIGN_CENTER)
+                    ->render(function (Product $product) {
+                        return $product->quantity;
+                    }),
                     
                 TD::make('actions', '')
                     ->width('100px')

@@ -65,9 +65,15 @@ class User extends Authenticatable
         'id',
         'name',
         'email',
+        'role',
         'updated_at',
         'created_at',
     ];
+
+    protected $appends = ['bonus_balance'];
+
+    public const ROLE_USER = 'user';
+    public const ROLE_ADMIN = 'admin';
 
     public function profile()
     {
@@ -77,5 +83,26 @@ class User extends Authenticatable
     public function bonusCard()
     {
         return $this->hasOne(BonusCard::class);
+    }
+
+    public function bonusTransactions()
+    {
+        return $this->hasMany(BonusTransaction::class);
+    }
+
+    public function getBonusBalanceAttribute()
+    {
+        return $this->bonusTransactions()->sum('amount');
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class)->latest();
+    }
+    
+
+    public function isAdmin(): bool
+    {
+        return $this->role === self::ROLE_ADMIN;
     }
 }
