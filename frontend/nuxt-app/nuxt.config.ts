@@ -95,7 +95,7 @@ export default defineNuxtConfig({
     compressPublicAssets: false,
     prerender: {
       crawlLinks: false,
-      routes: ['/about', '/contacts', '/condition'],
+      routes: ['/about', '/contacts'],
 
       ignore: [
         // Игнорируем файлы
