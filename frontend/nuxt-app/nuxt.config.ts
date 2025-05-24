@@ -89,7 +89,7 @@ export default defineNuxtConfig({
   nitro: {
     prerender: {
       crawlLinks: false,
-      routes: ['/about', '/contacts', 'condition'],
+      routes: ['/about', '/contacts', '/condition'],
 
       ignore: [
         // Игнорируем файлы

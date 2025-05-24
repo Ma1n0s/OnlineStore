@@ -27,7 +27,7 @@ return new class extends Migration
             $table->index('email');
             $table->index('phone');
             $table->index('is_guest');
-            $table->string('role', 45)->nullable();
+            // $table->string('role', 45)->nullable();
             // $table->string('role', 45)->default('admin');
         });
 
