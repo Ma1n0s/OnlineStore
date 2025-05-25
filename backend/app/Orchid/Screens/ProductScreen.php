@@ -150,7 +150,7 @@ class ProductScreen extends Screen
                             ->title('Название товара')
                             ->placeholder('Введите название товара')
                             ->required()
-                            ->help('Полное название товара, которое будет отображаться на сайте')
+                            ->help('Полное название товара, которое будет отображаться на сайте'),
                             // ->disabled($this->product->exists),
                             
                         Input::make('product.slug')
@@ -164,13 +164,13 @@ class ProductScreen extends Screen
                         Input::make('product.article')
                             ->title('Артикул')
                             ->required()
-                            ->help('Уникальный артикул товара')
+                            ->help('Уникальный артикул товара'),
                             // ->disabled($this->product->exists),
                             
                         Input::make('product.code')
                             ->title('Код товара')
                             ->required()
-                            ->help('Внутренний код товара')
+                            ->help('Внутренний код товара'),
                             // ->disabled($this->product->exists),
                     ]),
                     
@@ -186,7 +186,7 @@ class ProductScreen extends Screen
                             ->type('number')
                             ->step('0.01')
                             ->required()
-                            ->help('Основная цена товара в рублях')
+                            ->help('Основная цена товара в рублях'),
                             // ->disabled($this->product->exists),
                             
                         // Input::make('product.rating')
