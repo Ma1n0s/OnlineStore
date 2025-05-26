@@ -213,7 +213,7 @@ onMounted(() => {
       </div>
 
       <div class="flex flex-col md:flex-row gap-6">
-        <SidebarMenu />
+        <SidebarMenu class="hidden md:block" />
 
         <div class="flex-1 space-y-6">
           <div class="bg-white p-6 rounded-xl shadow">
