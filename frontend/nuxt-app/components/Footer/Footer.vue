@@ -4,94 +4,37 @@ const links = [
   { link: '/about', name: 'О компании' },
   { link: '/news', name: 'Статьи' },
 ]
-
-// const socialLinks = [
-//   { icon: 'material-symbols:warning-rounded', link: '#', name: 'Вконтакте' },
-//   { icon: 'material-symbols:warning-rounded', link: '#', name: 'Телеграм' },
-//   { icon: 'material-symbols:warning-rounded', link: '#', name: 'WhatsApp' },
-// ]
 </script>
 
 <template>
-  <div class="bg-black text-white font-sans">
-    <div class="container mx-auto px-4 py-12">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pb-10 border-b border-neutral-dark">
-        <div class="flex items-start">
-          <div class="text-primary mr-4 mt-1">
-            <Icon name="material-symbols:location-on-rounded" class="text-3xl" alt="Адрес" />
-          </div>
-          <div>
-            <h4 class="text-lg font-semibold mb-1">Адрес</h4>
-            <p class="text-neutral-DEFAULT">Ул. Пушкина д.42</p>
-            <p class="text-neutral-DEFAULT text-sm mt-1">Пн-Пт: 9:00 - 18:00</p>
-          </div>
-        </div>
-
-        <div class="flex items-start">
-          <div class="text-primary mr-4 mt-1">
-            <Icon name="material-symbols:phone-android-rounded" class="text-3xl" alt="Телефон" />
-          </div>
-          <div>
-            <h4 class="text-lg font-semibold mb-1">Телефон</h4>
-            <NuxtLink href="tel:+79008005533" class="text-neutral-DEFAULT hover:text-primary transition-colors"
-              >+7 (900) 800 555 33-55</NuxtLink
-            >
-            <p class="text-neutral-DEFAULT text-sm mt-1">Бесплатная консультация</p>
-          </div>
-        </div>
-
-        <div class="flex items-start">
-          <div class="text-primary mr-4 mt-1">
-            <Icon name="material-symbols:alternate-email-rounded" class="text-3xl" alt="Почта" />
-          </div>
-          <div>
-            <h4 class="text-lg font-semibold mb-1">Почта</h4>
-            <NuxtLink href="mailto:mail@gmail.com" class="text-neutral-DEFAULT hover:text-primary transition-colors"
-              >mail@gmail.com</NuxtLink
-            >
-            <p class="text-neutral-DEFAULT text-sm mt-1">Ответим в течение дня</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-10 pt-10">
-        <div class="space-y-6">
+  <div class="bg-black text-white font-sans border-t border-gray-800">
+    <div class="container mx-auto px-4 py-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="space-y-4">
           <NuxtLink to="/" class="inline-block">
-            <NuxtImg src="full_logo.svg" class="h-24" alt="Абсолют Техно" />
+            <NuxtImg src="full_logo.svg" class="h-20" alt="Абсолют Техно" />
           </NuxtLink>
-          <p class="text-neutral-DEFAULT text-sm leading-relaxed">
+          <p class="text-gray-400 text-xs leading-relaxed">
             Мы предлагаем широкий ассортимент качественного оборудования. У нас вы найдете всё необходимое для
             строительства, ремонта, садовых работ и многого другого. Мы гарантируем надежность и доступные цены.
           </p>
-
-          <div class="flex space-x-4">
-            <!-- <NuxtLink
-              v-for="(social, index) in socialLinks"
-              :key="index"
-              :to="social.link"
-              :alt="social.name || `Ссылка на социальную сеть ${index}`"
-              class="text-neutral-DEFAULT hover:text-primary text-2xl transition-colors"
-            >
-              <Icon :name="social.icon" class="text-3xl" :alt="`Иконка на социальную сеть ${social.name}`" />
-            </NuxtLink> -->
-          </div>
         </div>
 
         <div>
-          <h3 class="text-lg font-semibold mb-6 pb-2 relative inline-block">
+          <h3 class="text-base font-medium mb-4 pb-1 relative inline-block">
             Полезные ссылки
             <span class="absolute bottom-0 left-0 w-full h-0.5 bg-primary"></span>
           </h3>
-          <ul class="space-y-3">
+          <ul class="space-y-2">
             <li v-for="(item, index) in links" :key="index">
               <NuxtLink
                 :to="item.link || '#'"
-                class="text-neutral-DEFAULT hover:text-primary transition-colors flex items-center"
+                class="text-gray-400 hover:text-primary transition-colors duration-200 flex items-center text-sm"
                 :alt="`Ссылка на ${item.name}`"
               >
                 <Icon
                   name="material-symbols:chevron-right-rounded"
-                  class="mr-1 text-xs"
+                  class="mr-1 text-xs opacity-70"
                   :alt="`Ссылка на ${item.name}`"
                 />
                 {{ item.name }}
@@ -99,16 +42,26 @@ const links = [
             </li>
           </ul>
         </div>
-      </div>
-
-      <div class="border-t border-neutral-dark mt-12 pt-6 text-center text-neutral-DEFAULT text-sm">
-        <p>
-          © 2025 Все права защищены.<Icon
-            name="material-symbols:favorite-rounded"
-            class="text-primary"
-            alt="Все права защищены"
-          />
-        </p>
+        <div>
+          <h3 class="text-base font-medium mb-4 pb-1 relative inline-block">
+            Контакты
+            <span class="absolute bottom-0 left-0 w-full h-0.5 bg-primary"></span>
+          </h3>
+          <ul class="space-y-2 text-gray-400 text-sm">
+            <li class="flex items-start">
+              <Icon name="mdi:map-marker-outline" class="mr-2 mt-0.5 text-sm opacity-70" />
+              <span>Ул. Пушкина д.42</span>
+            </li>
+            <li class="flex items-start">
+              <Icon name="mdi:phone-outline" class="mr-2 mt-0.5 text-sm opacity-70" />
+              <span>+7 (900) 800 555 33-55</span>
+            </li>
+            <li class="flex items-start">
+              <Icon name="mdi:email-outline" class="mr-2 mt-0.5 text-sm opacity-70" />
+              <span>mail@gmail.com</span>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
