@@ -1,8 +1,10 @@
 <template>
   <NuxtLayout>
     <NuxtPage />
+    <MobileBottomNav />
   </NuxtLayout>
 </template>
+
 
 <style>
 body {
@@ -11,6 +13,7 @@ body {
 </style>
 
 <script setup>
+import MobileBottomNav from './components/MobileBottomNav/MobileBottomNav.vue';
 // onMounted(() => {
 //   const { isAuthenticated, user } = useSanctumAuth();
 //   console.log(user.value, isAuthenticated.value, "user pinia");
