@@ -605,7 +605,7 @@ class ProductController extends Controller
         ]);
         
         $page = $request->input('page', 1);
-        $limit = $request->input('limit', 12);
+        $limit = $request->input('limit', 1);
         $sort = $request->input('sort', 'newest');
         $additionData = $request->boolean('addition_data', false);
         
