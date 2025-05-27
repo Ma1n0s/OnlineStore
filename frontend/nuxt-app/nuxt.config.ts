@@ -34,6 +34,11 @@ export default defineNuxtConfig({
   //   payloadExtraction: false, // отключаем генерацию _payload.json
   // },
 
+  image: {
+    provider: 'ipx',
+    ipx: {},
+  },
+
   googleFonts: {
     families: {
       Montserrat: [400, 500, 600, 700, 800],
@@ -87,9 +92,10 @@ export default defineNuxtConfig({
 
   ssr: false,
   nitro: {
+    compressPublicAssets: false,
     prerender: {
       crawlLinks: false,
-      routes: ['/about', '/contacts', 'condition'],
+      routes: ['/about', '/contacts'],
 
       ignore: [
         // Игнорируем файлы

@@ -1,8 +1,8 @@
 <template>
-  <div class="flex flex-col lg:flex-row gap-4">
+  <div class="flex flex-row flex-wrap lg:flex-nowrap gap-4">
     <NuxtLink
       to="/news/1"
-      class="h-48 min-w-52 flex flex-col justify-between items-start gap-2 bg-zinc-200 py-4 px-4 rounded-2xl hover:bg-zinc-300 transition-colors cursor-pointer shadow-xl hover:shadow-2xl"
+      class="min-h-36 lg:min-h-48 min-w-52 flex flex-1 lg:flex-none flex-col justify-between items-start gap-2 bg-zinc-200 py-4 px-4 rounded-2xl hover:bg-zinc-300 transition-colors cursor-pointer shadow-xl hover:shadow-2xl"
     >
       <div class="flex flex-col items-start gap-2">
         <Icon name="material-symbols:check-circle-outline-rounded" class="h-8 w-8" />
@@ -13,7 +13,7 @@
 
     <NuxtLink
       to="/news/2"
-      class="h-48 min-w-52 flex flex-col justify-between items-start gap-2 bg-zinc-200 py-4 px-4 rounded-2xl hover:bg-zinc-300 transition-colors cursor-pointer shadow-xl hover:shadow-2xl"
+      class="min-h-36 lg:min-h-48 min-w-52 flex flex-1 lg:flex-none flex-col justify-between items-start gap-2 bg-zinc-200 py-4 px-4 rounded-2xl hover:bg-zinc-300 transition-colors cursor-pointer shadow-xl hover:shadow-2xl"
     >
       <div class="flex flex-col items-start gap-2">
         <Icon name="material-symbols:attach-money-rounded" class="h-8 w-8" />
@@ -24,7 +24,7 @@
 
     <NuxtLink
       to="/news/3"
-      class="h-48 min-w-52 flex flex-col justify-between items-start gap-2 bg-zinc-200 py-4 px-4 rounded-2xl hover:bg-zinc-300 transition-colors cursor-pointer shadow-xl hover:shadow-2xl"
+      class="min-h-36 lg:min-h-48 min-w-52 flex flex-1 lg:flex-none flex-col justify-between items-start gap-2 bg-zinc-200 py-4 px-4 rounded-2xl hover:bg-zinc-300 transition-colors cursor-pointer shadow-xl hover:shadow-2xl"
     >
       <div class="flex flex-col items-start gap-2">
         <Icon name="material-symbols:calendar-clock-outline-rounded" class="h-8 w-8" />
@@ -35,7 +35,7 @@
 
     <NuxtLink
       to="/news/4"
-      class="bg-gradient-to-bl from-slate-900 to-slate-200 w-full h-48 p-4 rounded-2xl transition-colors cursor-pointer shadow-xl hover:shadow-2xl flex flex-col gap-4"
+      class="bg-gradient-to-bl from-slate-900 to-slate-200 w-full min-h-36 lg:min-h-48 p-4 rounded-2xl transition-colors cursor-pointer shadow-xl hover:shadow-2xl flex flex-col gap-4"
     >
       <div class="text-white text-2xl font-bold">Покупайте как юрлицо</div>
       <div class="flex flex-row flex-wrap items-start gap-2">

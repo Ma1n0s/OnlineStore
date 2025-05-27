@@ -89,8 +89,6 @@ Route::group(['middleware' => [ 'guest']], function() {
         ]);
 
         $passwd = Str::random(10);
-        echo $passwd;
-
         $user = User::where('email', $request->email)->first();
         
         if (!$user) {
@@ -115,7 +113,6 @@ Route::group(['middleware' => [ 'guest']], function() {
         return response()->json([
             'message' => 'Verification code sent to your email',
             'status' => 'pending_verification',
-            'password'=> $passwd
         ]);
     });
 

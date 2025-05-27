@@ -8,13 +8,9 @@ const {
   public: { backendUrl },
 } = useRuntimeConfig()
 
-const { data: category } = await useAsyncData(`category-list`, () => $fetch(`${backendUrl}/api/categories`), {
-  revalidate: 3600,
-})
+const { data: category } = await useAsyncData(`category-list`, () => $fetch(`${backendUrl}/api/categories`))
 
-const { data: slides } = await useAsyncData(`slides`, () => $fetch(`${backendUrl}/api/swiper`), {
-  revalidate: 3600,
-})
+const { data: slides } = await useAsyncData(`slides`, () => $fetch(`${backendUrl}/api/swiper`))
 
 console.log(slides.value.data, 'slides')
 
@@ -51,13 +47,13 @@ console.log(category.value, 'category')
         <BigSwiper :slides="slides.data" />
       </div>
 
-      <div>
+      <div class="p-2 lg:p-0">
         <WrapperHeader title="Категории товаров">
           <CategoryList :categories="category" />
         </WrapperHeader>
       </div>
 
-      <div>
+      <div class="p-2 lg:p-0">
         <WrapperHeader title="Преимущества" class="text-center text-3xl">
           <Advantages />
         </WrapperHeader>

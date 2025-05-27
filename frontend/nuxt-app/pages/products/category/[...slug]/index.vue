@@ -17,13 +17,10 @@ const {
 const route = useRoute()
 const { slug } = route.params
 
-const { data } = await useAsyncData(
-  `products-list-${slug}`,
-  () =>
-    $fetch(`${backendUrl}/api/products/category-slug/${slug.at(-1)}`, {
-      query: { addition_data: 1 },
-    }),
-  { revalidate: 3600 }
+const { data } = await useAsyncData(`products-list-${slug}`, () =>
+  $fetch(`${backendUrl}/api/products/category-slug/${slug.at(-1)}`, {
+    query: { addition_data: 1 },
+  })
 )
 
 console.log(data.value, 'products')
@@ -92,6 +89,8 @@ const searchData = async () => {
     query['brands[]'] = state.filters.selectedBrands
   }
 
+  query.page = state.pagination.current_page
+
   const data = await $fetch(`${backendUrl}/api/products/category-slug/${slug.at(-1)}`, {
     query,
   })
@@ -99,6 +98,12 @@ const searchData = async () => {
   console.log(data, 'new data', query)
 
   state.products = data.products
+  state.pagination = data.pagination
+}
+
+const changePage = async page => {
+  state.pagination.current_page = page
+  await searchData()
 }
 
 const validProducts = computed(() => {
@@ -421,9 +426,17 @@ const toggleBrand = brand => {
                 {{ item.name }}
               </h3>
 
-              <p class="text-green-600 text-sm mb-3 flex items-center">
-                <Icon name="material-symbols:check-rounded" class="h-4 w-4 inline mr-1" />
-                В наличии
+              <p
+                class="text-sm mb-3 flex items-center"
+                :class="item.count === 'Нет в наличии' ? 'text-red-600' : 'text-green-600'"
+              >
+                <Icon
+                  :name="
+                    item.count === 'Нет в наличии' ? 'material-symbols:close-rounded' : 'material-symbols:check-rounded'
+                  "
+                  class="h-4 w-4 inline mr-1"
+                />
+                {{ item.count }}
               </p>
 
               <div class="mb-3 flex-grow flex items-end">
@@ -434,12 +447,14 @@ const toggleBrand = brand => {
               </div>
 
               <button
+                :disabled="item.count === 'Нет в наличии'"
                 @click.prevent="
                   () => {
                     addToCart(item)
                   }
                 "
-                class="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors font-medium"
+                class="w-full text-white py-2 px-4 rounded-lg transition-colors font-medium"
+                :class="item.count === 'Нет в наличии' ? 'bg-gray' : 'bg-red-600 hover:bg-red-700'"
               >
                 В корзину
               </button>
@@ -491,6 +506,42 @@ const toggleBrand = brand => {
           </button>
         </div>
       </div>
+    </div>
+
+    <div class="w-full p-4 flex justify-center items-center gap-4">
+      <button
+        @click="changePage(1)"
+        v-if="state.pagination.current_page !== 1"
+        class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-gray hover:bg-primary-hover text-white"
+      >
+        1
+      </button>
+      <button
+        @click="changePage(state.pagination.current_page - 1)"
+        class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-gray hover:bg-primary-hover text-white"
+        v-if="state.pagination.current_page !== 1 && state.pagination.current_page - 1 !== 1"
+      >
+        {{ state.pagination.current_page - 1 }}
+      </button>
+      <button
+        class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-primary hover:bg-primary-hover text-white"
+      >
+        {{ state.pagination.current_page }}
+      </button>
+      <button
+        @click="changePage(state.pagination.current_page + 1)"
+        class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-gray hover:bg-primary-hover text-white"
+        v-if="state.pagination.has_more && state.pagination.current_page + 1 !== state.pagination.last_page"
+      >
+        {{ state.pagination.current_page + 1 }}
+      </button>
+      <button
+        @click="changePage(state.pagination.last_page)"
+        v-if="state.pagination.current_page !== state.pagination.last_page"
+        class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-gray hover:bg-primary-hover text-white"
+      >
+        {{ state.pagination.last_page }}
+      </button>
     </div>
 
     <transition name="fade">

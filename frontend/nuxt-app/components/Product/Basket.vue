@@ -5,7 +5,7 @@ import Button from '~/components/ui/Button/Button.vue'
 import { DatePicker } from 'v-calendar'
 import 'v-calendar/dist/style.css'
 
-const props = defineProps({
+const { product } = defineProps({
   product: {
     type: Object,
     required: true,
@@ -19,6 +19,9 @@ const props = defineProps({
     }),
   },
 })
+
+import { useCartStore } from '~/stores/cart'
+const { addToCart } = useCartStore()
 
 const isRentalModalOpen = ref(false)
 const rentalDays = ref(1)
@@ -37,28 +40,15 @@ const formatPrice = value => {
   return Number(value || 0).toLocaleString('ru-RU')
 }
 
-const currentPrice = computed(() => formatPrice(props.product?.price?.total))
-// const oldPrice = computed(() => formatPrice(props.product?.price?.sum))
-// const discount = computed(() => formatPrice(props.product?.price?.discount))
-// const hasDiscount = computed(() => props.product?.price?.sum && props.product.price.sum !== props.product.price.total)
+const currentPrice = computed(() => formatPrice(product?.price?.total))
+// const oldPrice = computed(() => formatPrice(product?.price?.sum))
+// const discount = computed(() => formatPrice(product?.price?.discount))
+// const hasDiscount = computed(() => product?.price?.sum && product.price.sum !== product.price.total)
 
-const showMessage = (message, isError = false) => {
-  messageText.value = message
-  if (isError) {
-    showErrorMessage.value = true
-  } else {
-    showSuccessMessage.value = true
-  }
-  setTimeout(() => {
-    showSuccessMessage.value = false
-    showErrorMessage.value = false
-  }, 3000)
-}
-
-const openRentalModal = () => {
-  isRentalModalOpen.value = true
-  calculateRentalPrice()
-}
+// const openRentalModal = () => {
+//   isRentalModalOpen.value = true
+//   calculateRentalPrice()
+// }
 
 const closeRentalModal = () => {
   isRentalModalOpen.value = false
@@ -69,56 +59,26 @@ const calculateRentalPrice = () => {
     const diffTime = Math.abs(dateRange.value.end - dateRange.value.start)
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     rentalDays.value = Math.max(diffDays, 1)
-    rentalPrice.value = Number(props.product?.price?.total || 0) * rentalDays.value
+    rentalPrice.value = Number(product?.price?.total || 0) * rentalDays.value
   }
 }
 
 const confirmRental = async () => {
-  try {
-    await addToCart({
-      rental_days: rentalDays.value,
-      rental_start: dateRange.value.start.toISOString(),
-      rental_end: dateRange.value.end.toISOString(),
-      rental_price: rentalPrice.value,
-    })
-    showMessage('Товар добавлен в корзину')
-    closeRentalModal()
-  } catch (error) {
-    showMessage('Ошибка при добавлении товара', true)
-    console.error('Rental error:', error)
-  }
+  if (!product?.id || product.count === 'Нет в наличии') return
+
+  addToCart({
+    ...product,
+    rental_days: rentalDays.value,
+    rental_start: dateRange.value.start.toISOString(),
+    rental_end: dateRange.value.end.toISOString(),
+    rental_price: rentalPrice.value,
+  })
 }
 
-const addToCart = async (options = {}) => {
-  if (!props.product?.id) {
-    showMessage('Ошибка: товар не доступен', true)
-    return
-  }
+const add = () => {
+  if (!product?.id || product.count === 'Нет в наличии') return
 
-  isLoading.value = true
-  try {
-    const response = await $fetch('http://127.0.0.1:8000/api/cart', {
-      method: 'POST',
-      body: JSON.stringify({
-        product_id: props.product.id,
-        quantity: 1,
-        options: options,
-      }),
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    })
-
-    showMessage('Товар успешно добавлен в корзину')
-    return response
-  } catch (error) {
-    console.error('Error adding to cart:', error)
-    showMessage('Ошибка при добавлении товара', true)
-    throw error
-  } finally {
-    isLoading.value = false
-  }
+  addToCart(product)
 }
 </script>
 
@@ -126,7 +86,9 @@ const addToCart = async (options = {}) => {
   <div class="space-y-3 h-full flex flex-col">
     <transition name="fade">
       <div v-if="showSuccessMessage" class="fixed top-4 right-4 z-50">
-        <div class="bg-emerald-100 border border-emerald-400 text-emerald-800 px-3 py-2 rounded-lg shadow-lg flex items-center text-sm">
+        <div
+          class="bg-emerald-100 border border-emerald-400 text-emerald-800 px-3 py-2 rounded-lg shadow-lg flex items-center text-sm"
+        >
           <Icon name="material-symbols:check-circle" class="w-4 h-4 mr-1" />
           {{ messageText }}
         </div>
@@ -135,7 +97,9 @@ const addToCart = async (options = {}) => {
 
     <transition name="fade">
       <div v-if="showErrorMessage" class="fixed top-4 right-4 z-50">
-        <div class="bg-rose-100 border border-rose-400 text-rose-800 px-3 py-2 rounded-lg shadow-lg flex items-center text-sm">
+        <div
+          class="bg-rose-100 border border-rose-400 text-rose-800 px-3 py-2 rounded-lg shadow-lg flex items-center text-sm"
+        >
           <Icon name="material-symbols:error" class="w-4 h-4 mr-1" />
           {{ messageText }}
         </div>
@@ -149,14 +113,29 @@ const addToCart = async (options = {}) => {
           Экономия {{ product.price.discount }} ₽
         </p>
       </div>
-      
+
+      <div>
+        <p
+          class="text-sm mb-3 flex items-center"
+          :class="product.count === 'Нет в наличии' ? 'text-red-600' : 'text-green-600'"
+        >
+          <Icon
+            :name="
+              product.count === 'Нет в наличии' ? 'material-symbols:close-rounded' : 'material-symbols:check-rounded'
+            "
+            class="h-4 w-4 inline mr-1"
+          />
+          {{ product.count }}
+        </p>
+      </div>
+
       <Button
-        @click="addToCart"
-        :disabled="isLoading || !product?.id"
+        @click="add"
+        :disabled="isLoading || !product?.id || product.count === 'Нет в наличии'"
         class="w-full bg-primary hover:bg-primary text-white py-2 px-4 rounded-lg font-medium text-sm flex items-center justify-center gap-1"
       >
         <Icon name="material-symbols:shopping-cart-rounded" class="h-4 w-4" />
-        <span>{{ isLoading ? 'Добавление...' : 'В корзину' }}</span>
+        <span>В корзину</span>
       </Button>
     </div>
 
