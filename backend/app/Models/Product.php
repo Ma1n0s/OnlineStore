@@ -34,6 +34,7 @@ class Product extends Model
         'category_id',
         'warranty',
         'bonuses',
+        'quantity',
         'reviews_count',
         'questions_count',
     ];
