@@ -1,5 +1,13 @@
 <script setup>
 import Button from '~/components/ui/Button/Button.vue'
+import { useCartStore } from '~/stores/cart'
+
+const cartStore = useCartStore()
+
+// const isEmptyCart = computed(() => cartStore.cart.length)
+
+const sendOrder = async () => {}
+
 defineProps({
   isEmptyCart: {
     type: Boolean,
@@ -105,6 +113,7 @@ const orderDate = computed(() => {
       :disabled="isEmptyCart || totalItemsCount === 0"
       class="w-full shadow-md text-sm sm:text-base"
       type="submit"
+      @click="sendOrder"
     >
       Оформить заказ
     </Button>

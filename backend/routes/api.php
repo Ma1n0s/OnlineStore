@@ -245,3 +245,10 @@ Route::get('/test', function(Request $request) {
 
     return response()->json(['message' => 'Request queued successfully']);;
 });
+
+
+Route::prefix('orders/{order}/products')->group(function () {
+    Route::post('/', [OrderProductController::class, 'store']);
+    Route::put('/{product}', [OrderProductController::class, 'update']);
+    Route::delete('/{product}', [OrderProductController::class, 'destroy']);
+});
