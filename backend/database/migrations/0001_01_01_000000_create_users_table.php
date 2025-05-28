@@ -23,6 +23,7 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
             $table->timestamp('expires_at')->nullable();
+            $table->integer('scores')->default(0);
 
             $table->index('email');
             $table->index('phone');

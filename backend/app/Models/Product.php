@@ -59,6 +59,13 @@ class Product extends Model
     {
         return $this->description; 
     }
+
+    public function orders()
+    {
+        return $this->belongsToMany(Order::class, 'order_products')
+            ->withPivot('quantity', 'price_at_order')
+            ->withTimestamps();
+    }
     
 
     /**
