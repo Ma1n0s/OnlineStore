@@ -17,10 +17,10 @@ class ApplicationListScreen extends Screen
     public function query(): array
     {
         return [
-            'applications' => Application::with('user')
+            'applications' => Application::with(['user', 'product.category.parent'])
                 ->filters()
                 ->defaultSort('created_at', 'desc')
-                ->paginate()
+                ->paginate(),
         ];
     }
 
@@ -44,20 +44,67 @@ class ApplicationListScreen extends Screen
                 TD::make('user.name', 'Пользователь')
                     ->sort(),
 
-                TD::make('title', 'Название')
+                TD::make('product.name', 'Товар')
                     ->sort()
-                    ->filter(TD::FILTER_TEXT),
+                    ->render(function (Application $application) {
+                        if (!$application->product) {
+                            return '-';
+                        }
+
+                        $html = '<div class="d-flex flex-column">';
+                        
+                        $html .= '<div>' . Link::make($application->product->name)
+                            ->route('platform.product.edit', $application->product) . '</div>';
+                        
+                        if ($application->product->category) {
+                            $html .= '<div class="w-100 pt-1" style="font-size: 0.875rem; display: flex; align-items: center;">';
+                            
+                            $path = [];
+                            $current = $application->product->category;
+                            while ($current) {
+                                array_unshift($path, $current);
+                                $current = $current->parent;
+                            }
+                            
+                            $breadcrumbs = [];
+                            foreach ($path as $item) {
+                                $breadcrumbs[] = Link::make($item->name)
+                                    ->route('platform.category.action', $item)
+                                    ->class('text-decoration-none');
+                            }
+                            
+                            $html .= implode(' <span class="mx-1">›</span> ', $breadcrumbs);
+                            $html .= '</div>';
+                        }
+                        
+                        $html .= '</div>';
+                        return $html;
+                    }),
+
+                TD::make('quantity', 'Количество')
+                    ->sort()
+                    ->align(TD::ALIGN_CENTER)
+                    ->render(function (Application $application) {
+                        if (!$application->product) {
+                            return 'товар удален';
+                        }
+                        
+                        $quantity = $application->product->quantity;
+                        $class = $quantity <= 0 ? 'text-danger' : '';
+                        return "<span class='{$class}'>" . $quantity . "</span>";
+                    }),
+
+                TD::make('product.price', 'Цена')
+                    ->sort()
+                    ->align(TD::ALIGN_RIGHT)
+                    ->render(function (Application $application) {
+                        return $application->product ? '₽' . number_format((float)$application->product->price, 2) : '-';
+                    }),
 
                 TD::make('status', 'Статус')
                     ->sort()
                     ->render(function (Application $application) {
                         return $this->getStatusBadge($application->status);
-                    }),
-
-                TD::make('amount', 'Сумма')
-                    ->sort()
-                    ->render(function (Application $application) {
-                        return number_format($application->amount, 2) . ' ₽';
                     }),
 
                 TD::make('created_at', 'Создано')

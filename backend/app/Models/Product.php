@@ -226,4 +226,14 @@ class Product extends Model
             return null;
         }
     }
+
+    public function scopeAvailable($query)
+    {
+        return $query->where('quantity', '>', 0);
+    }
+
+    public function getFullNameAttribute()
+    {
+        return $this->name . ' (Арт: ' . $this->article . ')';
+    }
 } 

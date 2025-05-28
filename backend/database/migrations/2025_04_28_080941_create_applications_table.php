@@ -11,10 +11,7 @@ return new class extends Migration
         Schema::create('applications', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('title');
-            $table->text('description');
             $table->string('status')->default('pending'); // pending, processing, completed, cancelled
-            $table->decimal('amount', 10, 2);
             $table->json('products')->nullable(); // информация о товарах
             $table->timestamps();
         });

@@ -4,6 +4,7 @@ namespace App\Orchid\Screens;
 
 use App\Models\Application;
 use App\Models\User;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Select;
@@ -20,10 +21,12 @@ class ApplicationEditScreen extends Screen
     public $description = 'Создание или редактирование заявки';
 
     public $exists = false;
+    public $application;
 
     public function query(Application $application): array
     {
         $this->exists = $application->exists;
+        $this->application = $application; 
 
         if ($this->exists) {
             $this->name = 'Редактировать заявку';
@@ -56,6 +59,16 @@ class ApplicationEditScreen extends Screen
 
     public function layout(): array
     {
+        $statusOptions = [
+            'pending' => 'Ожидание',
+            'processing' => 'В обработке',
+            'cancelled' => 'Отменено',
+        ];
+
+        if ($this->exists) {
+            $statusOptions['completed'] = 'Завершено';
+        }
+
         return [
             Layout::rows([
                 Relation::make('application.user_id')
@@ -63,31 +76,17 @@ class ApplicationEditScreen extends Screen
                     ->required()
                     ->fromModel(User::class, 'name'),
 
-                Input::make('application.title')
-                    ->title('Название')
-                    ->required()
-                    ->placeholder('Название заявки'),
-
-                TextArea::make('application.description')
-                    ->title('Описание')
-                    ->rows(3)
-                    ->placeholder('Описание заявки'),
+                Relation::make('application.product_id')
+                    ->title('Товар')
+                    ->fromModel(Product::class, 'name')
+                    ->displayAppend('full_name')
+                    ->applyScope('available'),
 
                 Select::make('application.status')
                     ->title('Статус')
-                    ->options([
-                        'pending' => 'Ожидание',
-                        'processing' => 'В обработке',
-                        'completed' => 'Завершено',
-                        'cancelled' => 'Отменено',
-                    ])
-                    ->required(),
-
-                Input::make('application.amount')
-                    ->title('Сумма')
-                    ->type('number')
-                    ->step(0.01)
-                    ->required(),
+                    ->options($statusOptions)
+                    ->required()
+                    ->disabled($this->exists && $this->application->status === 'completed'),
             ])
         ];
     }
@@ -95,11 +94,46 @@ class ApplicationEditScreen extends Screen
     public function createOrUpdate(Application $application, Request $request)
     {
         $data = $request->get('application');
-        
+
+        $product = Product::find($data['product_id']);
+        if (!$product) {
+            Alert::error('Товар не найден.');
+            return back();
+        }
+
+        if (!$application->exists) {
+            if ($product->quantity <= 0) {
+                Alert::error('Товара нет в наличии, заявку создать нельзя.');
+                return back();
+            }
+        }
+
+        $oldStatus = $application->exists ? $application->status : null;
+
+        if ($oldStatus === 'completed' && $data['status'] !== 'completed') {
+            Alert::error('Статус "Завершено" нельзя изменить.');
+            return back();
+        }
+
         $application->fill($data)->save();
 
-        Alert::info('Заявка успешно сохранена.');
+        if ($data['status'] === 'completed' && $oldStatus !== 'completed') {
+            if ($product->quantity > 0) {
+                $product->decrement('quantity');
+            }
 
+            $user = $application->user;
+            if ($user && $product->bonus_points ?? 0 > 0) {
+                $user->bonusTransactions()->create([
+                    'date' => now(),
+                    'operation' => 'Начисление бонусов',
+                    'amount' => $product->bonus_points,
+                    'status' => 'Завершено',
+                ]);
+            }
+        }
+
+        Alert::info('Заявка успешно сохранена.');
         return redirect()->route('platform.application.list');
     }
 

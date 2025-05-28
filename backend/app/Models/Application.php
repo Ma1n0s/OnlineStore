@@ -14,6 +14,7 @@ class Application extends Model
 
     protected $fillable = [
         'user_id',
+        'product_id', 
         'title',
         'description',
         'status',
@@ -35,8 +36,45 @@ class Application extends Model
         'created_at'
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::updating(function ($application) {
+            if ($application->isDirty('status') && $application->status === 'completed') {
+                $originalStatus = $application->getOriginal('status');
+                
+                if ($originalStatus !== 'completed') {
+                    $application->awardBonuses();
+                }
+            }
+        });
+    }
+
+    public function awardBonuses()
+    {
+        if ($this->product_id && $this->user_id) {
+            $product = Product::find($this->product_id);
+            $user = User::find($this->user_id);
+            
+            if ($product && $user && $product->bonuses > 0) {
+                $user->bonusTransactions()->create([
+                    'date' => now(),
+                    'operation' => 'Начисление бонусов',
+                    'amount' => $product->bonuses,
+                    'status' => 'Завершено',
+                ]);
+            }
+        }
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 }
