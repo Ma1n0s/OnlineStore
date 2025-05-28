@@ -325,7 +325,7 @@ const saveCompany = async () => {
                           v-model="form.inn"
                           @blur="validateInn"
                           :class="{ 'border-red-300': form.errors.inn || innError }"
-                          class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                          class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-primary focus:border-primary"
                           placeholder="Введите ИНН компании"
                         />
                         <p v-if="form.errors.inn" class="mt-1 text-sm text-red-600">{{ form.errors.inn }}</p>
@@ -370,7 +370,7 @@ const saveCompany = async () => {
                           v-if="selectedCompany"
                           @click="resetCompanySelection"
                           type="button"
-                          class="mt-2 text-sm text-blue-600 hover:text-blue-800"
+                          class="mt-2 text-sm text-black hover:text-gray-600"
                         >
                           Сбросить выбор компании
                         </button>
@@ -381,7 +381,7 @@ const saveCompany = async () => {
                         <input
                           v-model="form.name"
                           :class="{ 'border-red-300': form.errors.name }"
-                          class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                          class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-primary focus:border-primary"
                         />
                         <p v-if="form.errors.name" class="mt-1 text-sm text-red-600">{{ form.errors.name }}</p>
                       </div>
@@ -390,7 +390,7 @@ const saveCompany = async () => {
                         <label class="block text-sm font-medium text-gray-700 mb-1">КПП</label>
                         <input
                           v-model="form.kpp"
-                          class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                          class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-primary focus:border-primary"
                         />
                       </div>
                     </div>
@@ -403,21 +403,21 @@ const saveCompany = async () => {
                         <label class="block text-sm font-medium text-gray-700 mb-1">Юридический адрес</label>
                         <input
                           v-model="form.address"
-                          class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                          class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-primary focus:border-primary"
                         />
                       </div>
                       <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Директор</label>
                         <input
                           v-model="form.director"
-                          class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                          class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-primary focus:border-primary"
                         />
                       </div>
                       <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Телефон</label>
                         <input
                           v-model="form.phone"
-                          class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                          class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-primary focus:border-primary"
                         />
                       </div>
                       <div>
@@ -425,7 +425,7 @@ const saveCompany = async () => {
                         <input
                           v-model="form.email"
                           type="email"
-                          class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                          class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-primary focus:border-primary"
                         />
                       </div>
                     </div>
@@ -443,7 +443,7 @@ const saveCompany = async () => {
                   <button
                     type="submit"
                     :disabled="uiState.isLoading"
-                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-70"
+                    class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition disabled:opacity-70"
                   >
                     <span v-if="uiState.isLoading" class="flex items-center">
                       <Icon name="mdi:loading" class="animate-spin mr-2" />
