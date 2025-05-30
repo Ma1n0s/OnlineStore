@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\OrderProductController;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Route;
@@ -248,7 +250,9 @@ Route::get('/test', function(Request $request) {
 
 
 Route::prefix('orders/{order}/products')->group(function () {
-    Route::post('/', [OrderProductController::class, 'store']);
+    Route::post('/', action: [OrderProductController::class, 'store']);
     Route::put('/{product}', [OrderProductController::class, 'update']);
     Route::delete('/{product}', [OrderProductController::class, 'destroy']);
 });
+
+Route::get('/orders/active-cart', [OrderController::class, 'activeCart']);

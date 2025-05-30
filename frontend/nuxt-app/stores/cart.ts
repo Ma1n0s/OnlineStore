@@ -1,15 +1,42 @@
 import { defineStore } from 'pinia'
+import { ref } from 'vue'
 
 export const useCartStore = defineStore('cart', () => {
-  const cart = ref([])
+  const { getCart, addProduct, clearCart } = useCart()
+  const cart = ref(null)
+  const isInitialized = ref(false)
 
-  const addToCart = newCart => {
-    cart.value.push(newCart)
+  const initCart = async () => {
+    if (isInitialized.value) return
+    cart.value = await getCart()
+    isInitialized.value = true
+    console.log(cart.value, 'cart')
   }
 
-  const clearCart = () => {
-    cart.value = []
+  console.log(cart.value, 'cart')
+
+  const updateBacket = async () => {
+    cart.value = await getCart()
   }
 
-  return { cart, addToCart, clearCart }
+  const addToCart = async product => {
+    if (!isInitialized.value) await initCart()
+
+    // console.log(cart.value.products, cart.value)
+    // const hasInCart = cart.value.products.some(el => el.product.id === product.id)
+
+    // if (hasInCart) return
+
+    await addProduct(cart.value, product)
+    await updateBacket()
+  }
+
+  const clearUserCart = async () => {
+    await clearCart()
+    await updateBacket()
+  }
+
+  initCart()
+
+  return { cart, addToCart, clearUserCart, updateBacket }
 })

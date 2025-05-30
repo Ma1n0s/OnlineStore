@@ -2,10 +2,10 @@
 import Button from '~/components/ui/Button/Button.vue'
 
 const props = defineProps({
-  items: {
+  products: {
     type: Array,
     required: true,
-    default: () => [],
+    default: () => {},
   },
   selectAll: {
     type: Boolean,
@@ -27,7 +27,7 @@ const emit = defineEmits([
   'decreaseRentalDays',
 ])
 
-const rentedItems = computed(() => props.items.filter(item => item.rentalType === 'short-term' && item.rentalDays))
+// const rentedItems = computed(() => props.cart.items.filter(item => item.rentalType === 'short-term' && item.rentalDays))
 
 const regularItems = computed(() =>
   props.items.filter(item => !item.rentalType || (!item.rentalDays && !item.rentalMonths))
@@ -164,7 +164,7 @@ const decreaseRentalDays = item => {
 
     <div class="divide-y divide-gray-200">
       <div
-        v-for="item in rentedItems"
+        v-for="item in products"
         :key="'rented-' + item.id"
         class="py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4"
       >

@@ -18,7 +18,6 @@ return new class extends Migration
             $table->decimal('total_amount', 10, 2);
             $table->string('status')->default('pending');
             $table->boolean('is_paid')->default(false);
-            $table->json('products'); 
             $table->timestamps();
         });
     }

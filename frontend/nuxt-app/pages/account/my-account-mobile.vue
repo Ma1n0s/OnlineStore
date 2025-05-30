@@ -10,9 +10,7 @@
             <h1 class="text-lg font-semibold text-gray-900">{{ userStore.user?.name || 'Пользователь' }}</h1>
             <div class="flex items-center gap-2 mt-1">
               <Icon name="mdi:gift" class="w-5 h-5 text-yellow-500" />
-              <span class="text-sm font-medium text-gray-700">
-                {{ userStore.user?.bonusBalance || 0 }} бонусов
-              </span>
+              <span class="text-sm font-medium text-gray-700"> {{ userStore.user?.bonusBalance || 0 }} бонусов </span>
             </div>
           </div>
         </div>
@@ -115,7 +113,6 @@ const logout = async () => {
 </script>
 
 <style scoped>
-
 .router-link-active {
   @apply bg-primary/5 border-l-4 border-primary;
 }

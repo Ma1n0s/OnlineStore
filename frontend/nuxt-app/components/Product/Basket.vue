@@ -4,6 +4,7 @@ import TextInput from '../ui/Inputs/TextInput.vue'
 import Button from '~/components/ui/Button/Button.vue'
 import { DatePicker } from 'v-calendar'
 import 'v-calendar/dist/style.css'
+import { useCartStore } from '~/stores/cart'
 
 const { product } = defineProps({
   product: {
@@ -19,9 +20,6 @@ const { product } = defineProps({
     }),
   },
 })
-
-import { useCartStore } from '~/stores/cart'
-const { addToCart } = useCartStore()
 
 const isRentalModalOpen = ref(false)
 const rentalDays = ref(1)
@@ -66,20 +64,42 @@ const calculateRentalPrice = () => {
 const confirmRental = async () => {
   if (!product?.id || product.count === 'Нет в наличии') return
 
-  addToCart({
+  await addToCart({
     ...product,
     rental_days: rentalDays.value,
     rental_start: dateRange.value.start.toISOString(),
     rental_end: dateRange.value.end.toISOString(),
     rental_price: rentalPrice.value,
+    quantity: 1,
   })
 }
 
-const add = () => {
+const cartStore = useCartStore()
+console.log(cartStore, 'store cart')
+
+const add = async () => {
   if (!product?.id || product.count === 'Нет в наличии') return
 
-  addToCart(product)
+  isLoading.value = true
+  try {
+    await cartStore.addToCart({
+      ...product,
+      quantity: 1,
+    })
+    // Можно добавить уведомление об успешном добавлении
+  } catch (error) {
+    console.error('Ошибка при добавлении в корзину:', error)
+    // Можно добавить уведомление об ошибке
+  } finally {
+    isLoading.value = false
+  }
 }
+
+// const add = async () => {
+//   if (!product?.id || product.count === 'Нет в наличии') return
+
+//   await addToCart({ ...product, quantity: 1 })
+// }
 </script>
 
 <template>

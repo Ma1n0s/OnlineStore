@@ -97,7 +97,12 @@ class User extends Authenticatable
 
     public function orders()
     {
-        return $this->hasMany(Order::class)->latest();
+        return $this->hasMany(Order::class);
+    }
+
+    public function cart()
+    {
+        return $this->hasOne(Order::class)->where('status', 'pending');
     }
     
 

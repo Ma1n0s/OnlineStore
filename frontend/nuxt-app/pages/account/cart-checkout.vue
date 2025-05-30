@@ -7,9 +7,11 @@ import RecipientData from '~/components/СartСheckout/RecipientData.vue'
 import { useCartStore } from '~/stores/cart'
 
 const cartStore = useCartStore()
-const cart = computed(() => cartStore.cart)
+const cart = computed(() => cartStore?.cart)
+const products = computed(() => cart?.products || [])
 
 console.log(cart.value)
+
 useHead({
   title: 'Корзина | Абсолют техно',
   meta: [
@@ -32,7 +34,7 @@ const state = ref({
     phone: '',
   },
   selectAll: false,
-  items: cart,
+  items: cart.value?.products || [],
   customer: {
     name: '',
     phone: '',
@@ -181,8 +183,8 @@ const toggleSelectAll = () => {
 }
 
 // const selectedItems = computed(() => state.value.items.filter(item => item.selected))
-const totalItemsCount = computed(() => state.value.items.length)
-const isEmptyCart = computed(() => state.value.items.length === 0)
+const totalItemsCount = computed(() => cart.value?.products.length)
+const isEmptyCart = computed(() => cart.value?.products.length === 0 || true)
 
 const totalAmount = computed(() => {
   return state.value.items.reduce((sum, item) => {
@@ -252,7 +254,7 @@ const formattedValues = computed(() => ({
 
           <template v-else>
             <CartItemsList
-              :items="cart"
+              :products="products"
               :select-all="state.selectAll"
               @update:selectAll="val => (state.selectAll = val)"
               :total-items-count="totalItemsCount"

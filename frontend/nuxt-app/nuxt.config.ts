@@ -48,6 +48,10 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
+      fetch: {
+        baseURL: process.env.BACKEND_URL,
+        credentials: 'include',
+      },
       backendUrl: process.env.BACKEND_URL || 'http://localhost:8000',
       sanctum: {
         baseUrl: process.env.BACKEND_URL || 'http://localhost:8000',

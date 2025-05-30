@@ -18,6 +18,38 @@ class OrderController extends Controller
     /**
      * Display a paginated list of authenticated user's orders
      */
+
+     public function activeCart(Request $request)
+    {
+        $user = $request->user();
+        
+        if (!$user) {
+            return response()->json([
+                'message' => 'Требуется авторизация',
+                'error' => 'unauthenticated'
+            ], 401);
+        }
+        
+        // Пытаемся найти активную корзину
+        $cart = $user->cart;
+        
+        // Если нет активной корзины - создаем новую
+        if (!$cart) {
+            $cart = $user->orders()->create([
+                'order_number' => 'ORD-' . now()->format('Ymd') . '-' . strtoupper(uniqid()),
+                'status' => 'pending',
+                'total_amount' => 0
+            ]);
+            
+            // Загружаем пустой массив продуктов
+            $cart->load('products');
+        }
+
+        $cart->load('products');
+        
+        return response()->json($cart);
+    }
+
     public function index(Request $request)
     {
         $request->validate([
