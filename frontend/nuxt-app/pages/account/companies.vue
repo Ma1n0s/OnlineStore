@@ -4,6 +4,7 @@ import { useUserStore } from '~/stores/user'
 import SidebarMenu from '~/components/Account/SidebarMenu.vue'
 import axios from 'axios'
 
+const toast = useToast()
 const {
   public: { backendUrl },
 } = useRuntimeConfig()
@@ -42,7 +43,6 @@ const selectedCompany = ref(null)
 const innError = ref('')
 const isLoadingSuggestions = ref(false)
 
-// Вычисляемое свойство для валидности ИНН
 const isInnValid = computed(() => {
   return form.inn && !innError.value && (form.inn.length === 10 || form.inn.length === 12)
 })
@@ -163,11 +163,6 @@ const validate = () => {
   let isValid = true
   form.errors = {}
 
-  // if (!form.name.trim()) {
-  //   form.errors.name = 'Введите название компании'
-  //   isValid = false
-  // }
-
   if (!form.inn.trim()) {
     form.errors.inn = 'Введите ИНН компании'
     isValid = false
@@ -179,30 +174,58 @@ const validate = () => {
   return isValid
 }
 
-watch(() => form.inn, (newVal) => {
-  if (newVal.length >= 10 && uiState.isFirstAdd) {
-    const delaySearch = setTimeout(() => {
-      validateInn()
-      clearTimeout(delaySearch)
-    }, 800)
+const deleteCompany = async () => {
+  if (!confirm('Вы уверены, что хотите удалить данные компании? Это действие нельзя отменить.')) {
+    return
   }
-})
+
+  uiState.isLoading = true
+  uiState.error = null
+
+  try {
+    await $fetch(`${backendUrl}/api/profile/company`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+      },
+      credentials: 'include',
+    })
+
+    // Reset company data
+    company.value = {
+      name: '',
+      inn: '',
+      kpp: '',
+      address: '',
+      director: '',
+      phone: '',
+      email: '',
+    }
+
+    // Force reload user data
+    await userStore.fetchUser()
+    
+    // Close editing mode if it was open
+    uiState.isEditing = false
+    uiState.isFirstAdd = false
+    
+    // Show success message
+    toast.success('Данные компании успешно удалены')
+  } catch (error) {
+    console.error("Ошибка при удалении компании:", error)
+    uiState.error = 'Ошибка при удалении: ' + (error.data?.message || error.message)
+  } finally {
+    uiState.isLoading = false
+  }
+}
 
 const saveCompany = async () => {
-  if (!validate()) return;
+  if (!validate()) return
 
-  console.log("Отправляемые данные:", {
-    name: form.name,
-    inn: form.inn,
-    kpp: form.kpp,
-    address: form.address,
-    director: form.director,
-    phone: form.phone,
-    email: form.email,
-  });
-
-  uiState.isLoading = true;
-  uiState.error = null;
+  uiState.isLoading = true
+  uiState.error = null
 
   try {
     const response = await $fetch(`${backendUrl}/api/profile/company`, {
@@ -218,16 +241,31 @@ const saveCompany = async () => {
       }),
       headers: {
         'Content-Type': 'application/json',
-      Accept: 'application/json',
+        'Accept': 'application/json',
         'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
       },
       credentials: 'include',
-    });
+    })
+
+    await loadCompanyData()
+    uiState.isEditing = false
+    toast.success('Данные компании успешно сохранены')
   } catch (error) {
-    console.error("Ошибка ответа сервера:", error.data);
-    uiState.error = 'Ошибка при сохранении: ' + (error.data?.message || error.message);
+    console.error("Ошибка ответа сервера:", error.data)
+    uiState.error = 'Ошибка при сохранении: ' + (error.data?.message || error.message)
+  } finally {
+    uiState.isLoading = false
   }
-};
+}
+
+watch(() => form.inn, (newVal) => {
+  if (newVal.length >= 10 && uiState.isFirstAdd) {
+    const delaySearch = setTimeout(() => {
+      validateInn()
+      clearTimeout(delaySearch)
+    }, 800)
+  }
+})
 </script>
 
 <template>
@@ -239,27 +277,11 @@ const saveCompany = async () => {
       </div>
 
       <div class="flex flex-col md:flex-row gap-6">
-         <SidebarMenu class="hidden md:block" />
+        <SidebarMenu class="hidden md:block" />
 
         <div class="flex-1 space-y-6">
           <div class="flex items-center justify-between">
             <h1 class="text-2xl font-bold text-gray-900">Моя организация</h1>
-            <button
-              v-if="!uiState.isEditing && company.inn"
-              @click="startEditing"
-              class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition flex items-center gap-2"
-            >
-              <Icon name="mdi:pencil" class="w-5 h-5" />
-              Редактировать
-            </button>
-            <button
-              v-if="!company.inn"
-              @click="startEditing"
-              class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition flex items-center gap-2"
-            >
-              <Icon name="mdi:plus" class="w-5 h-5" />
-              Добавить данные компании
-            </button>
           </div>
 
           <div v-if="!uiState.isEditing && company.inn" class="bg-white shadow rounded-lg overflow-hidden">
@@ -304,6 +326,24 @@ const saveCompany = async () => {
                     </div>
                   </div>
                 </div>
+              </div>
+              
+              <div class="mt-6 pt-4 border-t flex justify-end gap-3">
+                <button
+                  @click="startEditing"
+                  class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition flex items-center gap-2"
+                >
+                  <Icon name="mdi:pencil" class="w-5 h-5" />
+                  Редактировать
+                </button>
+                <button
+                  @click="deleteCompany"
+                  :disabled="uiState.isLoading"
+                  class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2 disabled:opacity-70"
+                >
+                  <Icon name="mdi:trash-can-outline" class="w-5 h-5" />
+                  Удалить компанию
+                </button>
               </div>
             </div>
           </div>

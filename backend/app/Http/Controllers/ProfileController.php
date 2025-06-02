@@ -93,6 +93,22 @@ class ProfileController extends Controller
         ]);
     }
 
+    public function deleteCompany(Request $request)
+    {
+        $user = Auth::user();
+        
+        if ($user->profile) {
+            $user->profile->delete();
+            return response()->json([
+                'message' => 'Данные компании успешно удалены'
+            ]);
+        }
+        
+        return response()->json([
+            'message' => 'Нет данных компании для удаления'
+        ], 404);
+    }
+
     public function show()
     {
         $user = Auth::user()->load('profile');
