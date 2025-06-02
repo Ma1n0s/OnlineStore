@@ -112,9 +112,6 @@
           <Button variant="transparent" class="flex items-center gap-2 h-full" @click="isMenuOpen = true"
             ><Icon name="material-symbols:search-rounded" class="h-8 w-8" alt="Поиск"
           /></Button>
-          <Button variant="transparent" class="flex items-center gap-2 h-full" @click="menuOpen = true"
-            ><Icon name="material-symbols:menu" class="h-8 w-8" alt="Меню"
-          /></Button>
         </div>
       </div>
     </div>

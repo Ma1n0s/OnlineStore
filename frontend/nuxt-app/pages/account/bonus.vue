@@ -3,6 +3,10 @@ import { computed } from 'vue'
 import SidebarMenu from '~/components/Account/SidebarMenu.vue'
 const userStore = useUserStore()
 
+const {
+  public: { backendUrl },
+} = useRuntimeConfig()
+
 const transactions = computed(() => {
   if (!userStore.user?.bonusTransactions) return []
   
@@ -18,6 +22,37 @@ const transactions = computed(() => {
 const bonusBalance = computed(() => {
   return userStore.user?.bonusBalance || 0
 })
+
+const page = ref(1)
+const perPage = ref(10)
+const sort = ref('newest')
+const filters = ref({
+
+})
+
+const { data: paginatedData, refresh } = await useFetch(`${backendUrl}/api/products/paginate`, {
+  query: {
+    page,
+    per_page: perPage,
+    sort,
+    filters
+  }
+})
+
+const pagination = computed(() => {
+  return paginatedData.value?.meta || {
+    current_page: 1,
+    last_page: 1,
+    per_page: 10,
+    total: 0,
+    has_more: false
+  }
+})
+
+const changePage = async (newPage) => {
+  page.value = newPage
+  await refresh()
+}
 </script>
 
 <template>
@@ -63,10 +98,46 @@ const bonusBalance = computed(() => {
                   </tr>
                 </tbody>
               </table>
+
             </div>
             <div v-else class="text-center py-4 text-gray-500">
               Нет данных о бонусных операциях
             </div>
+          </div>
+          <div class="w-full p-4 flex justify-center items-center gap-4">
+            <button
+              @click="changePage(1)"
+              v-if="pagination.current_page !== 1"
+              class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-gray hover:bg-primary-hover text-white"
+            >
+              1
+            </button>
+            <button
+              @click="changePage(pagination.current_page - 1)"
+              class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-gray hover:bg-primary-hover text-white"
+              v-if="pagination.current_page !== 1 && pagination.current_page - 1 !== 1"
+            >
+              {{ pagination.current_page - 1 }}
+            </button>
+            <button
+              class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-primary hover:bg-primary-hover text-white"
+            >
+              {{ pagination.current_page }}
+            </button>
+            <button
+              @click="changePage(pagination.current_page + 1)"
+              class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-gray hover:bg-primary-hover text-white"
+              v-if="pagination.has_more && pagination.current_page + 1 !== pagination.last_page"
+            >
+              {{ pagination.current_page + 1 }}
+            </button>
+            <button
+              @click="changePage(pagination.last_page)"
+              v-if="pagination.current_page !== pagination.last_page"
+              class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-gray hover:bg-primary-hover text-white"
+            >
+              {{ pagination.last_page }}
+            </button>
           </div>
         </div>
       </div>

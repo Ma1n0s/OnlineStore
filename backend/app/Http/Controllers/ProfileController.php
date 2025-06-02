@@ -35,7 +35,11 @@ class ProfileController extends Controller
         
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'inn' => 'required|string|max:20',
+            'inn' => ['required', 'string', 'max:20', function ($attribute, $value, $fail) {
+                if (!preg_match('/^\d{10,12}$/', $value)) {
+                    $fail('ИНН должен содержать 10 или 12 цифр');
+                }
+            }],
             'kpp' => 'nullable|string|max:20',
             'address' => 'required|string|max:500',
             'director' => 'required|string|max:255',
@@ -46,7 +50,7 @@ class ProfileController extends Controller
         $profileData = [
             'company_name' => $validated['name'],
             'inn' => $validated['inn'],
-            'kpp' => $validated['kpp'],
+            'kpp' => $validated['kpp'] ?? null,
             'legal_address' => $validated['address'],
             'director' => $validated['director'],
             'company_phone' => $validated['phone'],

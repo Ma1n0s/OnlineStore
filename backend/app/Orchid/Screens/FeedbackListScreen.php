@@ -51,11 +51,6 @@ class FeedbackListScreen extends Screen
                         return \Illuminate\Support\Str::limit($feedback->message, 100);
                     }),
                 
-                TD::make('rating', 'Оценка')
-                    ->render(function (Feedback $feedback) {
-                        return str_repeat('★', $feedback->rating) . str_repeat('☆', 5 - $feedback->rating);
-                    }),
-                
                 TD::make('status', 'Статус')
                     ->render(function (Feedback $feedback) {
                         return Feedback::statuses()[$feedback->status] ?? $feedback->status;

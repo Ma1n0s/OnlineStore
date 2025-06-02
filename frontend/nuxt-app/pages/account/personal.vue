@@ -229,11 +229,6 @@ onMounted(() => {
 <template>
   <div class="min-h-screen bg-slate-100 py-8">
     <div class="max-w-screen-2xl mx-auto px-1 sm:px-2 lg:px-8">
-      <div v-if="uiState.error" class="mb-6 p-4 bg-red-50 text-red-700 rounded-lg shadow">
-        {{ uiState.error }}
-        <button @click="uiState.error = null" class="float-right font-bold">×</button>
-      </div>
-
       <div class="flex flex-col md:flex-row gap-6">
         <SidebarMenu class="hidden md:block" />
 
@@ -288,7 +283,7 @@ onMounted(() => {
                     />
                   </div>
 
-                  <TransitionExpand>
+                  <div>
                     <div v-if="uiState.showCompanyDetails" class="bg-gray-50 p-4 rounded-b-lg shadow-sm mt-0">
                       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -317,7 +312,7 @@ onMounted(() => {
                         </div>
                       </div>
                     </div>
-                  </TransitionExpand>
+                  </div>
                 </div>
               </div>
 

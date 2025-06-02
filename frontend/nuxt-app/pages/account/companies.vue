@@ -4,6 +4,10 @@ import { useUserStore } from '~/stores/user'
 import SidebarMenu from '~/components/Account/SidebarMenu.vue'
 import axios from 'axios'
 
+const {
+  public: { backendUrl },
+} = useRuntimeConfig()
+
 const userStore = useUserStore()
 const uiState = reactive({
   isEditing: false,
@@ -185,15 +189,25 @@ watch(() => form.inn, (newVal) => {
 })
 
 const saveCompany = async () => {
-  if (!validate()) return
+  if (!validate()) return;
 
-  uiState.isLoading = true
-  uiState.error = null
+  console.log("Отправляемые данные:", {
+    name: form.name,
+    inn: form.inn,
+    kpp: form.kpp,
+    address: form.address,
+    director: form.director,
+    phone: form.phone,
+    email: form.email,
+  });
+
+  uiState.isLoading = true;
+  uiState.error = null;
 
   try {
-    const response = await $fetch('/api/profile/company', {
+    const response = await $fetch(`${backendUrl}/api/profile/company`, {
       method: 'PUT',
-      body: {
+      body: JSON.stringify({
         name: form.name,
         inn: form.inn,
         kpp: form.kpp,
@@ -201,22 +215,19 @@ const saveCompany = async () => {
         director: form.director,
         phone: form.phone,
         email: form.email,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      Accept: 'application/json',
+        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
       },
-    })
-
-    Object.assign(company.value, form)
-    uiState.isEditing = false
-    uiState.isFirstAdd = false
-    companySuggestions.value = []
-    selectedCompany.value = null
-    
-    await userStore.fetchUser()
+      credentials: 'include',
+    });
   } catch (error) {
-    uiState.error = 'Ошибка при сохранении: ' + (error.data?.message || error.message)
-  } finally {
-    uiState.isLoading = false
+    console.error("Ошибка ответа сервера:", error.data);
+    uiState.error = 'Ошибка при сохранении: ' + (error.data?.message || error.message);
   }
-}
+};
 </script>
 
 <template>

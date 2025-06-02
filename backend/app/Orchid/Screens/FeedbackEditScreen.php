@@ -66,11 +66,6 @@ class FeedbackEditScreen extends Screen
                     ->required()
                     ->disabled(),
                 
-                Input::make('feedback.rating')
-                    ->title('Оценка')
-                    ->type('number')
-                    ->disabled(),
-                
                 Select::make('feedback.status')
                     ->title('Статус')
                     ->options(Feedback::statuses())

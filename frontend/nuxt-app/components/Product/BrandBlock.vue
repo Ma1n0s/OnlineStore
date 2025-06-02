@@ -7,8 +7,8 @@ const { product } = defineProps<{
 </script>
 <template>
   <div class="rounded-lg p-6 bg-gray-50">
-    <h3 class="text-2xl font-bold mb-4">{{ product.brand }}</h3>
-    <p class="text-gray-600 mb-6 text-gray">Все товары бренда</p>
+    <h3 class="text-2xl font-bold mb-4">Бренд</h3>
+    <p class="text-gray-600 mb-6 text-gray">{{ product.brand }}</p>
 
     <NuxtLink
       to="#"
