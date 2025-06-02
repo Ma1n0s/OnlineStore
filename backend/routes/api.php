@@ -50,6 +50,8 @@ Route::middleware('auth:sanctum')->prefix('profile')->group(function () {
     Route::put('/company', [ProfileController::class, 'updateCompany']);
 });
 
+// Route::get('/products/paginate', [ProductController::class, 'paginateProducts']);
+
 Route::middleware('auth:sanctum')->post('/feedback', function (Request $request) {
     $request->validate([
         'subject' => 'required|string|max:255',

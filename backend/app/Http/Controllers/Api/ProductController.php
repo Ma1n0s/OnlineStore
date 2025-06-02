@@ -735,6 +735,71 @@ class ProductController extends Controller
         ]);
     }
 
+    // public function paginateProducts(Request $request): JsonResponse
+    // {
+        
+    //     $request->validate([
+    //         'page' => 'nullable|integer|min:1',
+    //         'per_page' => 'nullable|integer|min:1|max:100',
+    //         'sort' => 'nullable|string|in:price_asc,price_desc,newest,popular',
+    //         'filters' => 'nullable|array',
+    //     ]);
+
+    //     $page = $request->input('page', 1);
+    //     $perPage = $request->input('per_page', 2);
+    //     $sort = $request->input('sort', 'newest');
+    //     $filters = $request->input('filters', []);
+
+    //     $query = Product::with(['category', 'images'])
+    //         ->when(isset($filters['category_id']), function($q) use ($filters) {
+    //             $categoryId = $filters['category_id'];
+    //             $category = Category::find($categoryId);
+                
+    //             if ($category) {
+    //                 $categoryIds = [$category->id];
+    //                 $this->collectDescendantIds($category, $categoryIds);
+    //                 $q->whereIn('category_id', $categoryIds);
+    //             }
+    //         })
+    //         ->when(isset($filters['price_min']) && isset($filters['price_max']), function($q) use ($filters) {
+    //             $q->whereBetween('price', [$filters['price_min'], $filters['price_max']]);
+    //         })
+    //         ->when(isset($filters['brands']), function($q) use ($filters) {
+    //             $q->whereIn('brand', (array)$filters['brands']);
+    //         })
+    //         ->when(isset($filters['search']), function($q) use ($filters) {
+    //             $q->where('name', 'like', '%'.$filters['search'].'%');
+    //         });
+
+    //     switch ($sort) {
+    //         case 'price_asc':
+    //             $query->orderBy('price', 'asc');
+    //             break;
+    //         case 'price_desc':
+    //             $query->orderBy('price', 'desc');
+    //             break;
+    //         case 'newest':
+    //             $query->orderBy('created_at', 'desc');
+    //             break;
+    //         case 'popular':
+    //             $query->orderBy('views', 'desc');
+    //             break;
+    //     }
+
+    //     $products = $query->paginate($perPage, ['*'], 'page', $page);
+
+    //     return response()->json([
+    //         'data' => $products->items(),
+    //         'meta' => [
+    //             'current_page' => $products->currentPage(),
+    //             'last_page' => $products->lastPage(),
+    //             'per_page' => $products->perPage(),
+    //             'total' => $products->total(),
+    //             'has_more' => $products->hasMorePages(),
+    //         ]
+    //     ]);
+    // }
+
     /**
      * Получить список категорий от родителя до продукта (путь категорий)
      *
