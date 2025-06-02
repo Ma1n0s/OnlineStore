@@ -48,16 +48,7 @@ function getStatusText(status) {
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
               <h2 class="text-2xl font-semibold text-gray-800">Мои заказы</h2>
 
-              <div class="relative w-full md:w-64">
-                <input
-                  type="search"
-                  placeholder="Поиск по заказам..."
-                  class="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
-                />
-                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <Icon name="material-symbols:search-rounded" class="w-5 h-5 text-gray-400" />
-                </div>
-              </div>
+              
             </div>
 
             <div class="flex flex-wrap gap-2">

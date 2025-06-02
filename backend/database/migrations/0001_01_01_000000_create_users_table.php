@@ -25,8 +25,8 @@ return new class extends Migration
             $table->timestamp('expires_at')->nullable();
             $table->integer('scores')->default(0);
 
-            $table->index('email');
-            $table->index('phone');
+            $table->index('email')->unique()->nullable();;
+            $table->index('phone')->unique()->nullable();;
             $table->index('is_guest');
             // $table->string('role', 45)->nullable();
             // $table->string('role', 45)->default('admin');

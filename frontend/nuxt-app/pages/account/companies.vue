@@ -4,7 +4,6 @@ import { useUserStore } from '~/stores/user'
 import SidebarMenu from '~/components/Account/SidebarMenu.vue'
 import axios from 'axios'
 
-const toast = useToast()
 const {
   public: { backendUrl },
 } = useRuntimeConfig()
@@ -15,6 +14,7 @@ const uiState = reactive({
   isLoading: false,
   error: null,
   isFirstAdd: false,
+  showFullForm: false
 })
 
 const company = ref({
@@ -80,12 +80,16 @@ const startEditing = () => {
   
   if (!company.value.inn) {
     uiState.isFirstAdd = true
+    uiState.showFullForm = false 
+  } else {
+    uiState.showFullForm = true 
   }
 }
 
 const cancelEditing = () => {
   uiState.isEditing = false
   uiState.isFirstAdd = false
+  uiState.showFullForm = false
   companySuggestions.value = []
   selectedCompany.value = null
   innError.value = ''
@@ -130,6 +134,7 @@ const searchCompanyByINN = async () => {
 
     if (data.suggestions?.length) {
       companySuggestions.value = data.suggestions
+      uiState.showFullForm = true
     } else {
       innError.value = 'Компания с таким ИНН не найдена'
     }
@@ -171,6 +176,13 @@ const validate = () => {
     isValid = false
   }
 
+  if (uiState.showFullForm) {
+    if (!form.name.trim()) {
+      form.errors.name = 'Введите название компании'
+      isValid = false
+    }
+  }
+
   return isValid
 }
 
@@ -210,9 +222,9 @@ const deleteCompany = async () => {
     // Close editing mode if it was open
     uiState.isEditing = false
     uiState.isFirstAdd = false
+    uiState.showFullForm = false
     
     // Show success message
-    toast.success('Данные компании успешно удалены')
   } catch (error) {
     console.error("Ошибка при удалении компании:", error)
     uiState.error = 'Ошибка при удалении: ' + (error.data?.message || error.message)
@@ -249,7 +261,7 @@ const saveCompany = async () => {
 
     await loadCompanyData()
     uiState.isEditing = false
-    toast.success('Данные компании успешно сохранены')
+    uiState.showFullForm = false
   } catch (error) {
     console.error("Ошибка ответа сервера:", error.data)
     uiState.error = 'Ошибка при сохранении: ' + (error.data?.message || error.message)
@@ -427,27 +439,30 @@ watch(() => form.inn, (newVal) => {
                         </button>
                       </div>
                       
-                      <div v-if="!uiState.isFirstAdd || (uiState.isFirstAdd && form.name)">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Название *</label>
-                        <input
-                          v-model="form.name"
-                          :class="{ 'border-red-300': form.errors.name }"
-                          class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-primary focus:border-primary"
-                        />
-                        <p v-if="form.errors.name" class="mt-1 text-sm text-red-600">{{ form.errors.name }}</p>
-                      </div>
-                      
-                      <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">КПП</label>
-                        <input
-                          v-model="form.kpp"
-                          class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-primary focus:border-primary"
-                        />
-                      </div>
+                      <!-- Остальные поля показываются только после проверки ИНН -->
+                      <template v-if="uiState.showFullForm">
+                        <div>
+                          <label class="block text-sm font-medium text-gray-700 mb-1">Название *</label>
+                          <input
+                            v-model="form.name"
+                            :class="{ 'border-red-300': form.errors.name }"
+                            class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-primary focus:border-primary"
+                          />
+                          <p v-if="form.errors.name" class="mt-1 text-sm text-red-600">{{ form.errors.name }}</p>
+                        </div>
+                        
+                        <div>
+                          <label class="block text-sm font-medium text-gray-700 mb-1">КПП</label>
+                          <input
+                            v-model="form.kpp"
+                            class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-primary focus:border-primary"
+                          />
+                        </div>
+                      </template>
                     </div>
                   </div>
 
-                  <div>
+                  <div v-if="uiState.showFullForm">
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Контактная информация</h3>
                     <div class="space-y-4">
                       <div>
