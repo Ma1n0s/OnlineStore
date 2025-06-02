@@ -441,7 +441,7 @@ const toggleBrand = brand => {
 
               <div class="mb-3 flex-grow flex items-end">
                 <div>
-                  <span class="text-gray-400 line-through text-sm mr-2">{{ item.price.toLocaleString() }} ₽</span>
+                  <!-- <span class="text-gray-400 line-through text-sm mr-2">{{ item.price.toLocaleString() }} ₽</span> -->
                   <span class="text-red-600 font-bold text-lg">{{ item.price.toLocaleString() }} ₽</span>
                 </div>
               </div>
