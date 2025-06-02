@@ -5,7 +5,13 @@ import { useCartStore } from '~/stores/cart'
 const cartStore = useCartStore()
 const { cart, products } = storeToRefs(cartStore)
 
-const sendOrder = async () => {}
+const sendOrder = async () => {
+  try {
+    await cartStore.createOrder()
+  } catch (e) {
+    console.log(e)
+  }
+}
 
 const isEmpty = computed(() => products.value.length === 0)
 const isSelected = computed(() => products.value.some(product => product.selected))

@@ -16,6 +16,93 @@ class OrderController extends Controller
      * Display a paginated list of authenticated user's orders
      */
 
+     public function createOrderFromSelected(Request $request)
+    {
+        $user = $request->user();
+
+        return DB::transaction(function () use ($user) {
+            // 1. Получаем активную корзину с выбранными товарами
+            $cart = $user->orders()
+                ->with(['orderProducts' => function($query) {
+                    $query->where('selected', true)
+                        ->with('product');
+                }])
+                ->where('status', 'pending')
+                ->first();
+
+            // 2. Если корзина не найдена или нет товаров
+            if (!$cart || !$cart->orderProducts || $cart->orderProducts->isEmpty()) {
+                return response()->json([
+                    'message' => 'Нет активной корзины с выбранными товарами',
+                    'error' => 'no_active_cart_or_selected_products'
+                ], 422);
+            }
+
+            // 3. Проверяем доступное количество
+            $productsToOrder = [];
+            $errors = [];
+
+            foreach ($cart->orderProducts as $orderProduct) {
+                $product = $orderProduct->product;
+                $availableQuantity = $product->quantity;
+                $requestedQuantity = $orderProduct->quantity;
+
+                if ($requestedQuantity > $availableQuantity) {
+                    $errors[] = [
+                        'product_id' => $product->id,
+                        'product_name' => $product->name,
+                        'requested' => $requestedQuantity,
+                        'available' => $availableQuantity
+                    ];
+                    continue;
+                }
+
+                $productsToOrder[] = [
+                    'product_id' => $product->id,
+                    'quantity' => $requestedQuantity,
+                    'price_at_order' => $orderProduct->price_at_order,
+                    'selected' => false
+                ];
+            }
+
+            // 4. Если есть ошибки по количеству
+            if (!empty($errors)) {
+                return response()->json([
+                    'message' => 'Недостаточно товаров на складе',
+                    'errors' => $errors,
+                    'error' => 'insufficient_quantity'
+                ], 422);
+            }
+
+            // 5. Создаем новый заказ
+            $newOrder = $user->orders()->create([
+                'order_number' => 'ORD-' . now()->format('YmdHis') . '-' . strtoupper(uniqid()),
+                'status' => 'processing',
+                'total_amount' => 0
+            ]);
+
+            // 6. Добавляем товары в заказ
+            $newOrder->orderProducts()->createMany($productsToOrder);
+
+            // 7. Обновляем сумму заказа
+            $newOrder->updateTotalAmount();
+
+            // 8. Удаляем перенесенные товары из корзины
+            $cart->orderProducts()
+                ->where('selected', true)
+                ->delete();
+
+            // 9. Обновляем сумму в корзине
+            $cart->updateTotalAmount();
+
+            return response()->json([
+                'message' => 'Заказ успешно создан',
+                'order' => $newOrder->load('orderProducts.product'),
+                'cart' => $cart->fresh()->load('orderProducts.product')
+            ], 201);
+        });
+    }
+
      public function activeCart(Request $request)
     {
         $user = $request->user();

@@ -257,6 +257,8 @@ Route::get('/test', function(Request $request) {
     return response()->json(['message' => 'Request queued successfully']);;
 });
 
+Route::get('/orders/active-cart', [OrderController::class, 'activeCart']);
+Route::put('/orders/create-order', [OrderController::class, 'createOrderFromSelected']);
 
 Route::prefix('orders/{order}/products')->group(function () {
     Route::post('/', action: [OrderProductController::class, 'store']);
@@ -265,4 +267,4 @@ Route::prefix('orders/{order}/products')->group(function () {
     Route::delete('/{product}', [OrderProductController::class, 'destroy']);
 });
 
-Route::get('/orders/active-cart', [OrderController::class, 'activeCart']);
+
