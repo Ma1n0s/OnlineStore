@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->integer('quantity')->unsigned();
             $table->decimal('price_at_order', 10, 2); // цена на момент заказа
+            $table->boolean('selected')->default(true);
             $table->timestamps();
             
             $table->unique(['order_id', 'product_id']); // уникальная комбинация заказа и продукта

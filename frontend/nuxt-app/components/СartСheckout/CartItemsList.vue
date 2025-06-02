@@ -1,27 +1,23 @@
 <script setup>
 import Button from '~/components/ui/Button/Button.vue'
-defineProps({
-  cart: {
-    type: Object,
-    required: true,
-    default: () => {},
-  },
-  products: {
-    type: Array,
-    required: true,
-    default: () => [],
-  },
-})
 
-// В PIVOT ЕСТЬ НУЖНЫЕ ДАННЫЕ БЛЯТЬ
+const cartStore = useCartStore()
+const { cart, products } = storeToRefs(cartStore)
 
 const removeSelected = () => {}
+const toggleSelected = item => {
+  item.selected = !item.selected
+  console.log(item.selected)
+  // cartStore.updateProduct(item)
+}
 </script>
 <template>
   <div class="bg-white rounded-xl p-4 sm:p-6 mb-4 sm:mb-6 shadow-sm">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
       <div class="flex items-center">
         <input
+          @change="async event => await cartStore.setSelected(event.target.checked)"
+          :checked="cart.selected"
           type="checkbox"
           id="select-all"
           class="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
@@ -63,7 +59,8 @@ const removeSelected = () => {}
             <input
               type="checkbox"
               :id="'select-rented-item-' + item.id"
-              v-model="item.selected"
+              :checked="item.selected"
+              @change="toggleSelected(item)"
               class="h-4 w-4 sm:h-5 sm:w-5 text-primary rounded focus:ring-primary-active border-gray-300 mt-1 sm:mt-0"
             />
             <NuxtImg
@@ -112,11 +109,20 @@ const removeSelected = () => {}
               <button
                 class="px-2 sm:px-3 py-1 text-gray-600 hover:bg-gray-100 transition-colors"
                 :class="{ 'opacity-50 cursor-not-allowed': item?.quantity <= 1 }"
+                :disabled="item?.quantity <= 1"
               >
                 −
               </button>
-              <span class="px-2 sm:px-3 py-1 border-x border-gray-300 text-sm sm:text-base">{{ item?.quantity }}</span>
-              <button class="px-2 sm:px-3 py-1 text-gray-600 hover:bg-gray-100 transition-colors">+</button>
+              <span class="px-2 sm:px-3 py-1 border-x border-gray-300 text-sm sm:text-base">{{
+                item?.orderQuantity
+              }}</span>
+              <button
+                :disabled="item?.quantity <= 1"
+                class="px-2 sm:px-3 py-1 text-gray-600 hover:bg-gray-100 transition-colors"
+                :class="{ 'opacity-50 cursor-not-allowed': item?.quantity === item?.orderQuantity }"
+              >
+                +
+              </button>
             </div>
           </div>
         </div>

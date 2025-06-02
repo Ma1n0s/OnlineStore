@@ -18,7 +18,7 @@ useHead({
 })
 
 const cartStore = useCartStore()
-const { cart, products, isLoading: loading, isInitialized } = storeToRefs(cartStore)
+const { products, isLoading: loading, isInitialized } = storeToRefs(cartStore)
 // const loading = ref(isLoading.value)
 
 // Ждем инициализации корзины
@@ -86,7 +86,7 @@ onMounted(async () => {
           </div>
 
           <template v-else>
-            <CartItemsList :products="products" :cart="cart" />
+            <CartItemsList />
 
             <!-- <RecipientData :cart="cart" /> -->
           </template>

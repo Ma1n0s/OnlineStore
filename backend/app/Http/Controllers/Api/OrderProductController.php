@@ -5,11 +5,37 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderProduct;
 use App\Models\Product;
+use DB;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class OrderProductController extends Controller
 {
+    public function updateAllSelected(Request $request, Order $order)
+    {
+
+        $validated = $request->validate([
+            'selected' => 'required|boolean'
+        ]);
+    
+        DB::transaction(function () use ($order, $validated) {
+            // 1. Обновляем selected у всех продуктов заказа
+            DB::table('order_products')
+                ->where('order_id', $order->id)
+                ->update(['selected' => $validated['selected']]);
+            
+            // 2. Обновляем флаг в самом заказе
+            $order->update([
+                'selected' => $validated['selected'],
+                'updated_at' => now() // Принудительно обновляем метку времени
+            ]);
+        });
+
+        return response()->json([
+            'message' => 'Selected status updated for all products',
+        ]);
+    }
+    
     // Добавить продукт в заказ
     public function store(Request $request, Order $order)
     {

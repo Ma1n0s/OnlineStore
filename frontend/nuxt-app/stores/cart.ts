@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 export const useCartStore = defineStore('cart', () => {
-  const { getCart, addProduct, clearCart } = useCart()
+  const { getCart, addProduct, clearCart, updateSelected } = useCart()
   const cart = ref<Record<any, any> | null>(null)
   const products = ref<Array<any>>([]) // Используем ref вместо reactive
   const isInitialized = ref(false)
@@ -25,28 +25,35 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  const updateCart = async () => {
-    isLoading.value = true
+  const refetchCart = async () => {
     try {
       const response = await getCart()
-      cart.value = response || {}
-      products.value = response.products || []
+      cart.value = response.value
+      products.value = response.value.products || []
     } catch (error) {
-      console.error('Failed to update cart:', error)
-    } finally {
-      isLoading.value = false
+      console.error('Failed to initialize cart:', error)
     }
   }
 
   const addToCart = async product => {
     if (!isInitialized.value) await initCart()
     await addProduct(cart, product)
-    await updateCart()
+    await refetchCart()
   }
 
   const clearUserCart = async () => {
     await clearCart()
-    await updateCart()
+    await refetchCart()
+  }
+
+  const setSelected = async selected => {
+    await updateSelected(cart, selected)
+    await refetchCart()
+  }
+
+  const updateProduct = async product => {
+    console.log(product)
+    await refetchCart()
   }
 
   // Инициализируем корзину при создании хранилища
@@ -59,7 +66,9 @@ export const useCartStore = defineStore('cart', () => {
     isInitialized,
     addToCart,
     clearUserCart,
-    updateCart,
+    refetchCart,
+    setSelected,
+    updateProduct,
     initCart, // Добавляем возможность повторной инициализации
   }
 })

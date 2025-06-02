@@ -258,6 +258,7 @@ Route::get('/test', function(Request $request) {
 
 Route::prefix('orders/{order}/products')->group(function () {
     Route::post('/', action: [OrderProductController::class, 'store']);
+    Route::post('/selected', action: [OrderProductController::class, 'updateAllSelected']);
     Route::put('/{product}', [OrderProductController::class, 'update']);
     Route::delete('/{product}', [OrderProductController::class, 'destroy']);
 });

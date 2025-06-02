@@ -12,23 +12,24 @@ class Order extends Model
         'total_amount',
         'status',
         'is_paid',
+        'selected',
     ];
 
 
     public function products()
     {
         return $this->belongsToMany(Product::class, 'order_products')
-            ->withPivot('quantity', 'price_at_order')
+            ->withPivot('quantity', 'price_at_order', 'selected')
             ->withTimestamps();
     }
 
     public function updateTotalAmount()
     {
-        $total = $this->products->sum(function ($product) {
-            return $product->pivot->quantity * $product->pivot->price_at_order;
-        });
+        // $total = $this->products->sum(function ($product) {
+        //     return $product->pivot->quantity * $product->pivot->price_at_order;
+        // });
 
-        $this->update(['total_amount' => $total]);
+        // $this->update(['total_amount' => $total]);
     }
 
     protected $casts = [
