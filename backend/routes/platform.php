@@ -38,7 +38,8 @@ use App\Orchid\Screens\SwiperItemEditScreen;
 use App\Orchid\Screens\OrderViewScreen;
 use App\Orchid\Screens\FeedbackListScreen;
 use App\Orchid\Screens\FeedbackEditScreen;
-
+use App\Orchid\Screens\OrderListScreen; 
+use App\Orchid\Screens\OrderEditScreen;
 
 /*
 |--------------------------------------------------------------------------
@@ -66,6 +67,15 @@ Route::screen('product/create', ProductScreen::class)
             ->parent('platform.product.list')
             ->push('Create');
     });
+
+Route::screen('orders', OrderListScreen::class)
+    ->name('platform.order.list');
+
+Route::screen('orders/create', OrderEditScreen::class)
+    ->name('platform.order.create');
+
+Route::screen('orders/{order}/edit', OrderEditScreen::class)
+    ->name('platform.order.edit');
 
 Route::screen('news', NewsListScreen::class)->name('platform.news.list');
 Route::screen('news/create', NewsScreen::class)->name('platform.news.create');

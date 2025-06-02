@@ -3,9 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Orchid\Filters\Filterable;
+use Orchid\Screen\AsSource;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Order extends Model
 {
+    use HasFactory, AsSource, Filterable;
+
     protected $fillable = [
         'user_id',
         'order_number',
@@ -44,5 +49,10 @@ class Order extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function bonusTransactions()
+    {
+        return $this->morphMany(BonusTransaction::class, 'transactionable');
     }
 }

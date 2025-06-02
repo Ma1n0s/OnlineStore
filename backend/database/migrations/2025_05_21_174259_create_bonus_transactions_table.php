@@ -14,10 +14,12 @@ return new class extends Migration
         Schema::create('bonus_transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('order_id')->nullable()->constrained()->onDelete('cascade');
             $table->date('date');
             $table->string('operation'); 
             $table->integer('amount');
             $table->string('status')->default('Завершено');
+            $table->string('description')->nullable();
             $table->timestamps();
         });
     }

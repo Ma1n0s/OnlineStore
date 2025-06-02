@@ -55,11 +55,18 @@ class PlatformProvider extends OrchidServiceProvider
                 ->canSee(true)
                 ->title('Управление контентом'),
 
-            Menu::make('Заявки')
+            // Menu::make('Заявки')
+            //     ->icon('bs.card-list')
+            //     ->route('platform.application.list')
+            //     ->permission('platform.applications.view')
+            //     ->title('Управление заявками'),
+
+            Menu::make('Заказы')
                 ->icon('bs.card-list')
-                ->route('platform.application.list')
-                ->permission('platform.applications.view')
-                ->title('Управление заявками'),
+                ->route('platform.order.list')
+                // ->permission('platform.orders.view')
+                ->title('Управление заказами'),
+
                 
             // Menu::make('Карточка')
             //     ->icon('bs.card-text')
@@ -191,6 +198,12 @@ class PlatformProvider extends OrchidServiceProvider
             ItemPermission::group('Обратная связь')
                 ->addPermission('platform.feedback.view', 'Просмотр обратной связи')
                 ->addPermission('platform.feedback.edit', 'Редактирование обратной связи'), 
+
+            ItemPermission::group('Orders')
+                ->addPermission('platform.orders.view', 'View orders')
+                ->addPermission('platform.orders.create', 'Create orders')
+                ->addPermission('platform.orders.edit', 'Edit orders')
+                ->addPermission('platform.orders.delete', 'Delete orders'),
         ];
     }
     
@@ -217,6 +230,8 @@ class PlatformProvider extends OrchidServiceProvider
             \App\Orchid\Screens\SwiperItemEditScreen::class,
             \App\Orchid\Screens\FeedbackListScreen::class,
             \App\Orchid\Screens\FeedbackEditScreen::class,
+            \App\Orchid\Screens\OrderListScreen::class,
+            \App\Orchid\Screens\OrderEditScreen::class,
         ];
     }
 }
