@@ -83,7 +83,8 @@ class OrderEditScreen extends Screen
                 Select::make('order.status')
                     ->title('Статус')
                     ->options($statusOptions)
-                    ->required(),
+                    ->required()
+                    ->disabled($this->exists && $this->order->status === 'completed'),
 
                 Input::make('order.total_amount')
                     ->title('Сумма заказа')
@@ -101,6 +102,13 @@ class OrderEditScreen extends Screen
     public function createOrUpdate(Order $order, Request $request)
     {
         $data = $request->get('order');
+        $oldStatus = $order->exists ? $order->status : null;
+
+        // Prevent changing status from 'completed'
+        if ($oldStatus === 'completed' && $data['status'] !== 'completed') {
+            Alert::error('Статус "Завершено" нельзя изменить.');
+            return back();
+        }
 
         $order->fill($data)->save();
 
@@ -108,8 +116,45 @@ class OrderEditScreen extends Screen
             $order->products()->sync($data['products']);
         }
 
+        // Award bonuses when status changes to 'completed'
+        if ($data['status'] === 'completed' && $oldStatus !== 'completed') {
+            $this->awardOrderBonuses($order);
+        }
+
         Alert::info('Заказ успешно сохранен.');
         return redirect()->route('platform.order.list');
+    }
+
+    protected function awardOrderBonuses(Order $order)
+    {
+        $user = $order->user;
+        if (!$user) return;
+
+        $totalBonuses = 0;
+        
+        foreach ($order->products as $product) {
+            if ($product->bonuses > 0) {
+                $totalBonuses += $product->bonuses * $product->pivot->quantity;
+            }
+        }
+
+        if ($totalBonuses > 0) {
+            $user->bonusTransactions()->create([
+                'date' => now(),
+                'operation' => 'Начисление бонусов за заказ #' . $order->order_number,
+                'amount' => $totalBonuses,
+                'status' => 'Завершено',
+            ]);
+            
+            // If you're using the morphMany relationship in Order model
+            // $order->bonusTransactions()->create([
+            //     'user_id' => $user->id,
+            //     'date' => now(),
+            //     'operation' => 'Начисление бонусов за заказ #' . $order->order_number,
+            //     'amount' => $totalBonuses,
+            //     'status' => 'Завершено',
+            // ]);
+        }
     }
 
     public function remove(Order $order)
