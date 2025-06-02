@@ -13,7 +13,8 @@ class OrderProduct extends Model
         'order_id',
         'product_id',
         'quantity',
-        'price_at_order'
+        'price_at_order',
+        'selected'
     ];
 
     public function order()

@@ -1,6 +1,6 @@
 <script setup>
 // import { ref } from 'vue'
-// import OrderSummary from '~/components/СartСheckout/OrderSummary.vue'
+import OrderSummary from '~/components/СartСheckout/OrderSummary.vue'
 import CartHeader from '~/components/СartСheckout/CartHeader.vue'
 import CartItemsList from '~/components/СartСheckout/CartItemsList.vue'
 // import RecipientData from '~/components/СartСheckout/RecipientData.vue'
@@ -18,7 +18,7 @@ useHead({
 })
 
 const cartStore = useCartStore()
-const { cart, products, isLoading: loading, isInitialized } = storeToRefs(cartStore)
+const { products, isLoading: loading, isInitialized } = storeToRefs(cartStore)
 // const loading = ref(isLoading.value)
 
 // Ждем инициализации корзины
@@ -86,14 +86,14 @@ onMounted(async () => {
           </div>
 
           <template v-else>
-            <CartItemsList :products="products" :cart="cart" />
+            <CartItemsList />
 
             <!-- <RecipientData :cart="cart" /> -->
           </template>
         </div>
 
         <div class="lg:w-1/4">
-          <!-- <OrderSummary :cart="cart" /> -->
+          <OrderSummary />
         </div>
       </div>
     </div>

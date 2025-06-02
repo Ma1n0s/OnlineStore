@@ -1,7 +1,4 @@
 <?php
-
-namespace App\Http\Controllers\Api;
-
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -42,11 +39,11 @@ class OrderController extends Controller
             ]);
             
             // Инициализируем пустой массив продуктов
-            $cart->load('products');
+            $cart->load(['products', 'user']);
         }
 
-        $cart->load('products');
-        
+        $cart->load(['products', 'user']);
+
         return response()->json($cart);
     }
 

@@ -3,98 +3,53 @@ import Button from '~/components/ui/Button/Button.vue'
 import { useCartStore } from '~/stores/cart'
 
 const cartStore = useCartStore()
-
-// const isEmptyCart = computed(() => cartStore.cart.length)
+const { cart, products } = storeToRefs(cartStore)
 
 const sendOrder = async () => {}
 
-defineProps({
-  isEmptyCart: {
-    type: Boolean,
-    required: true,
-  },
-  customer: {
-    type: Object,
-    required: true,
-    default: () => ({ name: '', phone: '' }),
-  },
-  paymentMethod: {
-    type: String,
-    required: true,
-    default: 'cash',
-  },
-  totalItemsCount: {
-    type: Number,
-    required: true,
-    default: 0,
-  },
-  totalWeight: {
-    type: String,
-    required: true,
-    default: '0',
-  },
-  formattedTotalAmount: {
-    type: String,
-    required: true,
-    default: '0 ₽',
-  },
-  formattedDiscountAmount: {
-    type: String,
-    required: true,
-    default: '0 ₽',
-  },
-  formattedFinalAmount: {
-    type: String,
-    required: true,
-    default: '0 ₽',
-  },
-  emptyCartFinalAmount: {
-    type: String,
-    required: true,
-    default: '0 ₽',
-  },
-})
+const isEmpty = computed(() => products.value.length === 0)
+const isSelected = computed(() => products.value.some(product => product.selected))
 
-const orderDate = computed(() => {
-  const today = new Date()
-  const options = { year: 'numeric', month: 'long', day: 'numeric' }
-  return today.toLocaleDateString('ru-RU', options)
-})
+console.log(isEmpty.value, isSelected.value)
+
+// const orderDate = computed(() => {
+//   const today = new Date()
+//   const options = { year: 'numeric', month: 'long', day: 'numeric' }
+//   return today.toLocaleDateString('ru-RU', options)
+// })
 </script>
 <template>
   <div class="bg-white rounded-xl p-4 sm:p-6 shadow-sm sticky top-8 sm:top-20 border border-gray-200">
-    <h2 class="text-base sm:text-lg font-bold mb-3 sm:mb-4 text-gray-800" v-if="!isEmptyCart">Ваш заказ</h2>
+    <h2 class="text-base sm:text-lg font-bold mb-3 sm:mb-4 text-gray-800" v-if="isEmpty">Ваш заказ</h2>
     <h2 class="text-base sm:text-lg font-bold mb-3 sm:mb-4 text-gray-800" v-else>Оформление</h2>
 
-    <div v-if="isEmptyCart" class="mb-3 sm:mb-4">
+    <div v-if="isEmpty" class="mb-3 sm:mb-4">
       <p class="text-xs sm:text-sm text-gray-600">Выберите товары для оформления заказа</p>
     </div>
 
     <div v-else class="mb-3 sm:mb-4 space-y-2 sm:space-y-3">
       <div>
         <p class="text-xs sm:text-sm text-gray-500">Дата заказа</p>
-        <p class="text-sm sm:text-base font-medium">{{ orderDate }}</p>
+        <p class="text-sm sm:text-base font-medium">{{ cart.updated_at }}</p>
       </div>
       <div>
         <p class="text-xs sm:text-sm text-gray-500">Покупатель</p>
-        <p class="text-sm sm:text-base font-medium" v-if="customer.name">{{ customer.name }}</p>
+        <p class="text-sm sm:text-base font-medium" v-if="cart.user">{{ cart.user.name }}</p>
         <p class="text-xs sm:text-sm text-gray-400 italic" v-else>Не указано</p>
       </div>
     </div>
 
-    <div v-if="!isEmptyCart" class="flex items-center justify-between mb-3 sm:mb-4">
-      <h2 class="text-sm sm:text-base font-bold text-gray-800">{{ totalItemsCount }} товар • {{ totalWeight }} кг</h2>
-      <span class="text-xs sm:text-sm text-green-600 font-medium">Выгода</span>
+    <div v-if="!isEmpty && isSelected" class="flex items-center justify-between mb-3 sm:mb-4">
+      <h2 class="text-sm sm:text-base font-bold text-gray-800">
+        {{ products.reduce((acc, val) => (val.selected ? acc + 1 : 0), 0) }} товар •
+        {{ products.reduce((acc, val) => (val.selected ? acc + val?.weight : 0), 0) }} кг
+      </h2>
     </div>
 
-    <div v-if="!isEmptyCart" class="space-y-2 sm:space-y-3 mb-3 sm:mb-4">
+    <div v-if="!isEmpty && isSelected" class="space-y-2 sm:space-y-3 mb-3 sm:mb-4">
       <div class="flex justify-between items-center text-sm sm:text-base">
         <span>Сумма</span>
-        <span class="font-medium text-gray-800">{{ formattedTotalAmount }}</span>
-      </div>
-      <div class="flex justify-between items-center text-sm sm:text-base">
-        <span>Скидка</span>
-        <span class="text-red-600">{{ formattedDiscountAmount }}</span>
+        <span class="font-medium text-gray-800">{{ 0 }}</span>
       </div>
     </div>
 
@@ -102,7 +57,7 @@ const orderDate = computed(() => {
       <div class="flex justify-between items-center mb-4 sm:mb-6">
         <span class="text-base sm:text-lg font-bold text-gray-800">Итого</span>
         <span class="text-xl sm:text-2xl font-bold text-gray-800">
-          {{ isEmptyCart ? emptyCartFinalAmount : formattedFinalAmount }}
+          {{ isEmpty ? 0 : 0 }}
         </span>
       </div>
     </div>
@@ -110,7 +65,7 @@ const orderDate = computed(() => {
     <Button
       variant="primary"
       size="medium"
-      :disabled="isEmptyCart || totalItemsCount === 0"
+      :disabled="!isEmpty && !isSelected"
       class="w-full shadow-md text-sm sm:text-base"
       type="submit"
       @click="sendOrder"

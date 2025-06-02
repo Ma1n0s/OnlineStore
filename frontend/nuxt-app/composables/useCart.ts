@@ -11,6 +11,12 @@ export const useCart = () => {
       server: false,
     })
 
+    data.value.products.forEach(product => {
+      product.orderPrice = product.pivot.price_at_order
+      product.orderQuantity = product.pivot.quantity
+      product.selected = product.pivot.selected === 1
+    })
+
     return data
   }
 
@@ -63,5 +69,25 @@ export const useCart = () => {
 
   const clearCart = async () => {}
 
-  return { getCart, addProduct, removeProduct, updateProduct, clearCart }
+  const updateSelected = async (cart, selected: boolean) => {
+    return await $fetch(`${backendUrl}/api/orders/${cart.value.id}/products/selected`, {
+      method: 'POST',
+      body: { selected },
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+      },
+      credentials: 'include',
+    })
+  }
+
+  return {
+    getCart,
+    addProduct,
+    removeProduct,
+    updateProduct,
+    clearCart,
+    updateSelected,
+  }
 }
