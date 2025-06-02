@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed md:hidden bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-lg">
+  <div class="fixed lg:hidden bottom-0 left-0 right-0 bg-white  z-50 shadow-lg">
     <div class="flex justify-around items-center h-16">
       <NuxtLink
         to="/"
