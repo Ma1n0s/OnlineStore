@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 export const useCartStore = defineStore('cart', () => {
-  const { getCart, addProduct, clearCart, updateSelected } = useCart()
+  const { getCart, addProduct, clearCart, updateSelected, completeOrder } = useCart()
   const cart = ref<Record<any, any> | null>(null)
   const products = ref<Array<any>>([]) // Используем ref вместо reactive
   const isInitialized = ref(false)
@@ -56,6 +56,10 @@ export const useCartStore = defineStore('cart', () => {
     await refetchCart()
   }
 
+  const createOrder = async () => {
+    await completeOrder()
+  }
+
   // Инициализируем корзину при создании хранилища
   initCart()
 
@@ -69,6 +73,7 @@ export const useCartStore = defineStore('cart', () => {
     refetchCart,
     setSelected,
     updateProduct,
+    createOrder,
     initCart, // Добавляем возможность повторной инициализации
   }
 })

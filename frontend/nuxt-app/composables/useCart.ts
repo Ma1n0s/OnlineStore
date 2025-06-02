@@ -82,12 +82,25 @@ export const useCart = () => {
     })
   }
 
+  const completeOrder = async () => {
+    return await $fetch(`${backendUrl}/api/orders/create-order`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+      },
+      credentials: 'include',
+    })
+  }
+
   return {
     getCart,
     addProduct,
     removeProduct,
     updateProduct,
     clearCart,
+    completeOrder,
     updateSelected,
   }
 }
