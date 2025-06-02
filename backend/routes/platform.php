@@ -28,6 +28,7 @@ use App\Orchid\Screens\Category\CategoryListScreen;
 use App\Orchid\Screens\ProfileListScreen;
 use App\Orchid\Screens\ProfileEditScreen;
 use App\Models\User;
+use App\Models\Feedback;
 use App\Orchid\Screens\NewsListScreen;
 use App\Orchid\Screens\NewsScreen;
 use Illuminate\Support\Facades\Route;

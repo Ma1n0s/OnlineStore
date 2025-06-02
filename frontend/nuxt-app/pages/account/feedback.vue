@@ -51,7 +51,7 @@ const submitForm = async () => {
   state.isSubmitting = true
   
   try {
-    const response = await $fetch('/api/feedback', {
+    const response = await $fetch('http://127.0.0.1:8000/api/feedback', {
       method: 'POST',
       body: form,
       headers: {
