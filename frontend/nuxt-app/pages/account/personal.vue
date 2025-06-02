@@ -166,7 +166,7 @@ const saveCompany = async () => {
   if (!validateCompany()) return;
   uiState.isLoading = true;
   try {
-    await $fetch('/api/profile/company', {
+    const response = await $fetch('http://127.0.0.1:8000/api/profile/company', {
       method: 'PUT',
       body: forms.company,
     });
@@ -183,7 +183,7 @@ const changePassword = async () => {
   if (!validatePassword()) return;
   uiState.isLoading = true;
   try {
-    await $fetch('/api/profile/password', {
+    await $fetch('http://127.0.0.1:8000/api/profile/password', {
       method: 'PUT',
       body: {
         current_password: forms.password.current,
