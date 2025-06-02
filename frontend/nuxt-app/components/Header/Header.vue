@@ -66,7 +66,9 @@
         </div>
 
         <div class="flex items-center gap-2">
-         
+          <Button variant="transparent" class="flex items-center gap-2 h-full !px-4" to="/account/cart-checkout"
+            ><Icon name="material-symbols:shopping-cart-rounded" class="h-8 w-8 text-dark" alt="Корзина"
+          /></Button>
 
           <div class="relative w-full h-full">
             <Button
@@ -81,7 +83,7 @@
               <Icon name="material-symbols:account-circle" class="h-8 w-8 text-dark" alt="Вход"
             /></Button>
 
-
+            <Menu v-if="miniMenu" v-model="miniMenu" />
           </div>
         </div>
       </div>
@@ -114,13 +116,118 @@
       </div>
     </div>
   </div>
+
+  <div class="pb-[65px] lg:pb-[140px]"></div>
+
+  <Modal class="min-h-[427px]" :isOpen="isModalOpen" @close="closeModal" @confirm="handleConfirm" title="">
+    <AuthForm @close="closeModal" />
+  </Modal>
+
+  <Modal :isOpen="menuOpen" @close="closeMenu" @confirm="handleConfirm" title="">
+    <div class="flex flex-col gap-4">
+      <div>
+        <NuxtLink to="/" class="flex items-center gap-2 w-[210px]">
+          <NuxtImg src="full_logo_text.svg" class="h-[50px] w-fit" alt="Абсолют Техно" />
+        </NuxtLink>
+      </div>
+
+      <Button v-if="isAuth" class="flex items-center gap-2 h-full relative" @click="handleLogout">
+        <Icon name="solar:user-outline" class="h-8 w-8" alt="Пользователь" />
+        <span class="text-lg font-bold">{{ userDisplayName }}</span>
+      </Button>
+
+      <Button
+        class="flex items-center gap-2 h-full w-full"
+        @click="
+          () => {
+            closeMenu()
+            openModal()
+          }
+        "
+        v-else
+      >
+        <Icon name="material-symbols:account-circle" class="h-8 w-8" alt="Вход" />
+        <span class="text-lg font-bold"> Вход </span>
+      </Button>
+
+      <Button to="/category" class="flex items-center gap-2 h-full" @click="closeMenu">
+        <Icon name="material-symbols:view-list-rounded" class="h-8 w-8" alt="Каталог" />
+        <span class="text-lg font-bold">Каталог</span>
+      </Button>
+
+      <Button class="flex items-center gap-2 h-full w-full" to="/account/cart-checkout" @click="closeMenu">
+        <Icon name="material-symbols:shopping-cart-rounded" class="h-8 w-8" alt="Корзина" />
+        <span class="text-lg font-bold">Корзина</span>
+      </Button>
+
+      <div class="flex flex-col gap-2">
+        <Button to="/contacts" class="flex items-center gap-2 h-full w-full" @click="closeMenu">
+          <Icon name="material-symbols:contact-phone-rounded" class="h-8 w-8" alt="Контакты" />
+          <span class="text-lg font-bold">Контакты</span>
+        </Button>
+        <Button to="/about" class="flex items-center gap-2 h-full w-full" @click="closeMenu">
+          <Icon name="material-symbols:move-location-rounded" class="h-8 w-8" alt="О компании" />
+          <span class="text-lg font-bold">О компании</span>
+        </Button>
+        <Button to="/about" class="flex items-center gap-2 h-full w-full" @click="closeMenu">
+          <Icon name="material-symbols:passkey-rounded" class="h-8 w-8" alt="Условия аренды" />
+          <span class="text-lg font-bold">Условия аренды</span>
+        </Button>
+        <Button to="/about" class="flex items-center gap-2 h-full w-full" @click="closeMenu">
+          <Icon name="material-symbols:shield-rounded" class="h-8 w-8" alt="Гарантия" />
+          <span class="text-lg font-bold">Гарантия</span>
+        </Button>
+        <Button to="/about" class="flex items-center gap-2 h-full w-full" @click="closeMenu">
+          <Icon name="material-symbols:local-shipping-rounded" class="h-8 w-8" alt="Оплата и доставка" />
+          <span class="text-lg font-bold">Оплата и доставка</span>
+        </Button>
+      </div>
+
+      <div class="flex items-center justify-around gap-2 w-full py-2">
+        <div class="flex flex-wrap items-center justify-center sm:justify-between gap-8 w-full">
+          <div class="flex flex-col items-start">
+            <NuxtLink
+              to="tel:+79169999999"
+              class="text-primary font-bold text-nowrap text-sm text-center flex items-center gap-1"
+            >
+              <Icon name="material-symbols:phone-android-rounded" class="h-4 w-4" alt="Телефон" />
+              +7 (916) 999-99-99</NuxtLink
+            >
+            <p class="text-gray font-bold text-nowrap text-sm flex items-center gap-1">
+              <Icon
+                name="material-symbols:nest-clock-farsight-analog-outline-rounded"
+                class="h-4 w-4"
+                alt="Время работы"
+              />
+              с 9:00 до 18:00 (Пн-Пт)
+            </p>
+          </div>
+
+          <div>
+            <p class="text-gray font-bold text-nowrap text-sm flex items-start gap-1">
+              <Icon name="material-symbols:location-on-rounded" class="h-4 w-4 mt-[2px] inline text-gray" alt="Адрес" />
+              Нижний Тагил, <br />
+              ул. Аганичева 101а
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Modal>
 </template>
 
 <script setup lang="ts">
 import Button from '~/components/ui/Button/Button.vue'
 import { useUserStore } from '~/stores/user'
 import Search from '../Search/Search.vue'
+import Modal from '../Modal/Modal.vue'
+import Menu from './Menu.vue'
+import AuthForm from '../Forms/AuthForm.vue'
 
+const menuOpen = ref(false)
+const closeMenu = () => {
+  menuOpen.value = false
+}
 
 const userStore = useUserStore()
 const { clearUser } = userStore
@@ -139,6 +246,7 @@ const miniMenu = ref(false)
 
 const isMenuOpen = ref(false)
 
+const isModalOpen = ref(false)
 
 const isScrolled = ref(false)
 
@@ -152,6 +260,28 @@ onUnmounted(() => {
 
 const handleScroll = () => {
   isScrolled.value = window.scrollY > 50
+}
+
+const openModal = () => {
+  isModalOpen.value = true
+}
+
+const closeModal = () => {
+  isModalOpen.value = false
+}
+
+const handleConfirm = () => {
+  closeModal()
+}
+
+const handleLogout = async () => {
+  try {
+    const { logout } = useSanctumAuth()
+    await logout()
+    clearUser()
+  } catch (error) {
+    console.error('Logout error:', error)
+  }
 }
 </script>
 
