@@ -39,10 +39,10 @@ class OrderController extends Controller
             ]);
             
             // Инициализируем пустой массив продуктов
-            $cart->load('products');
+            $cart->load(['products', 'user']);
         }
 
-        $cart->load('products');
+        $cart->load(['products', 'user']);
 
         return response()->json($cart);
     }

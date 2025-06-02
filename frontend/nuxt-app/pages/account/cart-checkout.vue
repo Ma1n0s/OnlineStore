@@ -1,6 +1,6 @@
 <script setup>
 // import { ref } from 'vue'
-// import OrderSummary from '~/components/СartСheckout/OrderSummary.vue'
+import OrderSummary from '~/components/СartСheckout/OrderSummary.vue'
 import CartHeader from '~/components/СartСheckout/CartHeader.vue'
 import CartItemsList from '~/components/СartСheckout/CartItemsList.vue'
 // import RecipientData from '~/components/СartСheckout/RecipientData.vue'
@@ -93,7 +93,7 @@ onMounted(async () => {
         </div>
 
         <div class="lg:w-1/4">
-          <!-- <OrderSummary :cart="cart" /> -->
+          <OrderSummary />
         </div>
       </div>
     </div>
