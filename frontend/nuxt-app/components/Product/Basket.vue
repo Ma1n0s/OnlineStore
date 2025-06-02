@@ -159,7 +159,7 @@ const add = async () => {
       </Button>
     </div>
 
-    <div class="bg-slate-100 rounded-xl shadow-md border-gray-100 p-3 flex items-center gap-2">
+    <!-- <div class="bg-slate-100 rounded-xl shadow-md border-gray-100 p-3 flex items-center gap-2">
       <div class="bg-primary/10 p-1.5 rounded-lg">
         <Icon name="mdi:percent-box" class="h-4 w-4 text-primary" />
       </div>
@@ -179,7 +179,7 @@ const add = async () => {
           <p class="text-xs text-gray-500">Из 13 магазинов, бесплатно</p>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <Modal :isOpen="isRentalModalOpen" title="Аренда товара" @close="closeRentalModal">
       <div class="mt-6 space-y-6">
