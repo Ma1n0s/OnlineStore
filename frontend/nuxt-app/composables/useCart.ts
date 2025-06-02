@@ -45,7 +45,7 @@ export const useCart = () => {
 
     // console.log(data)
 
-    const val = await $fetch(`${backendUrl}/api/orders/${cart.value.id}/products`, {
+    await $fetch(`${backendUrl}/api/orders/${cart.value.id}/products`, {
       method: 'POST',
       body: dataCart,
       headers: {
@@ -55,8 +55,6 @@ export const useCart = () => {
       },
       credentials: 'include',
     })
-
-    console.log(val)
   }
 
   const removeProduct = async () => {}

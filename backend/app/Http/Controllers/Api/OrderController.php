@@ -41,7 +41,7 @@ class OrderController extends Controller
                 'total_amount' => 0
             ]);
             
-            // Загружаем пустой массив продуктов
+            // Инициализируем пустой массив продуктов
             $cart->load('products');
         }
 

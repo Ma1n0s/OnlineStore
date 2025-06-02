@@ -3,40 +3,63 @@ import { ref } from 'vue'
 
 export const useCartStore = defineStore('cart', () => {
   const { getCart, addProduct, clearCart } = useCart()
-  const cart = ref(null)
+  const cart = ref<Record<any, any> | null>(null)
+  const products = ref<Array<any>>([]) // Используем ref вместо reactive
   const isInitialized = ref(false)
+  const isLoading = ref(false)
 
   const initCart = async () => {
-    if (isInitialized.value) return
-    cart.value = await getCart()
-    isInitialized.value = true
-    console.log(cart.value, 'cart')
+    if (isInitialized.value || isLoading.value) return
+
+    isLoading.value = true
+    try {
+      const response = await getCart()
+      console.log(response.value, 'wait what')
+      cart.value = response.value
+      products.value = response.value.products || []
+      isInitialized.value = true
+    } catch (error) {
+      console.error('Failed to initialize cart:', error)
+    } finally {
+      isLoading.value = false
+    }
   }
 
-  console.log(cart.value, 'cart')
-
-  const updateBacket = async () => {
-    cart.value = await getCart()
+  const updateCart = async () => {
+    isLoading.value = true
+    try {
+      const response = await getCart()
+      cart.value = response || {}
+      products.value = response.products || []
+    } catch (error) {
+      console.error('Failed to update cart:', error)
+    } finally {
+      isLoading.value = false
+    }
   }
 
   const addToCart = async product => {
     if (!isInitialized.value) await initCart()
-
-    // console.log(cart.value.products, cart.value)
-    // const hasInCart = cart.value.products.some(el => el.product.id === product.id)
-
-    // if (hasInCart) return
-
-    await addProduct(cart.value, product)
-    await updateBacket()
+    await addProduct(cart, product)
+    await updateCart()
   }
 
   const clearUserCart = async () => {
     await clearCart()
-    await updateBacket()
+    await updateCart()
   }
 
+  // Инициализируем корзину при создании хранилища
   initCart()
 
-  return { cart, addToCart, clearUserCart, updateBacket }
+  return {
+    cart,
+    products,
+    isLoading,
+    isInitialized,
+    addToCart,
+    clearUserCart,
+    updateCart,
+    initCart, // Добавляем возможность повторной инициализации
+  }
 })
