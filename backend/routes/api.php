@@ -48,6 +48,7 @@ Route::middleware('auth:sanctum')->prefix('profile')->group(function () {
     Route::put('/', [ProfileController::class, 'update']);
     Route::put('/password', [ProfileController::class, 'updatePassword']);
     Route::put('/company', [ProfileController::class, 'updateCompany']);
+    Route::delete('/company', [ProfileController::class, 'deleteCompany']);
 });
 
 // Route::get('/products/paginate', [ProductController::class, 'paginateProducts']);
