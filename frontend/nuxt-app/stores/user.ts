@@ -55,6 +55,7 @@ export const useUserStore = defineStore('user', () => {
           bonusBalance: data.value.bonus_balance,
           bonusTransactions: data.value.bonus_transactions || [],
           orders: data.value.orders || [],
+           phone: data.value.phone,
         }
         isAuth.value = true
         console.log('User data after processing:', user.value)
