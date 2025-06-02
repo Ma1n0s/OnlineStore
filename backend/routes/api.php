@@ -43,6 +43,13 @@ Route::prefix('cart')->group(function () {
     Route::patch('/{cartItem}', [CartController::class, 'update']);
 });
 
+Route::middleware('auth:sanctum')->prefix('profile')->group(function () {
+    Route::get('/', [ProfileController::class, 'show']);
+    Route::put('/', [ProfileController::class, 'update']);
+    Route::put('/password', [ProfileController::class, 'updatePassword']);
+    Route::put('/company', [ProfileController::class, 'updateCompany']);
+});
+
 Route::middleware('auth:sanctum')->post('/feedback', function (Request $request) {
     $request->validate([
         'subject' => 'required|string|max:255',

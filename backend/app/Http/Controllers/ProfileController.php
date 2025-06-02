@@ -23,17 +23,6 @@ class ProfileController extends Controller
         
         $user->update($validated);
         
-        // $profileData = [
-        //     'first_name' => $validated['name'], 
-            
-        // ];
-        
-        if ($user->profile) {
-            $user->profile->update($profileData);
-        } else {
-            $user->profile()->create($profileData);
-        }
-        
         return response()->json([
             'user' => $user->load('profile'),
             'message' => 'Профиль успешно обновлен'

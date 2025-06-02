@@ -4,6 +4,10 @@ import { useUserStore } from '~/stores/user'
 import SidebarMenu from '~/components/Account/SidebarMenu.vue'
 import Modal from '~/components/Modal/Modal.vue'
 
+const {
+  public: { backendUrl },
+} = useRuntimeConfig()
+
 const userStore = useUserStore()
 const uiState = reactive({
   isModalOpen: false,
@@ -144,19 +148,26 @@ const loadProfile = async () => {
 const saveProfile = async () => {
   uiState.isLoading = true;
   try {
-    const response = await $fetch(`http://127.0.0.1:8000/api/profile`, { 
+    const response = await $fetch(`${backendUrl}/api/profile`, { 
       method: 'PUT',
       body: {
         name: profile.value.name,
         email: profile.value.email,
         phone: profile.value.phone,
       },
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+      },
+      credentials: 'include',
     });
     
     userStore.setUser(response.user);
     uiState.error = null;
   } catch (error) {
     uiState.error = error.data?.message || error.message || 'Ошибка при сохранении профиля';
+    console.log(error);
   } finally {
     uiState.isLoading = false;
   }
@@ -166,10 +177,16 @@ const saveCompany = async () => {
   if (!validateCompany()) return;
   uiState.isLoading = true;
   try {
-    await $fetch('/api/profile/company', {
+    const response = await $fetch(`${backendUrl}/api/profile/company`, {
       method: 'PUT',
       body: forms.company,
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+      },
     });
+    
     await loadProfile();
     uiState.isCompanyModalOpen = false;
   } catch (error) {
@@ -183,11 +200,16 @@ const changePassword = async () => {
   if (!validatePassword()) return;
   uiState.isLoading = true;
   try {
-    await $fetch('/api/profile/password', {
+    await $fetch(`${backendUrl}/api/profile/password`, {
       method: 'PUT',
       body: {
         current_password: forms.password.current,
         new_password: forms.password.new,
+      },
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
       },
     });
     uiState.isModalOpen = false;
@@ -219,7 +241,7 @@ onMounted(() => {
           <div class="bg-white p-6 rounded-xl shadow">
             <h2 class="text-lg font-semibold text-gray-900 mb-6">Личная информация</h2>
 
-            <form @submit.prevent="saveProfile" class="space-y-6">
+            <form class="space-y-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label for="firstname" class="block text-sm font-medium text-gray-700 mb-1">ФИО</label>
@@ -333,7 +355,7 @@ onMounted(() => {
                   </button>
                   
                   <button
-                    type="submit"
+                    @click.prevent="saveProfile"
                     :disabled="uiState.isLoading"
                     class="inline-flex justify-center py-2.5 px-6 shadow-sm text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition disabled:opacity-70 disabled:cursor-not-allowed"
                   >
@@ -405,6 +427,17 @@ onMounted(() => {
             {{ forms.password.errors.confirm }}
           </p>
         </div>
+          <button
+            @click.prevent="changePassword"
+            :disabled="uiState.isLoading"
+            class="inline-flex justify-center py-2.5 px-6 shadow-sm text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+              <span v-if="uiState.isLoading" class="flex items-center">
+                <Icon name="mdi:loading" class="animate-spin mr-2" />
+                Сохранение...
+              </span>
+            <span v-else>изменить пароль</span>
+          </button>
       </div>
     </Modal>
 
