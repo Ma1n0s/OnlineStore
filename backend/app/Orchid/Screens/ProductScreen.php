@@ -218,6 +218,10 @@ class ProductScreen extends Screen
                         Input::make('product.bonuses')
                             ->title('Бонусы')
                             ->help('Начисляемые бонусы за покупку'),
+
+                        Input::make('product.weight')
+                            ->title('Вес')
+                            ->help('Вес продукта'),
                     ]),
                     
                     $isCreatingInCategory

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('order_number')->unique();
             $table->decimal('total_amount', 10, 2);
+            $table->string('weight')->nullable();
             $table->string('status')->default('pending');
             $table->boolean('is_paid')->default(false);
             $table->boolean('selected')->default(true);
