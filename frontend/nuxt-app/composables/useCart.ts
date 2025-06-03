@@ -66,7 +66,6 @@ export const useCart = () => {
   const removeProduct = async () => {}
 
   const updateOrderProduct = async (cart, product) => {
-    console.log(cart.value.id, product.id, 'wtf')
     return await $fetch(`${backendUrl}/api/orders/${cart.value.id}/products/${product.id}`, {
       method: 'PUT',
       body: {
@@ -80,16 +79,14 @@ export const useCart = () => {
       },
       credentials: 'include',
     })
-
-    // orders/{order}/products
   }
 
   const clearCart = async () => {}
 
-  const updateSelected = async (cart, selected: boolean) => {
+  const updateSelected = async (cart, selected: boolean, all = true) => {
     return await $fetch(`${backendUrl}/api/orders/${cart.value.id}/products/selected`, {
       method: 'POST',
-      body: { selected },
+      body: { selected, all },
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',

@@ -4,17 +4,30 @@ import Button from '~/components/ui/Button/Button.vue'
 const cartStore = useCartStore()
 const { cart, products } = storeToRefs(cartStore)
 
+const debouncedUpdate = useDebounceFn(async product => {
+  await cartStore.updateProduct(product)
+}, 1000)
+
 const removeSelected = () => {}
 const toggleSelected = item => {
   item.selected = !item.selected
-  cartStore.updateProduct(item)
+  debouncedUpdate(item)
   console.log(item.selected)
-  // cartStore.updateProduct(item)
 }
 
-// const increaseQuantity = item => {}
+const increaseQuantity = item => {
+  if (item.quantity > item.orderQuantity) {
+    item.orderQuantity += 1
+    debouncedUpdate(item)
+  }
+}
 
-// const decreaseQuantity = item => {}
+const decreaseQuantity = item => {
+  if (item.quantity >= item.orderQuantity && item.orderQuantity !== 1) {
+    item.orderQuantity -= 1
+    debouncedUpdate(item)
+  }
+}
 </script>
 <template>
   <div class="bg-white rounded-xl p-4 sm:p-6 mb-4 sm:mb-6 shadow-sm">
@@ -115,6 +128,7 @@ const toggleSelected = item => {
                 class="px-2 sm:px-3 py-1 text-gray-600 hover:bg-gray-100 transition-colors"
                 :class="{ 'opacity-50 cursor-not-allowed': item?.quantity <= 1 }"
                 :disabled="item?.quantity <= 1"
+                @click="decreaseQuantity(item)"
               >
                 −
               </button>
@@ -122,6 +136,7 @@ const toggleSelected = item => {
                 item?.orderQuantity
               }}</span>
               <button
+                @click="increaseQuantity(item)"
                 :disabled="item?.quantity <= 1"
                 class="px-2 sm:px-3 py-1 text-gray-600 hover:bg-gray-100 transition-colors"
                 :class="{ 'opacity-50 cursor-not-allowed': item?.quantity === item?.orderQuantity }"
