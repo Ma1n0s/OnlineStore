@@ -62,6 +62,11 @@ const performSearch = async (query: string) => {
       params: {
         query: query,
       },
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+      },
     })
   })
 

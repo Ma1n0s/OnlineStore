@@ -10,7 +10,9 @@
             <h1 class="text-lg sm:text-xl font-semibold text-gray-900">{{ userStore.user?.name || 'Пользователь' }}</h1>
             <div class="flex items-center gap-2 mt-1">
               <Icon name="mdi:gift" class="w-5 h-5 text-yellow-500" />
-              <span class="text-sm sm:text-base font-medium text-gray-700"> {{ userStore.user?.bonusBalance || 0 }} бонусов </span>
+              <span class="text-sm sm:text-base font-medium text-gray-700">
+                {{ userStore.user?.bonusBalance || 0 }} бонусов
+              </span>
             </div>
           </div>
         </div>
@@ -105,7 +107,14 @@ const userStore = useUserStore()
 
 const logout = async () => {
   try {
-    await $fetch('/api/logout', { method: 'POST' })
+    await $fetch('/api/logout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+      },
+    })
     userStore.clearUser()
     navigateTo('/')
   } catch (error) {

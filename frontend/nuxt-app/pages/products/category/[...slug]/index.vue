@@ -20,6 +20,12 @@ const { slug } = route.params
 const { data } = await useAsyncData(`products-list-${slug}`, () =>
   $fetch(`${backendUrl}/api/products/category-slug/${slug.at(-1)}`, {
     query: { addition_data: 1 },
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+    },
   })
 )
 
@@ -108,6 +114,12 @@ const searchData = async () => {
 
   const data = await $fetch(`${backendUrl}/api/products/category-slug/${slug.at(-1)}`, {
     query,
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+    },
   })
 
   console.log(data, 'new data', query)

@@ -32,23 +32,24 @@ const profile = computed(() => ({
   phone: userStore.user?.phone || '',
   registrationDate: userStore.user?.created_at || '',
   company: userStore.user?.company_name || '',
-  companyDetails: userStore.user?.companyDetails || null
+  companyDetails: userStore.user?.companyDetails || null,
 }))
 
 const submitForm = async () => {
   state.isSubmitting = true
-  
+
   try {
     const response = await $fetch('http://127.0.0.1:8000/api/feedback', {
       method: 'POST',
       body: form,
       headers: {
-        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
         'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
       },
       credentials: 'include',
     })
-    
+
     if (response.status === 'success') {
       state.isSuccess = true
       form.message = ''

@@ -7,9 +7,21 @@ const {
   public: { backendUrl },
 } = useRuntimeConfig()
 
-const { data: category } = await useAsyncData(`category-list`, () => $fetch(`${backendUrl}/api/categories`), {
-  revalidate: 3600,
-})
+const { data: category } = await useAsyncData(
+  `category-list`,
+  () =>
+    $fetch(`${backendUrl}/api/categories`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+      },
+    }),
+  {
+    revalidate: 3600,
+  }
+)
 
 // getCachedData(key) {
 //       return useNuxtApp().payload.data[key] // Использование кешированных данных

@@ -8,6 +8,11 @@ export const useCart = () => {
     data.value = await $fetch(`${backendUrl}/api/orders/active-cart`, {
       method: 'GET',
       credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+      },
       server: false,
     })
 
