@@ -24,6 +24,20 @@ const sum = computed(() => {
   return result
 })
 
+const formatDateTime = datatime => {
+  const date = new Date(datatime)
+  return new Intl.DateTimeFormat('ru-RU', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  })
+    .format(date)
+    .replace(',', '')
+}
+
 console.log(isEmpty.value, isSelected.value)
 
 // const orderDate = computed(() => {
@@ -44,7 +58,7 @@ console.log(isEmpty.value, isSelected.value)
     <div v-else class="mb-3 sm:mb-4 space-y-2 sm:space-y-3">
       <div>
         <p class="text-xs sm:text-sm text-gray-500">Дата заказа</p>
-        <p class="text-sm sm:text-base font-medium">{{ cart.updated_at }}</p>
+        <p class="text-sm sm:text-base font-medium">{{ formatDateTime(cart.updated_at) }}</p>
       </div>
       <div>
         <p class="text-xs sm:text-sm text-gray-500">Покупатель</p>
