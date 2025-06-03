@@ -60,8 +60,10 @@ onMounted(async () => {
 // })
 </script>
 
+
+
 <template>
-  <div>
+  <div class="min-h-screen">
     <div class="mx-auto w-full max-w-screen-2xl px-8 space-y-8 py-8">
       <div class="flex flex-col lg:flex-row gap-4 sm:gap-6">
         <div class="lg:w-3/4">
@@ -73,7 +75,6 @@ onMounted(async () => {
 
           <div v-else-if="!loading && products.length === 0" class="bg-white rounded-xl p-6 mb-6 shadow-sm text-center">
             <div class="mx-auto max-w-md">
-              <!-- <img src="" alt="Пустая корзина" class="mx-auto h-40 w-40" /> -->
               <h2 class="mt-3 sm:mt-4 text-lg sm:text-xl font-bold text-gray-800">Ваша корзина пока пуста</h2>
               <p class="mt-2 text-sm sm:text-base text-gray-600">
                 Акции и специальные предложения помогут вам определиться с выбором!
@@ -89,7 +90,6 @@ onMounted(async () => {
 
           <template v-else>
             <CartItemsList />
-
             <!-- <RecipientData :cart="cart" /> -->
           </template>
         </div>
