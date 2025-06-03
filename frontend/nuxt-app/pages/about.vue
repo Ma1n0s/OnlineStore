@@ -63,7 +63,7 @@
         </div>
       </div>
 
-      <div class="mb-16 bg-gray-50 py-12 rounded-xl">
+      <!-- <div class="mb-16 bg-gray-50 py-12 rounded-xl">
         <h2 class="text-3xl font-bold mb-12 text-center">Абсолют техно в цифрах</h2>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
           <div class="text-center">
@@ -227,7 +227,7 @@
             </button>
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
