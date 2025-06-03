@@ -66,9 +66,18 @@
         </div>
 
         <div class="flex items-center gap-2">
-          <Button variant="transparent" class="flex items-center gap-2 h-full !px-4" to="/account/cart-checkout"
-            ><Icon name="material-symbols:shopping-cart-rounded" class="h-8 w-8 text-dark" alt="Корзина"
-          /></Button>
+          <Button
+            variant="transparent"
+            class="flex items-center gap-2 h-full !px-4 relative"
+            to="/account/cart-checkout"
+            ><Icon name="material-symbols:shopping-cart-rounded" class="h-8 w-12 text-dark" alt="Корзина" />
+            <span
+              v-if="!!products.length"
+              class="absolute top-0 right-0 text-primary z-50 font-bold"
+              :class="products.length > 99 ? 'right-0' : 'right-[0.4rem]'"
+              >{{ products.length }}</span
+            ></Button
+          >
 
           <div class="relative w-full h-full">
             <Button
@@ -223,6 +232,11 @@ import Search from '../Search/Search.vue'
 import Modal from '../Modal/Modal.vue'
 import Menu from './Menu.vue'
 import AuthForm from '../Forms/AuthForm.vue'
+import { useCartStore } from '~/stores/cart'
+import { storeToRefs } from 'pinia'
+
+const cartStore = useCartStore()
+const { products } = storeToRefs(cartStore)
 
 const menuOpen = ref(false)
 const closeMenu = () => {

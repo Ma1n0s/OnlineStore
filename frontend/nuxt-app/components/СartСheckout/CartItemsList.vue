@@ -8,6 +8,10 @@ const debouncedUpdate = useDebounceFn(async product => {
   await cartStore.updateProduct(product)
 }, 1000)
 
+const debouncdeSelectedAll = useDebounceFn(async event => {
+  await cartStore.setSelected(event.target.checked)
+})
+
 const removeSelected = () => {}
 const toggleSelected = item => {
   item.selected = !item.selected
@@ -34,7 +38,7 @@ const decreaseQuantity = item => {
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
       <div class="flex items-center">
         <input
-          @change="async event => await cartStore.setSelected(event.target.checked)"
+          @change="debouncdeSelectedAll"
           :checked="cart.selected"
           type="checkbox"
           id="select-all"
@@ -120,9 +124,7 @@ const decreaseQuantity = item => {
           </div>
 
           <div class="flex items-center justify-between sm:justify-end gap-3 sm:gap-6 mt-2 sm:mt-0">
-            <p class="text-base sm:text-lg font-bold whitespace-nowrap text-gray-800">
-              {{ item.price }}
-            </p>
+            <p class="text-base sm:text-lg font-bold whitespace-nowrap text-gray-800">{{ item.price }} ₽</p>
             <div class="flex items-center border border-gray-300 rounded-lg">
               <button
                 class="px-2 sm:px-3 py-1 text-gray-600 hover:bg-gray-100 transition-colors"

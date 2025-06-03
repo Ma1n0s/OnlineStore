@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed lg:hidden bottom-0 left-0 right-0 bg-white  z-50 shadow-lg">
+  <div class="fixed lg:hidden bottom-0 left-0 right-0 bg-white z-50 shadow-lg">
     <div class="flex justify-around items-center h-16">
       <NuxtLink
         to="/"
@@ -27,10 +27,10 @@
         <div class="relative">
           <Icon name="mdi:cart-outline" class="w-6 h-6" />
           <span
-            v-if="cartStore.totalItems > 0"
+            v-if="!!products.length"
             class="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
           >
-            {{ cartStore.totalItems }}
+            {{ products.length }}
           </span>
         </div>
         <span>Корзина</span>
@@ -59,7 +59,10 @@
 
 <script setup>
 import { useCartStore } from '~/stores/cart'
+import { storeToRefs } from 'pinia'
+
 const cartStore = useCartStore()
+const { products } = storeToRefs(cartStore)
 </script>
 
 <style>

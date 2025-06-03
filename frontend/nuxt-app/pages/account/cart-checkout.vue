@@ -36,6 +36,8 @@ watch(
 onMounted(async () => {
   if (!cartStore.isInitialized) {
     await cartStore.initCart()
+  } else {
+    await cartStore.refetchCart()
   }
   // loading.value = false
   console.log('Cart products:', products.value)
