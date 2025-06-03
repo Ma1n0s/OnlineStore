@@ -47,7 +47,7 @@ console.log(isEmpty.value, isSelected.value)
 // })
 </script>
 <template>
-  <div class="bg-white rounded-xl p-4 sm:p-6 shadow-sm sticky top-8 sm:top-20 border border-gray-200">
+  <div class="bg-white rounded-xl p-4 shadow-2xl sm:p-6 sticky top-8 sm:top-20 ">
     <h2 class="text-base sm:text-lg font-bold mb-3 sm:mb-4 text-gray-800" v-if="isEmpty">Ваш заказ</h2>
     <h2 class="text-base sm:text-lg font-bold mb-3 sm:mb-4 text-gray-800" v-else>Оформление</h2>
 
