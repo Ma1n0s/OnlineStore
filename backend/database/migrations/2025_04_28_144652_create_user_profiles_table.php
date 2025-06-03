@@ -19,6 +19,7 @@ return new class extends Migration {
             $table->string('inn')->nullable();
             $table->string('kpp')->nullable();
             $table->string('phone')->nullable(); 
+            $table->string('email')->nullable(); 
             $table->text('legal_address')->nullable();
             $table->string('director')->nullable();
             $table->string('company_phone')->nullable();

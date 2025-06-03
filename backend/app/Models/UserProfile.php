@@ -17,6 +17,8 @@ class UserProfile extends Model
         'company_name',
         'inn',
         'kpp',
+        'phone',
+        'email',
         'legal_address',
         'director',
         'company_phone',

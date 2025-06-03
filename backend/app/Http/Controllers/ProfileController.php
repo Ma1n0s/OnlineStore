@@ -43,8 +43,8 @@ class ProfileController extends Controller
             'kpp' => 'nullable|string|max:20',
             'address' => 'required|string|max:500',
             'director' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'email' => 'required|email|max:255',
+            'phone' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
         ]);
         
         $profileData = [
