@@ -13,7 +13,15 @@ const { slug } = route.params
 
 const { data: category } = await useAsyncData(
   `category-${slug}`,
-  () => $fetch(`${backendUrl}/api/categories/slug/${slug.at(-1)}`),
+  () =>
+    $fetch(`${backendUrl}/api/categories/slug/${slug.at(-1)}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+      },
+    }),
   { revalidate: 3600 }
 )
 console.log(category.value)

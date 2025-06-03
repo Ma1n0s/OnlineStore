@@ -43,7 +43,7 @@ const profile = computed(() => ({
   phone: userStore.user?.phone || '',
   registrationDate: userStore.user?.created_at || '',
   company: userStore.user?.company_name || '',
-  companyDetails: userStore.user?.companyDetails || null
+  companyDetails: userStore.user?.companyDetails || null,
 }))
 
 // const fullName = computed(() => `${profile.value.lastname} ${profile.value.firstname} ${profile.value.middlename}`)
@@ -103,7 +103,7 @@ const resetPasswordForm = () => {
 
 const openCompanyModal = (editMode = false) => {
   uiState.isEditingCompany = editMode
-  
+
   forms.company = {
     name: '',
     inn: '',
@@ -112,7 +112,7 @@ const openCompanyModal = (editMode = false) => {
     director: '',
     phone: '',
     email: '',
-    errors: {}
+    errors: {},
   }
 
   if (profile.value.companyDetails) {
@@ -126,7 +126,7 @@ const openCompanyModal = (editMode = false) => {
   } else if (profile.value.company) {
     forms.company.name = profile.value.company || ''
   }
-  
+
   uiState.isCompanyModalOpen = true
 }
 
@@ -146,9 +146,9 @@ const loadProfile = async () => {
 }
 
 const saveProfile = async () => {
-  uiState.isLoading = true;
+  uiState.isLoading = true
   try {
-    const response = await $fetch(`${backendUrl}/api/profile`, { 
+    const response = await $fetch(`${backendUrl}/api/profile`, {
       method: 'PUT',
       body: {
         name: profile.value.name,
@@ -161,21 +161,21 @@ const saveProfile = async () => {
         'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
       },
       credentials: 'include',
-    });
-    
-    userStore.setUser(response.user);
-    uiState.error = null;
+    })
+
+    userStore.setUser(response.user)
+    uiState.error = null
   } catch (error) {
-    uiState.error = error.data?.message || error.message || 'Ошибка при сохранении профиля';
-    console.log(error);
+    uiState.error = error.data?.message || error.message || 'Ошибка при сохранении профиля'
+    console.log(error)
   } finally {
-    uiState.isLoading = false;
+    uiState.isLoading = false
   }
-};
+}
 
 const saveCompany = async () => {
-  if (!validateCompany()) return;
-  uiState.isLoading = true;
+  if (!validateCompany()) return
+  uiState.isLoading = true
   try {
     const response = await $fetch(`${backendUrl}/api/profile/company`, {
       method: 'PUT',
@@ -185,20 +185,22 @@ const saveCompany = async () => {
         Accept: 'application/json',
         'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
       },
-    });
-    
-    await loadProfile();
-    uiState.isCompanyModalOpen = false;
+    })
+
+    console.log(response)
+
+    await loadProfile()
+    uiState.isCompanyModalOpen = false
   } catch (error) {
-    uiState.error = error.data?.message || error.message;
+    uiState.error = error.data?.message || error.message
   } finally {
-    uiState.isLoading = false;
+    uiState.isLoading = false
   }
-};
+}
 
 const changePassword = async () => {
-  if (!validatePassword()) return;
-  uiState.isLoading = true;
+  if (!validatePassword()) return
+  uiState.isLoading = true
   try {
     await $fetch(`${backendUrl}/api/profile/password`, {
       method: 'PUT',
@@ -211,15 +213,15 @@ const changePassword = async () => {
         Accept: 'application/json',
         'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
       },
-    });
-    uiState.isModalOpen = false;
-    resetPasswordForm();
+    })
+    uiState.isModalOpen = false
+    resetPasswordForm()
   } catch (error) {
-    uiState.error = error.data?.message || error.message;
+    uiState.error = error.data?.message || error.message
   } finally {
-    uiState.isLoading = false;
+    uiState.isLoading = false
   }
-};
+}
 
 onMounted(() => {
   loadProfile()
@@ -340,26 +342,26 @@ onMounted(() => {
                 </div>
               </div>
 
-                <div class="pt-4 flex justify-between">
-                  <button
-                    type="button"
-                    @click="uiState.isModalOpen = true"
-                    class="bg-primary text-white inline-flex justify-center py-2.5 px-6 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-gray-100 hover:bg-primary-hover focus:outline-none focus:ring-2"
-                  >
-                    Изменить пароль
-                  </button>
-                  
-                  <button
-                    @click.prevent="saveProfile"
-                    :disabled="uiState.isLoading"
-                    class="inline-flex justify-center py-2.5 px-6 shadow-sm text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition disabled:opacity-70 disabled:cursor-not-allowed"
-                  >
-                    <span v-if="uiState.isLoading" class="flex items-center">
-                      <Icon name="mdi:loading" class="animate-spin mr-2" />
-                      Сохранение...
-                    </span>
-                    <span v-else>Сохранить изменения</span>
-                  </button>
+              <div class="pt-4 flex justify-between">
+                <button
+                  type="button"
+                  @click="uiState.isModalOpen = true"
+                  class="bg-primary text-white inline-flex justify-center py-2.5 px-6 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-gray-100 hover:bg-primary-hover focus:outline-none focus:ring-2"
+                >
+                  Изменить пароль
+                </button>
+
+                <button
+                  @click.prevent="saveProfile"
+                  :disabled="uiState.isLoading"
+                  class="inline-flex justify-center py-2.5 px-6 shadow-sm text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  <span v-if="uiState.isLoading" class="flex items-center">
+                    <Icon name="mdi:loading" class="animate-spin mr-2" />
+                    Сохранение...
+                  </span>
+                  <span v-else>Сохранить изменения</span>
+                </button>
               </div>
             </form>
           </div>
@@ -422,17 +424,17 @@ onMounted(() => {
             {{ forms.password.errors.confirm }}
           </p>
         </div>
-          <button
-            @click.prevent="changePassword"
-            :disabled="uiState.isLoading"
-            class="inline-flex justify-center py-2.5 px-6 shadow-sm text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition disabled:opacity-70 disabled:cursor-not-allowed"
-          >
-              <span v-if="uiState.isLoading" class="flex items-center">
-                <Icon name="mdi:loading" class="animate-spin mr-2" />
-                Сохранение...
-              </span>
-            <span v-else>изменить пароль</span>
-          </button>
+        <button
+          @click.prevent="changePassword"
+          :disabled="uiState.isLoading"
+          class="inline-flex justify-center py-2.5 px-6 shadow-sm text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition disabled:opacity-70 disabled:cursor-not-allowed"
+        >
+          <span v-if="uiState.isLoading" class="flex items-center">
+            <Icon name="mdi:loading" class="animate-spin mr-2" />
+            Сохранение...
+          </span>
+          <span v-else>изменить пароль</span>
+        </button>
       </div>
     </Modal>
 

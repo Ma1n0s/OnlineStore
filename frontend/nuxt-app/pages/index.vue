@@ -8,9 +8,27 @@ const {
   public: { backendUrl },
 } = useRuntimeConfig()
 
-const { data: category } = await useAsyncData(`category-list`, () => $fetch(`${backendUrl}/api/categories`))
+const { data: category } = await useAsyncData(`category-list`, () =>
+  $fetch(`${backendUrl}/api/categories`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+    },
+  })
+)
 
-const { data: slides } = await useAsyncData(`slides`, () => $fetch(`${backendUrl}/api/swiper`))
+const { data: slides } = await useAsyncData(`slides`, () =>
+  $fetch(`${backendUrl}/api/swiper`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+    },
+  })
+)
 
 console.log(slides.value.data, 'slides')
 

@@ -6,9 +6,21 @@ const {
   public: { backendUrl },
 } = useRuntimeConfig()
 
-const { data: article } = await useAsyncData(`news-${id}`, () => $fetch(`${backendUrl}/api/news/${id}`), {
-  revalidate: 3600,
-})
+const { data: article } = await useAsyncData(
+  `news-${id}`,
+  () =>
+    $fetch(`${backendUrl}/api/news/${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+      },
+    }),
+  {
+    revalidate: 3600,
+  }
+)
 </script>
 
 <template>
