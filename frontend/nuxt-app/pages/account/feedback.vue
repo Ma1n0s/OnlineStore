@@ -65,12 +65,12 @@ const submitForm = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-100 py-8">
+  <div class="min-h-screen py-8">
     <div class="max-w-screen-2xl mx-auto px-1 sm:px-4 lg:px-8">
       <div class="flex flex-col md:flex-row gap-6">
         <SidebarMenu class="hidden md:block" />
         <div class="flex-1 space-y-6">
-          <div class="bg-white shadow rounded-lg p-6">
+          <div class="bg-white shadow-2xl rounded-lg p-6">
             <h1 class="text-2xl font-bold text-gray-900 mb-2">Обратная связь</h1>
             <p class="text-gray-600 mb-6">Мы ответим вам по выбранному способу связи</p>
 
