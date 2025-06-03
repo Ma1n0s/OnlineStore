@@ -83,23 +83,24 @@ const decreaseQuantity = item => {
               :id="'select-rented-item-' + item.id"
               :checked="item.selected"
               @change="toggleSelected(item)"
-              class="h-4 w-4 sm:h-5 sm:w-5 text-primary rounded focus:ring-primary-active border-gray-300 mt-1 sm:mt-0"
+              class="h-4 w-4 sm:h-5 sm:w-5 text-primary rounded focus:ring-primary-active border-gray-300 self-center"
             />
-            <NuxtImg
-              :src="item.main_image"
-              :alt="item.name"
-              width="80"
-              height="80"
-              format="webp"
-              loading="lazy"
-              decoding="async"
-              class="w-16 h-16 sm:w-20 sm:h-20 object-contain rounded-lg"
-              sizes="(max-width: 640px) 64px, 80px"
-            />
-            <div class="flex-1 min-w-0">
-              <h3 class="text-sm sm:text-base font-medium text-gray-900 truncate">{{ item.name }}</h3>
-              <p class="text-xs sm:text-sm text-gray-500">Код: {{ item.code }}</p>
-              <!-- <div class="flex items-center gap-2 mt-1">
+            <NuxtLink :to="`/products/${item.slug}`" class="flex items-start sm:items-center gap-3 sm:gap-4">
+              <NuxtImg
+                :src="item.main_image"
+                :alt="item.name"
+                width="80"
+                height="80"
+                format="webp"
+                loading="lazy"
+                decoding="async"
+                class="w-16 h-16 sm:w-20 sm:h-20 object-contain rounded-lg"
+                sizes="(max-width: 640px) 64px, 80px"
+              />
+              <div class="flex-1 min-w-0">
+                <h3 class="text-sm sm:text-base font-medium text-gray-900 truncate">{{ item.name }}</h3>
+                <p class="text-xs sm:text-sm text-gray-500">Код: {{ item.code }}</p>
+                <!-- <div class="flex items-center gap-2 mt-1">
                 <span class="text-xs sm:text-sm bg-gray text-white px-2 py-1 rounded">
                   Аренда: {{ item.rentalDays }} {{ dayWord(item.rentalDays) }}
                 </span>
@@ -120,7 +121,8 @@ const decreaseQuantity = item => {
                   </button>
                 </div>
               </div> -->
-            </div>
+              </div>
+            </NuxtLink>
           </div>
 
           <div class="flex items-center justify-between sm:justify-end gap-3 sm:gap-6 mt-2 sm:mt-0">
@@ -130,7 +132,7 @@ const decreaseQuantity = item => {
                 class="px-2 sm:px-3 py-1 text-gray-600 hover:bg-gray-100 transition-colors"
                 :class="{ 'opacity-50 cursor-not-allowed': item?.quantity <= 1 }"
                 :disabled="item?.quantity <= 1"
-                @click="decreaseQuantity(item)"
+                @click.prevent="decreaseQuantity(item)"
               >
                 −
               </button>
@@ -138,7 +140,7 @@ const decreaseQuantity = item => {
                 item?.orderQuantity
               }}</span>
               <button
-                @click="increaseQuantity(item)"
+                @click.prevent="increaseQuantity(item)"
                 :disabled="item?.quantity <= 1"
                 class="px-2 sm:px-3 py-1 text-gray-600 hover:bg-gray-100 transition-colors"
                 :class="{ 'opacity-50 cursor-not-allowed': item?.quantity === item?.orderQuantity }"

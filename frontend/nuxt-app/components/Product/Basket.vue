@@ -94,12 +94,6 @@ const add = async () => {
     isLoading.value = false
   }
 }
-
-// const add = async () => {
-//   if (!product?.id || product.count === 'Нет в наличии') return
-
-//   await addToCart({ ...product, quantity: 1 })
-// }
 </script>
 
 <template>
@@ -151,11 +145,13 @@ const add = async () => {
 
       <Button
         @click="add"
-        :disabled="isLoading || !product?.id || product.count === 'Нет в наличии'"
+        :disabled="
+          isLoading || !product?.id || product.count === 'Нет в наличии' || cartStore.checkProductInCart(product)
+        "
         class="w-full bg-primary hover:bg-primary text-white py-2 px-4 rounded-lg font-medium text-sm flex items-center justify-center gap-1"
       >
         <Icon name="material-symbols:shopping-cart-rounded" class="h-4 w-4" />
-        <span>В корзину</span>
+        <span>{{ cartStore.checkProductInCart(product) ? 'Добавлено' : 'В корзину' }}</span>
       </Button>
     </div>
 

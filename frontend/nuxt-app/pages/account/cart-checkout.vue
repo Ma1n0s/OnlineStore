@@ -42,22 +42,6 @@ onMounted(async () => {
   // loading.value = false
   console.log('Cart products:', products.value)
 })
-
-// const state = ref({
-//   showSecondForm: false,
-//   secondCustomer: {
-//     name: '',
-//     phone: '',
-//   },
-//   selectAll: false,
-//   items: products,
-//   customer: {
-//     name: '',
-//     phone: '',
-//   },
-//   deliveryAddress: '',
-//   paymentMethod: 'cash',
-// })
 </script>
 
 
