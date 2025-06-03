@@ -217,7 +217,7 @@ class OrderController extends Controller
             'status' => 'sometimes|in:pending,processing,completed,cancelled',
             'products' => 'sometimes|array',
             'products.*.product_id' => 'required_with:products|exists:products,id',
-            'products.*.quantity' => 'required_with:products|integer|min:1'
+            'products.*.quantity' => 'required_with:products|integer|min:1',
         ]);
 
         return DB::transaction(function () use ($order, $validated) {

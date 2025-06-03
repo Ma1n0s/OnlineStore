@@ -7,9 +7,14 @@ const { cart, products } = storeToRefs(cartStore)
 const removeSelected = () => {}
 const toggleSelected = item => {
   item.selected = !item.selected
+  cartStore.updateProduct(item)
   console.log(item.selected)
   // cartStore.updateProduct(item)
 }
+
+// const increaseQuantity = item => {}
+
+// const decreaseQuantity = item => {}
 </script>
 <template>
   <div class="bg-white rounded-xl p-4 sm:p-6 mb-4 sm:mb-6 shadow-sm">

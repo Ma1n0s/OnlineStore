@@ -15,15 +15,17 @@ class OrderProductController extends Controller
     {
 
         $validated = $request->validate([
-            'selected' => 'required|boolean'
+            'selected' => 'required|boolean',
+            'all' => 'required|boolean'
         ]);
     
         DB::transaction(function () use ($order, $validated) {
             // 1. Обновляем selected у всех продуктов заказа
-            DB::table('order_products')
-                ->where('order_id', $order->id)
-                ->update(['selected' => $validated['selected']]);
-            
+            if($validated['all']){
+                DB::table('order_products')
+                    ->where('order_id', $order->id)
+                    ->update(['selected' => $validated['selected']]);
+            }
             // 2. Обновляем флаг в самом заказе
             $order->update([
                 'selected' => $validated['selected'],
@@ -113,6 +115,25 @@ class OrderProductController extends Controller
     // Обновить количество продукта в заказе
     public function update(Request $request, Order $order, Product $product)
     {
+        $user = $request->user();
+        
+        if (!$user) {
+            return response()->json([
+                'message' => 'Требуется авторизация',
+                'error' => 'unauthenticated'
+            ], 401);
+        }
+        
+        // Получаем активную корзину пользователя
+        $cart = $user->cart;
+        
+        if (!$cart) {
+            return response()->json([
+                'message' => 'Корзина не найдена',
+                'error' => 'cart_not_found'
+            ], 404);
+        }
+
         $validated = $request->validate([
             'quantity' => [
                 'required',
@@ -123,17 +144,38 @@ class OrderProductController extends Controller
                         $fail('Количество не может превышать доступное количество продукта.');
                     }
                 }
-            ]
+            ],
+            'selected' => 'sometimes|boolean' // Добавляем опциональное поле selected
         ]);
 
-        $order->products()->updateExistingPivot($product->id, [
-            'quantity' => $validated['quantity']
-        ]);
+        // Обновляем данные продукта в корзине
+        $updateData = ['quantity' => $validated['quantity']];
+        
+        if (isset($validated['selected'])) {
+            $updateData['selected'] = $validated['selected'];
+        }
+
+        $cart->products()->updateExistingPivot($product->id, $updateData);
 
         // Обновляем общую сумму заказа
-        $order->updateTotalAmount();
+        $cart->updateTotalAmount();
 
-        return response()->json($order->load('products'));
+        // Проверяем статус selected у всех продуктов
+        $allSelected = true;
+        foreach ($cart->products as $cartProduct) {
+            if (!$cartProduct->pivot->selected) {
+                $allSelected = false;
+                break;
+            }
+        }
+
+        // Обновляем статус selected у корзины
+        $cart->update(['selected' => $allSelected]);
+
+        return response()->json([
+            'cart' => $cart->load('products'),
+            'all_products_selected' => $allSelected
+        ]);
     }
 
     // Удалить продукт из заказа

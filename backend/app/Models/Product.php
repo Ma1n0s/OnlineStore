@@ -31,6 +31,7 @@ class Product extends Model
         'slug',
         'brand',
         'rating',
+        'weight',
         'category_id',
         'warranty',
         'bonuses',

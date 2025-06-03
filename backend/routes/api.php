@@ -259,7 +259,7 @@ Route::get('/test', function(Request $request) {
 });
 
 Route::get('/orders/active-cart', [OrderController::class, 'activeCart']);
-Route::put('/orders/create-order', [OrderController::class, 'createOrderFromSelected']);
+Route::post('/orders/create-order', [OrderController::class, 'createOrderFromSelected']);
 
 Route::prefix('orders/{order}/products')->group(function () {
     Route::post('/', action: [OrderProductController::class, 'store']);
