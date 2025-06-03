@@ -34,7 +34,7 @@ const decreaseQuantity = item => {
 }
 </script>
 <template>
-  <div class="bg-white rounded-xl p-4 sm:p-6 mb-4 sm:mb-6 shadow-sm">
+  <div class="bg-white rounded-xl p-4 shadow-2xl sm:p-6 mb-4 sm:mb-6">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
       <div class="flex items-center">
         <input
