@@ -229,13 +229,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-100 py-8">
+  <div class="min-h-screen py-8">
     <div class="max-w-screen-2xl mx-auto px-1 sm:px-2 lg:px-8">
       <div class="flex flex-col md:flex-row gap-6">
         <SidebarMenu class="hidden md:block" />
 
         <div class="flex-1 space-y-6">
-          <div class="bg-white p-6 rounded-xl shadow">
+          <div class="bg-white p-6 rounded-xl shadow-2xl">
             <h2 class="text-lg font-semibold text-gray-900 mb-6">Личная информация</h2>
 
             <form class="space-y-6">

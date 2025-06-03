@@ -1,6 +1,6 @@
 <template>
   <div class="w-full md:w-64 flex-shrink-0 h-full">
-    <div class="bg-white p-5 rounded-xl shadow h-full flex flex-col">
+    <div class="bg-white p-5 rounded-xl shadow-2xl h-full flex flex-col">
       <nav class="space-y-2 flex-1">
         <NuxtLink
           to="/account/personal"

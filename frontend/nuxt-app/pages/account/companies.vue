@@ -281,22 +281,17 @@ watch(() => form.inn, (newVal) => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-100 py-8">
+  <div class="min-h-screen py-8">
     <div class="max-w-screen-2xl mx-auto px-1 sm:px-4 lg:px-8">
-      <div v-if="uiState.error" class="mb-6 p-4 bg-red-50 text-red-700 rounded-lg shadow">
-        {{ uiState.error }}
-        <button @click="uiState.error = null" class="float-right font-bold">×</button>
-      </div>
-
       <div class="flex flex-col md:flex-row gap-6">
         <SidebarMenu class="hidden md:block" />
 
         <div class="flex-1 space-y-6">
           <div class="flex items-center justify-between">
-            <h1 class="text-2xl font-bold text-gray-900">Моя организация</h1>
+            <h1 class="text-2xl font-bold text-gray-900 shadow-2xl">Моя организация</h1>
           </div>
 
-          <div v-if="!uiState.isEditing && company.inn" class="bg-white shadow rounded-lg overflow-hidden">
+          <div v-if="!uiState.isEditing && company.inn" class="bg-white shadow-2xl rounded-lg overflow-hidden">
             <div class="p-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -360,7 +355,7 @@ watch(() => form.inn, (newVal) => {
             </div>
           </div>
 
-          <div v-if="!uiState.isEditing && !company.inn" class="bg-white shadow rounded-lg overflow-hidden">
+          <div v-if="!uiState.isEditing && !company.inn" class="bg-white shadow-2xl rounded-lg overflow-hidden">
             <div class="p-6 text-center py-12">
               <Icon name="mdi:office-building" class="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 class="text-lg font-medium text-gray-900 mb-2">Данные компании не добавлены</h3>

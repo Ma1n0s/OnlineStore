@@ -38,13 +38,13 @@ function getStatusText(status) {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-100 py-8">
+  <div class="min-h-screen py-8">
     <div class="max-w-screen-2xl mx-auto px-1 sm:px-4 lg:px-8">
       <div class="flex flex-col lg:flex-row gap-6">
         <SidebarMenu class="hidden md:block" />
 
         <div class="flex-1 space-y-6">
-          <div class="bg-white p-6 rounded-xl shadow-md">
+          <div class="bg-white p-6 rounded-xl shadow-2xl">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
               <h2 class="text-2xl font-semibold text-gray-800">Мои заказы</h2>
 
@@ -77,7 +77,7 @@ function getStatusText(status) {
           <div
             v-for="order in orders"
             :key="order.id"
-            class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
+            class="bg-white p-6 rounded-xl shadow-2xl hover:shadow-lg transition-all duration-300"
           >
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-3">
               <div>
@@ -111,7 +111,7 @@ function getStatusText(status) {
 
             <div class="flex flex-wrap gap-3 pt-4">
               <button
-                class="px-4 py-2 bg-white shadow-sm hover:shadow-md text-gray-700 rounded-lg text-sm font-medium transition-all"
+                class="px-4 py-2 bg-white shadow-2xl hover:shadow-md text-gray-700 rounded-lg text-sm font-medium transition-all"
               >
                 Повторить заказ
               </button>
@@ -123,7 +123,7 @@ function getStatusText(status) {
             </div>
           </div>
 
-          <div v-if="orders.length === 0" class="bg-white p-8 rounded-xl shadow-md text-center">
+          <div v-if="orders.length === 0" class="bg-white p-8 rounded-xl shadow-2xl text-center">
             <Icon name="" />
             <h3 class="mt-4 text-lg font-medium text-gray-900">У вас пока нет заказов</h3>
             <p class="mt-1 text-gray-500">Здесь будут отображаться ваши заказы после оформления</p>

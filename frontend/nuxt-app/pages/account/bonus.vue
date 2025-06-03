@@ -56,16 +56,16 @@ const changePage = async (newPage) => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-100 py-8">
+  <div class="min-h-screen py-8">
     <div class="max-w-screen-2xl mx-auto px-1 sm:px-4 lg:px-8">
       <div class="flex flex-col md:flex-row gap-6">
          <SidebarMenu class="hidden md:block" />
         <div class="flex-1 space-y-6">
-          <div class="bg-white shadow rounded-lg p-6">
+          <div class="bg-white shadow-2xl rounded-lg p-6">
             <h2 class="text-lg font-medium mb-4">Бонусный баланс: {{ bonusBalance }}</h2>
           </div>
           
-          <div class="bg-white shadow rounded-lg p-6">
+          <div class="bg-white shadow-2xl rounded-lg p-6">
             <h2 class="text-lg font-medium mb-4">История операций</h2>
             <div v-if="transactions.length > 0" class="overflow-x-auto">
               <table class="min-w-full divide-y divide-gray-200">
