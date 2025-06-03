@@ -53,13 +53,17 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   const updateProduct = async product => {
-    console.log(product, 'update')
     await updateOrderProduct(cart, product)
     await refetchCart()
   }
 
   const createOrder = async () => {
     await completeOrder()
+    await refetchCart()
+  }
+
+  const checkProductInCart = val => {
+    return products.value.some(product => product.id === val.id)
   }
 
   // Инициализируем корзину при создании хранилища
@@ -70,6 +74,7 @@ export const useCartStore = defineStore('cart', () => {
     products,
     isLoading,
     isInitialized,
+    checkProductInCart,
     addToCart,
     clearUserCart,
     refetchCart,

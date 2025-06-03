@@ -8,7 +8,7 @@ import HoverProductSwiper from '~/components/Swiper/ProductSwiper/HoverProductSw
 
 import { useCartStore } from '~/stores/cart'
 
-const { addToCart } = useCartStore()
+const cartStore = useCartStore()
 
 const {
   public: { backendUrl },
@@ -22,6 +22,21 @@ const { data } = await useAsyncData(`products-list-${slug}`, () =>
     query: { addition_data: 1 },
   })
 )
+
+const add = async product => {
+  if (!product?.id || product.count === 'Нет в наличии') return
+
+  try {
+    await cartStore.addToCart({
+      ...product,
+      quantity: 1,
+    })
+    // Можно добавить уведомление об успешном добавлении
+  } catch (error) {
+    console.error('Ошибка при добавлении в корзину:', error)
+    // Можно добавить уведомление об ошибке
+  }
+}
 
 console.log(data.value, 'products')
 useHead({
@@ -447,16 +462,20 @@ const toggleBrand = brand => {
               </div>
 
               <button
-                :disabled="item.count === 'Нет в наличии'"
+                :disabled="item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)"
                 @click.prevent="
                   () => {
-                    addToCart(item)
+                    add(item)
                   }
                 "
                 class="w-full text-white py-2 px-4 rounded-lg transition-colors font-medium"
-                :class="item.count === 'Нет в наличии' ? 'bg-gray' : 'bg-red-600 hover:bg-red-700'"
+                :class="
+                  item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)
+                    ? 'bg-gray'
+                    : 'bg-red-600 hover:bg-red-700'
+                "
               >
-                В корзину
+                {{ cartStore.checkProductInCart(item) ? 'Добавлено' : 'В корзину' }}
               </button>
             </div>
           </NuxtLink>
