@@ -1,12 +1,15 @@
-<script setup>
+<script setup lang="ts">
 import CategoryDescription from '~/components/CategoryItems/CategoryDescription/CategoryDescription.vue'
 import { reactive } from 'vue'
 import TextInput from '~/components/ui/Inputs/TextInput.vue'
 import Breadcrumbs from '~/components/BreadCrumbs/Breadcrumbs.vue'
 import { getBreadcrumbs } from '~/components/BreadCrumbs/helpers'
 import HoverProductSwiper from '~/components/Swiper/ProductSwiper/HoverProductSwiper.vue'
-
 import { useCartStore } from '~/stores/cart'
+import type { Product } from '~/types/product.types'
+defineProps<{
+  product: Product
+}>()
 
 const cartStore = useCartStore()
 
@@ -19,7 +22,10 @@ const { slug } = route.params
 
 const { data } = await useAsyncData(`products-list-${slug}`, () =>
   $fetch(`${backendUrl}/api/products/category-slug/${slug.at(-1)}`, {
-    query: { addition_data: 1 },
+    query: { 
+      addition_data: 1,
+      with_specs: 1
+    },
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -447,53 +453,65 @@ const toggleBrand = brand => {
                 <span class="text-gray-500 text-xs">Код: {{ item.article }}</span>
               </div>
 
-              <h3
-                class="font-medium text-gray-900 hover:text-red-600 transition-colors line-clamp-2 mb-2 min-h-[2.5rem]"
-              >
+              <h3 class="font-medium text-gray-900 hover:text-red-600 transition-colors line-clamp-2 mb-2 min-h-[2.5rem]">
                 {{ item.name }}
               </h3>
 
-              <p
-                class="text-sm mb-3 flex items-center"
-                :class="item.count === 'Нет в наличии' ? 'text-red-600' : 'text-green-600'"
-              >
-                <Icon
-                  :name="
-                    item.count === 'Нет в наличии' ? 'material-symbols:close-rounded' : 'material-symbols:check-rounded'
-                  "
-                  class="h-4 w-4 inline mr-1"
-                />
-                {{ item.count }}
-              </p>
-
-              <div class="mb-3 flex-grow flex items-end">
-                <div>
-                  <!-- <span class="text-gray-400 line-through text-sm mr-2">{{ item.price.toLocaleString() }} ₽</span> -->
-                  <span class="text-red-600 font-bold text-lg">{{ item.price.toLocaleString() }} ₽</span>
-                </div>
+              <div class="flex-1 mb-4">
+                <template v-if="item.specifications?.length">
+                  <ul class="space-y-2">
+                    <li 
+                      v-for="spec in item.specifications.slice(0, 3)" 
+                      :key="spec.id"
+                      class="flex justify-between gap-2 text-sm"
+                    >
+                      <span class="text-gray-500 flex-shrink-0">
+                        {{ spec.key }}
+                      </span>
+                      <span class="font-medium text-right min-w-0 line-clamp-1">
+                        {{ spec.value }}
+                      </span>
+                    </li>
+                  </ul>
+                </template>
+                <template v-else>
+                  <p class="text-gray-400 text-sm">Характеристики отсутствуют</p>
+                </template>
               </div>
 
-              <button
-                :disabled="item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)"
-                @click.prevent="
-                  () => {
-                    add(item)
-                  }
-                "
-                class="w-full text-white py-2 px-4 rounded-lg transition-colors font-medium"
-                :class="
-                  item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)
-                    ? 'bg-gray'
-                    : 'bg-red-600 hover:bg-red-700'
-                "
-              >
-                {{ cartStore.checkProductInCart(item) ? 'Добавлено' : 'В корзину' }}
-              </button>
+              <div class="flex justify-between items-end mt-auto">
+                <div class="flex flex-col">
+            <!-- 123 -->
+                </div>
+                
+                <div class="flex flex-col items-start">
+                  <span class="text-red-600 font-bold text-lg mb-2">{{ item.price.toLocaleString() }} ₽</span>
+                  <p class="text-sm mb-3 flex items-center"
+                    :class="item.count === 'Нет в наличии' ? 'text-red-600' : 'text-green-600'">
+                    <Icon
+                      :name="item.count === 'Нет в наличии' ? 'material-symbols:close-rounded' : 'material-symbols:check-rounded'"
+                      class="h-4 w-4 inline mr-1"
+                    />
+                    {{ item.count }}
+                  </p>
+                  <button
+                    :disabled="item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)"
+                    @click.prevent="() => { add(item) }"
+                    class="text-white py-2 px-4 rounded-lg transition-colors font-medium min-w-[120px]"
+                    :class="
+                      item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)
+                        ? 'bg-gray'
+                        : 'bg-red-600 hover:bg-red-700'
+                    "
+                  >
+                    {{ cartStore.checkProductInCart(item) ? 'Добавлено' : 'В корзину' }}
+                  </button>
+                </div>
+              </div>
             </div>
           </NuxtLink>
         </div>
 
-        <!-- Нет результатов -->
         <div v-else class="bg-white rounded-lg shadow-sm p-8 text-center">
           <NuxtImg
             format="webp"
