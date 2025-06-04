@@ -4,6 +4,7 @@ export default defineNuxtRouteMiddleware(() => {
 
   if (!isAuth.value) {
     showAuthForm.value = true
-    return navigateTo('/') // или куда вам нужно перенаправить
+    // if (from.path !== to.path) return navigateTo(from)
+    return navigateTo('/')
   }
 })
