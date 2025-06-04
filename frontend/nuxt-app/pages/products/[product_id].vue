@@ -1,4 +1,15 @@
 <script setup lang="ts">
+// Импорты компонентов
+import SpecificationsBlock from '~/components/Product/SpecificationsBlock.vue'
+import Breadcrumbs from '~/components/BreadCrumbs/Breadcrumbs.vue'
+import ImageBlock from '~/components/Product/ImageBlock.vue'
+import BasicDescriptionBlock from '~/components/Product/BasicDescriptionBlock.vue'
+import BrandBlock from '~/components/Product/BrandBlock.vue'
+import Basket from '~/components/Product/Basket.vue'
+import ActionsPanel from '~/components/Product/ActionsPanel.vue'
+import DescriptionBlock from '~/components/Product/DescriptionBlock.vue'
+import { getBreadcrumbsFromCategoryPath } from '~/components/BreadCrumbs/helpers'
+
 import { ref, onMounted } from 'vue'
 import type { Product } from '~/types/product.types'
 
@@ -73,17 +84,6 @@ const { data: product, refresh } = await useAsyncData<Product>(
   }
 )
 
-// Импорты компонентов
-import SpecificationsBlock from '~/components/Product/SpecificationsBlock.vue'
-import Breadcrumbs from '~/components/BreadCrumbs/Breadcrumbs.vue'
-import ImageBlock from '~/components/Product/ImageBlock.vue'
-import BasicDescriptionBlock from '~/components/Product/BasicDescriptionBlock.vue'
-import BrandBlock from '~/components/Product/BrandBlock.vue'
-import Basket from '~/components/Product/Basket.vue'
-import ActionsPanel from '~/components/Product/ActionsPanel.vue'
-import DescriptionBlock from '~/components/Product/DescriptionBlock.vue'
-import { getBreadcrumbsFromCategoryPath } from '~/components/BreadCrumbs/helpers'
-
 // Вкладки
 const tabs = ref([{ id: 'description', title: 'ОПИСАНИЕ И ХАРАКТЕРИСТИКИ' }])
 
@@ -104,9 +104,9 @@ onMounted(async () => {
   //   await refresh()
   // }
 
-  // if (!product.value) {
-  //   navigateTo('/404')
-  // }
+  if (!product.value) {
+    navigateTo('/404')
+  }
 })
 
 // onUnmounted(() => {

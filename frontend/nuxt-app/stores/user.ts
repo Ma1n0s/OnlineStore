@@ -5,6 +5,8 @@ export const useUserStore = defineStore('user', () => {
   const user = ref<User | null>(null)
   const isAuth = ref(false)
 
+  const showAuthForm = ref(false)
+
   const setUser = (userData: User) => {
     user.value = userData
     isAuth.value = true
@@ -67,5 +69,5 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  return { user, isAuth, fetchUser, setUser, clearUser }
+  return { user, isAuth, showAuthForm, fetchUser, setUser, clearUser }
 })

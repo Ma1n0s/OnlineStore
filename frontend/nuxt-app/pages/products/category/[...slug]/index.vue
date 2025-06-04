@@ -5,10 +5,19 @@ import TextInput from '~/components/ui/Inputs/TextInput.vue'
 import Breadcrumbs from '~/components/BreadCrumbs/Breadcrumbs.vue'
 import { getBreadcrumbs } from '~/components/BreadCrumbs/helpers'
 import HoverProductSwiper from '~/components/Swiper/ProductSwiper/HoverProductSwiper.vue'
-
+import { useUserStore } from '~/stores/user'
 import { useCartStore } from '~/stores/cart'
+import { storeToRefs } from 'pinia'
 
 const cartStore = useCartStore()
+
+const userStore = useUserStore()
+const { showAuthForm, isAuth } = storeToRefs(userStore)
+
+const checkAuthForm = () => {
+  if (!isAuth.value) showAuthForm.value = true
+  return showAuthForm.value
+}
 
 const {
   public: { backendUrl },
@@ -30,7 +39,7 @@ const { data } = await useAsyncData(`products-list-${slug}`, () =>
 )
 
 const add = async product => {
-  if (!product?.id || product.count === 'Нет в наличии') return
+  if (!product?.id || product.count === 'Нет в наличии' || checkAuthForm()) return
 
   try {
     await cartStore.addToCart({
