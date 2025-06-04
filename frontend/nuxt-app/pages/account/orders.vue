@@ -1,39 +1,47 @@
 <script setup>
-import { computed } from 'vue';
-import SidebarMenu from '~/components/Account/SidebarMenu.vue';
-const userStore = useUserStore();
+import { computed } from 'vue'
+import SidebarMenu from '~/components/Account/SidebarMenu.vue'
+
+definePageMeta({
+  middleware: ['auth'],
+})
+
+const userStore = useUserStore()
 
 const orders = computed(() => {
-  return userStore.user?.orders?.map(order => ({
-    id: order.order_number,
-    status: getStatusText(order.status),
-    date: new Date(order.created_at).toLocaleDateString('ru-RU', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    }),
-    amount: new Intl.NumberFormat('ru-RU', {
-      style: 'currency',
-      currency: 'RUB',
-      maximumFractionDigits: 0
-    }).format(order.total_amount),
-    paid: order.is_paid,
-    products: order.products?.map(p => ({
-      id: p.id,
-      name: p.name,
-      image: p.image || '/images/placeholder-product.png'
+  return (
+    userStore.user?.orders?.map(order => ({
+      id: order.order_number,
+      status: getStatusText(order.status),
+      date: new Date(order.created_at).toLocaleDateString('ru-RU', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      }),
+      amount: new Intl.NumberFormat('ru-RU', {
+        style: 'currency',
+        currency: 'RUB',
+        maximumFractionDigits: 0,
+      }).format(order.total_amount),
+      paid: order.is_paid,
+      products:
+        order.products?.map(p => ({
+          id: p.id,
+          name: p.name,
+          image: p.image || '/images/placeholder-product.png',
+        })) || [],
     })) || []
-  })) || [];
-});
+  )
+})
 
 function getStatusText(status) {
   const statuses = {
     pending: 'В обработке',
     processing: 'В процессе',
     completed: 'Завершен',
-    cancelled: 'Отменен'
-  };
-  return statuses[status] || status;
+    cancelled: 'Отменен',
+  }
+  return statuses[status] || status
 }
 </script>
 
@@ -47,8 +55,6 @@ function getStatusText(status) {
           <div class="bg-white p-6 rounded-xl shadow-2xl">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
               <h2 class="text-2xl font-semibold text-gray-800">Мои заказы</h2>
-
-              
             </div>
 
             <div class="flex flex-wrap gap-2">

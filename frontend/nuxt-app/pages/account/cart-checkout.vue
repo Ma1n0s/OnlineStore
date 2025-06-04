@@ -7,6 +7,10 @@ import CartItemsList from '~/components/СartСheckout/CartItemsList.vue'
 import { useCartStore } from '~/stores/cart'
 import { storeToRefs } from 'pinia'
 
+definePageMeta({
+  middleware: ['auth'],
+})
+
 useHead({
   title: 'Корзина | Абсолют техно',
   meta: [
@@ -43,8 +47,6 @@ onMounted(async () => {
   console.log('Cart products:', products.value)
 })
 </script>
-
-
 
 <template>
   <div class="min-h-screen">
