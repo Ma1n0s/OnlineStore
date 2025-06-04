@@ -103,7 +103,7 @@ class OrderProductController extends Controller
         'product_id' => $product->id,
         'quantity' => $validated['quantity'],
         'price_at_order' => $product->price,
-        'selected' => false // или true, по вашему усмотрению
+        'selected' => true // или true, по вашему усмотрению
     ]);
 
     // Обновляем общую сумму заказа
