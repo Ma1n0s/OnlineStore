@@ -20,6 +20,10 @@ class Order extends Model
         'selected',
     ];
 
+    protected $with = [
+        'products'
+    ];
+
     public function orderProducts()
     {
         return $this->hasMany(OrderProduct::class);
@@ -54,5 +58,10 @@ class Order extends Model
     public function bonusTransactions()
     {
         return $this->morphMany(BonusTransaction::class, 'transactionable');
+    }
+
+    public function getProductsCountAttribute()
+    {
+        return $this->products->sum('pivot.quantity');
     }
 }

@@ -38,6 +38,13 @@ class Product extends Model
         'quantity',
         'reviews_count',
         'questions_count',
+        'type',
+        'delivery_time',
+    ];
+
+    protected $attributes = [
+        'type' => 'instock',
+        'delivery_time' => 0,
     ];
 
 
@@ -119,6 +126,7 @@ class Product extends Model
     protected $casts = [
         'price' => 'float',
         'rating' => 'float',
+        'delivery_time' => 'integer',
     ];
 
     /**

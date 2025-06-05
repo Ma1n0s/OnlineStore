@@ -93,6 +93,28 @@ class ProductListScreen extends Screen
                     ->render(function (Product $product) {
                         return $product->id;
                     }),
+
+                TD::make('type', 'Тип')
+                    ->width('120px')
+                    ->sort()
+                    ->render(function (Product $product) {
+                        $types = [
+                            'preorder' => 'Под заказ',
+                            'rent' => 'В аренду',
+                            'instock' => 'В наличии',
+                        ];
+                        return $types[$product->type] ?? $product->type;
+                    }),
+
+                TD::make('delivery_time', 'Доставка')
+                    ->width('100px')
+                    ->sort()
+                    ->align(TD::ALIGN_CENTER)
+                    ->render(function (Product $product) {
+                        return $product->type === 'preorder' 
+                            ? $product->delivery_time . ' дн.' 
+                            : '-';
+                    }),
                     
                 TD::make('name', 'Название')
                     ->sort()

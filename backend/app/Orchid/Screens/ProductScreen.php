@@ -223,6 +223,26 @@ class ProductScreen extends Screen
                             ->title('Вес')
                             ->help('Вес продукта'),
                     ]),
+
+                    Group::make([
+                        Select::make('product.type')
+                            ->title('Тип товара')
+                            ->options([
+                                'preorder' => 'Под заказ',
+                                'rent' => 'В аренду',
+                                'instock' => 'В наличии',
+                            ])
+                            ->required()
+                            ->id('product-type-select')
+                            ->help('Выберите тип товара'),
+
+                        Input::make('product.delivery_time')
+                            ->title('Время доставки (дни)')
+                            ->type('number')
+                            ->min(0)
+                            ->id('delivery-time-field')
+                            ->help('Укажите количество дней для доставки (только для товаров под заказ)'),
+                    ]),
                     
                     $isCreatingInCategory
                         ? Input::make('product.category_id')
@@ -315,6 +335,7 @@ class ProductScreen extends Screen
                         ->help('Перечислите преимущества этого товара перед конкурентами'),
                 ]),
             ]),
+            Layout::view('admin.product.typeScript')
         ];
     }
 
@@ -347,7 +368,8 @@ class ProductScreen extends Screen
     public function createOrUpdate(Product $product, Request $request)
     {
         try {
-            $request->validate([
+
+            $validationRules = [
                 'product.name' => 'required|string|max:255',
                 'product.slug' => 'required|string|max:255|unique:products,slug,'.$product->id,
                 'product.article' => 'required|string|max:100',
@@ -355,10 +377,23 @@ class ProductScreen extends Screen
                 'product.code' => 'required|string|max:100',
                 'product.brand' => 'required|string|max:100',
                 'product.category_id' => 'required|exists:categories,id',
-                'product.quantity' => 'required|integer|min:0', 
-            ]);
+                'product.quantity' => 'required|integer|min:0',
+                'product.type' => 'required|in:preorder,rent,instock',
+            ];
+
+            // Добавляем правило для delivery_time только если тип "под заказ"
+            if ($request->input('product.type') === 'preorder') {
+                $validationRules['product.delivery_time'] = 'required|integer|min:0';
+            }
+
+            $request->validate($validationRules);
 
             $data = $request->get('product');
+
+            // Если тип не "под заказ", обнуляем delivery_time
+            if ($data['type'] !== 'preorder') {
+                $data['delivery_time'] = 0;
+            }
 
             if (!$product->exists && $request->has('category_id')) {
                 $categoryId = $request->input('category_id');

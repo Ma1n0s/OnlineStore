@@ -13,6 +13,7 @@ use Orchid\Screen\Fields\Relation;
 use Orchid\Support\Facades\Layout;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Screen;
+use Orchid\Screen\TD;
 use Orchid\Support\Facades\Alert;
 
 class OrderEditScreen extends Screen
@@ -100,7 +101,42 @@ class OrderEditScreen extends Screen
                 Input::make('order.order_number')
                     ->title('Номер заказа')
                     ->required(),
-            ])
+            ]),
+
+            Layout::table('order.products', [
+                TD::make('name', 'Название')
+                    ->render(function (Product $product) {
+                        return $product->name;
+                    }),
+
+                TD::make('quantity', 'Количество')
+                    ->render(function (Product $product) {
+                        return $product->pivot->quantity;
+                    }),
+
+                TD::make('price_at_order', 'Стоимость')
+                    ->align(TD::ALIGN_RIGHT)
+                    ->render(function (Product $product) {
+                        return '₽' . number_format($product->pivot->price_at_order, 2);
+                    }),
+
+                TD::make('total', 'Общая стоимость')
+                    ->align(TD::ALIGN_RIGHT)
+                    ->render(function (Product $product) {
+                        $total = $product->pivot->quantity * $product->pivot->price_at_order;
+                        return '₽' . number_format($total, 2);
+                    }),
+
+                TD::make('type', 'Тип товара')
+                    ->render(function (Product $product) {
+                        $types = [
+                            'preorder' => 'Под заказ',
+                            'rent' => 'В аренду',
+                            'instock' => 'В наличии',
+                        ];
+                        return $types[$product->type] ?? $product->type;
+                    }),
+            ])->title('Товары в заказе')->canSee($this->exists),
         ];
     }
 
