@@ -22,19 +22,8 @@ useHead({
 })
 
 const cartStore = useCartStore()
-const { products, isLoading: loading, isInitialized } = storeToRefs(cartStore)
+const { products, isLoading: loading } = storeToRefs(cartStore)
 // const loading = ref(isLoading.value)
-
-// Ждем инициализации корзины
-watch(
-  isInitialized,
-  initialized => {
-    if (initialized) {
-      console.log('Cart products:', products.value)
-    }
-  },
-  { immediate: true }
-)
 
 // Альтернативный вариант с await
 onMounted(async () => {

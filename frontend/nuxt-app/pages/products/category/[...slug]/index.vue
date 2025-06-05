@@ -53,7 +53,8 @@ const add = async product => {
   }
 }
 
-console.log(data.value, 'products')
+const loading = ref(false)
+
 useHead({
   title: `${data.value.category.name} | Абсолют техно`,
   meta: [
@@ -103,6 +104,7 @@ const state = reactive({
 })
 
 const searchData = async () => {
+  loading.value = true
   const query = {
     addition_data: 0,
   }
@@ -121,20 +123,24 @@ const searchData = async () => {
 
   query.page = state.pagination.current_page
 
-  const data = await $fetch(`${backendUrl}/api/products/category-slug/${slug.at(-1)}`, {
-    query,
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
-    },
-  })
+  try {
+    const data = await $fetch(`${backendUrl}/api/products/category-slug/${slug.at(-1)}`, {
+      query,
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+      },
+    })
 
-  console.log(data, 'new data', query)
-
-  state.products = data.products
-  state.pagination = data.pagination
+    state.products = data.products
+    state.pagination = data.pagination
+  } catch (e) {
+    console.log(e)
+  } finally {
+    loading.value = false
+  }
 }
 
 const changePage = async page => {
@@ -551,15 +557,16 @@ const toggleBrand = brand => {
     <div class="w-full p-4 flex justify-center items-center gap-4">
       <button
         @click="changePage(1)"
-        v-if="state.pagination.current_page !== 1"
+        v-if="state.pagination.current_page !== 1 && !loading"
         class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-gray hover:bg-primary-hover text-white"
       >
         1
       </button>
+      <div v-if="state.pagination.current_page > 2 && !loading">...</div>
       <button
         @click="changePage(state.pagination.current_page - 1)"
         class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-gray hover:bg-primary-hover text-white"
-        v-if="state.pagination.current_page !== 1 && state.pagination.current_page - 1 !== 1"
+        v-if="state.pagination.current_page !== 1 && state.pagination.current_page - 1 !== 1 && !loading"
       >
         {{ state.pagination.current_page - 1 }}
       </button>
@@ -571,16 +578,25 @@ const toggleBrand = brand => {
       <button
         @click="changePage(state.pagination.current_page + 1)"
         class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-gray hover:bg-primary-hover text-white"
-        v-if="state.pagination.has_more && state.pagination.current_page + 1 !== state.pagination.last_page"
+        v-if="state.pagination.has_more && state.pagination.current_page + 1 !== state.pagination.last_page && !loading"
       >
         {{ state.pagination.current_page + 1 }}
       </button>
+      <div
+        v-if="
+          state.pagination.current_page !== state.pagination.last_page &&
+          state.pagination.current_page !== state.pagination.last_page - 1 &&
+          !loading
+        "
+      >
+        ...
+      </div>
       <button
         @click="changePage(state.pagination.last_page)"
-        v-if="state.pagination.current_page !== state.pagination.last_page"
+        v-if="state.pagination.current_page !== state.pagination.last_page && !loading"
         class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-gray hover:bg-primary-hover text-white"
       >
-        {{ state.pagination.last_page }}
+        {{ '6' || state.pagination.last_page }}
       </button>
     </div>
 

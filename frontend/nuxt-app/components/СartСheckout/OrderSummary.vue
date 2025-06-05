@@ -16,7 +16,7 @@ const sendOrder = useDebounceFn(async () => {
 const isEmpty = computed(() => products.value.length === 0)
 const isSelected = computed(() => products.value.some(product => product.selected))
 const weight = computed(() => {
-  const result = products.value.reduce((acc, val) => (val.selected ? acc + val?.weight : 0), 0)
+  const result = products.value.reduce((acc, val) => (val.selected ? acc + val?.weight * val?.orderQuantity : 0), 0)
   return result ? result : 0
 })
 const sum = computed(() => {
@@ -47,7 +47,7 @@ console.log(isEmpty.value, isSelected.value)
 // })
 </script>
 <template>
-  <div class="bg-white rounded-xl p-4 shadow-2xl sm:p-6 sticky top-8 sm:top-20 ">
+  <div class="bg-white rounded-xl p-4 shadow-2xl sm:p-6 sticky top-8 sm:top-20">
     <h2 class="text-base sm:text-lg font-bold mb-3 sm:mb-4 text-gray-800" v-if="isEmpty">Ваш заказ</h2>
     <h2 class="text-base sm:text-lg font-bold mb-3 sm:mb-4 text-gray-800" v-else>Оформление</h2>
 
