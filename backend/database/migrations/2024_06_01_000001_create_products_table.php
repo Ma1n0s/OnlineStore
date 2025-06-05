@@ -15,21 +15,21 @@ return new class extends Migration
 
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->string('code');
+            $table->string('code')->nullable();
             $table->string('name');
             $table->text('description')->nullable();
             $table->decimal('price', 10, 2);
-            $table->string('article');
-            $table->string('brand');
+            $table->string('article')->nullable();
+            $table->string('brand')->nullable();
             $table->decimal('rating', 3, 1)->default(0);
-            $table->decimal('weight', 10, 4)->default(0);
+            $table->decimal('weight', 10, 4)->default(0)->nullable();
             // $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('set null');
             $table->string('slug')->unique();
             $table->string('warranty')->nullable();
             $table->integer('reviews_count')->default(0);
             $table->integer('questions_count')->default(0);
             $table->string('bonuses')->nullable();
-            $table->integer('quantity')->default(0); 
+            $table->integer('quantity')->default(0)->nullable(); 
             $table->timestamps();
         });
     }

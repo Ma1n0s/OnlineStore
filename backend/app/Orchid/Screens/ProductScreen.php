@@ -163,13 +163,11 @@ class ProductScreen extends Screen
                     Group::make([
                         Input::make('product.article')
                             ->title('Артикул')
-                            ->required()
                             ->help('Уникальный артикул товара'),
                             // ->disabled($this->product->exists),
                             
                         Input::make('product.code')
                             ->title('Код товара')
-                            ->required()
                             ->help('Внутренний код товара'),
                             // ->disabled($this->product->exists),
                     ]),
@@ -201,14 +199,12 @@ class ProductScreen extends Screen
                             ->title('Количество на складе')
                             ->type('number')
                             ->min(0)
-                            ->required()
                             ->help('Доступное количество товара на складе'),
                     ]),
                     
                     Group::make([
                         Input::make('product.brand')
                             ->title('Бренд')
-                            ->required()
                             ->help('Производитель товара'),
                             
                         Input::make('product.warranty')
@@ -372,13 +368,14 @@ class ProductScreen extends Screen
             $validationRules = [
                 'product.name' => 'required|string|max:255',
                 'product.slug' => 'required|string|max:255|unique:products,slug,'.$product->id,
-                'product.article' => 'required|string|max:100',
+                'product.article' => 'nullable|string|max:100',
                 'product.price' => 'required|numeric|min:0',
-                'product.code' => 'required|string|max:100',
-                'product.brand' => 'required|string|max:100',
+                'product.code' => 'nullable|string|max:100',
+                'product.brand' => 'nullable|string|max:100',
                 'product.category_id' => 'required|exists:categories,id',
-                'product.quantity' => 'required|integer|min:0',
+                'product.quantity' => 'nullable|integer|min:0',
                 'product.type' => 'required|in:preorder,rent,instock',
+                'product.weight' => 'nullable|numeric|min:0',
             ];
 
             // Добавляем правило для delivery_time только если тип "под заказ"
