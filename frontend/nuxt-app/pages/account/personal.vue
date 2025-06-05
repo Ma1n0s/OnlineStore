@@ -342,11 +342,11 @@ onMounted(() => {
                 </div>
               </div>
 
-              <div class="pt-4 flex justify-between">
+              <div class="pt-4 flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
                 <button
                   type="button"
                   @click="uiState.isModalOpen = true"
-                  class="bg-primary text-white inline-flex justify-center py-2.5 px-6 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-gray-100 hover:bg-primary-hover focus:outline-none focus:ring-2"
+                  class="w-full sm:w-auto bg-gray-100 text-gray-700 inline-flex justify-center py-2 px-4 shadow-sm text-sm font-medium rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition"
                 >
                   Изменить пароль
                 </button>
@@ -354,7 +354,7 @@ onMounted(() => {
                 <button
                   @click.prevent="saveProfile"
                   :disabled="uiState.isLoading"
-                  class="inline-flex justify-center py-2.5 px-6 shadow-sm text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition disabled:opacity-70 disabled:cursor-not-allowed"
+                  class="w-full sm:w-auto inline-flex justify-center py-2 px-4 shadow-sm text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   <span v-if="uiState.isLoading" class="flex items-center">
                     <Icon name="mdi:loading" class="animate-spin mr-2" />
