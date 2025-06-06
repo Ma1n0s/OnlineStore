@@ -48,12 +48,10 @@ const printToExcel = () => {
 
   const data = dataToExport.map(item => ({
     'Наименование': item.name,
-    'Артикул': item.code,
+    'Код товара': item.code,
     'Цена за шт. (руб)': item.price,
     'Количество': item.orderQuantity,
     'Сумма (руб)': item.price * item.orderQuantity,
-    'Остаток на складе': item.quantity,
-    // 'Старая цена': item.original_price || '-'
   }))
 
   // Создаем рабочую книгу Excel
