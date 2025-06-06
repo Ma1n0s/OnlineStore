@@ -3,6 +3,7 @@ import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useUserStore } from '~/stores/user'
 import SidebarMenu from '~/components/Account/SidebarMenu.vue'
 import axios from 'axios'
+import CheckBox from '~/components/Account/CheckBox.vue'
 
 const {
   public: { backendUrl },
@@ -521,8 +522,6 @@ watch(() => form.inn, (newVal) => {
                           <CheckBox
                             v-model="form.is_main"
                             title="Сделать основной компанией"
-                            :value="form.is_main"
-                            sendTrueOrFalse
                           />
                         </div>
                       </template>
