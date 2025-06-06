@@ -38,7 +38,8 @@ export const useUserStore = defineStore('user', () => {
       })
 
       if (data.value) {
-        console.log('API Response:', data.value)
+         console.log('Full API response:', data.value)
+         console.log('Orders in response:', data.value.orders)
 
         user.value = {
           ...data.value,
@@ -59,6 +60,7 @@ export const useUserStore = defineStore('user', () => {
         }
         isAuth.value = true
         console.log('User data after processing:', user.value)
+        console.log('Processed orders:', user.value.orders)
       }
     } catch (error) {
       console.error('Error fetching user:', error)

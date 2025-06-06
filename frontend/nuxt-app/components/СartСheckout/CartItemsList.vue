@@ -109,14 +109,14 @@ const printToExcel = () => {
       </div>
 
       <div class="flex items-center space-x-3">
-        <Button
+        <!-- <Button
           variant="ghost"
           size="small"
           class="text-gray-500 hover:text-gray-700"
         >
           <Icon name="heroicons:arrow-down-tray" class="w-4 h-4 mr-1.5" />
           Скачать список
-        </Button>
+        </Button> -->
         <Button
           variant="ghost"
           size="small"
@@ -124,12 +124,12 @@ const printToExcel = () => {
           @click="printToExcel"
         >
           <Icon name="heroicons:printer" class="w-4 h-4 mr-1.5" />
-          Печать (Excel)
+          Скачать список (Excel)
         </Button>
       </div>
     </div>
 
-    <div class="divide-y divide-gray-200">
+    <div>
       <template v-if="products.length > 0">
         <div
           v-for="item in products"
@@ -156,9 +156,9 @@ const printToExcel = () => {
                   decoding="async"
                   class="w-20 h-20 object-contain rounded-lg bg-gray-50 border border-gray-200"
                 />
-                <span v-if="item.quantity <= 5" class="absolute -top-2 -right-2 bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                <!-- <span v-if="item.quantity <= 5" class="absolute -top-2 -right-2 bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded-full">
                   Осталось {{ item.quantity }}
-                </span>
+                </span> -->
               </div>
               <div class="flex-1 min-w-0">
                 <h3 class="text-base font-medium text-gray-900 truncate">{{ item.name }}</h3>

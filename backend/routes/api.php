@@ -51,6 +51,18 @@ Route::middleware('auth:sanctum')->prefix('profile')->group(function () {
     // Route::delete('/company', [ProfileController::class, 'deleteCompany']);
 });
 
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user()->load([
+        'profile',
+        'bonusTransactions',
+        'orders' => function($query) {
+            $query->with(['products' => function($q) {
+                $q->select('products.id', 'products.name', 'products.image');
+            }])->orderBy('created_at', 'desc');
+        }
+    ]);
+});
+
 Route::middleware('auth:sanctum')->prefix('profile/companies')->group(function () {
     Route::get('/', [ProfileController::class, 'getCompanies']);
     Route::post('/', [ProfileController::class, 'addCompany']);

@@ -24,6 +24,14 @@ class Order extends Model
         'products'
     ];
 
+    protected $appends = [
+        'products_count'
+    ];
+
+    protected $hidden = [
+        'orderProducts'
+    ];
+
     public function orderProducts()
     {
         return $this->hasMany(OrderProduct::class);
