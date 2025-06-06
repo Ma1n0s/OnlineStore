@@ -5,6 +5,7 @@ namespace App\Orchid\Screens;
 use App\Models\User;
 use App\Models\BonusCard;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\TextArea;
@@ -16,6 +17,7 @@ use Orchid\Support\Facades\Alert;
 use Orchid\Screen\Fields\CheckBox;
 use Orchid\Screen\Actions\DropDown;
 use Orchid\Screen\Actions\Link;
+
 
 class ProfileEditScreen extends Screen
 {
@@ -75,6 +77,24 @@ class ProfileEditScreen extends Screen
                             'user' => 'Пользователь',
                             'admin' => 'Администратор',
                         ]),
+                ]),
+
+                'Смена пароля' => Layout::rows([
+                    Input::make('current_password')
+                        ->title('Текущий пароль')
+                        ->type('password'),
+                        
+                    Input::make('new_password')
+                        ->title('Новый пароль')
+                        ->type('password'),
+                        
+                    Input::make('new_password_confirmation')
+                        ->title('Подтверждение нового парола')
+                        ->type('password'),
+                        
+                    Button::make('Сменить пароль')
+                        ->method('changePassword')
+                        ->icon('lock'),
                 ]),
                 
                 'Компании' => [
@@ -245,6 +265,20 @@ class ProfileEditScreen extends Screen
                 // ],
             ])
         ];
+    }
+
+    public function changePassword(User $user, Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required|current_password',
+            'new_password' => 'required|min:8|confirmed|different:current_password',
+        ]);
+
+        $user->password = Hash::make($request->input('new_password'));
+        $user->save();
+
+        Alert::success('Пароль успешно изменен');
+        return back();
     }
 
     public function addCompany(User $user)

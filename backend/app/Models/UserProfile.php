@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Orchid\Filters\Filterable;
+use Orchid\Screen\AsSource;
 use Illuminate\Database\Eloquent\Model;
 
 class UserProfile extends Model
 {
-    use HasFactory;
+    use HasFactory, AsSource, Filterable;
 
     protected $fillable = [
         'user_id',
