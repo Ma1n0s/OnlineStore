@@ -15,6 +15,8 @@ use Orchid\Support\Facades\Layout;
 use Orchid\Screen\Actions\Button;
 use Orchid\Screen\Screen;
 use Orchid\Support\Facades\Alert;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\FeedbackResponseMail;
 
 class FeedbackEditScreen extends Screen
 {
@@ -43,6 +45,11 @@ class FeedbackEditScreen extends Screen
             Button::make('Сохранить')
                 ->icon('check')
                 ->method('save'),
+                
+            Button::make('Отправить ответ')
+                ->icon('envelope')
+                ->method('sendResponse')
+                ->canSee($this->feedback->exists && $this->feedback->user),
         ];
     }
 
@@ -74,6 +81,11 @@ class FeedbackEditScreen extends Screen
                 TextArea::make('feedback.admin_notes')
                     ->title('Заметки администратора')
                     ->rows(3),
+                
+                Quill::make('response_content')
+                    ->title('Ответное письмо')
+                    ->toolbar(["text", "color", "header", "list", "format"])
+                    ->canSee($this->feedback->exists && $this->feedback->user),
             ]),
         ];
     }
@@ -85,5 +97,24 @@ class FeedbackEditScreen extends Screen
         Alert::info('Обращение успешно обновлено.');
         
         return redirect()->route('platform.feedback.list');
+    }
+
+    public function sendResponse(Feedback $feedback, Request $request)
+    {
+        $request->validate([
+            'response_content' => 'required|string',
+        ]);
+
+        $user = $feedback->user;
+        
+        Mail::to($user->email)->send(new FeedbackResponseMail(
+            $feedback->subject,
+            $request->input('response_content'),
+            $feedback->message
+        ));
+
+        Alert::info('Ответ успешно отправлен пользователю.');
+        
+        return back();
     }
 }
