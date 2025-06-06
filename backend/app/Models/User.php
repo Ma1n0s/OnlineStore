@@ -110,4 +110,14 @@ class User extends Authenticatable
     {
         return $this->role === self::ROLE_ADMIN;
     }
+
+    public function companies()
+    {
+        return $this->hasMany(Company::class);
+    }
+
+    public function mainCompany()
+    {
+        return $this->hasOne(Company::class)->where('is_main', true);
+    }
 }

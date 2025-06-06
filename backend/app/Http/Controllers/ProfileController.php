@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use App\Models\User;
-use App\Models\UserProfile;
+use App\Models\Company;
 
 class ProfileController extends Controller
 {
@@ -24,48 +24,112 @@ class ProfileController extends Controller
         $user->update($validated);
         
         return response()->json([
-            'user' => $user->load('profile'),
+            'user' => $user->load('companies'),
             'message' => 'Профиль успешно обновлен'
         ]);
     }
 
-    public function updateCompany(Request $request)
+    public function getCompanies(Request $request)
     {
-        $user = Auth::user();
+        return response()->json($request->user()->companies);
+    }
+
+    public function addCompany(Request $request)
+    {
+        $user = $request->user();
         
+        if ($user->companies()->count() >= 3) {
+            return response()->json([
+                'message' => 'Максимальное количество компаний - 3'
+            ], 422);
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'inn' => ['required', 'string', 'max:20', function ($attribute, $value, $fail) {
-                if (!preg_match('/^\d{10,12}$/', $value)) {
-                    $fail('ИНН должен содержать 10 или 12 цифр');
-                }
-            }],
-            'kpp' => 'nullable|string|max:20',
+            'inn' => ['required', 'string', 'digits_between:10,12', 'unique:companies,inn'],
+            'kpp' => 'nullable|string|digits:9',
             'address' => 'required|string|max:500',
             'director' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
+            'is_main' => 'sometimes|boolean'
         ]);
         
-        $profileData = [
-            'company_name' => $validated['name'],
-            'inn' => $validated['inn'],
-            'kpp' => $validated['kpp'] ?? null,
-            'legal_address' => $validated['address'],
-            'director' => $validated['director'],
-            'company_phone' => $validated['phone'],
-            'company_email' => $validated['email'],
-        ];
+        $isMain = $user->companies()->count() === 0 || ($validated['is_main'] ?? false);
         
-        if ($user->profile) {
-            $user->profile->update($profileData);
-        } else {
-            $user->profile()->create($profileData);
+        if ($isMain) {
+            $user->companies()->update(['is_main' => false]);
+        }
+
+        $company = $user->companies()->create(array_merge($validated, [
+            'is_main' => $isMain
+        ]));
+        
+        return response()->json([
+            'company' => $company,
+            'message' => 'Компания успешно добавлена'
+        ], 201);
+    }
+
+    public function updateCompany(Request $request, Company $company)
+    {
+        if ($request->user()->id !== $company->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'inn' => ['required', 'string', 'digits_between:10,12', 'unique:companies,inn,'.$company->id],
+            'kpp' => 'nullable|string|digits:9',
+            'address' => 'required|string|max:500',
+            'director' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'is_main' => 'sometimes|boolean'
+        ]);
+        
+        if ($validated['is_main'] ?? false) {
+            $request->user()->companies()->where('id', '!=', $company->id)->update(['is_main' => false]);
+        }
+
+        $company->update($validated);
+        
+        return response()->json([
+            'company' => $company,
+            'message' => 'Данные компании успешно обновлены'
+        ]);
+    }
+
+    public function deleteCompany(Request $request, Company $company)
+    {
+        if ($request->user()->id !== $company->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $wasMain = $company->is_main;
+        $company->delete();
+
+        if ($wasMain && $request->user()->companies()->count() > 0) {
+            $request->user()->companies()->first()->update(['is_main' => true]);
         }
         
         return response()->json([
-            'user' => $user->load('profile'),
-            'message' => 'Данные компании успешно обновлены'
+            'message' => 'Компания успешно удалена'
+        ]);
+    }
+
+    public function setMainCompany(Request $request, Company $company)
+    {
+        if ($request->user()->id !== $company->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $request->user()->companies()->update(['is_main' => false]);
+        $company->update(['is_main' => true]);
+        
+        return response()->json([
+            'company' => $company,
+            'message' => 'Основная компания успешно изменена'
         ]);
     }
 
@@ -93,37 +157,13 @@ class ProfileController extends Controller
         ]);
     }
 
-    public function deleteCompany(Request $request)
-    {
-        $user = Auth::user();
-        
-        if ($user->profile) {
-            $user->profile->delete();
-            return response()->json([
-                'message' => 'Данные компании успешно удалены'
-            ]);
-        }
-        
-        return response()->json([
-            'message' => 'Нет данных компании для удаления'
-        ], 404);
-    }
-
     public function show()
     {
-        $user = Auth::user()->load('profile');
+        $user = Auth::user()->load('companies');
         
         return response()->json([
             'user' => $user,
-            'companyDetails' => $user->profile ? [
-                'name' => $user->profile->company_name,
-                'inn' => $user->profile->inn,
-                'kpp' => $user->profile->kpp,
-                'address' => $user->profile->legal_address,
-                'director' => $user->profile->director,
-                'phone' => $user->profile->company_phone,
-                'email' => $user->profile->company_email,
-            ] : null
+            'mainCompany' => $user->companies->where('is_main', true)->first()
         ]);
     }
 }

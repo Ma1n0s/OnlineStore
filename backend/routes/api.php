@@ -48,7 +48,15 @@ Route::middleware('auth:sanctum')->prefix('profile')->group(function () {
     Route::put('/', [ProfileController::class, 'update']);
     Route::put('/password', [ProfileController::class, 'updatePassword']);
     Route::put('/company', [ProfileController::class, 'updateCompany']);
-    Route::delete('/company', [ProfileController::class, 'deleteCompany']);
+    // Route::delete('/company', [ProfileController::class, 'deleteCompany']);
+});
+
+Route::middleware('auth:sanctum')->prefix('profile/companies')->group(function () {
+    Route::get('/', [ProfileController::class, 'getCompanies']);
+    Route::post('/', [ProfileController::class, 'addCompany']);
+    Route::put('/{company}', [ProfileController::class, 'updateCompany']);
+    Route::delete('/{company}', [ProfileController::class, 'deleteCompany']);
+    Route::post('/{company}/set-main', [ProfileController::class, 'setMainCompany']);
 });
 
 // Route::get('/products/paginate', [ProductController::class, 'paginateProducts']);

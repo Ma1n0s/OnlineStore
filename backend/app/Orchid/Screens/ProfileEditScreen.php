@@ -77,22 +77,62 @@ class ProfileEditScreen extends Screen
                         ]),
                 ]),
                 
-                'Компания' => Layout::rows([
-                    Input::make('profile.company_name')
-                        ->title('Название компании'),
-                        
-                    Input::make('profile.inn')
-                        ->title('ИНН')
-                        ->mask('9999999999'),
-                        
-                    Input::make('profile.kpp')
-                        ->title('КПП')
-                        ->mask('999999999'),
-                        
-                    TextArea::make('profile.legal_address')
-                        ->title('Юридический адрес')
-                        ->rows(3),
-                ]),
+                'Компании' => [
+                    Layout::rows([
+                        Button::make('Добавить компанию')
+                            ->icon('plus')
+                            ->method('addCompany')
+                            ->canSee($this->user->companies->count() < 3),
+                    ]),
+                    
+                    ...$this->user->companies->map(function ($company, $index) {
+                        return Layout::rows([
+                            Input::make("companies[{$company->id}][name]")
+                                ->title('Название компании')
+                                ->value($company->name),
+                                
+                            Input::make("companies[{$company->id}][inn]")
+                                ->title('ИНН')
+                                ->mask('9999999999')
+                                ->value($company->inn),
+                                
+                            Input::make("companies[{$company->id}][kpp]")
+                                ->title('КПП')
+                                ->mask('999999999')
+                                ->value($company->kpp),
+                                
+                            TextArea::make("companies[{$company->id}][legal_address]")
+                                ->title('Юридический адрес')
+                                ->rows(3)
+                                ->value($company->legal_address),
+                                
+                            Input::make("companies[{$company->id}][director]")
+                                ->title('Директор')
+                                ->value($company->director),
+                                
+                            Input::make("companies[{$company->id}][phone]")
+                                ->title('Телефон компании')
+                                ->value($company->phone),
+                                
+                            Input::make("companies[{$company->id}][email]")
+                                ->title('Email компании')
+                                ->type('email')
+                                ->value($company->email),
+                                
+                            CheckBox::make("companies[{$company->id}][is_main]")
+                                ->title('Основная компания')
+                                ->value($company->is_main)
+                                ->sendTrueOrFalse(),
+                                
+                            Button::make('Удалить компанию')
+                                ->method('removeCompany')
+                                ->parameters(['id' => $company->id])
+                                ->icon('trash')
+                                ->confirm('Вы уверены, что хотите удалить эту компанию?')
+                                ->canSee($this->user->companies->count() > 1),
+                        ])->title($company->name ?: "Компания #" . ($index + 1));
+                    })->toArray()
+                ],
 
                 'Бонусы' => [
                     Layout::rows([
@@ -207,6 +247,39 @@ class ProfileEditScreen extends Screen
         ];
     }
 
+    public function addCompany(User $user)
+    {
+        if ($user->companies->count() >= 3) {
+            Alert::error('Максимальное количество компаний - 3');
+            return back();
+        }
+        
+        $user->companies()->create([
+            'is_main' => $user->companies->isEmpty()
+        ]);
+        
+        Alert::info('Новая компания добавлена');
+        return back();
+    }
+
+    public function removeCompany(User $user, Request $request)
+    {
+        $company = $user->companies()->find($request->input('id'));
+        
+        if ($company) {
+            $company->delete();
+            
+            if ($company->is_main && $user->companies->count() > 0) {
+                $user->companies()->first()->update(['is_main' => true]);
+            }
+            
+            Alert::info('Компания удалена');
+        }
+        
+        return back();
+    }
+
+
     public function saveOrders(User $user, Request $request)
     {
         $request->validate([
@@ -268,8 +341,8 @@ class ProfileEditScreen extends Screen
             'user.name' => 'required',
             'user.email' => 'required|email',
             'user.role' => 'required|in:user,admin',
-            'profile.inn' => 'nullable|digits:10',
-            'profile.kpp' => 'nullable|digits:9',
+            'companies.*.inn' => 'nullable|digits:10',
+            'companies.*.kpp' => 'nullable|digits:9',
         ]);
 
         $userData = $request->input('user');
@@ -286,10 +359,12 @@ class ProfileEditScreen extends Screen
         }
 
         $user->update($userData);
-        $user->profile()->updateOrCreate([], $request->input('profile'));
-
-        if ($user->bonusCard && $request->has('bonus_card')) {
-            $user->bonusCard->update($request->input('bonus_card'));
+        
+        foreach ($request->input('companies', []) as $id => $companyData) {
+            $company = $user->companies()->find($id);
+            if ($company) {
+                $company->update($companyData);
+            }
         }
 
         Alert::success('Данные успешно сохранены.');

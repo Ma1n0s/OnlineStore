@@ -14,18 +14,11 @@ const uiState = reactive({
   isLoading: false,
   error: null,
   isFirstAdd: false,
-  showFullForm: false
+  showFullForm: false,
+  editingCompanyId: null
 })
 
-const company = ref({
-  name: '',
-  inn: '',
-  kpp: '',
-  address: '',
-  director: '',
-  phone: '',
-  email: '',
-})
+const companies = ref([])
 
 const form = reactive({
   name: '',
@@ -35,6 +28,7 @@ const form = reactive({
   director: '',
   phone: '',
   email: '',
+  is_main: false,
   errors: {},
 })
 
@@ -47,52 +41,74 @@ const isInnValid = computed(() => {
   return form.inn && !innError.value && (form.inn.length === 10 || form.inn.length === 12)
 })
 
-onMounted(async () => {
-  await loadCompanyData()
+const canAddMoreCompanies = computed(() => {
+  return companies.value.length < 3
 })
 
-const loadCompanyData = async () => {
+onMounted(async () => {
+  await loadCompaniesData()
+})
+
+const loadCompaniesData = async () => {
   uiState.isLoading = true
   try {
     await userStore.fetchUser()
     
-    if (userStore.user?.profile) {
-      company.value = {
-        name: userStore.user.profile.company_name || '',
-        inn: userStore.user.profile.inn || '',
-        kpp: userStore.user.profile.kpp || '',
-        address: userStore.user.profile.legal_address || '',
-        director: userStore.user.profile.director || '',
-        phone: userStore.user.profile.company_phone || '',
-        email: userStore.user.profile.company_email || '',
-      }
+    if (userStore.user?.companies) {
+      companies.value = userStore.user.companies
     }
   } catch (error) {
-    uiState.error = 'Ошибка при загрузке данных компании: ' + error.message
+    uiState.error = 'Ошибка при загрузке данных компаний: ' + error.message
   } finally {
     uiState.isLoading = false
   }
 }
 
-const startEditing = () => {
-  Object.assign(form, company.value)
+const startAdding = () => {
+  resetForm()
   uiState.isEditing = true
-  
-  if (!company.value.inn) {
-    uiState.isFirstAdd = true
-    uiState.showFullForm = false 
-  } else {
-    uiState.showFullForm = true 
-  }
+  uiState.editingCompanyId = null
+  uiState.isFirstAdd = true
+  uiState.showFullForm = false
+}
+
+const startEditing = (company) => {
+  Object.assign(form, {
+    name: company.name,
+    inn: company.inn,
+    kpp: company.kpp,
+    address: company.address,
+    director: company.director,
+    phone: company.phone,
+    email: company.email,
+    is_main: company.is_main
+  })
+  uiState.isEditing = true
+  uiState.editingCompanyId = company.id
+  uiState.showFullForm = true
+}
+
+const resetForm = () => {
+  form.name = ''
+  form.inn = ''
+  form.kpp = ''
+  form.address = ''
+  form.director = ''
+  form.phone = ''
+  form.email = ''
+  form.is_main = false
+  form.errors = {}
+  companySuggestions.value = []
+  selectedCompany.value = null
+  innError.value = ''
 }
 
 const cancelEditing = () => {
   uiState.isEditing = false
+  uiState.editingCompanyId = null
   uiState.isFirstAdd = false
   uiState.showFullForm = false
-  companySuggestions.value = []
-  selectedCompany.value = null
-  innError.value = ''
+  resetForm()
 }
 
 const validateInn = async () => {
@@ -109,6 +125,12 @@ const validateInn = async () => {
 
   if (form.inn.length !== 10 && form.inn.length !== 12) {
     innError.value = 'ИНН должен содержать 10 или 12 цифр'
+    return false
+  }
+
+  // Проверка на уникальность ИНН среди уже добавленных компаний
+  if (companies.value.some(c => c.inn === form.inn && c.id !== uiState.editingCompanyId)) {
+    innError.value = 'Компания с таким ИНН уже добавлена'
     return false
   }
 
@@ -186,8 +208,8 @@ const validate = () => {
   return isValid
 }
 
-const deleteCompany = async () => {
-  if (!confirm('Вы уверены, что хотите удалить данные компании? Это действие нельзя отменить.')) {
+const deleteCompany = async (companyId) => {
+  if (!confirm('Вы уверены, что хотите удалить эту компанию? Это действие нельзя отменить.')) {
     return
   }
 
@@ -195,7 +217,7 @@ const deleteCompany = async () => {
   uiState.error = null
 
   try {
-    await $fetch(`${backendUrl}/api/profile/company`, {
+    await $fetch(`${backendUrl}/api/profile/companies/${companyId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -205,29 +227,36 @@ const deleteCompany = async () => {
       credentials: 'include',
     })
 
-    // Reset company data
-    company.value = {
-      name: '',
-      inn: '',
-      kpp: '',
-      address: '',
-      director: '',
-      phone: '',
-      email: '',
-    }
-
-    // Force reload user data
-    await userStore.fetchUser()
-    
-    // Close editing mode if it was open
-    uiState.isEditing = false
-    uiState.isFirstAdd = false
-    uiState.showFullForm = false
+    await loadCompaniesData()
     
     // Show success message
   } catch (error) {
     console.error("Ошибка при удалении компании:", error)
     uiState.error = 'Ошибка при удалении: ' + (error.data?.message || error.message)
+  } finally {
+    uiState.isLoading = false
+  }
+}
+
+const setMainCompany = async (companyId) => {
+  uiState.isLoading = true
+  uiState.error = null
+
+  try {
+    await $fetch(`${backendUrl}/api/profile/companies/${companyId}/set-main`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+      },
+      credentials: 'include',
+    })
+
+    await loadCompaniesData()
+  } catch (error) {
+    console.error("Ошибка при установке основной компании:", error)
+    uiState.error = 'Ошибка: ' + (error.data?.message || error.message)
   } finally {
     uiState.isLoading = false
   }
@@ -240,8 +269,14 @@ const saveCompany = async () => {
   uiState.error = null
 
   try {
-    const response = await $fetch(`${backendUrl}/api/profile/company`, {
-      method: 'PUT',
+    const url = uiState.editingCompanyId 
+      ? `${backendUrl}/api/profile/companies/${uiState.editingCompanyId}`
+      : `${backendUrl}/api/profile/companies`
+
+    const method = uiState.editingCompanyId ? 'PUT' : 'POST'
+
+    await $fetch(url, {
+      method,
       body: JSON.stringify({
         name: form.name,
         inn: form.inn,
@@ -250,6 +285,7 @@ const saveCompany = async () => {
         director: form.director,
         phone: form.phone,
         email: form.email,
+        is_main: form.is_main || companies.value.length === 0
       }),
       headers: {
         'Content-Type': 'application/json',
@@ -259,9 +295,8 @@ const saveCompany = async () => {
       credentials: 'include',
     })
 
-    await loadCompanyData()
-    uiState.isEditing = false
-    uiState.showFullForm = false
+    await loadCompaniesData()
+    cancelEditing()
   } catch (error) {
     console.error("Ошибка ответа сервера:", error.data)
     uiState.error = 'Ошибка при сохранении: ' + (error.data?.message || error.message)
@@ -288,84 +323,112 @@ watch(() => form.inn, (newVal) => {
 
         <div class="flex-1 space-y-6">
           <div class="flex items-center justify-between">
-            <h1 class="text-2xl font-bold text-gray-900 shadow-2xl">Моя организация</h1>
+            <h1 class="text-2xl font-bold text-gray-900 shadow-2xl">Мои организации</h1>
+            <button
+              v-if="canAddMoreCompanies && !uiState.isEditing"
+              @click="startAdding"
+              class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition flex items-center gap-2"
+            >
+              <Icon name="mdi:plus" class="w-5 h-5" />
+              Добавить компанию
+            </button>
           </div>
 
-          <div v-if="!uiState.isEditing && company.inn" class="bg-white shadow-2xl rounded-lg overflow-hidden">
-            <div class="p-6">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h3 class="text-lg font-medium text-gray-900 mb-4">Основная информация</h3>
-                  <div class="space-y-4">
-                    <div>
-                      <p class="text-sm text-gray-500">Название</p>
-                      <p class="text-gray-900 font-medium">{{ company.name }}</p>
-                    </div>
-                    <div>
-                      <p class="text-sm text-gray-500">ИНН</p>
-                      <p class="text-gray-900 font-medium">{{ company.inn }}</p>
-                    </div>
-                    <div v-if="company.kpp">
-                      <p class="text-sm text-gray-500">КПП</p>
-                      <p class="text-gray-900 font-medium">{{ company.kpp }}</p>
-                    </div>
+          <div v-if="!uiState.isEditing && companies.length > 0" class="space-y-6">
+            <div 
+              v-for="company in companies" 
+              :key="company.id"
+              class="bg-white shadow-2xl rounded-lg overflow-hidden"
+              :class="{ 'border-2 border-primary': company.is_main }"
+            >
+              <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                  <h3 class="text-lg font-medium text-gray-900">
+                    {{ company.name || `Компания #${company.id}` }}
+                    <span v-if="company.is_main" class="ml-2 text-xs bg-primary text-white px-2 py-1 rounded">Основная</span>
+                  </h3>
+                  <div class="flex gap-2">
+                    <button
+                      v-if="!company.is_main"
+                      @click="setMainCompany(company.id)"
+                      class="text-sm text-primary hover:text-primary-hover flex items-center gap-1"
+                    >
+                      <Icon name="mdi:star-outline" class="w-4 h-4" />
+                      Сделать основной
+                    </button>
                   </div>
                 </div>
 
-                <div>
-                  <h3 class="text-lg font-medium text-gray-900 mb-4">Контактная информация</h3>
-                  <div class="space-y-4">
-                    <div>
-                      <p class="text-sm text-gray-500">Юридический адрес</p>
-                      <p class="text-gray-900 font-medium">{{ company.address }}</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 class="text-sm font-medium text-gray-500 mb-3">Основная информация</h4>
+                    <div class="space-y-4">
+                      <div>
+                        <p class="text-sm text-gray-500">ИНН</p>
+                        <p class="text-gray-900 font-medium">{{ company.inn }}</p>
+                      </div>
+                      <div v-if="company.kpp">
+                        <p class="text-sm text-gray-500">КПП</p>
+                        <p class="text-gray-900 font-medium">{{ company.kpp }}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p class="text-sm text-gray-500">Директор</p>
-                      <p class="text-gray-900 font-medium">{{ company.director }}</p>
-                    </div>
-                    <div>
-                      <p class="text-sm text-gray-500">Телефон</p>
-                      <p class="text-gray-900 font-medium">{{ company.phone }}</p>
-                    </div>
-                    <div>
-                      <p class="text-sm text-gray-500">Email</p>
-                      <p class="text-gray-900 font-medium">{{ company.email }}</p>
+                  </div>
+
+                  <div>
+                    <h4 class="text-sm font-medium text-gray-500 mb-3">Контактная информация</h4>
+                    <div class="space-y-4">
+                      <div v-if="company.address">
+                        <p class="text-sm text-gray-500">Юридический адрес</p>
+                        <p class="text-gray-900 font-medium">{{ company.address }}</p>
+                      </div>
+                      <div v-if="company.director">
+                        <p class="text-sm text-gray-500">Директор</p>
+                        <p class="text-gray-900 font-medium">{{ company.director }}</p>
+                      </div>
+                      <div v-if="company.phone">
+                        <p class="text-sm text-gray-500">Телефон</p>
+                        <p class="text-gray-900 font-medium">{{ company.phone }}</p>
+                      </div>
+                      <div v-if="company.email">
+                        <p class="text-sm text-gray-500">Email</p>
+                        <p class="text-gray-900 font-medium">{{ company.email }}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              
-              <div class="mt-6 pt-4 border-t flex justify-end gap-3">
-                <button
-                  @click="startEditing"
-                  class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition flex items-center gap-2"
-                >
-                  <Icon name="mdi:pencil" class="w-5 h-5" />
-                  Редактировать
-                </button>
-                <button
-                  @click="deleteCompany"
-                  :disabled="uiState.isLoading"
-                  class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2 disabled:opacity-70"
-                >
-                  <Icon name="mdi:trash-can-outline" class="w-5 h-5" />
-                  Удалить компанию
-                </button>
+                
+                <div class="mt-6 pt-4 border-t flex justify-end gap-3">
+                  <button
+                    @click="startEditing(company)"
+                    class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition flex items-center gap-2"
+                  >
+                    <Icon name="mdi:pencil" class="w-5 h-5" />
+                    Редактировать
+                  </button>
+                  <button
+                    @click="deleteCompany(company.id)"
+                    :disabled="uiState.isLoading"
+                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2 disabled:opacity-70"
+                  >
+                    <Icon name="mdi:trash-can-outline" class="w-5 h-5" />
+                    Удалить
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
-          <div v-if="!uiState.isEditing && !company.inn" class="bg-white shadow-2xl rounded-lg overflow-hidden">
+          <div v-if="!uiState.isEditing && companies.length === 0" class="bg-white shadow-2xl rounded-lg overflow-hidden">
             <div class="p-6 text-center py-12">
               <Icon name="mdi:office-building" class="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 class="text-lg font-medium text-gray-900 mb-2">Данные компании не добавлены</h3>
+              <h3 class="text-lg font-medium text-gray-900 mb-2">Данные компаний не добавлены</h3>
               <p class="text-gray-500 mb-6">Добавьте информацию о вашей компании для работы с документами</p>
               <button
-                @click="startEditing"
+                @click="startAdding"
                 class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition flex items-center gap-2 mx-auto"
               >
                 <Icon name="mdi:plus" class="w-5 h-5" />
-                Добавить данные компании
+                Добавить компанию
               </button>
             </div>
           </div>
@@ -451,6 +514,15 @@ watch(() => form.inn, (newVal) => {
                           <input
                             v-model="form.kpp"
                             class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-primary focus:border-primary"
+                          />
+                        </div>
+
+                        <div v-if="companies.length > 0">
+                          <CheckBox
+                            v-model="form.is_main"
+                            title="Сделать основной компанией"
+                            :value="form.is_main"
+                            sendTrueOrFalse
                           />
                         </div>
                       </template>
