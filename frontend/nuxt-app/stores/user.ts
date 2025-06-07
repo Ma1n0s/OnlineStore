@@ -43,7 +43,7 @@ export const useUserStore = defineStore('user', () => {
 
         user.value = {
           ...data.value,
-          ...data.value.profile,
+          // ...data.value.profile,
           companyDetails: {
             name: data.value.profile?.company_name,
             inn: data.value.profile?.inn,
