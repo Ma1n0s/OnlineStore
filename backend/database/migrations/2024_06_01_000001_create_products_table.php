@@ -20,7 +20,8 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->decimal('price', 10, 2);
             $table->string('article');
-            $table->string('brand');
+            $table->string('brand')->nullable();
+            $table->string('type')->default('Под заказ');
             $table->decimal('rating', 3, 1)->default(0);
             $table->decimal('weight', 10, 4)->default(0);
             // $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('set null');
@@ -29,6 +30,7 @@ return new class extends Migration
             $table->integer('reviews_count')->default(0);
             $table->integer('questions_count')->default(0);
             $table->string('bonuses')->nullable();
+            $table->integer('delivery_days')->default(0);
             $table->integer('quantity')->default(0); 
             $table->timestamps();
         });

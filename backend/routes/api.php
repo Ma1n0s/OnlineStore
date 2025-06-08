@@ -269,4 +269,10 @@ Route::prefix('orders/{order}/products')->group(function () {
     Route::delete('/{product}', [OrderProductController::class, 'destroy']);
 });
 
+// Route::prefix('sync')->group(callback: function () {
+//     Route::post('products-with-categories', action: [ProductController::class,'processProduct']);
+// });
+
+Route::post('sync/products-with-categories', action: [ProductController::class,'processProduct']);
+Route::delete('sync/product/{article}', action: [ProductController::class,'destroy']);
 

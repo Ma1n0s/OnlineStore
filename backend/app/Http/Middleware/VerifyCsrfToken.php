@@ -16,7 +16,9 @@ class VerifyCsrfToken extends Middleware
         // 'api/auth/*',
         // 'sanctum/csrf-cookie',
         // 'api/*',
-        '*'
+        '*',
+        'api/sync/*',
+        'api/sync/products-with-categories'
     ];
 
     public function handle($request, Closure $next) {

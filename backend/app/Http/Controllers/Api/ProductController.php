@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Category;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -26,6 +27,160 @@ class ProductController extends Controller
      * @param Product $product
      * @return array
      */
+
+
+
+
+
+
+     public function processProduct(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'product' => 'required|array',
+            'product.name' => 'required|string|max:255',
+            'product.quantity' => 'required|integer|min:0',
+            'product.price' => 'required|numeric|min:0',
+            'product.type' => 'required|string|max:100',
+            'product.delivery_days' => 'nullable|integer|min:0',
+            'product.article' => 'required|string',
+            'product.site_article' => 'required|string',
+            'product.id_category' => 'required|integer', // pro_id категории
+            'categories' => 'required|array',
+            'categories.*.pro_id' => 'required|integer',
+            'categories.*.name' => 'required|string',
+            'categories.*.id_parent' => 'nullable|integer'
+        ]);
+
+        $token = $request->header('Authorization');
+
+        if($token !== env('services.external_api.token', '')) {
+            return response(null, 500)->json(['error'=>'auth error']);
+        }
+    
+        return DB::transaction(function () use ($validated) {
+            // 1. Обрабатываем категории
+            $categoryMap = []; // pro_id => local_id
+            
+            // Сначала корневые категории (без родителей)
+            foreach ($validated['categories'] as $categoryData) {
+                if (empty($categoryData['id_parent'])) {
+                    $category = Category::updateOrCreate(
+                        ['pro_id' => $categoryData['pro_id']],
+                        ['name' => $categoryData['name'], 'slug' => Str::slug($categoryData['name'])]
+                    );
+                    $categoryMap[$categoryData['pro_id']] = $category->id;
+                }
+            }
+            
+            // Затем дочерние категории
+            foreach ($validated['categories'] as $categoryData) {
+                if (!empty($categoryData['id_parent'])) {
+                    $parentId = $categoryMap[$categoryData['id_parent']] ?? null;
+                    if ($parentId) {
+                        $category = Category::updateOrCreate(
+                            ['pro_id' => $categoryData['pro_id']],
+                            [
+                                'name' => $categoryData['name'],
+                                'parent_id' => $parentId,
+                                'slug' => Str::slug($categoryData['name'])
+                            ]
+                        );
+                        $categoryMap[$categoryData['pro_id']] = $category->id;
+                    }
+                }
+            }
+            
+            // 2. Получаем local_id категории продукта
+            $productCategoryId = $categoryMap[$validated['product']['id_category']] ?? null;
+            if (!$productCategoryId) {
+                throw new \Exception("Категория продукта не найдена");
+            }
+    
+            // 3. Создаем/обновляем продукт
+            $productData = $validated['product'];
+            $product = Product::updateOrCreate(
+                ['article' => $productData['article'] ?? null], // Если есть pro_id у продукта
+                [
+                    'name' => $productData['name'],
+                    'quantity' => $productData['quantity'],
+                    'price' => $productData['price'],
+                    'type' => $productData['type'],
+                    'delivery_days' => $productData['delivery_days'] ?? 0,
+                    'article' => $productData['article'],
+                    'code' => $productData['site_article'],
+                    'slug' => Str::slug($productData['name']),
+                    'category_id' => $productCategoryId
+                ]
+            );
+    
+            return response()->json([
+                'message' => $product->wasRecentlyCreated ? 'Продукт создан' : 'Продукт обновлен',
+                'product' => $product,
+                'category_id' => $productCategoryId,
+                'status' => $product->wasRecentlyCreated ? 'created' : 'updated'
+            ], 201);
+        });
+    }
+    
+    private function updateOrCreateCategory(array $data, ?int $parentId = null): Category
+    {
+        return Category::updateOrCreate(
+            ['pro_id' => $data['pro_id']],
+            [
+                'name' => $data['name'],
+                'parent_id' => $parentId,
+                'slug' => Str::slug($data['name'])
+            ]
+        );
+    }
+
+    protected function processCategories(array $categories, int $mainCategoryId): int
+    {
+        $categoryMap = [];
+        
+        // Сначала обрабатываем категории без родителей
+        foreach ($categories as $categoryData) {
+            if (empty($categoryData['id_parent'])) {
+                $category = $this->updateOrCreateCategory($categoryData);
+                $categoryMap[$categoryData['pro_id']] = $category->id;
+            }
+        }
+        
+        // Затем обрабатываем дочерние категории
+        foreach ($categories as $categoryData) {
+            if (!empty($categoryData['id_parent'])) {
+                if (!isset($categoryMap[$categoryData['id_parent']])) {
+                    continue; // Или можно выбросить исключение
+                }
+                
+                $categoryData['parent_id'] = $categoryMap[$categoryData['id_parent']];
+                $category = $this->updateOrCreateCategory($categoryData);
+                $categoryMap[$categoryData['pro_id']] = $category->id;
+            }
+        }
+        
+        return $categoryMap[$mainCategoryId] ?? $mainCategoryId;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     private function transformProductImages(Product $product): array
     {
         $allImages = $product->all_images;
@@ -366,8 +521,17 @@ class ProductController extends Controller
      * @param Product $product
      * @return JsonResponse
      */
-    public function destroy(Product $product): JsonResponse
+    public function destroy(Request $request, $article): JsonResponse
     {
+
+        $token = $request->header('Authorization');
+
+        if($token !== env('services.external_api.token', '')) {
+            return response()->json(['error'=>'auth error'], 500);
+        }
+
+        $product = Product::where('article', $article)->firstOrFail();
+
         try {
             $product->delete();
             
