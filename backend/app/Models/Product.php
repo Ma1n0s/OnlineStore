@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 use Orchid\Filters\Filterable;
 use App\Models\Advantages;
 use App\Models\Specification;
@@ -49,22 +50,36 @@ class Product extends Model
         'delivery_days' => 0,
     ];
 
-
-
     protected static function boot()
     {
         parent::boot();
 
-        static::deleting(function ($product) {
-            foreach ($product->attachments as $attachment) {
-                $attachment->delete();
-            }
+        static::creating(function ($product) {
+            $product->slug = $product->slug ?: Str::slug($product->name);
+        });
 
-            $product->specifications()->delete();
-            $product->specificationsB()->delete();
-            $product->advantages()->delete();
+        static::updating(function ($product) {
+            if ($product->isDirty('name')) {
+                $product->slug = Str::slug($product->name);
+            }
         });
     }
+
+
+    // protected static function boot()
+    // {
+    //     parent::boot();
+
+    //     static::deleting(function ($product) {
+    //         foreach ($product->attachments as $attachment) {
+    //             $attachment->delete();
+    //         }
+
+    //         $product->specifications()->delete();
+    //         $product->specificationsB()->delete();
+    //         $product->advantages()->delete();
+    //     });
+    // }
 
     public function getContent()
     {

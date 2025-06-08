@@ -98,8 +98,18 @@ class ProductController extends Controller
     
             // 3. Создаем/обновляем продукт
             $productData = $validated['product'];
+            $slug = Str::slug($productData['name']);
+            
+            $existingProduct = Product::where('slug', $slug)
+                ->where('article', '!=', $productData['article'])
+                ->first();
+            
+            if ($existingProduct) {
+                $slug = $slug . '-' . substr(uniqid(), -4);
+            }
+
             $product = Product::updateOrCreate(
-                ['article' => $productData['article'] ?? null], // Если есть pro_id у продукта
+                ['article' => $productData['article']],
                 [
                     'name' => $productData['name'],
                     'quantity' => $productData['quantity'],
@@ -108,7 +118,7 @@ class ProductController extends Controller
                     'delivery_days' => $productData['delivery_days'] ?? 0,
                     'article' => $productData['article'],
                     'code' => $productData['site_article'],
-                    'slug' => Str::slug($productData['name']),
+                    'slug' => $slug,
                     'category_id' => $productCategoryId
                 ]
             );
@@ -120,6 +130,28 @@ class ProductController extends Controller
                 'status' => $product->wasRecentlyCreated ? 'created' : 'updated'
             ], 201);
         });
+    }
+
+    public function checkSlug(Request $request): JsonResponse
+    {
+        $request->validate([
+            'slug' => 'required|string',
+            'product_id' => 'nullable|integer|exists:products,id'
+        ]);
+
+        $slug = $request->input('slug');
+        $productId = $request->input('product_id');
+
+        $exists = Product::where('slug', $slug)
+            ->when($productId, function($query) use ($productId) {
+                $query->where('id', '!=', $productId);
+            })
+            ->exists();
+
+        return response()->json([
+            'available' => !$exists,
+            'slug' => $slug
+        ]);
     }
     
     private function updateOrCreateCategory(array $data, ?int $parentId = null): Category
@@ -286,72 +318,62 @@ class ProductController extends Controller
      * @return JsonResponse
      */
     public function getBySlug(string $slug): JsonResponse
-    {
-        $product = Product::where('slug', $slug)->first();
-        
-        if (!$product) {
-            return response()->json(['message' => 'Продукт не найден'], 404);
-        }
-        
-        $product = $product->load(['specificationCategories.specifications', 'images', 'category']);
-
-        // Transform category image paths if category exists
-        $categoryController = app('App\Http\Controllers\Api\CategoryController');
-        if ($product->category) {
-            $product->category = $categoryController->transformImagesPaths($product->category);
-        }
-
-        // Получаем путь категорий от корня до категории продукта
-        $categoryPath = [];
-        if ($product->category) {
-            $categoryPath = $product->category->getPath()->map(function($category) {
-                return [
-                    'id' => $category->id,
-                    'name' => $category->name,
-                    'slug' => $category->slug
-                ];
-            });
-        }
-
-        $count = $product->quantity;
-            if($count == 0){
-                $count = 'Нет в наличии';
-            } else if($count > 5){
-                $count = 'Много';
-            } else {
-                $count = 'В наличии';
-            }
-
-        $response = [
-            'id' => $product->id,
-            'name' => $product->name,
-            'price' => $product->price,
-            'old_price' => $product->old_price,
-            'description' => $product->description,
-            'short_description' => $product->short_description,
-            'in_stock' => (bool)$product->in_stock,
-            'is_featured' => (bool)$product->is_featured,
-            'sku' => $product->sku,
-            'barcode' => $product->barcode,
-            'count' => $count,
-            'rating' => $product->rating,
-            'slug' => $product->slug,
-            'brand' => $product->brand,
-            'category' => $categoryPath,
-            'specifications' => $product->specifications,
-            'mainSpecifications' => $product->specificationsB,
-            'advantages' => $product->advantages,
-            // 'specifications' => $product->specificationCategories->mapWithKeys(function ($category) {
-            //     return [$category->name => $category->specifications->mapWithKeys(function ($spec) {
-            //         return [$spec->name => $spec->value];
-            //     })];
-            // }),
-            'images' => $this->transformProductImages($product)['images'],
-            'main_image' => $this->transformProductImages($product)['main_image'],
-        ];
-        
-        return response()->json($response);
+{
+    $product = Product::with(['category', 'specifications', 'specificationsB', 'advantages', 'images'])
+        ->where('slug', $slug)
+        ->first();
+    
+    if (!$product) {
+        return response()->json(['message' => 'Продукт не найден'], 404);
     }
+
+    // Добавляем проверку количества
+    $count = $product->quantity;
+    if($count == 0) {
+        $count = 'Нет в наличии';
+    } else if($count > 5) {
+        $count = 'Много';
+    } else {
+        $count = 'В наличии';
+    }
+
+    // Получаем путь категорий
+    $categoryPath = [];
+    if ($product->category) {
+        $categoryPath = $product->category->getPath()->map(function($category) {
+            return [
+                'id' => $category->id,
+                'name' => $category->name,
+                'slug' => $category->slug
+            ];
+        });
+    }
+
+    return response()->json([
+        'id' => $product->id,
+        'name' => $product->name,
+        'price' => $product->price,
+        'old_price' => $product->old_price,
+        'description' => $product->description,
+        'short_description' => $product->short_description,
+        'count' => $count,
+        'rating' => $product->rating,
+        'slug' => $product->slug,
+        'brand' => $product->brand,
+        'article' => $product->article,
+        'category' => $categoryPath,
+        'specifications' => $product->specifications,
+        'specificationsB' => $product->specificationsB,
+        'advantages' => $product->advantages,
+     // 'specifications' => $product->specificationCategories->mapWithKeys(function ($category) {
+     //     return [$category->name => $category->specifications->mapWithKeys(function ($spec) {
+     //         return [$spec->name => $spec->value];
+     //     })];
+     // }),
+        'images' => $this->transformProductImages($product)['images'],
+        'main_image' => $this->transformProductImages($product)['main_image'],
+    ]);
+}
 
     /**
      * Получить детальную информацию о продукте

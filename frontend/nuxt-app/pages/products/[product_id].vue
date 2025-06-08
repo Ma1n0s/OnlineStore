@@ -68,19 +68,14 @@ const { product_id } = route.params
 
 const { data: product, refresh } = await useAsyncData<Product>(
   `product-${product_id}`,
-  () =>
-    $fetch(`${backendUrl}/api/products/slug/${product_id}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
-      },
-    }),
+  () => $fetch(`${backendUrl}/api/products/slug/${product_id}`),
   {
-    getCachedData(key) {
-      return useNuxtApp().payload.data[key]
-    },
+    transform: (data) => {
+      if (!data) {
+        throw createError({ statusCode: 404, statusMessage: 'Продукт не найден' })
+      }
+      return data
+    }
   }
 )
 

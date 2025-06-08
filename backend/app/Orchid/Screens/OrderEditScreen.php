@@ -94,8 +94,9 @@ class OrderEditScreen extends Screen
                     ->required(),
 
                 Input::make('order.weight')
-                    ->title('Вес')
+                    ->title('Вес (кг)')
                     ->type('number')
+                    ->step('0.01')
                     ->required(),
 
                 Input::make('order.order_number')

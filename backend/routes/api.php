@@ -36,6 +36,10 @@ Route::apiResource('advantages', \App\Http\Controllers\Api\AdvantageController::
 
 Route::middleware('auth:sanctum')->post('/purchase', [PurchaseController::class, 'processPurchase']);
 
+Route::get('/products/slug/{slug}', [ProductController::class, 'getBySlug']);
+Route::get('/products/{slug}/category-path', [ProductController::class, 'getCategoryPath']);
+Route::get('/products/check-slug', [ProductController::class, 'checkSlug']);
+
 Route::prefix('cart')->group(function () {
     Route::get('/', [CartController::class, 'index']);
     Route::post('/', [CartController::class, 'store']);
