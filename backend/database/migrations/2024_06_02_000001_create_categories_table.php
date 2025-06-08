@@ -21,7 +21,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('slug')->unique();
             $table->timestamps();
-            $table->string('pro_id')->unique();
+            $table->string('pro_id')->unique()->nullable();
             $table->foreign('parent_id')->references('id')->on('categories')->onDelete('cascade');
         });
         
