@@ -23,6 +23,7 @@ cd backend
 composer install --optimize-autoloader --no-dev
 php artisan optimize:clear
 php artisan horizon
+sudo chown -R www-data:www-data /var/www/api.absolutetechno.ru/storage/
 
 cd frontend/nuxt-app
 npm install
