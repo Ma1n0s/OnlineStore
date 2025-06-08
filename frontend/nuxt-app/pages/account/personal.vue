@@ -203,27 +203,71 @@ const saveCompany = async () => {
 }
 
 const changePassword = async () => {
-  if (!validatePassword()) return
-  uiState.isLoading = true
+  if (!validatePassword()) return;
+  uiState.isLoading = true;
+  
   try {
-    await $fetch(`${backendUrl}/api/profile/password`, {
+    const response = await $fetch(`${backendUrl}/api/profile/password`, {
       method: 'PUT',
       body: {
         current_password: forms.password.current,
         new_password: forms.password.new,
+        new_password_confirmation: forms.password.confirm // if using backend confirmation
       },
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
         'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
       },
-    })
-    uiState.isModalOpen = false
-    resetPasswordForm()
+      credentials: 'include',
+    });
+
+    uiState.isModalOpen = false;
+    resetPasswordForm();
+    
+    useToast().add({
+      title: 'Пароль успешно изменен',
+      icon: 'i-heroicons-check-circle',
+      color: 'green',
+    });
   } catch (error) {
-    uiState.error = error.data?.message || error.message
+    if (error.data?.message === 'Текущий пароль неверный') {
+      forms.password.errors.current = error.data.message;
+    } else if (error.data?.errors?.new_password) {
+      forms.password.errors.new = error.data.errors.new_password[0];
+    } else {
+      uiState.error = error.data?.message || 'Произошла ошибка при изменении пароля';
+    }
   } finally {
-    uiState.isLoading = false
+    uiState.isLoading = false;
+  }
+};
+
+const handlePhoneInput = (e, field = 'profile') => {
+  const input = e.target
+  let value = input.value.replace(/\D/g, '')
+  let formattedValue = ''
+
+  if (value.length > 0) {
+    formattedValue = '+7 ('
+    if (value.length > 1) {
+      formattedValue += value.substring(1, 4)
+    }
+    if (value.length >= 4) {
+      formattedValue += ') ' + value.substring(4, 7)
+    }
+    if (value.length >= 7) {
+      formattedValue += '-' + value.substring(7, 9)
+    }
+    if (value.length >= 9) {
+      formattedValue += '-' + value.substring(9, 11)
+    }
+  }
+
+  if (field === 'profile') {
+    profile.value.phone = formattedValue
+  } else {
+    forms.company.phone = formattedValue
   }
 }
 
@@ -338,9 +382,9 @@ onMounted(() => {
                   <input
                     type="tel"
                     id="phone"
-                    maxlength="18"
-                    placeholder="+7 (___) ___-__-__"
                     v-model="profile.phone"
+                    @input="handlePhoneInput"
+                    placeholder="+7 (___) ___-__-__"
                     class="w-full px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition"
                   />
                 </div>
