@@ -16,7 +16,7 @@ class Order extends Model
         'order_number',
         'total_amount',
         'status',
-        
+        'weight',
         'is_paid',
         'selected',
     ];

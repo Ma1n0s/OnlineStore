@@ -19,7 +19,7 @@ class OrderController extends Controller
      */
 
 
-     public function createOrderFromSelected(Request $request)
+    public function createOrderFromSelected(Request $request)
     {
         $user = $request->user();
 
@@ -44,6 +44,7 @@ class OrderController extends Controller
             // 3. Проверяем доступное количество
             $productsToOrder = [];
             $errors = [];
+            $totalWeight = 0;
 
             foreach ($cart->orderProducts as $orderProduct) {
                 $product = $orderProduct->product;
@@ -66,6 +67,8 @@ class OrderController extends Controller
                     'price_at_order' => $orderProduct->price_at_order,
                     'selected' => false
                 ];
+
+                $totalWeight += ($product->weight ?? 0) * $requestedQuantity;
             }
 
             // 4. Если есть ошибки по количеству
@@ -81,7 +84,8 @@ class OrderController extends Controller
             $newOrder = $user->orders()->create([
                 'order_number' => 'ORD-' . now()->format('YmdHis') . '-' . strtoupper(uniqid()),
                 'status' => 'processing',
-                'total_amount' => 0
+                'total_amount' => 0,
+                'weight' => $totalWeight 
             ]);
 
             // 6. Добавляем товары в заказ
