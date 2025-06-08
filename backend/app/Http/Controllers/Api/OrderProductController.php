@@ -11,6 +11,46 @@ use Illuminate\Validation\Rule;
 
 class OrderProductController extends Controller
 {
+    public function deleteAllSelected(Request $request) {
+        $user = $request->user();
+        
+        if (!$user) {
+            return response()->json([
+                'message' => 'Требуется авторизация',
+                'error' => 'unauthenticated'
+            ], 401);
+        }
+        
+        // Получаем активную корзину пользователя
+        $cart = $user->cart;
+        
+        if (!$cart) {
+            return response()->json([
+                'message' => 'Корзина не найдена',
+                'error' => 'cart_not_found'
+            ], 404);
+        }
+
+        // Удаляем все выбранные продукты из корзины
+            $deletedCount = $cart->products()
+            ->wherePivot('selected', true)
+            ->detach();
+
+        if ($deletedCount > 0) {
+            // Обновляем корзину (если нужно пересчитать totals и т.д.)
+            $cart->touch(); // Обновляем timestamp корзины
+            
+            return response()->json([
+                'message' => 'Удалено ' . $deletedCount . ' товаров',
+                'count' => $deletedCount
+            ], 200);
+        }
+
+        return response()->json([
+            'message' => 'Нет выбранных товаров для удаления',
+            'count' => 0
+        ], 200);
+    }
     public function updateAllSelected(Request $request, Order $order)
     {
 
@@ -37,80 +77,45 @@ class OrderProductController extends Controller
             'message' => 'Selected status updated for all products',
         ]);
     }
-    
-    // Добавить продукт в заказ
-    // public function store(Request $request, Order $order)
-    // {
-    //     $validated = $request->validate([
-    //         'product_id' => [
-    //             'required',
-    //             'exists:products,id',
-    //             Rule::unique('order_products')->where('order_id', $order->id)
-    //         ],
-    //         'quantity' => [
-    //             'required',
-    //             'integer',
-    //             'min:1',
-    //             function ($attribute, $value, $fail) use ($request) {
-    //                 $product = Product::find($request->product_id);
-    //                 if ($product && $value > $product->quantity) {
-    //                     $fail('Количество не может превышать доступное количество продукта.');
-    //                 }
-    //             }
-    //         ]
-    //     ]);
-
-    //     $product = Product::find($validated['product_id']);
-
-    //     $orderProduct = $order->products()->attach($product->id, [
-    //         'quantity' => $validated['quantity'],
-    //         'price_at_order' => $product->price
-    //     ]);
-
-    //     // Обновляем общую сумму заказа
-    //     $order->updateTotalAmount();
-
-    //     return response()->json($order->load('products'), 201);
-    // }
 
 
     public function store(Request $request, Order $order)
-{
-    $validated = $request->validate([
-        'product_id' => [
-            'required',
-            'exists:products,id',
-            Rule::unique('order_products')->where('order_id', $order->id)
-        ],
-        'quantity' => [
-            'required',
-            'integer',
-            'min:1',
-            function ($attribute, $value, $fail) use ($request) {
-                $product = Product::find($request->product_id);
-                if ($product && $value > $product->quantity) {
-                    $fail('Количество не может превышать доступное количество продукта.');
+    {
+        $validated = $request->validate([
+            'product_id' => [
+                'required',
+                'exists:products,id',
+                Rule::unique('order_products')->where('order_id', $order->id)
+            ],
+            'quantity' => [
+                'required',
+                'integer',
+                'min:1',
+                function ($attribute, $value, $fail) use ($request) {
+                    $product = Product::find($request->product_id);
+                    if ($product && $value > $product->quantity) {
+                        $fail('Количество не может превышать доступное количество продукта.');
+                    }
                 }
-            }
-        ]
-    ]);
+            ]
+        ]);
 
-    $product = Product::find($validated['product_id']);
+        $product = Product::find($validated['product_id']);
 
-    // Используем create для промежуточной модели
-    $orderProduct = OrderProduct::create([
-        'order_id' => $order->id,
-        'product_id' => $product->id,
-        'quantity' => $validated['quantity'],
-        'price_at_order' => $product->price,
-        'selected' => true // или true, по вашему усмотрению
-    ]);
+        // Используем create для промежуточной модели
+        $orderProduct = OrderProduct::create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'quantity' => $validated['quantity'],
+            'price_at_order' => $product->price,
+            'selected' => true // или true, по вашему усмотрению
+        ]);
 
-    // Обновляем общую сумму заказа
-    $order->updateTotalAmount();
+        // Обновляем общую сумму заказа
+        $order->updateTotalAmount();
 
-    return response()->json($order->load('products'), 201);
-}
+        return response()->json($order->load('products'), 201);
+    }
 
     // Обновить количество продукта в заказе
     public function update(Request $request, Order $order, Product $product)

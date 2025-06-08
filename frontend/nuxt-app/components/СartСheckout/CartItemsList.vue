@@ -8,11 +8,18 @@ const debouncedUpdate = useDebounceFn(async product => {
   await cartStore.updateProduct(product)
 }, 1000)
 
-const debouncdeSelectedAll = useDebounceFn(async event => {
+const debounceSelectedAll = useDebounceFn(async event => {
   await cartStore.setSelected(event.target.checked)
 })
 
-const removeSelected = () => {}
+const removeSelected = async () => {
+  await cartStore.removeSelected()
+}
+
+const removeProduct = async product => {
+  await cartStore.remove(product)
+}
+
 const toggleSelected = item => {
   item.selected = !item.selected
   debouncedUpdate(item)
@@ -38,7 +45,7 @@ const decreaseQuantity = item => {
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
       <div class="flex items-center">
         <input
-          @change="debouncdeSelectedAll"
+          @change="debounceSelectedAll"
           :checked="cart.selected"
           type="checkbox"
           id="select-all"
@@ -85,6 +92,14 @@ const decreaseQuantity = item => {
               @change="toggleSelected(item)"
               class="h-4 w-4 sm:h-5 sm:w-5 text-primary rounded focus:ring-primary-active border-gray-300 self-center"
             />
+            <Button
+              variant="warning"
+              size="small"
+              class="text-sm !px-4 !h-fit max-h-full self-center"
+              @click="removeProduct(item)"
+            >
+              <Icon name="material-symbols:close-rounded" class="w-6 h-6" />
+            </Button>
             <NuxtLink :to="`/products/${item.slug}`" class="flex items-start sm:items-center gap-3 sm:gap-4">
               <NuxtImg
                 :src="item.main_image"

@@ -68,7 +68,37 @@ export const useCart = () => {
     })
   }
 
-  const removeProduct = async () => {}
+  const removeSelectedOrderProducts = async cart => {
+    try {
+      await $fetch(`${backendUrl}/api/orders/${cart.value.id}/products/selected`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+        },
+        credentials: 'include',
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  const removeOrderProducts = async (cart, product) => {
+    try {
+      await $fetch(`${backendUrl}/api/orders/${cart.value.id}/products/${product.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+        },
+        credentials: 'include',
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }
 
   const updateOrderProduct = async (cart, product) => {
     return await $fetch(`${backendUrl}/api/orders/${cart.value.id}/products/${product.id}`, {
@@ -116,7 +146,8 @@ export const useCart = () => {
   return {
     getCart,
     addProduct,
-    removeProduct,
+    removeSelectedOrderProducts,
+    removeOrderProducts,
     updateOrderProduct,
     clearCart,
     completeOrder,
