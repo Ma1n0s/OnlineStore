@@ -54,7 +54,7 @@ class ProductController extends Controller
         $token = $request->header('Authorization');
 
         if($token !== env('services.external_api.token', '')) {
-            return response(null, 500)->json(['error'=>'auth error']);
+            return response()->json(['error'=>'auth error'], 401);
         }
     
         return DB::transaction(function () use ($validated) {
