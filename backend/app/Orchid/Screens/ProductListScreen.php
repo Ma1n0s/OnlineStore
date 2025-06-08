@@ -106,13 +106,13 @@ class ProductListScreen extends Screen
                         return $types[$product->type] ?? $product->type;
                     }),
 
-                TD::make('delivery_time', 'Доставка')
+                TD::make('delivery_days', 'Доставка')
                     ->width('100px')
                     ->sort()
                     ->align(TD::ALIGN_CENTER)
                     ->render(function (Product $product) {
                         return $product->type === 'preorder' 
-                            ? $product->delivery_time . ' дн.' 
+                            ? $product->delivery_days . ' дн.' 
                             : '-';
                     }),
                     

@@ -46,7 +46,7 @@ class Product extends Model
 
     protected $attributes = [
         'type' => 'instock',
-        'delivery_time' => 0,
+        'delivery_days' => 0,
     ];
 
 
@@ -128,7 +128,7 @@ class Product extends Model
     protected $casts = [
         'price' => 'float',
         'rating' => 'float',
-        'delivery_time' => 'integer',
+        'delivery_days' => 'integer',
     ];
 
     /**
