@@ -232,7 +232,7 @@ class ProductScreen extends Screen
                             ->id('product-type-select')
                             ->help('Выберите тип товара'),
 
-                        Input::make('product.delivery_time')
+                        Input::make('product.delivery_days')
                             ->title('Время доставки (дни)')
                             ->type('number')
                             ->min(0)
@@ -378,18 +378,18 @@ class ProductScreen extends Screen
                 'product.weight' => 'nullable|numeric|min:0',
             ];
 
-            // Добавляем правило для delivery_time только если тип "под заказ"
+            // Добавляем правило для delivery_days только если тип "под заказ"
             if ($request->input('product.type') === 'preorder') {
-                $validationRules['product.delivery_time'] = 'required|integer|min:0';
+                $validationRules['product.delivery_days'] = 'required|integer|min:0';
             }
 
             $request->validate($validationRules);
 
             $data = $request->get('product');
 
-            // Если тип не "под заказ", обнуляем delivery_time
+            // Если тип не "под заказ", обнуляем delivery_days
             if ($data['type'] !== 'preorder') {
-                $data['delivery_time'] = 0;
+                $data['delivery_days'] = 0;
             }
 
             if (!$product->exists && $request->has('category_id')) {
