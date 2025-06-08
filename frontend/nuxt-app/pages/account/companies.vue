@@ -3,6 +3,10 @@ import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useUserStore } from '~/stores/user'
 import SidebarMenu from '~/components/Account/SidebarMenu.vue'
 import axios from 'axios'
+
+definePageMeta({
+  middleware: ['auth'],
+})
 import CheckBox from '~/components/Account/CheckBox.vue'
 
 const {
@@ -16,7 +20,7 @@ const uiState = reactive({
   error: null,
   isFirstAdd: false,
   showFullForm: false,
-  editingCompanyId: null
+  editingCompanyId: null,
 })
 
 const companies = ref([])
@@ -54,7 +58,7 @@ const loadCompaniesData = async () => {
   uiState.isLoading = true
   try {
     await userStore.fetchUser()
-    
+
     if (userStore.user?.companies) {
       companies.value = userStore.user.companies
     }
@@ -73,7 +77,7 @@ const startAdding = () => {
   uiState.showFullForm = false
 }
 
-const startEditing = (company) => {
+const startEditing = company => {
   Object.assign(form, {
     name: company.name,
     inn: company.inn,
@@ -82,7 +86,7 @@ const startEditing = (company) => {
     director: company.director,
     phone: company.phone,
     email: company.email,
-    is_main: company.is_main
+    is_main: company.is_main,
   })
   uiState.isEditing = true
   uiState.editingCompanyId = company.id
@@ -169,7 +173,7 @@ const searchCompanyByINN = async () => {
   }
 }
 
-const selectCompanySuggestion = (suggestion) => {
+const selectCompanySuggestion = suggestion => {
   selectedCompany.value = suggestion
   form.name = suggestion.value || ''
   form.kpp = suggestion.data.kpp || ''
@@ -209,7 +213,7 @@ const validate = () => {
   return isValid
 }
 
-const deleteCompany = async (companyId) => {
+const deleteCompany = async companyId => {
   if (!confirm('Вы уверены, что хотите удалить эту компанию? Это действие нельзя отменить.')) {
     return
   }
@@ -222,24 +226,24 @@ const deleteCompany = async (companyId) => {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
       },
       credentials: 'include',
     })
 
     await loadCompaniesData()
-    
+
     // Show success message
   } catch (error) {
-    console.error("Ошибка при удалении компании:", error)
+    console.error('Ошибка при удалении компании:', error)
     uiState.error = 'Ошибка при удалении: ' + (error.data?.message || error.message)
   } finally {
     uiState.isLoading = false
   }
 }
 
-const setMainCompany = async (companyId) => {
+const setMainCompany = async companyId => {
   uiState.isLoading = true
   uiState.error = null
 
@@ -248,7 +252,7 @@ const setMainCompany = async (companyId) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
       },
       credentials: 'include',
@@ -256,7 +260,7 @@ const setMainCompany = async (companyId) => {
 
     await loadCompaniesData()
   } catch (error) {
-    console.error("Ошибка при установке основной компании:", error)
+    console.error('Ошибка при установке основной компании:', error)
     uiState.error = 'Ошибка: ' + (error.data?.message || error.message)
   } finally {
     uiState.isLoading = false
@@ -270,7 +274,7 @@ const saveCompany = async () => {
   uiState.error = null
 
   try {
-    const url = uiState.editingCompanyId 
+    const url = uiState.editingCompanyId
       ? `${backendUrl}/api/profile/companies/${uiState.editingCompanyId}`
       : `${backendUrl}/api/profile/companies`
 
@@ -286,11 +290,11 @@ const saveCompany = async () => {
         director: form.director,
         phone: form.phone,
         email: form.email,
-        is_main: form.is_main || companies.value.length === 0
+        is_main: form.is_main || companies.value.length === 0,
       }),
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
       },
       credentials: 'include',
@@ -299,21 +303,24 @@ const saveCompany = async () => {
     await loadCompaniesData()
     cancelEditing()
   } catch (error) {
-    console.error("Ошибка ответа сервера:", error.data)
+    console.error('Ошибка ответа сервера:', error.data)
     uiState.error = 'Ошибка при сохранении: ' + (error.data?.message || error.message)
   } finally {
     uiState.isLoading = false
   }
 }
 
-watch(() => form.inn, (newVal) => {
-  if (newVal.length >= 10 && uiState.isFirstAdd) {
-    const delaySearch = setTimeout(() => {
-      validateInn()
-      clearTimeout(delaySearch)
-    }, 800)
+watch(
+  () => form.inn,
+  newVal => {
+    if (newVal.length >= 10 && uiState.isFirstAdd) {
+      const delaySearch = setTimeout(() => {
+        validateInn()
+        clearTimeout(delaySearch)
+      }, 800)
+    }
   }
-})
+)
 </script>
 
 <template>
@@ -336,8 +343,8 @@ watch(() => form.inn, (newVal) => {
           </div>
 
           <div v-if="!uiState.isEditing && companies.length > 0" class="space-y-6">
-            <div 
-              v-for="company in companies" 
+            <div
+              v-for="company in companies"
               :key="company.id"
               class="bg-white shadow-2xl rounded-lg overflow-hidden"
               :class="{ 'border-2 border-primary': company.is_main }"
@@ -346,7 +353,9 @@ watch(() => form.inn, (newVal) => {
                 <div class="flex justify-between items-start mb-4">
                   <h3 class="text-lg font-medium text-gray-900">
                     {{ company.name || `Компания #${company.id}` }}
-                    <span v-if="company.is_main" class="ml-2 text-xs bg-primary text-white px-2 py-1 rounded">Основная</span>
+                    <span v-if="company.is_main" class="ml-2 text-xs bg-primary text-white px-2 py-1 rounded"
+                      >Основная</span
+                    >
                   </h3>
                   <div class="flex gap-2">
                     <button
@@ -397,7 +406,7 @@ watch(() => form.inn, (newVal) => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div class="mt-6 pt-4 border-t flex justify-end gap-3">
                   <button
                     @click="startEditing(company)"
@@ -419,7 +428,10 @@ watch(() => form.inn, (newVal) => {
             </div>
           </div>
 
-          <div v-if="!uiState.isEditing && companies.length === 0" class="bg-white shadow-2xl rounded-lg overflow-hidden">
+          <div
+            v-if="!uiState.isEditing && companies.length === 0"
+            class="bg-white shadow-2xl rounded-lg overflow-hidden"
+          >
             <div class="p-6 text-center py-12">
               <Icon name="mdi:office-building" class="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 class="text-lg font-medium text-gray-900 mb-2">Данные компаний не добавлены</h3>
@@ -452,19 +464,19 @@ watch(() => form.inn, (newVal) => {
                         />
                         <p v-if="form.errors.inn" class="mt-1 text-sm text-red-600">{{ form.errors.inn }}</p>
                         <p v-if="innError && !form.errors.inn" class="mt-1 text-sm text-red-600">{{ innError }}</p>
-                        
+
                         <div v-if="isLoadingSuggestions" class="mt-2 flex items-center text-gray-500">
                           <Icon name="mdi:loading" class="animate-spin mr-2" />
                           Поиск компании...
                         </div>
-                        
-                        <div 
+
+                        <div
                           v-if="companySuggestions.length > 0"
                           class="mt-2 border rounded-lg shadow-sm bg-white"
-                          style="max-height: 300px; overflow-y: auto;"
+                          style="max-height: 300px; overflow-y: auto"
                         >
-                          <div 
-                            v-for="suggestion in companySuggestions" 
+                          <div
+                            v-for="suggestion in companySuggestions"
                             :key="suggestion.data.inn"
                             @click="selectCompanySuggestion(suggestion)"
                             class="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 transition-colors"
@@ -477,17 +489,15 @@ watch(() => form.inn, (newVal) => {
                               </span>
                             </div>
                             <div class="text-sm text-gray-500 mt-1">
-                              <span class="font-semibold">Адрес:</span> {{ suggestion.data.address?.unrestricted_value || 'не указан' }}
+                              <span class="font-semibold">Адрес:</span>
+                              {{ suggestion.data.address?.unrestricted_value || 'не указан' }}
                             </div>
-                            <div 
-                              v-if="suggestion.data.management?.name"
-                              class="text-sm text-gray-500 mt-1"
-                            >
+                            <div v-if="suggestion.data.management?.name" class="text-sm text-gray-500 mt-1">
                               <span class="font-semibold">Руководитель:</span> {{ suggestion.data.management.name }}
                             </div>
                           </div>
                         </div>
-                        
+
                         <button
                           v-if="selectedCompany"
                           @click="resetCompanySelection"
@@ -497,7 +507,7 @@ watch(() => form.inn, (newVal) => {
                           Сбросить выбор компании
                         </button>
                       </div>
-                      
+
                       <!-- Остальные поля показываются только после проверки ИНН -->
                       <template v-if="uiState.showFullForm">
                         <div>
@@ -509,7 +519,7 @@ watch(() => form.inn, (newVal) => {
                           />
                           <p v-if="form.errors.name" class="mt-1 text-sm text-red-600">{{ form.errors.name }}</p>
                         </div>
-                        
+
                         <div>
                           <label class="block text-sm font-medium text-gray-700 mb-1">КПП</label>
                           <input
@@ -519,10 +529,7 @@ watch(() => form.inn, (newVal) => {
                         </div>
 
                         <div v-if="companies.length > 0">
-                          <CheckBox
-                            v-model="form.is_main"
-                            title="Сделать основной компанией"
-                          />
+                          <CheckBox v-model="form.is_main" title="Сделать основной компанией" />
                         </div>
                       </template>
                     </div>

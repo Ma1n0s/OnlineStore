@@ -5,6 +5,8 @@ import Button from '~/components/ui/Button/Button.vue'
 import { DatePicker } from 'v-calendar'
 import 'v-calendar/dist/style.css'
 import { useCartStore } from '~/stores/cart'
+import { useUserStore } from '~/stores/user'
+import { storeToRefs } from 'pinia'
 
 const { product } = defineProps({
   product: {
@@ -20,6 +22,9 @@ const { product } = defineProps({
     }),
   },
 })
+
+const userStore = useUserStore()
+const { showAuthForm, isAuth } = storeToRefs(userStore)
 
 const isRentalModalOpen = ref(false)
 const rentalDays = ref(1)
@@ -61,9 +66,13 @@ const calculateRentalPrice = () => {
   }
 }
 
-const confirmRental = async () => {
-  if (!product?.id || product.count === 'Нет в наличии') return
+const checkAuthForm = () => {
+  if (!isAuth.value) showAuthForm.value = true
+  return showAuthForm.value
+}
 
+const confirmRental = async () => {
+  if (!product?.id || product.count === 'Нет в наличии' || checkAuthForm()) return
   await addToCart({
     ...product,
     rental_days: rentalDays.value,
@@ -78,7 +87,7 @@ const cartStore = useCartStore()
 console.log(cartStore, 'store cart')
 
 const add = async () => {
-  if (!product?.id || product.count === 'Нет в наличии') return
+  if (!product?.id || product.count === 'Нет в наличии' || checkAuthForm()) return
 
   isLoading.value = true
   try {

@@ -18,6 +18,10 @@ const removeSelected = async () => {
   await cartStore.removeSelected()
 }
 
+const removeProduct = async product => {
+  await cartStore.remove(product)
+}
+
 const toggleSelected = item => {
   item.selected = !item.selected
   debouncedUpdate(item)
@@ -47,17 +51,17 @@ const printToExcel = () => {
   const dataToExport = selectedProducts.length > 0 ? selectedProducts : products.value
 
   const data = dataToExport.map(item => ({
-    'Наименование': item.name,
+    Наименование: item.name,
     'Код товара': item.code,
     'Цена за шт. (руб)': item.price,
-    'Количество': item.orderQuantity,
+    Количество: item.orderQuantity,
     'Сумма (руб)': item.price * item.orderQuantity,
   }))
 
   // Создаем рабочую книгу Excel
   const workbook = utils.book_new()
   const worksheet = utils.json_to_sheet(data)
-  
+
   // Добавляем форматирование (ширину колонок)
   worksheet['!cols'] = [
     { wch: 30 }, // Наименование
@@ -66,10 +70,10 @@ const printToExcel = () => {
     { wch: 12 }, // Количество
     { wch: 15 }, // Сумма
     { wch: 15 }, // Остаток
-    { wch: 15 }  // Старая цена
+    { wch: 15 }, // Старая цена
   ]
 
-  utils.book_append_sheet(workbook, worksheet, "Корзина")
+  utils.book_append_sheet(workbook, worksheet, 'Корзина')
 
   // Генерируем имя файла
   const now = new Date()
@@ -115,12 +119,7 @@ const printToExcel = () => {
           <Icon name="heroicons:arrow-down-tray" class="w-4 h-4 mr-1.5" />
           Скачать список
         </Button> -->
-        <Button
-          variant="ghost"
-          size="small"
-          class="text-gray-500 hover:text-gray-700"
-          @click="printToExcel"
-        >
+        <Button variant="ghost" size="small" class="text-gray-500 hover:text-gray-700" @click="printToExcel">
           <Icon name="heroicons:printer" class="w-4 h-4 mr-1.5" />
           Скачать список (Excel)
         </Button>
@@ -142,6 +141,14 @@ const printToExcel = () => {
               @change="toggleSelected(item)"
               class="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary mt-0.5 sm:mt-0"
             />
+            <Button
+              variant="warning"
+              size="small"
+              class="text-sm !px-4 !h-fit max-h-full self-center"
+              @click="removeProduct(item)"
+            >
+              <Icon name="material-symbols:close-rounded" class="w-6 h-6" />
+            </Button>
             <NuxtLink :to="`/products/${item.slug}`" class="flex items-start sm:items-center gap-4 flex-1 min-w-0">
               <div class="relative flex-shrink-0">
                 <NuxtImg
@@ -196,9 +203,7 @@ const printToExcel = () => {
         </div>
       </template>
 
-      <div v-else class="py-8 text-center text-gray-500">
-        В корзине нет товаров
-      </div>
+      <div v-else class="py-8 text-center text-gray-500">В корзине нет товаров</div>
     </div>
   </div>
 </template>

@@ -7,6 +7,10 @@ import CartItemsList from '~/components/СartСheckout/CartItemsList.vue'
 import { useCartStore } from '~/stores/cart'
 import { storeToRefs } from 'pinia'
 
+definePageMeta({
+  middleware: ['auth'],
+})
+
 useHead({
   title: 'Корзина | Абсолют техно',
   meta: [
@@ -18,19 +22,8 @@ useHead({
 })
 
 const cartStore = useCartStore()
-const { products, isLoading: loading, isInitialized } = storeToRefs(cartStore)
+const { products, isLoading: loading } = storeToRefs(cartStore)
 // const loading = ref(isLoading.value)
-
-// Ждем инициализации корзины
-watch(
-  isInitialized,
-  initialized => {
-    if (initialized) {
-      console.log('Cart products:', products.value)
-    }
-  },
-  { immediate: true }
-)
 
 // Альтернативный вариант с await
 onMounted(async () => {
@@ -43,8 +36,6 @@ onMounted(async () => {
   console.log('Cart products:', products.value)
 })
 </script>
-
-
 
 <template>
   <div class="min-h-screen">

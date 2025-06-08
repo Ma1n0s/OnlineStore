@@ -32,6 +32,8 @@ class Product extends Model
         'brand',
         'rating',
         'weight',
+        'delivery_days',
+        'type',
         'category_id',
         'warranty',
         'bonuses',

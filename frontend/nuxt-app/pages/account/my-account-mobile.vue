@@ -105,6 +105,10 @@
 import { useUserStore } from '~/stores/user'
 const userStore = useUserStore()
 
+definePageMeta({
+  middleware: ['auth'],
+})
+
 const logout = async () => {
   try {
     await $fetch('/api/logout', {

@@ -9,12 +9,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use App\Models\Category;
+use Illuminate\Support\Str;
 
 class OrderController extends Controller
 {
     /**
      * Display a paginated list of authenticated user's orders
      */
+
 
      public function createOrderFromSelected(Request $request)
     {

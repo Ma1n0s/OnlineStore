@@ -6,12 +6,21 @@ import Breadcrumbs from '~/components/BreadCrumbs/Breadcrumbs.vue'
 import { getBreadcrumbs } from '~/components/BreadCrumbs/helpers'
 import HoverProductSwiper from '~/components/Swiper/ProductSwiper/HoverProductSwiper.vue'
 import { useCartStore } from '~/stores/cart'
+import { storeToRefs } from 'pinia'
 import type { Product } from '~/types/product.types'
 defineProps<{
   product: Product
 }>()
 
 const cartStore = useCartStore()
+
+const userStore = useUserStore()
+const { showAuthForm, isAuth } = storeToRefs(userStore)
+
+const checkAuthForm = () => {
+  if (!isAuth.value) showAuthForm.value = true
+  return showAuthForm.value
+}
 
 const {
   public: { backendUrl },
@@ -22,9 +31,9 @@ const { slug } = route.params
 
 const { data } = await useAsyncData(`products-list-${slug}`, () =>
   $fetch(`${backendUrl}/api/products/category-slug/${slug.at(-1)}`, {
-    query: { 
+    query: {
       addition_data: 1,
-      with_specs: 1
+      with_specs: 1,
     },
     method: 'GET',
     headers: {
@@ -36,7 +45,7 @@ const { data } = await useAsyncData(`products-list-${slug}`, () =>
 )
 
 const add = async product => {
-  if (!product?.id || product.count === 'Нет в наличии') return
+  if (!product?.id || product.count === 'Нет в наличии' || checkAuthForm()) return
 
   try {
     await cartStore.addToCart({
@@ -50,7 +59,8 @@ const add = async product => {
   }
 }
 
-console.log(data.value, 'products')
+const loading = ref(false)
+
 useHead({
   title: `${data.value.category.name} | Абсолют техно`,
   meta: [
@@ -100,6 +110,7 @@ const state = reactive({
 })
 
 const searchData = async () => {
+  loading.value = true
   const query = {
     addition_data: 0,
   }
@@ -118,20 +129,24 @@ const searchData = async () => {
 
   query.page = state.pagination.current_page
 
-  const data = await $fetch(`${backendUrl}/api/products/category-slug/${slug.at(-1)}`, {
-    query,
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
-    },
-  })
+  try {
+    const data = await $fetch(`${backendUrl}/api/products/category-slug/${slug.at(-1)}`, {
+      query,
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+      },
+    })
 
-  console.log(data, 'new data', query)
-
-  state.products = data.products
-  state.pagination = data.pagination
+    state.products = data.products
+    state.pagination = data.pagination
+  } catch (e) {
+    console.log(e)
+  } finally {
+    loading.value = false
+  }
 }
 
 const changePage = async page => {
@@ -453,15 +468,17 @@ const toggleBrand = brand => {
                 <span class="text-gray-500 text-xs">Код: {{ item.article }}</span>
               </div>
 
-              <h3 class="font-medium text-gray-900 hover:text-red-600 transition-colors line-clamp-2 mb-2 min-h-[2.5rem]">
+              <h3
+                class="font-medium text-gray-900 hover:text-red-600 transition-colors line-clamp-2 mb-2 min-h-[2.5rem]"
+              >
                 {{ item.name }}
               </h3>
 
               <div class="flex-1 mb-4">
                 <template v-if="item.specifications?.length">
                   <ul class="space-y-2">
-                    <li 
-                      v-for="spec in item.specifications.slice(0, 3)" 
+                    <li
+                      v-for="spec in item.specifications.slice(0, 3)"
                       :key="spec.id"
                       class="flex justify-between gap-2 text-sm"
                     >
@@ -481,22 +498,32 @@ const toggleBrand = brand => {
 
               <div class="flex justify-between items-end mt-auto">
                 <div class="flex flex-col">
-            <!-- 123 -->
+                  <!-- 123 -->
                 </div>
-                
+
                 <div class="flex flex-col items-start">
                   <span class="text-red-600 font-bold text-lg mb-2">{{ item.price.toLocaleString() }} ₽</span>
-                  <p class="text-sm mb-3 flex items-center"
-                    :class="item.count === 'Нет в наличии' ? 'text-red-600' : 'text-green-600'">
+                  <p
+                    class="text-sm mb-3 flex items-center"
+                    :class="item.count === 'Нет в наличии' ? 'text-red-600' : 'text-green-600'"
+                  >
                     <Icon
-                      :name="item.count === 'Нет в наличии' ? 'material-symbols:close-rounded' : 'material-symbols:check-rounded'"
+                      :name="
+                        item.count === 'Нет в наличии'
+                          ? 'material-symbols:close-rounded'
+                          : 'material-symbols:check-rounded'
+                      "
                       class="h-4 w-4 inline mr-1"
                     />
                     {{ item.count }}
                   </p>
                   <button
                     :disabled="item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)"
-                    @click.prevent="() => { add(item) }"
+                    @click.prevent="
+                      () => {
+                        add(item)
+                      }
+                    "
                     class="text-white py-2 px-4 rounded-lg transition-colors font-medium min-w-[120px]"
                     :class="
                       item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)
@@ -560,15 +587,16 @@ const toggleBrand = brand => {
     <div class="w-full p-4 flex justify-center items-center gap-4">
       <button
         @click="changePage(1)"
-        v-if="state.pagination.current_page !== 1"
+        v-if="state.pagination.current_page !== 1 && !loading"
         class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-gray hover:bg-primary-hover text-white"
       >
         1
       </button>
+      <div v-if="state.pagination.current_page > 2 && !loading">...</div>
       <button
         @click="changePage(state.pagination.current_page - 1)"
         class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-gray hover:bg-primary-hover text-white"
-        v-if="state.pagination.current_page !== 1 && state.pagination.current_page - 1 !== 1"
+        v-if="state.pagination.current_page !== 1 && state.pagination.current_page - 1 !== 1 && !loading"
       >
         {{ state.pagination.current_page - 1 }}
       </button>
@@ -580,16 +608,25 @@ const toggleBrand = brand => {
       <button
         @click="changePage(state.pagination.current_page + 1)"
         class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-gray hover:bg-primary-hover text-white"
-        v-if="state.pagination.has_more && state.pagination.current_page + 1 !== state.pagination.last_page"
+        v-if="state.pagination.has_more && state.pagination.current_page + 1 !== state.pagination.last_page && !loading"
       >
         {{ state.pagination.current_page + 1 }}
       </button>
+      <div
+        v-if="
+          state.pagination.current_page !== state.pagination.last_page &&
+          state.pagination.current_page !== state.pagination.last_page - 1 &&
+          !loading
+        "
+      >
+        ...
+      </div>
       <button
         @click="changePage(state.pagination.last_page)"
-        v-if="state.pagination.current_page !== state.pagination.last_page"
+        v-if="state.pagination.current_page !== state.pagination.last_page && !loading"
         class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-gray hover:bg-primary-hover text-white"
       >
-        {{ state.pagination.last_page }}
+        {{ '6' || state.pagination.last_page }}
       </button>
     </div>
 

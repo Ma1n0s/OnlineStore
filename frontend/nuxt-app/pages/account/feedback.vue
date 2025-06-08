@@ -3,6 +3,10 @@ import { reactive, computed } from 'vue'
 import { useUserStore } from '~/stores/user'
 import SidebarMenu from '~/components/Account/SidebarMenu.vue'
 
+definePageMeta({
+  middleware: ['auth'],
+})
+
 const userStore = useUserStore()
 
 const form = reactive({

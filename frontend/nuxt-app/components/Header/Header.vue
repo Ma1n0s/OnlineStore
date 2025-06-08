@@ -245,6 +245,7 @@ const closeMenu = () => {
 
 const userStore = useUserStore()
 const { clearUser } = userStore
+const { showAuthForm: isModalOpen } = storeToRefs(userStore)
 
 // Используем computed для доступа к реактивным свойствам store
 const isAuth = computed(() => userStore.isAuth)
@@ -260,7 +261,7 @@ const miniMenu = ref(false)
 
 const isMenuOpen = ref(false)
 
-const isModalOpen = ref(false)
+// const isModalOpen = ref(false)
 
 const isScrolled = ref(false)
 

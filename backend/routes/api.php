@@ -284,8 +284,15 @@ Route::post('/orders/create-order', [OrderController::class, 'createOrderFromSel
 Route::prefix('orders/{order}/products')->group(function () {
     Route::post('/', action: [OrderProductController::class, 'store']);
     Route::post('/selected', action: [OrderProductController::class, 'updateAllSelected']);
+    Route::delete('/selected', action: [OrderProductController::class, 'deleteAllSelected']);
     Route::put('/{product}', [OrderProductController::class, 'update']);
     Route::delete('/{product}', [OrderProductController::class, 'destroy']);
 });
 
+// Route::prefix('sync')->group(callback: function () {
+//     Route::post('products-with-categories', action: [ProductController::class,'processProduct']);
+// });
+
+Route::post('sync/products-with-categories', action: [ProductController::class,'processProduct']);
+Route::delete('sync/product/{article}', action: [ProductController::class,'destroy']);
 

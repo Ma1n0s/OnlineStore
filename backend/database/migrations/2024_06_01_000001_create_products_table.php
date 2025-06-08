@@ -15,12 +15,13 @@ return new class extends Migration
 
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->nullable();
+            $table->string('code');
             $table->string('name');
             $table->text('description')->nullable();
             $table->decimal('price', 10, 2);
-            $table->string('article')->nullable();
-            $table->string('brand')->nullable();
+            $table->string('article');
+            $table->string('brand')->nullable()->nullable();
+            $table->string('type')->default('Под заказ');
             $table->decimal('rating', 3, 1)->default(0);
             $table->decimal('weight', 10, 4)->default(0)->nullable();
             // $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('set null');
@@ -29,7 +30,8 @@ return new class extends Migration
             $table->integer('reviews_count')->default(0);
             $table->integer('questions_count')->default(0);
             $table->string('bonuses')->nullable();
-            $table->integer('quantity')->default(0)->nullable(); 
+            $table->integer('delivery_days')->default(0);
+            $table->integer('quantity')->default(0); 
             $table->timestamps();
         });
     }

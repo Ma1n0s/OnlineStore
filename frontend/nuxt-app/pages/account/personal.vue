@@ -4,6 +4,10 @@ import { useUserStore } from '~/stores/user'
 import SidebarMenu from '~/components/Account/SidebarMenu.vue'
 import Modal from '~/components/Modal/Modal.vue'
 
+definePageMeta({
+  middleware: ['auth'],
+})
+
 const {
   public: { backendUrl },
 } = useRuntimeConfig()
