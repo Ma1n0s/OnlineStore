@@ -5,7 +5,6 @@ export const useCartStore = defineStore('cart', () => {
   const {
     getCart,
     addProduct,
-    clearCart,
     updateSelected,
     completeOrder,
     updateOrderProduct,
@@ -39,6 +38,8 @@ export const useCartStore = defineStore('cart', () => {
       const response = await getCart()
       cart.value = response.value
       products.value = response.value.products || []
+      console.log(cart.value.selected)
+      console.log(products.value)
     } catch (error) {
       console.error('Failed to initialize cart:', error)
     }
@@ -50,11 +51,6 @@ export const useCartStore = defineStore('cart', () => {
     await refetchCart()
   }
 
-  const clearUserCart = async () => {
-    await clearCart()
-    await refetchCart()
-  }
-
   const setSelected = async selected => {
     await updateSelected(cart, selected)
     cart.value.selected = selected
@@ -63,7 +59,6 @@ export const useCartStore = defineStore('cart', () => {
 
   const updateProduct = async product => {
     await updateOrderProduct(cart, product)
-    await refetchCart()
   }
 
   const createOrder = async () => {
@@ -97,7 +92,6 @@ export const useCartStore = defineStore('cart', () => {
     remove,
     checkProductInCart,
     addToCart,
-    clearUserCart,
     refetchCart,
     setSelected,
     updateProduct,

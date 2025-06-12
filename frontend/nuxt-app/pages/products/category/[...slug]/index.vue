@@ -7,10 +7,6 @@ import { getBreadcrumbs } from '~/components/BreadCrumbs/helpers'
 import HoverProductSwiper from '~/components/Swiper/ProductSwiper/HoverProductSwiper.vue'
 import { useCartStore } from '~/stores/cart'
 import { storeToRefs } from 'pinia'
-import type { Product } from '~/types/product.types'
-defineProps<{
-  product: Product
-}>()
 
 const cartStore = useCartStore()
 

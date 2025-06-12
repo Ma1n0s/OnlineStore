@@ -15,12 +15,20 @@ const sendOrder = useDebounceFn(async () => {
 
 const isEmpty = computed(() => products.value.length === 0)
 const isSelected = computed(() => products.value.some(product => product.selected))
+
 const weight = computed(() => {
-  const result = products.value.reduce((acc, val) => (val.selected ? acc + val?.weight * val?.orderQuantity : 0), 0)
+  const result = products.value.reduce(
+    (acc, val) => (val.selected ? acc + val?.weight * val?.orderQuantity : acc + 0),
+    0
+  )
   return result ? result : 0
 })
+
 const sum = computed(() => {
-  const result = products.value.reduce((acc, val) => (val.selected ? acc + val?.price * val?.orderQuantity : 0), 0)
+  const result = products.value.reduce(
+    (acc, val) => (val.selected ? acc + val?.price * val?.orderQuantity : acc + 0),
+    0
+  )
   return result
 })
 
@@ -69,7 +77,7 @@ console.log(isEmpty.value, isSelected.value)
 
     <div v-if="!isEmpty && isSelected" class="flex items-center justify-between mb-3 sm:mb-4">
       <h2 class="text-sm sm:text-base font-bold text-gray-800">
-        {{ products.reduce((acc, val) => (val.selected ? acc + 1 : 0), 0) }} товар
+        {{ products.reduce((acc, val) => (val.selected ? acc + 1 : acc + 0), 0) }} товар
         <span v-if="weight">• {{ weight }} кг</span>
       </h2>
     </div>

@@ -129,7 +129,6 @@ class OrderProductController extends Controller
             ], 401);
         }
         
-        // Получаем активную корзину пользователя
         $cart = $user->cart;
         
         if (!$cart) {
@@ -140,6 +139,7 @@ class OrderProductController extends Controller
         }
 
         $validated = $request->validate([
+            'selected' => ['required', 'boolean'],
             'quantity' => [
                 'required',
                 'integer',
@@ -150,36 +150,32 @@ class OrderProductController extends Controller
                     }
                 }
             ],
-            'selected' => 'sometimes|boolean' // Добавляем опциональное поле selected
         ]);
 
-        // Обновляем данные продукта в корзине
-        $updateData = ['quantity' => $validated['quantity']];
-        
-        if (isset($validated['selected'])) {
-            $updateData['selected'] = $validated['selected'];
-        }
 
+        // Подготавливаем данные для обновления
+        $updateData = [
+            'quantity' => $validated['quantity'],
+            'selected' => $validated['selected']
+        ];
+
+        // Обновляем товар в корзине
         $cart->products()->updateExistingPivot($product->id, $updateData);
 
-        // Обновляем общую сумму заказа
-        $cart->updateTotalAmount();
+        // Проверяем, все ли товары выбраны
+        $allSelected = $cart->products()
+            ->wherePivot('selected', false)
+            ->doesntExist();
 
-        // Проверяем статус selected у всех продуктов
-        $allSelected = true;
-        foreach ($cart->products as $cartProduct) {
-            if (!$cartProduct->pivot->selected) {
-                $allSelected = false;
-                break;
-            }
-        }
-
-        // Обновляем статус selected у корзины
+        // Обновляем статус корзины
         $cart->update(['selected' => $allSelected]);
+
+        // Обновляем общую сумму
+        $cart->updateTotalAmount();
 
         return response()->json([
             'cart' => $cart->load('products'),
-            'all_products_selected' => $allSelected
+            'all_selected' => $allSelected
         ]);
     }
 
