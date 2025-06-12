@@ -63,7 +63,6 @@ export const useCartStore = defineStore('cart', () => {
 
   const updateProduct = async product => {
     await updateOrderProduct(cart, product)
-    await refetchCart()
   }
 
   const createOrder = async () => {

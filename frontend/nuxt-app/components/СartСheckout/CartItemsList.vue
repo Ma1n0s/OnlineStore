@@ -1,14 +1,17 @@
 <script setup>
-import { writeFileXLSX, utils } from 'xlsx'
 import Button from '~/components/ui/Button/Button.vue'
 import { Icon } from '#components'
 
 const cartStore = useCartStore()
 const { cart, products } = storeToRefs(cartStore)
 
-const debouncedUpdate = useDebounceFn(async product => {
-  await cartStore.updateProduct(product)
-}, 500)
+const debouncedUpdate = useDebounceList(
+  async product => {
+    await cartStore.updateProduct(product)
+  },
+  500,
+  cartStore.refetchCart
+)
 
 const debounceSelectedAll = useDebounceFn(async event => {
   await cartStore.setSelected(event.target.checked)
@@ -24,20 +27,20 @@ const removeProduct = async product => {
 
 const toggleSelected = item => {
   item.selected = !item.selected
-  debouncedUpdate(item)
+  debouncedUpdate(item.id, item)
 }
 
 const increaseQuantity = item => {
   if (item.quantity > item.orderQuantity) {
     item.orderQuantity += 1
-    debouncedUpdate(item)
+    debouncedUpdate(item.id, item)
   }
 }
 
 const decreaseQuantity = item => {
   if (item.quantity >= item.orderQuantity && item.orderQuantity !== 1) {
     item.orderQuantity -= 1
-    debouncedUpdate(item)
+    debouncedUpdate(item.id, item)
   }
 }
 
