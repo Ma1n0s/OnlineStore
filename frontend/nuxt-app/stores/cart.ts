@@ -39,6 +39,8 @@ export const useCartStore = defineStore('cart', () => {
       const response = await getCart()
       cart.value = response.value
       products.value = response.value.products || []
+      console.log(cart.value.selected)
+      console.log(products.value)
     } catch (error) {
       console.error('Failed to initialize cart:', error)
     }

@@ -16,6 +16,8 @@ export const useCart = () => {
       server: false,
     })
 
+    data.value.selected = !!data.value.selected
+
     data.value.products.forEach(product => {
       product.orderPrice = product.pivot.price_at_order
       product.orderQuantity = product.pivot.quantity
@@ -116,8 +118,6 @@ export const useCart = () => {
     })
   }
 
-  const clearCart = async () => {}
-
   const updateSelected = async (cart, selected: boolean, all = true) => {
     return await $fetch(`${backendUrl}/api/orders/${cart.value.id}/products/selected`, {
       method: 'POST',
@@ -149,7 +149,6 @@ export const useCart = () => {
     removeSelectedOrderProducts,
     removeOrderProducts,
     updateOrderProduct,
-    clearCart,
     completeOrder,
     updateSelected,
   }
