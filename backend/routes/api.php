@@ -284,8 +284,8 @@ Route::post('/orders/create-order', [OrderController::class, 'createOrderFromSel
 Route::prefix('orders/{order}/products')->group(function () {
     Route::post('/', action: [OrderProductController::class, 'store']);
     Route::post('/selected', action: [OrderProductController::class, 'updateAllSelected']);
-    Route::delete('/selected', action: [OrderProductController::class, 'deleteAllSelected']);
     Route::put('/{product}', [OrderProductController::class, 'update']);
+    Route::delete('/selected', action: [OrderProductController::class, 'deleteAllSelected']);
     Route::delete('/{product}', [OrderProductController::class, 'destroy']);
 });
 
