@@ -34,11 +34,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user()->load([
         'profile',
         'bonusTransactions',
-        'orders' => function($query) {
-            $query->with(['products' => function($q) {
-                $q->select('products.id', 'products.name', 'products.image');
-            }])->orderBy('created_at', 'desc');
-        }
+        // 'orders' => function($query) {
+        //     $query->with(['products' => function($q) {
+        //         $q->select('products.id', 'products.name', 'products.image');
+        //     }])->orderBy('created_at', 'desc');
+        // }
     ]);
 });
 
@@ -190,6 +190,7 @@ Route::get('/products/{slug}/category-path', [ProductController::class, 'getCate
 
 // Маршруты для категорий
 // Route::apiResource('categories', CategoryController::class);
+Route::get('categories', [CategoryController::class, 'index']);
 
 
 Route::get('categories/roots', [CategoryController::class, 'roots']);
