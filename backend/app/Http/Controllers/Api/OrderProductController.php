@@ -152,10 +152,6 @@ class OrderProductController extends Controller
             ],
         ]);
 
-        // Получаем текущее состояние товара в корзине
-        $productInCart = $cart->products()
-            ->where('product_id', $product->id)
-            ->first();
 
         // Подготавливаем данные для обновления
         $updateData = [
