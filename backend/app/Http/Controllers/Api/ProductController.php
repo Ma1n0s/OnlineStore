@@ -66,7 +66,7 @@ class ProductController extends Controller
                 if (empty($categoryData['id_parent'])) {
                     $category = Category::updateOrCreate(
                         ['pro_id' => $categoryData['pro_id']],
-                        ['name' => $categoryData['name'], 'slug' => Str::slug($categoryData['name'])]
+                        ['name' => $categoryData['name'], 'slug' => Str::slug($categoryData['name'].'-'.$categoryData['pro_id'])]
                     );
                     $categoryMap[$categoryData['pro_id']] = $category->id;
                 }
