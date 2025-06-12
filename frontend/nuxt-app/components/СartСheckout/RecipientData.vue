@@ -1,7 +1,6 @@
 <script setup>
 import TextInput from '~/components/ui/Inputs/TextInput.vue'
 import Modal from '../Modal/Modal.vue'
-import axios from 'axios'
 
 const props = defineProps({
   customer: {
@@ -64,13 +63,22 @@ const searchCompanyByINN = async () => {
   isLoading.value = true
   companySuggestions.value = []
 
+  await $fetch(`${backendUrl}/api/profile/companies/${companyId}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+    },
+    credentials: 'include',
+  })
+
   try {
-    const { data } = await axios.get('https://www.tinkoff.ru/api/common/dadata/suggestions/api/4_1/rs/suggest/party', {
+    const { data } = await $fetch('https://www.tinkoff.ru/api/common/dadata/suggestions/api/4_1/rs/suggest/party', {
       params: {
         appName: 'company-pages',
         query: innNumber.value,
       },
-      withCredentials: false,
     })
 
     if (data.suggestions?.length) {

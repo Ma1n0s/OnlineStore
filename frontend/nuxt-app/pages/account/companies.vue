@@ -2,7 +2,6 @@
 import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useUserStore } from '~/stores/user'
 import SidebarMenu from '~/components/Account/SidebarMenu.vue'
-import axios from 'axios'
 
 definePageMeta({
   middleware: ['auth'],
@@ -151,12 +150,11 @@ const searchCompanyByINN = async () => {
   companySuggestions.value = []
 
   try {
-    const { data } = await axios.get('https://www.tinkoff.ru/api/common/dadata/suggestions/api/4_1/rs/suggest/party', {
+    const { data } = await fetch('https://www.tinkoff.ru/api/common/dadata/suggestions/api/4_1/rs/suggest/party', {
       params: {
         appName: 'company-pages',
         query: form.inn,
       },
-      withCredentials: false,
     })
 
     if (data.suggestions?.length) {
