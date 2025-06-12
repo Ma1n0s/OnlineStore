@@ -5,7 +5,6 @@ export const useCartStore = defineStore('cart', () => {
   const {
     getCart,
     addProduct,
-    clearCart,
     updateSelected,
     completeOrder,
     updateOrderProduct,
@@ -52,11 +51,6 @@ export const useCartStore = defineStore('cart', () => {
     await refetchCart()
   }
 
-  const clearUserCart = async () => {
-    await clearCart()
-    await refetchCart()
-  }
-
   const setSelected = async selected => {
     await updateSelected(cart, selected)
     cart.value.selected = selected
@@ -98,7 +92,6 @@ export const useCartStore = defineStore('cart', () => {
     remove,
     checkProductInCart,
     addToCart,
-    clearUserCart,
     refetchCart,
     setSelected,
     updateProduct,
