@@ -241,43 +241,43 @@ class ProductController extends Controller
      *
      * @return JsonResponse
      */
-    public function index(): JsonResponse
-    {
-        $products = Product::with(['category', 'specificationCategories.specifications', 'images'])
-            ->paginate(10);
+    // public function index(): JsonResponse
+    // {
+    //     $products = Product::with(['category', 'specificationCategories.specifications', 'images'])
+    //         ->paginate(10);
         
-        $categoryController = app('App\Http\Controllers\Api\CategoryController');
+    //     $categoryController = app('App\Http\Controllers\Api\CategoryController');
             
-        return response()->json(
-            $products->map(function($product) use ($categoryController) {
-                // Transform category image paths if category exists
-                if ($product->category) {
-                    $product->category = $categoryController->transformImagesPaths($product->category);
-                }
+    //     return response()->json(
+    //         $products->map(function($product) use ($categoryController) {
+    //             // Transform category image paths if category exists
+    //             if ($product->category) {
+    //                 $product->category = $categoryController->transformImagesPaths($product->category);
+    //             }
                 
-                return [
-                    'id' => $product->id,
-                    'name' => $product->name,
-                    'price' => $product->price,
-                    'description' => $product->description,
-                    'category' => $product->category ? [
-                        'id' => $product->category->id,
-                        'name' => $product->category->name,
-                        'slug' => $product->category->slug,
-                        'image_url' => $product->category->image_url,
-                        'description_image_url' => $product->category->description_image_url,
-                    ] : null,
-                    'specifications' => $product->specificationCategories->mapWithKeys(function ($category) {
-                        return [$category->name => $category->specifications->mapWithKeys(function ($spec) {
-                            return [$spec->name => $spec->value];
-                        })];
-                    }),
-                    'images' => $this->transformProductImages($product)['images'],
-                    'main_image' => $this->transformProductImages($product)['main_image'],
-                ];
-            })
-        );
-    }
+    //             return [
+    //                 'id' => $product->id,
+    //                 'name' => $product->name,
+    //                 'price' => $product->price,
+    //                 'description' => $product->description,
+    //                 'category' => $product->category ? [
+    //                     'id' => $product->category->id,
+    //                     'name' => $product->category->name,
+    //                     'slug' => $product->category->slug,
+    //                     'image_url' => $product->category->image_url,
+    //                     'description_image_url' => $product->category->description_image_url,
+    //                 ] : null,
+    //                 'specifications' => $product->specificationCategories->mapWithKeys(function ($category) {
+    //                     return [$category->name => $category->specifications->mapWithKeys(function ($spec) {
+    //                         return [$spec->name => $spec->value];
+    //                     })];
+    //                 }),
+    //                 'images' => $this->transformProductImages($product)['images'],
+    //                 'main_image' => $this->transformProductImages($product)['main_image'],
+    //             ];
+    //         })
+    //     );
+    // }
 
     /**
      * Получить продукт по slug
@@ -359,54 +359,54 @@ class ProductController extends Controller
      * @param string $id
      * @return JsonResponse
      */
-    public function show(string $id): JsonResponse
-    {
-        $product = Product::with(['specificationCategories.specifications', 'images', 'category'])->findOrFail($id);
+    // public function show(string $id): JsonResponse
+    // {
+    //     $product = Product::with(['specificationCategories.specifications', 'images', 'category'])->findOrFail($id);
 
-        // Получаем путь категорий от корня до категории продукта
-        $categoryPath = [];
-        if ($product->category) {
-            $categoryPath = $product->category->getPath()->map(function($category) {
-                return [
-                    'id' => $category->id,
-                    'name' => $category->name,
-                    'slug' => $category->slug
-                ];
-            });
-        }
+    //     // Получаем путь категорий от корня до категории продукта
+    //     $categoryPath = [];
+    //     if ($product->category) {
+    //         $categoryPath = $product->category->getPath()->map(function($category) {
+    //             return [
+    //                 'id' => $category->id,
+    //                 'name' => $category->name,
+    //                 'slug' => $category->slug
+    //             ];
+    //         });
+    //     }
 
-        $response = [
-            'id' => $product->id,
-            'name' => $product->name,
-            'price' => $product->price,
-            'old_price' => $product->old_price,
-            'description' => $product->description,
-            'short_description' => $product->short_description,
-            'in_stock' => (bool)$product->in_stock,
-            'is_featured' => (bool)$product->is_featured,
-            'sku' => $product->sku,
-            'barcode' => $product->barcode,
-            'quantity' => $product->quantity,
-            'rating' => $product->rating,
-            'category' => $product->category ? [
-                'id' => $product->category->id,
-                'name' => $product->category->name,
-                'slug' => $product->category->slug,
-                'image_url' => $product->category->image_url,
-                'description_image_url' => $product->category->description_image_url,
-            ] : null,
-            'category_path' => $categoryPath,
-            'specifications' => $product->specificationCategories->mapWithKeys(function ($category) {
-                return [$category->name => $category->specifications->mapWithKeys(function ($spec) {
-                    return [$spec->name => $spec->value];
-                })];
-            }),
-            'images' => $this->transformProductImages($product)['images'],
-            'main_image' => $this->transformProductImages($product)['main_image'],
-        ];
+    //     $response = [
+    //         'id' => $product->id,
+    //         'name' => $product->name,
+    //         'price' => $product->price,
+    //         'old_price' => $product->old_price,
+    //         'description' => $product->description,
+    //         'short_description' => $product->short_description,
+    //         'in_stock' => (bool)$product->in_stock,
+    //         'is_featured' => (bool)$product->is_featured,
+    //         'sku' => $product->sku,
+    //         'barcode' => $product->barcode,
+    //         'quantity' => $product->quantity,
+    //         'rating' => $product->rating,
+    //         'category' => $product->category ? [
+    //             'id' => $product->category->id,
+    //             'name' => $product->category->name,
+    //             'slug' => $product->category->slug,
+    //             'image_url' => $product->category->image_url,
+    //             'description_image_url' => $product->category->description_image_url,
+    //         ] : null,
+    //         'category_path' => $categoryPath,
+    //         'specifications' => $product->specificationCategories->mapWithKeys(function ($category) {
+    //             return [$category->name => $category->specifications->mapWithKeys(function ($spec) {
+    //                 return [$spec->name => $spec->value];
+    //             })];
+    //         }),
+    //         'images' => $this->transformProductImages($product)['images'],
+    //         'main_image' => $this->transformProductImages($product)['main_image'],
+    //     ];
         
-        return response()->json($response);
-    }
+    //     return response()->json($response);
+    // }
 
     /**
      * Создать новый продукт из данных скрапера
@@ -521,30 +521,30 @@ class ProductController extends Controller
      * @param Product $product
      * @return JsonResponse
      */
-    public function destroy(Request $request, $article): JsonResponse
-    {
+    // public function destroy(Request $request, $article): JsonResponse
+    // {
 
-        $token = $request->header('Authorization');
+    //     $token = $request->header('Authorization');
 
-        if($token !== env('services.external_api.token', '')) {
-            return response()->json(['error'=>'auth error'], 500);
-        }
+    //     if($token !== env('services.external_api.token', '')) {
+    //         return response()->json(['error'=>'auth error'], 500);
+    //     }
 
-        $product = Product::where('article', $article)->firstOrFail();
+    //     $product = Product::where('article', $article)->firstOrFail();
 
-        try {
-            $product->delete();
+    //     try {
+    //         $product->delete();
             
-            return response()->json([
-                'message' => 'Продукт успешно удален',
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Ошибка при удалении продукта',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
-    }
+    //         return response()->json([
+    //             'message' => 'Продукт успешно удален',
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'message' => 'Ошибка при удалении продукта',
+    //             'error' => $e->getMessage(),
+    //         ], 500);
+    //     }
+    // }
 
     /**
      * Получить список продуктов по категории и подкатегории

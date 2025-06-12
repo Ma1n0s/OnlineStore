@@ -70,11 +70,11 @@ class NewsController extends Controller
         ]);
     }
 
-    public function destroy(News $news)
-    {
-        $news->delete();
-        return response()->noContent();
-    }
+    // public function destroy(News $news)
+    // {
+    //     $news->delete();
+    //     return response()->noContent();
+    // }
 
     public function show($id)
     {

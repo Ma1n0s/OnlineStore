@@ -3,45 +3,24 @@
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OrderProductController;
 use Illuminate\Http\Request;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\SwiperController;
 use App\Models\User;
-use App\Http\Controllers\PurchaseController;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
-use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\ProfileController;
 use App\Mail\VerificationCodeMail;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
-
-
-
-
-Route::apiResource('advantages', \App\Http\Controllers\Api\AdvantageController::class);
-
-Route::middleware('auth:sanctum')->post('/purchase', [PurchaseController::class, 'processPurchase']);
-
-Route::prefix('cart')->group(function () {
-    Route::get('/', [CartController::class, 'index']);
-    Route::post('/', [CartController::class, 'store']);
-    Route::delete('/{cartItem}', [CartController::class, 'destroy']);
-    Route::patch('/{cartItem}', [CartController::class, 'update']);
-});
+// Route::prefix('cart')->group(function () {
+//     Route::get('/', [CartController::class, 'index']);
+//     Route::post('/', [CartController::class, 'store']);
+//     Route::delete('/{cartItem}', [CartController::class, 'destroy']);
+//     Route::patch('/{cartItem}', [CartController::class, 'update']);
+// });
 
 Route::middleware('auth:sanctum')->prefix('profile')->group(function () {
     Route::get('/', [ProfileController::class, 'show']);
@@ -98,18 +77,7 @@ Route::middleware('auth:sanctum')->post('/feedback', function (Request $request)
     ]);
 });
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user()->load('profile');
-});
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    $user = $request->user()->load(['profile', 'bonusTransactions']);
-    return [
-        ...$user->toArray(),
-        'bonus_balance' => $user->bonus_balance,
-        'bonus_transactions' => $user->bonusTransactions
-    ];
-});
 
 
 // Authentication routes with CSRF protection disabled
@@ -218,20 +186,17 @@ Route::get('/products/category-slug/{slug}', [ProductController::class, 'getProd
 Route::get('/products/{slug}/category-path', [ProductController::class, 'getCategoryPath']);
 
 // Маршруты для продуктов
-Route::apiResource('products', ProductController::class);
+// Route::apiResource('products', ProductController::class);
 
 // Маршруты для категорий
-Route::apiResource('categories', CategoryController::class);
+// Route::apiResource('categories', CategoryController::class);
+
+
 Route::get('categories/roots', [CategoryController::class, 'roots']);
 Route::get('categories/{category}/children', [CategoryController::class, 'children']);
 Route::get('categories/{category}/descendants', [CategoryController::class, 'descendants']);
 Route::get('categories/{category}/ancestors', [CategoryController::class, 'ancestors']);
 Route::get('categories/slug/{slug}', [CategoryController::class, 'getBySlug']);
-
-// Получение всех пользователей
-Route::get('/users', function() {
-    return User::all();
-});
 
 // Маршрут для выхода из системы
 Route::post('/auth/logout', function(Request $request) {
@@ -295,4 +260,3 @@ Route::prefix('orders/{order}/products')->group(function () {
 
 Route::post('sync/products-with-categories', action: [ProductController::class,'processProduct']);
 Route::delete('sync/product/{article}', action: [ProductController::class,'destroy']);
-
