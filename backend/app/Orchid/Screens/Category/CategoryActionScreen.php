@@ -150,19 +150,19 @@ public function query(Category $category): array
                         return number_format((float)$product->price, 2) . ' ₽';
                     }),
 
-                TD::make('brand', 'Бренд')
-                    ->sort()
-                    ->filter(Input::make())
-                    ->render(function (Product $product) {
-                        return $product->brand;
-                    }),
+                // TD::make('brand', 'Бренд')
+                //     ->sort()
+                //     ->filter(Input::make())
+                //     ->render(function (Product $product) {
+                //         return $product->brand;
+                //     }),
 
-                TD::make('slug', 'slug')
-                    ->sort()
-                    ->filter(Input::make())
-                    ->render(function (Product $product) {
-                        return $product->slug;
-                    }),
+                // TD::make('slug', 'slug')
+                //     ->sort()
+                //     ->filter(Input::make())
+                //     ->render(function (Product $product) {
+                //         return $product->slug;
+                //     }),
 
                 TD::make('category.name', 'Подкатегория')
                     ->sort()
@@ -176,11 +176,11 @@ public function query(Category $category): array
                 //         return number_format($product->rating, 1);
                 //     }),
 
-                TD::make('created_at', 'Дата создания')
-                    ->sort()
-                    ->render(function (Product $product) {
-                        return $product->created_at->toDateTimeString();
-                    }),
+                // TD::make('created_at', 'Дата создания')
+                //     ->sort()
+                //     ->render(function (Product $product) {
+                //         return $product->created_at->toDateTimeString();
+                //     }),
                 
                 TD::make('actions', 'Действия')
                     ->alignRight()
