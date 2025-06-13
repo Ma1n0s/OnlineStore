@@ -9,7 +9,6 @@ import { useCartStore } from '~/stores/cart'
 import { storeToRefs } from 'pinia'
 
 const cartStore = useCartStore()
-
 const userStore = useUserStore()
 const { showAuthForm, isAuth } = storeToRefs(userStore)
 
@@ -48,10 +47,8 @@ const add = async product => {
       ...product,
       quantity: 1,
     })
-    // Можно добавить уведомление об успешном добавлении
   } catch (error) {
     console.error('Ошибка при добавлении в корзину:', error)
-    // Можно добавить уведомление об ошибке
   }
 }
 
@@ -100,10 +97,26 @@ const state = reactive({
   filters: {
     selectedBrands: [],
   },
-  sort: '',
+  sort: 'price_asc',
+  showSortDropdown: false,
   products: data.value.products || [],
   pagination: data.value.pagination,
 })
+
+const sortOptions = [
+  { value: 'price_desc', label: 'Сначала дорогие' },
+  { value: 'price_asc', label: 'Сначала недорогие' },
+]
+
+const changeSort = (value) => {
+  state.sort = value
+  state.showSortDropdown = false
+  searchData()
+}
+
+const onClickOutside = () => {
+  state.showSortDropdown = false
+}
 
 const searchData = async () => {
   loading.value = true
@@ -155,12 +168,11 @@ const validProducts = computed(() => {
     item =>
       item.slug &&
       typeof item.slug === 'string' &&
-      !item.slug.includes('.') && // Исключаем ссылки на файлы
-      item.slug.trim() !== '' // Исключаем пустые slug
+      !item.slug.includes('.') &&
+      item.slug.trim() !== ''
   )
 })
 
-// Безопасное формирование ссылки
 const getProductLink = item => {
   if (!item.slug || typeof item.slug !== 'string') {
     console.error('Invalid product slug:', item)
@@ -168,12 +180,6 @@ const getProductLink = item => {
   }
   return `/products/${encodeURIComponent(item.slug)}`
 }
-
-// onMounted(() => {
-//   setInterval(() => {
-//     console.log(state)
-//   }, 2000)
-// })
 
 const showGrid = () => {
   state.ui.isGrid = true
@@ -183,7 +189,6 @@ const showList = () => {
   state.ui.isGrid = false
 }
 
-// Методы
 const loadMoreItems = () => {
   if (state.ui.isLoading) return
   state.ui.isLoading = true
@@ -197,10 +202,7 @@ const handleMinPriceInput = value => {
   if (!isNaN(value)) {
     if (value >= state.priceRange.min && value <= state.priceRange.max) {
       state.priceRange.inputMin = value
-
       state.priceRange.currentMin = value
-      // if (state.priceRange.minTimeout) clearTimeout(state.priceRange.minTimeout)
-
       state.priceRange.minTimeout = setTimeout(() => {
         state.priceRange.currentMin = Math.min(Math.max(value, state.priceRange.min), state.priceRange.currentMax - 1)
       }, 500)
@@ -266,31 +268,65 @@ const toggleBrand = brand => {
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-screen-2xl px-8 py-8">
+  <div class="mx-auto w-full max-w-screen-2xl px-4 sm:px-8 py-8">
     <Breadcrumbs :list="breadcrumbs" />
-    <CategoryDescription :data="data.category" />
+    <CategoryDescription :data="data.category" :products-count="state.ui.products" /> 
 
     <!-- Заголовок результатов -->
-    <div
-      class="flex flex-col md:flex-row items-start md:items-center justify-between bg-white rounded-lg shadow-sm p-4 mb-6"
-    >
-      <p class="text-gray-700 mb-3 md:mb-0">
-        Найдено <span class="font-semibold">{{ state.ui.products }} товара</span>
-      </p>
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between bg-white rounded-lg shadow-sm p-4 mb-6">
+      <div class="flex items-center w-full md:w-auto">
+        <button
+          @click="toggleFilters"
+          class="lg:hidden flex items-center space-x-1 ml-4 text-red-600 hover:text-red-800 transition-colors"
+        >
+          <Icon name="material-symbols:filter-alt" class="h-5 w-5" />
+          <span class="font-medium">Фильтры</span>
+        </button>
+      </div>
 
-      <div class="flex items-center space-x-4">
-        <div class="flex items-center">
-          <span class="text-gray-700 mr-2">Сортировать по:</span>
-          <select
-            v-model="state.sort"
-            class="bg-gray-50 border border-gray-300 text-gray-700 rounded-lg px-3 py-1 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
+      <div class="flex items-center space-x-4 mt-3 md:mt-0">
+        <div class="relative">
+          <button
+            @click.stop="state.showSortDropdown = !state.showSortDropdown"
+            class="flex items-center gap-1 text-gray-700 hover:text-red-600 transition-colors"
           >
-            <option value="price_asc">Cначала недорогие</option>
-            <option value="price_desc">Сначала дорогие</option>
-          </select>
+            <span>{{ sortOptions.find(opt => opt.value === state.sort)?.label }}</span>
+            <Icon 
+              name="material-symbols:keyboard-arrow-down-rounded" 
+              class="w-5 h-5 transition-transform duration-200"
+              :class="{ 'transform rotate-180': state.showSortDropdown }"
+            />
+          </button>
+          
+          <transition
+            enter-active-class="transition ease-out duration-100"
+            enter-from-class="transform opacity-0 scale-95"
+            enter-to-class="transform opacity-100 scale-100"
+            leave-active-class="transition ease-in duration-75"
+            leave-from-class="transform opacity-100 scale-100"
+            leave-to-class="transform opacity-0 scale-95"
+          >
+            <div
+              v-if="state.showSortDropdown"
+              v-click-outside="onClickOutside"
+              class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10"
+            >
+              <div class="py-1">
+                <button
+                  v-for="option in sortOptions"
+                  :key="option.value"
+                  @click="changeSort(option.value)"
+                  class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors"
+                  :class="{ 'bg-gray-100 text-red-600': option.value === state.sort }"
+                >
+                  {{ option.label }}
+                </button>
+              </div>
+            </div>
+          </transition>
         </div>
 
-        <div class="flex items-center space-x-1">
+        <div class="hidden lg:flex items-center space-x-1">
           <button
             @click="showGrid"
             :class="{ 'bg-gray-100 text-red-600': state.ui.isGrid }"
@@ -311,8 +347,8 @@ const toggleBrand = brand => {
 
     <!-- Основной контент -->
     <div class="flex flex-col lg:flex-row gap-6">
-      <!-- Боковая панель фильтров -->
-      <div class="w-full lg:w-1/4">
+      <!-- Боковая панель фильтров - скрыта на мобильных и планшетах -->
+      <div class="hidden lg:block w-full lg:w-1/4">
         <div class="bg-white rounded-lg shadow-sm p-5 sticky top-4">
           <!-- Фильтр по цене -->
           <div class="mb-6">
@@ -392,7 +428,6 @@ const toggleBrand = brand => {
             <h3 class="font-semibold text-gray-900 mb-3">Производители</h3>
             <div class="space-y-2 max-h-60 overflow-y-auto pr-2">
               <div class="flex gap-2" v-for="brand in data.category.brands" @click="toggleBrand(brand)" :key="brand">
-                <!-- <label class="flex items-center space-x-2 py-1 hover:bg-gray-50 px-2 rounded cursor-pointer"> </label> -->
                 <input
                   type="checkbox"
                   :checked="state.filters.selectedBrands.includes(brand)"
@@ -406,17 +441,10 @@ const toggleBrand = brand => {
           <!-- Кнопки фильтров -->
           <div class="space-y-3">
             <button
-              @click="toggleFilters"
-              class="w-full flex items-center justify-center space-x-2 border border-gray-300 rounded-xl py-2 px-4 hover:bg-gray-50 transition-colors"
-            >
-              <Icon name="material-symbols:filter-alt" class="h-5 w-5" />
-              <span>Все фильтры</span>
-            </button>
-            <button
               @click="searchData"
               class="w-full bg-red-600 hover:bg-red-700 text-white rounded-xl py-2 px-4 transition-colors font-medium"
             >
-              Показать товаровы
+              Показать товары
             </button>
           </div>
         </div>
@@ -440,21 +468,11 @@ const toggleBrand = brand => {
           >
             <div :class="state.ui.isGrid ? 'relative h-48 flex-shrink-0' : 'relative w-1/3 flex-shrink-0'">
               <HoverProductSwiper :slides="item.images" />
-              <!-- <NuxtImg
-                :src="item.main_image"
-                :alt="item.title"
-                :class="state.ui.isGrid ? 'w-full h-full object-contain p-4' : 'w-full h-full object-cover'"
-                width="300"
-                height="300"
-                loading="lazy"
-                format="webp"
-              /> -->
               <div
                 v-if="item.discount"
                 :class="state.ui.isGrid ? 'absolute top-3 left-3' : 'absolute top-3 left-3'"
                 class="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded"
               >
-                <select disabled="disabled"></select>
                 -{{ item.discount }}%
               </div>
             </div>
@@ -626,6 +644,7 @@ const toggleBrand = brand => {
       </button>
     </div>
 
+    <!-- Модальное окно фильтров для мобильных -->
     <transition name="fade">
       <div v-if="state.ui.showFilters" class="fixed inset-0 bg-black bg-opacity-50 z-40" @click="toggleFilters"></div>
     </transition>
@@ -699,13 +718,12 @@ const toggleBrand = brand => {
             <h3 class="font-semibold text-gray-900 mb-3">Производители</h3>
             <div class="space-y-2 max-h-60 overflow-y-auto pr-2">
               <div class="flex gap-2" v-for="brand in data.category.brands" @click="toggleBrand(brand)" :key="brand">
-                <!-- <label class="flex items-center space-x-2 py-1 hover:bg-gray-50 px-2 rounded cursor-pointer"> </label> -->
                 <input
                   type="checkbox"
                   :checked="state.filters.selectedBrands.includes(brand)"
                   class="rounded text-red-600 focus:ring-red-500 border-gray-300"
                 />
-                <span class="text-gray-700 text-xl">{{ brand }}</span>
+                <span class="text-gray-700">{{ brand }}</span>
               </div>
             </div>
           </div>
@@ -718,7 +736,7 @@ const toggleBrand = brand => {
             "
             class="w-full bg-red-600 hover:bg-red-700 text-white rounded-xl py-3 px-4 transition-colors duration-200 font-medium shadow-md hover:shadow-lg active:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
           >
-            Показать товаровы
+            Показать товары
           </button>
         </div>
       </div>

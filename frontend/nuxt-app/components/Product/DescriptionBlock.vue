@@ -8,22 +8,24 @@ defineProps<{
 <template>
   <div class="bg-white rounded-lg p-6 h-full flex flex-col">
     <h2 class="text-sm font-bold mb-4">характеристики:</h2>
-    <div class="flex-1 overflow-y-auto pr-2">
+    <div class="flex-1">
       <ul class="space-y-3">
         <li 
-          v-for="value in product.mainSpecifications" 
+          v-for="value in product.specificationsB" 
           :key="value.name" 
-          class="flex justify-between gap-4"
+          class="grid grid-cols-1 min-w-0"
         >
-          <span class="text-gray-500 text-sm flex-shrink-0">
-            {{ value.name }}
-          </span>
-          <span class="font-medium text-right text-sm min-w-0">
-            {{ value.value }}
-          </span>
+          <div class="flex items-baseline min-w-0">
+            <span class="text-gray-500 text-sm truncate min-w-0">
+              {{ value.name }}
+            </span>
+            <span class="flex-1 border-b border-dotted border-slate-400 mx-2 relative bottom-0.5"></span>
+            <span class="font-medium text-sm whitespace-nowrap">
+              {{ value.value }}
+            </span>
+          </div>
         </li>
       </ul>
     </div>
   </div>
 </template>
-
