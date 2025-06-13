@@ -213,11 +213,15 @@ Route::post('/auth/logout', function(Request $request) {
     ]);
 });
 
+
+
 // Маршруты для новостей
 Route::apiResource('news', NewsController::class);
 
 // Маршрут для свайпера
 Route::get('/swiper', [SwiperController::class, 'index']);
+
+
 
 // Маршрут для поиска
 Route::get('/search', [ProductController::class, 'search']);
@@ -247,7 +251,7 @@ Route::get('/test', function(Request $request) {
 Route::get('/orders/active-cart', [OrderController::class, 'activeCart']);
 Route::post('/orders/create-order', [OrderController::class, 'createOrderFromSelected']);
 
-Route::prefix('orders/{order}/products')->group(function () {
+Route::middleware('auth:sanctum')->prefix('orders/{order}/products')->group(function () {
     Route::post('/', action: [OrderProductController::class, 'store']);
     Route::post('/selected', action: [OrderProductController::class, 'updateAllSelected']);
     Route::put('/{product}', [OrderProductController::class, 'update']);

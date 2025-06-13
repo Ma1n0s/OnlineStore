@@ -58,6 +58,10 @@ class OrderProductController extends Controller
             'selected' => 'required|boolean',
             'all' => 'required|boolean'
         ]);
+
+        if($order->user_id != $request->user()->id) {
+            abort(403, 'Unauthorized action.');
+        }
     
         DB::transaction(function () use ($order, $validated) {
             // 1. Обновляем selected у всех продуктов заказа
@@ -99,6 +103,10 @@ class OrderProductController extends Controller
                 }
             ]
         ]);
+
+        if($order->user_id != $request->user()->id) {
+            abort(403, 'Unauthorized action.');
+        }
 
         $product = Product::find($validated['product_id']);
 
@@ -180,8 +188,13 @@ class OrderProductController extends Controller
     }
 
     // Удалить продукт из заказа
-    public function destroy(Order $order, Product $product)
+    public function destroy(Request $request, Order $order, Product $product)
     {
+
+        if($order->user_id != $request->user()->id) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $order->products()->detach($product->id);
 
         // Обновляем общую сумму заказа

@@ -26,49 +26,49 @@ class NewsController extends Controller
         return response()->json($news);
     }
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'image' => 'nullable|string|max:255',
-            'description' => 'nullable',
-            'is_special' => 'boolean',
-            'tags' => 'nullable|array'
-        ]);
+    // public function store(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'title' => 'required|string|max:255',
+    //         'image' => 'nullable|string|max:255',
+    //         'description' => 'nullable',
+    //         'is_special' => 'boolean',
+    //         'tags' => 'nullable|array'
+    //     ]);
 
-        $news = News::create($validated);
-        return response()->json([
-            'id' => $news->id,
-            'title' => $news->title,
-            'image' => $news->image_url,
-            'description' => $news->description,
-            'tags' => $news->tags,
-            'created_at' => $news->created_at,
-            'updated_at' => $news->updated_at
-        ], 201);
-    }
+    //     $news = News::create($validated);
+    //     return response()->json([
+    //         'id' => $news->id,
+    //         'title' => $news->title,
+    //         'image' => $news->image_url,
+    //         'description' => $news->description,
+    //         'tags' => $news->tags,
+    //         'created_at' => $news->created_at,
+    //         'updated_at' => $news->updated_at
+    //     ], 201);
+    // }
 
-    public function update(Request $request, News $news)
-    {
-        $validated = $request->validate([
-            'title' => 'sometimes|string|max:255',
-            'image' => 'nullable|string|max:255',
-            'description' => 'nullable',
-            'is_special' => 'boolean',
-            'tags' => 'nullable|array'
-        ]);
+    // public function update(Request $request, News $news)
+    // {
+    //     $validated = $request->validate([
+    //         'title' => 'sometimes|string|max:255',
+    //         'image' => 'nullable|string|max:255',
+    //         'description' => 'nullable',
+    //         'is_special' => 'boolean',
+    //         'tags' => 'nullable|array'
+    //     ]);
 
-        $news->update($validated);
-        return response()->json([
-            'id' => $news->id,
-            'title' => $news->title,
-            'image' => $news->image_url,
-            'description' => $news->description,
-            'tags' => $news->tags,
-            'created_at' => $news->created_at,
-            'updated_at' => $news->updated_at
-        ]);
-    }
+    //     $news->update($validated);
+    //     return response()->json([
+    //         'id' => $news->id,
+    //         'title' => $news->title,
+    //         'image' => $news->image_url,
+    //         'description' => $news->description,
+    //         'tags' => $news->tags,
+    //         'created_at' => $news->created_at,
+    //         'updated_at' => $news->updated_at
+    //     ]);
+    // }
 
     // public function destroy(News $news)
     // {
