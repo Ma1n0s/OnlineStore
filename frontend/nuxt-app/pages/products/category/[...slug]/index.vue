@@ -622,7 +622,7 @@ const toggleBrand = brand => {
         v-if="state.pagination.current_page !== state.pagination.last_page && !loading"
         class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-gray hover:bg-primary-hover text-white"
       >
-        {{ '6' || state.pagination.last_page }}
+        {{ state.pagination.last_page || '>' }}
       </button>
     </div>
 
