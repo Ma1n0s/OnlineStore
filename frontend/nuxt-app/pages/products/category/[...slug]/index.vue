@@ -7,6 +7,11 @@ import { getBreadcrumbs } from '~/components/BreadCrumbs/helpers'
 import HoverProductSwiper from '~/components/Swiper/ProductSwiper/HoverProductSwiper.vue'
 import { useCartStore } from '~/stores/cart'
 import { storeToRefs } from 'pinia'
+import type { Product } from '~/types/product.types'
+
+defineProps<{
+  product: Product
+}>()
 
 const cartStore = useCartStore()
 const userStore = useUserStore()
@@ -16,6 +21,7 @@ const checkAuthForm = () => {
   if (!isAuth.value) showAuthForm.value = true
   return showAuthForm.value
 }
+
 
 const {
   public: { backendUrl },
@@ -114,9 +120,7 @@ const changeSort = (value) => {
   searchData()
 }
 
-const onClickOutside = () => {
-  state.showSortDropdown = false
-}
+
 
 const searchData = async () => {
   loading.value = true
@@ -308,7 +312,6 @@ const toggleBrand = brand => {
           >
             <div
               v-if="state.showSortDropdown"
-              v-click-outside="onClickOutside"
               class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10"
             >
               <div class="py-1">
@@ -451,124 +454,160 @@ const toggleBrand = brand => {
       </div>
 
       <!-- Список товаров -->
-      <div class="w-full lg:w-3/4">
+     <div class="w-full lg:w-3/4">
         <div
           v-if="state.products.length > 0"
-          :class="state.ui.isGrid ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5' : 'space-y-5'"
+          :class="state.ui.isGrid ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-6'"
         >
           <NuxtLink
             v-for="item in validProducts"
             :to="getProductLink(item)"
             :key="item.id"
-            :class="
-              state.ui.isGrid
-                ? 'bg-white border-dark/20 hover:bg-gray/20 cursor-pointer rounded-2xl shadow-xl hover:shadow-2xl  transition-shadow border border-gray-100 overflow-hidden flex flex-col h-full'
-                : 'bg-white border-dark/20 hover:bg-gray/20 cursor-pointer rounded-2xl shadow-xl hover:shadow-2xl transition-shadow border border-gray-100 overflow-hidden flex'
-            "
+            :class="[
+              'bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300',
+              state.ui.isGrid 
+                ? 'flex flex-col h-full'
+                : 'flex flex-col md:flex-row'
+            ]"
           >
-            <div :class="state.ui.isGrid ? 'relative h-48 flex-shrink-0' : 'relative w-1/3 flex-shrink-0'">
+            <div 
+              :class="[
+                'relative overflow-hidden',
+                state.ui.isGrid 
+                  ? 'h-48 w-full' 
+                  : 'h-48 w-full md:w-56 lg:w-64 flex-shrink-0'
+              ]"
+            >
               <HoverProductSwiper :slides="item.images" />
               <div
                 v-if="item.discount"
-                :class="state.ui.isGrid ? 'absolute top-3 left-3' : 'absolute top-3 left-3'"
-                class="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded"
+                class="absolute top-3 left-3 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded"
               >
                 -{{ item.discount }}%
               </div>
             </div>
 
-            <div :class="state.ui.isGrid ? 'p-4 flex flex-col flex-grow' : 'w-2/3 p-4 flex flex-col'">
-              <div class="flex justify-between items-start mb-1">
-                <span class="text-gray-500 text-xs">Код: {{ item.article }}</span>
-              </div>
-
-              <h3
-                class="font-medium text-gray-900 hover:text-red-600 transition-colors line-clamp-2 mb-2 min-h-[2.5rem]"
-              >
-                {{ item.name }}
-              </h3>
-
-              <div class="flex-1 mb-4">
-                <template v-if="item.specifications?.length">
-                  <ul class="space-y-2">
-                    <li
-                      v-for="spec in item.specifications.slice(0, 3)"
-                      :key="spec.id"
-                      class="flex justify-between gap-2 text-sm"
-                    >
-                      <span class="text-gray-500 flex-shrink-0">
-                        {{ spec.key }}
-                      </span>
-                      <span class="font-medium text-right min-w-0 line-clamp-1">
-                        {{ spec.value }}
-                      </span>
-                    </li>
-                  </ul>
-                </template>
-                <template v-else>
-                  <p class="text-gray-400 text-sm">Характеристики отсутствуют</p>
-                </template>
-              </div>
-
-              <div class="flex justify-between items-end mt-auto">
-                <div class="flex flex-col">
-                  <!-- 123 -->
+            <div 
+              :class="[
+                'flex flex-col',
+                state.ui.isGrid 
+                  ? 'p-4 flex-grow' 
+                  : 'p-4 flex-grow'
+              ]"
+            >
+              <div v-if="state.ui.isGrid">
+                <h3 class="font-semibold text-gray-900 hover:text-red-600 transition-colors line-clamp-2 text-lg mb-2">
+                  {{ item.name }}
+                </h3>
+                <span class="text-gray-500 text-sm mb-1">Код: {{ item.article }}</span>
+                
+                <div class="mt-3 mb-4">
+                  <span class="text-red-600 font-bold text-xl">{{ item.price.toLocaleString() }} ₽</span>
                 </div>
-
-                <div class="flex flex-col items-start">
-                  <span class="text-red-600 font-bold text-lg mb-2">{{ item.price.toLocaleString() }} ₽</span>
-                  <p
-                    class="text-sm mb-3 flex items-center"
-                    :class="item.count === 'Нет в наличии' ? 'text-red-600' : 'text-green-600'"
-                  >
+                
+                <div class="mt-auto">
+                  <p class="text-sm mb-4 flex items-center" :class="item.count === 'Нет в наличии' ? 'text-red-600' : 'text-green-600'">
                     <Icon
-                      :name="
-                        item.count === 'Нет в наличии'
-                          ? 'material-symbols:close-rounded'
-                          : 'material-symbols:check-rounded'
-                      "
-                      class="h-4 w-4 inline mr-1"
+                      :name="item.count === 'Нет в наличии' 
+                        ? 'material-symbols:close-rounded' 
+                        : 'material-symbols:check-rounded'"
+                      class="h-5 w-5 inline mr-2"
                     />
                     {{ item.count }}
                   </p>
+                  
                   <button
                     :disabled="item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)"
-                    @click.prevent="
-                      () => {
-                        add(item)
-                      }
-                    "
-                    class="text-white py-2 px-4 rounded-lg transition-colors font-medium min-w-[120px]"
+                    @click.prevent="add(item)"
+                    class="w-full text-white py-2.5 px-4 rounded-lg transition-colors font-medium text-sm"
                     :class="
                       item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)
-                        ? 'bg-gray'
-                        : 'bg-red-600 hover:bg-red-700'
-                    "
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-red-600 hover:bg-red-700'"
                   >
                     {{ cartStore.checkProductInCart(item) ? 'Добавлено' : 'В корзину' }}
                   </button>
+                </div>
+              </div>
+              
+              <div v-else>
+                <div class="flex flex-col md:flex-row gap-4 flex-grow">
+                  <div class="flex-1">
+                    <h3 class="font-semibold text-gray-900 hover:text-red-600 transition-colors text-lg md:text-xl mb-2">
+                      {{ item.name }}
+                    </h3>
+                    <span class="text-gray-500 text-sm block mb-2">Код: {{ item.article }}</span>
+                    
+                   <div class="text-gray-700 text-sm space-y-3 mt-2">
+                      <div v-if="product && product.specificationsB && product.specificationsB.length > 0">
+                        <div v-for="spec in product.specificationsB" :key="spec.id" class="grid grid-cols-1 min-w-0">
+                          <div class="flex items-baseline min-w-0">
+                            <span class="text-gray-500 text-sm truncate min-w-0">
+                              {{ spec.name }}
+                            </span>
+                            <span class="flex-1 border-b border-dotted border-slate-400 mx-2 relative bottom-0.5"></span>
+                            <span class="font-medium text-sm whitespace-nowrap">
+                              {{ spec.value }}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div v-else-if="product">
+                        <div class="text-gray-400 text-sm italic">
+                          Характеристики отсутствуют
+                        </div>
+                      </div>
+                      <div v-else>
+                        <div class="text-gray-400 text-sm italic">
+                          Загрузка характеристик...
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="flex flex-col items-start ">
+                    <div class="mb-4 text-right">
+                      <span class="text-red-600 font-bold text-xl">{{ item.price.toLocaleString() }} ₽</span>
+                    </div>
+                    
+                    <p class="text-sm mb-4 flex items-center" :class="item.count === 'Нет в наличии' ? 'text-red-600' : 'text-green-600'">
+                      <Icon
+                        :name="item.count === 'Нет в наличии' 
+                          ? 'material-symbols:close-rounded' 
+                          : 'material-symbols:check-rounded'"
+                        class="h-5 w-5 inline mr-2"
+                      />
+                      {{ item.count }}
+                    </p>
+                    
+                    <button
+                      :disabled="item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)"
+                      @click.prevent="add(item)"
+                      class="text-white py-2.5 px-6 rounded-lg transition-colors font-medium min-w-[140px] text-sm"
+                      :class="
+                        item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)
+                          ? 'bg-gray-400 cursor-not-allowed'
+                          : 'bg-red-600 hover:bg-red-700'"
+                    >
+                      {{ cartStore.checkProductInCart(item) ? 'Добавлено' : 'В корзину' }}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </NuxtLink>
         </div>
 
-        <div v-else class="bg-white rounded-lg shadow-sm p-8 text-center">
-          <NuxtImg
-            format="webp"
-            src="/images/empty-state.png"
-            alt="Товары не найдены"
-            width="200"
-            height="200"
-            class="mx-auto block max-w-full h-auto"
-            loading="lazy"
-            decoding="async"
+        <div v-else class="bg-white rounded-xl shadow-sm p-8 text-center">
+          <Icon 
+            name="ion:search-outline" 
+            class="mx-auto block text-gray-400 h-20 w-20" 
           />
-          <h3 class="mt-4 text-lg font-medium text-gray-900">Товары не найдены</h3>
+          <h3 class="mt-4 text-lg font-semibold text-gray-900">Товары не найдены</h3>
           <p class="mt-1 text-gray-500">Попробуйте изменить параметры фильтрации</p>
           <button
             @click="resetPrice"
-            class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none"
+            class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
           >
             Сбросить фильтры
           </button>
@@ -581,18 +620,14 @@ const toggleBrand = brand => {
           <button
             @click="loadMoreItems"
             :disabled="state.ui.isLoading"
-            class="bg-white border border-red-600 text-red-600 hover:bg-red-50 py-2 px-6 rounded-lg transition-colors font-medium flex items-center"
+            class="bg-white border border-red-600 text-red-600 hover:bg-red-50 py-2.5 px-8 rounded-lg transition-colors font-medium flex items-center space-x-2"
           >
             <span v-if="!state.ui.isLoading">Показать ещё</span>
-            <div
+            <Icon
               v-if="state.ui.isLoading"
-              class="animate-spin -ml-1 mr-2 h-5 w-5 text-red-600"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              ...Загрузка
-            </div>
+              name="svg-spinners:ring-resize"
+              class="h-5 w-5"
+            />
           </button>
         </div>
       </div>
