@@ -7,7 +7,7 @@ const links = [
 </script>
 
 <template>
-  <div class="bg-black text-white font-sans border-t border-gray-800">
+  <footer class="bg-black text-white font-sans border-t border-gray-800 mt-auto">
     <div class="container mx-auto px-4 py-8">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div class="space-y-4">
@@ -64,5 +64,5 @@ const links = [
         </div>
       </div>
     </div>
-  </div>
+  </footer>
 </template>

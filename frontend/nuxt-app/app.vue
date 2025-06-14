@@ -1,7 +1,9 @@
 <template>
   <NuxtLayout>
-    <NuxtPage />
-    <MobileBottomNav />
+    <div class="min-h-screen flex flex-col">
+      <NuxtPage />
+      <MobileBottomNav />
+    </div>
   </NuxtLayout>
 </template>
 
