@@ -212,8 +212,13 @@ class ProductScreen extends Screen
                             ->help('Срок гарантии (например, "12 месяцев")'),
 
                         Input::make('product.bonuses')
-                            ->title('Бонусы')
-                            ->help('Начисляемые бонусы за покупку'),
+                            ->title('Бонусы (5% от цены)')
+                            ->help('Начисляемые бонусы за покупку (5% от цены)')
+                            ->readonly()
+                            ->value(function () {
+                                $price = $this->product->price ?? 0;
+                                return round($price * 0.05, 2);
+                            }),
 
                         Input::make('product.weight')
                             ->title('Вес')
@@ -365,6 +370,7 @@ class ProductScreen extends Screen
     {
         try {
 
+
             $validationRules = [
                 'product.name' => 'required|string|max:255',
                 'product.slug' => 'required|string|max:255|unique:products,slug,'.$product->id,
@@ -397,9 +403,12 @@ class ProductScreen extends Screen
                 $data['category_id'] = $categoryId;  
             }
 
+            
+
             $data['rating'] = $data['rating'] ?? 0;
             $data['price'] = (float)$data['price'];
             $data['quantity'] = (int)$data['quantity'];
+            $data['bonuses'] = round($data['price'] * 0.05, 2);
             
             if (isset($data['images'])) {
                 unset($data['images']);
