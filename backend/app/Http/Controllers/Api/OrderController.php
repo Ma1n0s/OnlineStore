@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\BonusTransaction;
 use App\Models\Order;
 use App\Models\OrderProduct;
 use App\Models\Product;
@@ -11,7 +12,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use App\Models\Category;
 use Illuminate\Support\Str;
-
+use Validator;
+use Illuminate\Http\Response;
 class OrderController extends Controller
 {
     /**
@@ -299,6 +301,175 @@ class OrderController extends Controller
                 'prev' => $paginator->previousPageUrl(),
                 'next' => $paginator->nextPageUrl()
             ]
+        ]);
+    }
+    public function updateOrder(Request $request, Order $order)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'status' => 'sometimes|string|in:pending,processing,completed,cancelled',
+            'is_paid' => 'sometimes|boolean',
+            'order_number' => 'sometimes|string|max:50',
+            'total_amount' => 'sometimes|numeric|min:0',
+            'bonuses' => 'sometimes|numeric|min:0',
+            'amount' => 'sometimes|numeric|min:0',
+            'weight' => 'sometimes|numeric|min:0',
+            'products' => 'sometimes|array',
+            'products.*.product_id' => 'required_with:products|exists:products,id',
+            'products.*.quantity' => 'required_with:products|integer|min:1',
+            'products.*.price_at_order' => 'required_with:products|numeric|min:0.01'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ],500);
+        }
+
+        $validated = $validator->validated();
+
+        $token = $request->header('Authorization');
+
+        if($token !== env('services.external_api.token', '')) {
+            return response()->json(['error'=>'auth error'], 401);
+        }
+
+
+        return DB::transaction(function () use ($order, $validated) {
+            // 1. Обновляем основные данные заказа
+            $order->update([
+                'status' => $validated['status'] ?? $order->status,
+                'is_paid' => $validated['is_paid'] ?? $order->is_paid,
+                'order_number' => $validated['order_number'] ?? $order->order_number,
+                'total_amount' => $validated['total_amount'] ?? $order->total_amount,
+                'bonuses' => $validated['bonuses'] ?? $order->bonuses,
+                'amount' => $validated['amount'] ?? $order->amount,
+                'weight' => $validated['weight'] ?? $order->weight,
+            ]);
+    
+            // 2. Обновляем продукты в корзине (если переданы)
+            if (isset($validated['products'])) {
+                $this->updateOrderProducts($order, $validated['products']);
+            }
+
+            if ($order->status === 'completed') {
+                $this->processCompletedOrder($order);
+            }
+
+            $order->updateTotalAmount();
+    
+            return response()->json([
+                'message' => 'Корзина успешно обновлена',
+                'order' => $order->load('products'),
+            ]);
+        });
+
+
+    }
+    
+    protected function updateOrderProducts(Order $order, array $products)
+    {
+        $productsToSync = [];
+        $productsToUpdate = [];
+        $productIds = collect($products)->pluck('product_id');
+        
+        // Предзагрузка всех продуктов для оптимизации
+        $existingProducts = Product::whereIn('id', $productIds)
+            ->get()
+            ->keyBy('id');
+        
+        foreach ($products as $productData) {
+            if (!isset($existingProducts[$productData['product_id']])) {
+                continue;
+            }
+            
+            $product = $existingProducts[$productData['product_id']];
+            
+            if ($productData['quantity'] > $product->quantity && $product->type === 'В наличии') {
+                throw new \Exception(
+                    "Not enough stock for product {$product->name}. ".
+                    "Requested: {$productData['quantity']}, Available: {$product->quantity}"
+                );
+            }
+            
+            $productsToSync[$product->id] = [
+                'quantity' => $productData['quantity'],
+                'price_at_order' => $productData['price_at_order'],
+                'updated_at' => now()
+            ];
+            
+            // Собираем продукты для обновления количества
+            if ($product->type === 'instock') {
+                $productsToUpdate[] = [
+                    'product' => $productData['product_id'],
+                    'quantity' => $productData['quantity']
+                ];
+            }
+        }
+        
+        // Синхронизируем продукты в заказе
+        $order->products()->sync($productsToSync);
+        
+        // Обновляем количество продуктов "В наличии"
+        if ($order->status === 'completed') {
+            foreach ($productsToUpdate as $item) {
+                Product::where('id', $item['product'])
+                    ->decrement('quantity', $item['quantity']);
+            }
+
+            
+        }
+    }
+
+    protected function processCompletedOrder(Order $order)
+    {
+        // Пересчитываем общую стоимость
+        $order->updateTotalAmount();
+        
+        
+        // Если бонусы использовались - создаем транзакцию на списание
+        if ($order->bonuses > 0) {
+            $this->createBonusTransaction(
+                $order->user_id,
+                $order->id,
+                'Списание',
+                -$order->bonuses,
+                'Списание бонусов за заказ #' . $order->order_number
+            );
+            
+            // Уменьшаем бонусы пользователя
+            $order->user->decrement('scores', $order->bonuses);
+        }
+        
+        // Начисляем новые бонусы (3% от итоговой суммы), если не использовались бонусы
+        if ($order->bonuses == 0) {
+            $newBonuses = $order->amount * 0.03;
+            
+            $this->createBonusTransaction(
+                $order->user_id,
+                $order->id,
+                'Начисление',
+                $newBonuses,
+                'Начисление бонусов за заказ #' . $order->order_number
+            );
+            
+            // Увеличиваем бонусы пользователя
+            $order->user->increment('scores', $newBonuses);
+        }
+    }
+
+
+    protected function createBonusTransaction($userId, $orderId, $operation, $amount, $description = null)
+    {
+        return BonusTransaction::create([
+            'user_id' => $userId,
+            'order_id' => $orderId,
+            'date' => now()->toDateString(),
+            'operation' => $operation,
+            'amount' => $amount,
+            'status' => 'Завершено',
+            'description' => $description,
         ]);
     }
 }

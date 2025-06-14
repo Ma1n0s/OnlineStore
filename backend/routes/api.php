@@ -265,3 +265,4 @@ Route::middleware('auth:sanctum')->prefix('orders/{order}/products')->group(func
 
 Route::post('sync/products-with-categories', action: [ProductController::class,'processProduct']);
 Route::delete('sync/product/{article}', action: [ProductController::class,'destroy']);
+Route::post('sync/order/{order}/update', action: [OrderController::class,'updateOrder']);

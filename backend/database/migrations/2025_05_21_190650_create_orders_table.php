@@ -14,8 +14,11 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('pro_id')->nullable();
             $table->string('order_number')->unique();
-            $table->decimal('total_amount', 10, 2);
+            $table->decimal('total_amount', 10, 2)->default(0);
+            $table->decimal('bonuses', 10, 2)->default(0);
+            $table->decimal('amount', 10, 2)->default(0);
             $table->string('weight')->nullable();
             $table->string('status')->default('pending');
             $table->boolean('is_paid')->default(false);
