@@ -23,7 +23,7 @@ const uiState = reactive({
 })
 
 const companies = ref([])
-
+const mainCompany = ref(null)
 const form = reactive({
   name: '',
   inn: '',
@@ -56,10 +56,23 @@ onMounted(async () => {
 const loadCompaniesData = async () => {
   uiState.isLoading = true
   try {
-    await userStore.fetchUser()
-
-    if (userStore.user?.companies) {
-      companies.value = userStore.user.companies
+    const response = await $fetch(`${backendUrl}/api/profile`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+      },
+      credentials: 'include',
+    })
+    
+    if (response.user?.companies) {
+      companies.value = response.user.companies
+      mainCompany.value = response.mainCompany
+      
+      // Обновляем флаг is_main для всех компаний
+      companies.value.forEach(company => {
+        company.is_main = company.id === mainCompany.value?.id
+      })
     }
   } catch (error) {
     uiState.error = 'Ошибка при загрузке данных компаний: ' + error.message
@@ -81,7 +94,7 @@ const startEditing = company => {
     name: company.name,
     inn: company.inn,
     kpp: company.kpp,
-    address: company.address,
+    address: company.legal_address,
     director: company.director,
     phone: company.phone,
     email: company.email,
@@ -132,7 +145,6 @@ const validateInn = async () => {
     return false
   }
 
-  // Проверка на уникальность ИНН среди уже добавленных компаний
   if (companies.value.some(c => c.inn === form.inn && c.id !== uiState.editingCompanyId)) {
     innError.value = 'Компания с таким ИНН уже добавлена'
     return false
@@ -232,8 +244,6 @@ const deleteCompany = async companyId => {
     })
 
     await loadCompaniesData()
-
-    // Show success message
   } catch (error) {
     console.error('Ошибка при удалении компании:', error)
     uiState.error = 'Ошибка при удалении: ' + (error.data?.message || error.message)
@@ -320,29 +330,6 @@ watch(
     }
   }
 )
-
-const fetchCompanies = async () => {
-  try {
-    const response = await $fetch(`${backendUrl}/api/profile`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
-      },
-      credentials: 'include',
-    })
-    
-    if (response.companies) {
-      companies.value = response.companies
-    }
-  } catch (error) {
-    console.error('Ошибка при загрузке компаний:', error)
-  }
-}
-
-onMounted(() => {
-  fetchCompanies()
-})
 </script>
 
 <template>
@@ -364,7 +351,7 @@ onMounted(() => {
             </button>
           </div>
 
-          <div v-if="companies.length > 0" class="space-y-4 md:space-y-6">
+          <div v-if="!uiState.isEditing && companies.length > 0" class="space-y-4 md:space-y-6">
             <div
               v-for="company in companies"
               :key="company.id"
@@ -381,6 +368,17 @@ onMounted(() => {
                       >Основная</span
                     >
                   </h3>
+                  <div class="flex gap-1 md:gap-2">
+                    <button
+                      v-if="!company.is_main"
+                      @click="setMainCompany(company.id)"
+                      class="text-xs md:text-sm text-primary hover:text-primary-hover flex items-center gap-1"
+                    >
+                      <Icon name="mdi:star-outline" class="w-3 h-3 md:w-4 md:h-4" />
+                      <span class="hidden sm:inline">Сделать основной</span>
+                      <span class="sm:hidden">Основная</span>
+                    </button>
+                  </div>
                 </div>
 
                 <div class="space-y-4 md:space-y-0 md:grid md:grid-cols-2 gap-4 md:gap-6">
@@ -401,9 +399,9 @@ onMounted(() => {
                   <div>
                     <h4 class="text-xs md:text-sm font-medium text-gray-500 mb-2 md:mb-3">Контактная информация</h4>
                     <div class="space-y-2 md:space-y-4">
-                      <div v-if="company.address">
+                      <div v-if="company.legal_address">
                         <p class="text-xs md:text-sm text-gray-500">Юридический адрес</p>
-                        <p class="text-gray-900 font-medium text-sm md:text-base">{{ company.address }}</p>
+                        <p class="text-gray-900 font-medium text-sm md:text-base">{{ company.legal_address }}</p>
                       </div>
                       <div v-if="company.director">
                         <p class="text-xs md:text-sm text-gray-500">Директор</p>
@@ -419,6 +417,24 @@ onMounted(() => {
                       </div>
                     </div>
                   </div>
+                </div>
+
+                <div class="mt-4 md:mt-6 pt-3 md:pt-4 border-t flex justify-end gap-2 md:gap-3 flex-wrap">
+                  <button
+                    @click="startEditing(company)"
+                    class="px-3 py-1.5 md:px-4 md:py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition flex items-center gap-1 md:gap-2 text-sm md:text-base"
+                  >
+                    <Icon name="mdi:pencil" class="w-4 h-4 md:w-5 md:h-5" />
+                    <span>Изменить</span>
+                  </button>
+                  <button
+                    @click="deleteCompany(company.id)"
+                    :disabled="uiState.isLoading"
+                    class="px-3 py-1.5 md:px-4 md:py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-1 md:gap-2 text-sm md:text-base disabled:opacity-70"
+                  >
+                    <Icon name="mdi:trash-can-outline" class="w-4 h-4 md:w-5 md:h-5" />
+                    <span>Удалить</span>
+                  </button>
                 </div>
               </div>
             </div>
