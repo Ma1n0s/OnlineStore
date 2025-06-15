@@ -3,7 +3,6 @@
 namespace App\Orchid\Screens;
 
 use App\Models\User;
-use App\Models\BonusCard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Orchid\Screen\Actions\Button;
@@ -31,9 +30,9 @@ class ProfileEditScreen extends Screen
         $this->user = $user;
         
         return [
-            'user' => $user->load(['profile', 'bonusCard']),
+            'user' => $user->load(['profile']),
             'profile' => $user->profile ?? $user->profile()->create(),
-            'bonus_card' => $user->bonusCard,
+            // 'bonus_card' => $user->bonusCard,
             'bonus_transactions' => $user->bonusTransactions()->latest()->get(),
             // 'orders' => $user->orders()->latest()->get(),
         ];

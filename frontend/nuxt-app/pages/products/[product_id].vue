@@ -124,7 +124,7 @@ const breadcrumbs = [
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-screen-2xl px-8 space-y-8 py-8">
+  <div class="md:mx-auto w-full max-w-screen-2xl px-8 space-y-8 py-8">
     <Breadcrumbs :list="breadcrumbs" />
 
     <div v-if="!loading">

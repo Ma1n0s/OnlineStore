@@ -54,29 +54,7 @@ function getStatusText(status) {
         <div class="flex-1 space-y-6">
           <div class="bg-white p-6 rounded-xl shadow-2xl">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-              <h2 class="text-2xl font-semibold text-gray-800">Мои заказы</h2>
-            </div>
-
-            <div class="flex flex-wrap gap-2">
-              <button
-                class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-              >
-                Статус оплаты
-                <Icon name="material-symbols:keyboard-arrow-down-rounded" />
-              </button>
-
-              <button
-                class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-              >
-                Статус заказа
-                <Icon name="material-symbols:keyboard-arrow-down-rounded" />
-              </button>
-
-              <button
-                class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
-              >
-                Скрыть отмененные
-              </button>
+              <h2 class="text-2xl font-semibold text-gray">Мои заказы</h2>
             </div>
           </div>
 
@@ -87,7 +65,7 @@ function getStatusText(status) {
           >
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-3">
               <div>
-                <h3 class="font-medium text-gray-800">Заказ {{ order.id }}</h3>
+                <h3 class="font-medium text-gray">Заказ {{ order.id }}</h3>
                 <p class="text-sm text-gray-500">{{ order.date }}</p>
               </div>
               <div class="flex items-center gap-2">
@@ -100,7 +78,7 @@ function getStatusText(status) {
             <hr class="my-4 border-gray-200" />
 
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-              <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium self-start">
+              <span class="px-3 py-1 bg-gray-100 text-gray rounded-full text-xs font-medium self-start">
                 {{ order.status }}
               </span>
 
@@ -133,11 +111,12 @@ function getStatusText(status) {
             <Icon name="" />
             <h3 class="mt-4 text-lg font-medium text-gray-900">У вас пока нет заказов</h3>
             <p class="mt-1 text-gray-500">Здесь будут отображаться ваши заказы после оформления</p>
-            <button
+            <NuxtLink
+              to="/"
               class="mt-6 px-6 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg font-medium transition-colors shadow-md hover:shadow-lg"
             >
               Начать покупки
-            </button>
+            </NuxtLink>
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import SidebarMenu from '~/components/Account/SidebarMenu.vue'
 
 definePageMeta({
@@ -7,55 +7,76 @@ definePageMeta({
 })
 
 const userStore = useUserStore()
-const {
-  public: { backendUrl },
-} = useRuntimeConfig()
 
-const transactions = computed(() => {
+const page = ref(1)
+const perPage = ref(1)
+const sort = ref('newest')
+
+const allTransactions = computed(() => {
   if (!userStore.user?.bonusTransactions) return []
-
+  
   return userStore.user.bonusTransactions.map(t => ({
     id: t.id,
-    date: t.date ? new Date(t.date).toLocaleDateString('ru-RU') : 'Нет даты',
+    date: t.date ? new Date(t.date) : new Date(), 
     operation: t.operation || 'Не указано',
     amount: t.amount || 0,
     status: t.status || 'Не указан',
+    originalDate: t.date, 
+  }))
+})
+const transactions = computed(() => {
+  let sorted = [...allTransactions.value]
+  
+  if (sort.value === 'newest') {
+    sorted.sort((a, b) => b.date - a.date)
+  } else {
+    sorted.sort((a, b) => a.date - b.date)
+  }
+  
+  const start = (page.value - 1) * perPage.value
+  const end = start + perPage.value
+  return sorted.slice(start, end).map(t => ({
+    ...t,
+    date: t.originalDate ? new Date(t.originalDate).toLocaleDateString('ru-RU') : 'Нет даты'
   }))
 })
 
+// Баланс бонусов
 const bonusBalance = computed(() => {
   return userStore.user?.bonusBalance || 0
 })
 
-const page = ref(1)
-const perPage = ref(10)
-const sort = ref('newest')
-const filters = ref({})
-
-const { data: paginatedData, refresh } = await useFetch(`${backendUrl}/api/products/paginate`, {
-  query: {
-    page,
-    per_page: perPage,
-    sort,
-    filters,
-  },
-})
-
+// Метаданные пагинации
 const pagination = computed(() => {
-  return (
-    paginatedData.value?.meta || {
-      current_page: 1,
-      last_page: 1,
-      per_page: 10,
-      total: 0,
-      has_more: false,
-    }
-  )
+  const total = allTransactions.value.length
+  const lastPage = Math.ceil(total / perPage.value)
+  
+  return {
+    current_page: page.value,
+    last_page: lastPage,
+    per_page: perPage.value,
+    total: total,
+    has_more: page.value < lastPage,
+  }
 })
 
-const changePage = async newPage => {
-  page.value = newPage
-  await refresh()
+// Изменение страницы
+const changePage = (newPage) => {
+  if (newPage >= 1 && newPage <= pagination.value.last_page) {
+    page.value = newPage
+  }
+}
+
+// Изменение количества элементов на странице
+const changePerPage = (newPerPage) => {
+  perPage.value = newPerPage
+  page.value = 1 // Сброс на первую страницу при изменении размера страницы
+}
+
+// Изменение сортировки
+const changeSort = (newSort) => {
+  sort.value = newSort
+  page.value = 1 // Сброс на первую страницу при изменении сортировки
 }
 </script>
 
@@ -70,8 +91,11 @@ const changePage = async newPage => {
           </div>
 
           <div class="bg-white shadow-2xl rounded-lg p-6">
-            <h2 class="text-lg font-medium mb-4">История операций</h2>
-            <div v-if="transactions.length > 0" class="overflow-x-auto">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
+              <h2 class="text-lg font-medium">История операций</h2>
+            </div>
+
+            <div v-if="allTransactions.length > 0" class="overflow-x-auto">
               <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                   <tr>
@@ -114,43 +138,88 @@ const changePage = async newPage => {
                   </tr>
                 </tbody>
               </table>
+              
+              <!-- Пагинация -->
+              <div class="w-full p-4 flex justify-center items-center gap-2 flex-wrap">
+                <button
+                  @click="changePage(1)"
+                  :disabled="pagination.current_page === 1"
+                  class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  &laquo;
+                </button>
+                
+                <button
+                  @click="changePage(pagination.current_page - 1)"
+                  :disabled="pagination.current_page === 1"
+                  class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  &lsaquo;
+                </button>
+
+                <template v-if="pagination.current_page > 2">
+                  <button
+                    @click="changePage(1)"
+                    class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700"
+                  >
+                    1
+                  </button>
+                  <span v-if="pagination.current_page > 3" class="px-2">...</span>
+                </template>
+
+                <button
+                  v-if="pagination.current_page > 1"
+                  @click="changePage(pagination.current_page - 1)"
+                  class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700"
+                >
+                  {{ pagination.current_page - 1 }}
+                </button>
+
+                <button
+                  class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full bg-primary text-white"
+                >
+                  {{ pagination.current_page }}
+                </button>
+
+                <button
+                  v-if="pagination.current_page < pagination.last_page"
+                  @click="changePage(pagination.current_page + 1)"
+                  class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700"
+                >
+                  {{ pagination.current_page + 1 }}
+                </button>
+
+                <template v-if="pagination.current_page < pagination.last_page - 1">
+                  <span v-if="pagination.current_page < pagination.last_page - 2" class="px-2">...</span>
+                  <button
+                    @click="changePage(pagination.last_page)"
+                    class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700"
+                  >
+                    {{ pagination.last_page }}
+                  </button>
+                </template>
+
+                <button
+                  @click="changePage(pagination.current_page + 1)"
+                  :disabled="pagination.current_page === pagination.last_page || !pagination.has_more"
+                  class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  &rsaquo;
+                </button>
+                
+                <button
+                  @click="changePage(pagination.last_page)"
+                  :disabled="pagination.current_page === pagination.last_page"
+                  class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  &raquo;
+                </button>
+              </div>
             </div>
-            <div v-else class="text-center py-4 text-gray-500">Нет данных о бонусных операциях</div>
-          </div>
-          <div class="w-full p-4 flex justify-center items-center gap-4">
-            <button
-              @click="changePage(1)"
-              v-if="pagination.current_page !== 1"
-              class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-gray hover:bg-primary-hover text-white"
-            >
-              1
-            </button>
-            <button
-              @click="changePage(pagination.current_page - 1)"
-              class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-gray hover:bg-primary-hover text-white"
-              v-if="pagination.current_page !== 1 && pagination.current_page - 1 !== 1"
-            >
-              {{ pagination.current_page - 1 }}
-            </button>
-            <button
-              class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-primary hover:bg-primary-hover text-white"
-            >
-              {{ pagination.current_page }}
-            </button>
-            <button
-              @click="changePage(pagination.current_page + 1)"
-              class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-gray hover:bg-primary-hover text-white"
-              v-if="pagination.has_more && pagination.current_page + 1 !== pagination.last_page"
-            >
-              {{ pagination.current_page + 1 }}
-            </button>
-            <button
-              @click="changePage(pagination.last_page)"
-              v-if="pagination.current_page !== pagination.last_page"
-              class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-gray hover:bg-primary-hover text-white"
-            >
-              {{ pagination.last_page }}
-            </button>
+            
+            <div v-else class="text-center py-4 text-gray-500">
+              Нет данных о бонусных операциях
+            </div>
           </div>
         </div>
       </div>

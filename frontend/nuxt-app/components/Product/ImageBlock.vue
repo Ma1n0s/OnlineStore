@@ -1,13 +1,13 @@
 <template>
   <div class="w-full md:w-2/5">
-    <div class="bg-white rounded-lg  p-4 relative">
+    <div class="bg-white rounded-lg p-4 relative">
       <ClientOnly>
         <div class="flex flex-row-reverse gap-4">
           <!-- Основной слайдер -->
-          <div class="w-[calc(100%-80px)]">
+          <div class="w-full lg:w-[calc(100%-80px)]">
             <swiper-container
               ref="mainSwiper"
-              class="w-full h-80 mb-4"
+              class="w-full h-80 md:h-96 mb-4"
               :space-between="10"
               :navigation="true"
               :loop="false"
@@ -17,7 +17,7 @@
                 <NuxtImg
                   :src="image.url"
                   :alt="product.alt"
-                  class="w-full h-full object-contain"
+                  class="w-full h-full object-contain cursor-zoom-in"
                   @click="openFullscreenImage(index)"
                 />
               </swiper-slide>
@@ -25,12 +25,12 @@
           </div>
 
           <!-- Вертикальный слайдер миниатюр с кастомными стрелками -->
-          <div class="w-16 flex flex-col">
+          <div class="w-16 hidden lg:flex flex-col">
             <!-- Кнопка вверх - теперь черная и выше -->
             <button
               v-if="product.images.length > 4"
               @click="scrollThumbsUp"
-              
+              class="text-gray-800 hover:text-red-500 transition-colors mb-2"
             >
               <Icon name="material-symbols:keyboard-arrow-up" class="w-5 h-5"/>
             </button>
@@ -54,7 +54,7 @@
                   <NuxtImg
                     :src="image.url"
                     :alt="'Изображение ' + (index + 1)"
-                    class="w-full h-full object-cover rounded cursor-pointer "
+                    class="w-full h-full object-cover rounded cursor-pointer border border-gray-200"
                   />
                 </swiper-slide>
             </swiper-container>
@@ -63,16 +63,41 @@
            <button
               v-if="product.images.length > 4"
               @click="scrollThumbsDown"
-              
+              class="text-gray-800 hover:text-red-500 transition-colors mt-2"
             >
               <Icon name="material-symbols:keyboard-arrow-down" class="w-5 h-5"/>
             </button>
           </div>
         </div>
+
+        <!-- Горизонтальный слайдер миниатюр для мобильных устройств -->
+        <div class="lg:hidden mt-4">
+          <swiper-container
+            ref="mobileThumbsSwiper"
+            class="mobile-thumbs-swiper"
+            :space-between="8"
+            :slides-per-view="4"
+            :free-mode="true"
+            :watch-slides-progress="true"
+          >
+            <swiper-slide
+              v-for="(image, index) in product.images"
+              :key="'mobile-thumb-' + index"
+              @click="slideTo(index)"
+              :class="{ 'border-red-500': activeIndex === index, 'border-transparent': activeIndex !== index }"
+            >
+              <NuxtImg
+                :src="image.url"
+                :alt="'Изображение ' + (index + 1)"
+                class="w-full h-16 object-cover rounded cursor-pointer border border-gray-200"
+              />
+            </swiper-slide>
+          </swiper-container>
+        </div>
       </ClientOnly>
     </div>
 
-    <!-- Fullscreen режим (оставляем без изменений) -->
+    <!-- Fullscreen режим -->
     <div v-if="isFullscreenOpen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white p-4">
       <button
         class="absolute top-4 right-4 text-gray-800 text-2xl z-50 hover:text-red-500 transition-colors"
@@ -123,7 +148,7 @@
             <NuxtImg
               :src="image.url"
               :alt="'Изображение ' + (index + 1)"
-              class="w-full h-full object-cover rounded cursor-pointer border"
+              class="w-full h-full object-cover rounded cursor-pointer border border-gray-200"
             />
           </swiper-slide>
         </swiper-container>
@@ -144,6 +169,7 @@ register()
 
 const mainSwiper = ref<any>(null)
 const thumbsSwiper = ref<any>(null)
+const mobileThumbsSwiper = ref<any>(null)
 const fullscreenThumbsSwiper = ref<any>(null)
 const activeIndex = ref(0)
 const isFullscreenOpen = ref(false)
@@ -223,10 +249,14 @@ const handleKeyDown = (e: KeyboardEvent) => {
 }
 
 onMounted(() => {
-  watch([mainSwiper, thumbsSwiper], ([main, thumbs]) => {
+  watch([mainSwiper, thumbsSwiper, mobileThumbsSwiper], ([main, thumbs, mobileThumbs]) => {
     if (main && thumbs) {
       main.swiper.controller.control = thumbs.swiper
       thumbs.swiper.controller.control = main.swiper
+    }
+    if (main && mobileThumbs) {
+      main.swiper.controller.control = mobileThumbs.swiper
+      mobileThumbs.swiper.controller.control = main.swiper
     }
   })
 
@@ -241,7 +271,6 @@ onUnmounted(() => {
 <style scoped>
 @import 'swiper/css';
 @import 'swiper/css/navigation';
-/* @import 'swiper/css/thumbs'; */
 
 swiper-container {
   --swiper-navigation-color: #d10026;
@@ -249,28 +278,33 @@ swiper-container {
 }
 
 .thumbs-swiper,
-.fullscreen-thumbs-swiper {
+.fullscreen-thumbs-swiper,
+.mobile-thumbs-swiper {
   padding: 4px 0;
 }
 
-.thumbs-swiper swiper-slide {
+.thumbs-swiper swiper-slide,
+.mobile-thumbs-swiper swiper-slide {
   opacity: 0.8;
   transition: all 0.3s ease;
   border: 2px solid transparent;
   border-radius: 0.375rem;
 }
 
-.thumbs-swiper swiper-slide:hover {
+.thumbs-swiper swiper-slide:hover,
+.mobile-thumbs-swiper swiper-slide:hover {
   opacity: 1;
   transform: scale(1.03);
 }
 
-.thumbs-swiper swiper-slide.border-red-500 {
+.thumbs-swiper swiper-slide.border-red-500,
+.mobile-thumbs-swiper swiper-slide.border-red-500 {
   opacity: 1;
-  /* box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.5); */
+  border-color: #ef4444;
 }
 
-.thumbs-swiper swiper-slide.border-red-500 img {
+.thumbs-swiper swiper-slide.border-red-500 img,
+.mobile-thumbs-swiper swiper-slide.border-red-500 img {
   filter: brightness(1.05);
 }
 
