@@ -150,7 +150,7 @@ const searchCompanyByINN = async () => {
   companySuggestions.value = []
 
   try {
-    const { data } = await fetch('https://www.tinkoff.ru/api/common/dadata/suggestions/api/4_1/rs/suggest/party', {
+    const data = await $fetch('https://www.tinkoff.ru/api/common/dadata/suggestions/api/4_1/rs/suggest/party', {
       params: {
         appName: 'company-pages',
         query: form.inn,
