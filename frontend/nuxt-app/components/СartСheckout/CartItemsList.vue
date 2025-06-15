@@ -38,8 +38,12 @@ const increaseQuantity = item => {
 }
 
 const decreaseQuantity = item => {
-  if (item.quantity >= item.orderQuantity && item.orderQuantity !== 1) {
-    item.orderQuantity -= 1
+  if (item.quantity <= item.orderQuantity && item.orderQuantity !== 1) {
+    if (item.quantity < item.orderQuantity) {
+      item.orderQuantity = item.quantity
+    } else {
+      item.orderQuantity -= 1
+    }
     debouncedUpdate(item.id, item)
   }
 }
@@ -179,29 +183,33 @@ const printToExcel = () => {
             </NuxtLink>
           </div>
 
-          <div class="flex items-center justify-between sm:justify-end gap-4 sm:w-64">
-            <p class="text-lg font-bold text-gray-900 whitespace-nowrap">
-              {{ (item.price * item.orderQuantity).toLocaleString('ru-RU') }} ₽
-            </p>
-            <div class="flex items-center border border-gray-300 rounded-lg bg-white">
-              <button
-                @click.prevent="decreaseQuantity(item)"
-                :disabled="item.orderQuantity <= 1"
-                class="px-3 py-1 text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Icon name="heroicons:minus" class="w-4 h-4" />
-              </button>
-              <span class="px-3 py-1 border-x border-gray-300 text-sm sm:text-base font-medium">
-                {{ item.orderQuantity }}
-              </span>
-              <button
-                @click.prevent="increaseQuantity(item)"
-                :disabled="item.orderQuantity >= item.quantity"
-                class="px-3 py-1 text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Icon name="heroicons:plus" class="w-4 h-4" />
-              </button>
+          <div class="sm:w-64" :class="item.quantity < item.orderQuantity && '!border-primary border-2 rounded-lg p-2'">
+            <div class="flex items-center justify-between sm:justify-end gap-4">
+              <p class="text-lg font-bold text-gray-900 whitespace-nowrap">
+                {{ (item.price * item.orderQuantity).toLocaleString('ru-RU') }} ₽
+              </p>
+              <div class="flex items-center border border-gray-300 rounded-lg bg-white">
+                <button
+                  @click.prevent="decreaseQuantity(item)"
+                  :disabled="item.orderQuantity <= 1"
+                  class="px-3 py-1 text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Icon name="heroicons:minus" class="w-4 h-4" />
+                </button>
+                <span class="px-3 py-1 border-x border-gray-300 text-sm sm:text-base font-medium">
+                  {{ item.orderQuantity }}
+                </span>
+                <button
+                  @click.prevent="increaseQuantity(item)"
+                  :disabled="item.orderQuantity >= item.quantity"
+                  class="px-3 py-1 text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Icon name="heroicons:plus" class="w-4 h-4" />
+                </button>
+              </div>
             </div>
+
+            <div v-if="item.quantity < item.orderQuantity" class="text-lg text-primary">Недостаточно товара</div>
           </div>
         </div>
       </template>
