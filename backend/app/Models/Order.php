@@ -14,8 +14,11 @@ class Order extends Model
     protected $fillable = [
         'user_id',
         'order_number',
+        'pro_id',
         'total_amount',
         'status',
+        'bonuses',
+        'amount',
         'weight',
         'is_paid',
         'selected',
@@ -48,11 +51,24 @@ class Order extends Model
 
     public function updateTotalAmount()
     {
-        $total = $this->orderProducts->sum(function ($orderProduct) {
+        $amount = $this->orderProducts->sum(function ($orderProduct) {
             return $orderProduct->quantity * $orderProduct->price_at_order;
         });
-
-        $this->update(['total_amount' => $total]);
+    
+        // 2. Получаем текущие бонусы (если они уже были установлены вручную)
+        $bonuses = $this->bonuses ?? 0;
+        
+        // 3. Рассчитываем итоговую сумму к оплате
+        $totalAmount = max($amount - $bonuses, 0);
+    
+        // 4. Обновляем все поля
+        $this->update([
+            'total_amount' => $totalAmount,
+            'bonuses' => $bonuses,
+            'amount' => $amount,
+        ]);
+    
+        return $this;
     }
 
     protected $casts = [

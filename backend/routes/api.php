@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OrderProductController;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
@@ -230,17 +231,7 @@ Route::get('/search', [ProductController::class, 'search']);
 use App\Jobs\SendApiRequest;
 
 Route::get('/test', function(Request $request) {
-    $data = [
-        'title' => 'foo',
-        'body' => 'bar',
-        'userId' => 1,
-    ];
-
-    SendApiRequest::dispatch(
-        'https://jsonplaceholder.typicode.com/posts',
-        $data,
-        ['Authorization' => 'Bearer '.config('services.api.token')]
-    )->onQueue('api-requests');
+    
 
     // $response = SendApiRequest::dispatch('', $data)->onQueue('high-priority');
     
@@ -265,3 +256,5 @@ Route::middleware('auth:sanctum')->prefix('orders/{order}/products')->group(func
 
 Route::post('sync/products-with-categories', action: [ProductController::class,'processProduct']);
 Route::delete('sync/product/{article}', action: [ProductController::class,'destroy']);
+Route::post('sync/order/{order}/update', action: [OrderController::class,'updateOrder']);
+Route::post('/sync/order/{order}/set-order-id', action: [OrderController::class,'setProId']);
