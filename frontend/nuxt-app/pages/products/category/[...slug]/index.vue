@@ -22,7 +22,6 @@ const checkAuthForm = () => {
   return showAuthForm.value
 }
 
-
 const {
   public: { backendUrl },
 } = useRuntimeConfig()
@@ -114,13 +113,11 @@ const sortOptions = [
   { value: 'price_asc', label: 'Сначала недорогие' },
 ]
 
-const changeSort = (value) => {
+const changeSort = value => {
   state.sort = value
   state.showSortDropdown = false
   searchData()
 }
-
-
 
 const searchData = async () => {
   loading.value = true
@@ -169,11 +166,7 @@ const changePage = async page => {
 
 const validProducts = computed(() => {
   return state.products.filter(
-    item =>
-      item.slug &&
-      typeof item.slug === 'string' &&
-      !item.slug.includes('.') &&
-      item.slug.trim() !== ''
+    item => item.slug && typeof item.slug === 'string' && !item.slug.includes('.') && item.slug.trim() !== ''
   )
 })
 
@@ -274,10 +267,12 @@ const toggleBrand = brand => {
 <template>
   <div class="mx-auto w-full max-w-screen-2xl px-4 sm:px-8 py-8">
     <Breadcrumbs :list="breadcrumbs" />
-    <CategoryDescription :data="data.category" :products-count="state.ui.products" /> 
+    <CategoryDescription :data="data.category" :products-count="state.ui.products" />
 
     <!-- Заголовок результатов -->
-    <div class="flex flex-col md:flex-row items-start md:items-center justify-between bg-white rounded-lg shadow-sm p-4 mb-6">
+    <div
+      class="flex flex-col md:flex-row items-start md:items-center justify-between bg-white rounded-lg shadow-sm p-4 mb-6"
+    >
       <div class="flex items-center w-full md:w-auto">
         <button
           @click="toggleFilters"
@@ -295,13 +290,13 @@ const toggleBrand = brand => {
             class="flex items-center gap-1 text-gray-700 hover:text-red-600 transition-colors"
           >
             <span>{{ sortOptions.find(opt => opt.value === state.sort)?.label }}</span>
-            <Icon 
-              name="material-symbols:keyboard-arrow-down-rounded" 
+            <Icon
+              name="material-symbols:keyboard-arrow-down-rounded"
               class="w-5 h-5 transition-transform duration-200"
               :class="{ 'transform rotate-180': state.showSortDropdown }"
             />
           </button>
-          
+
           <transition
             enter-active-class="transition ease-out duration-100"
             enter-from-class="transform opacity-0 scale-95"
@@ -310,10 +305,7 @@ const toggleBrand = brand => {
             leave-from-class="transform opacity-100 scale-100"
             leave-to-class="transform opacity-0 scale-95"
           >
-            <div
-              v-if="state.showSortDropdown"
-              class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10"
-            >
+            <div v-if="state.showSortDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
               <div class="py-1">
                 <button
                   v-for="option in sortOptions"
@@ -454,7 +446,7 @@ const toggleBrand = brand => {
       </div>
 
       <!-- Список товаров -->
-     <div class="w-full lg:w-3/4">
+      <div class="w-full lg:w-3/4">
         <div
           v-if="state.products.length > 0"
           :class="state.ui.isGrid ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-6'"
@@ -465,17 +457,13 @@ const toggleBrand = brand => {
             :key="item.id"
             :class="[
               'bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300',
-              state.ui.isGrid 
-                ? 'flex flex-col h-full'
-                : 'flex flex-col md:flex-row'
+              state.ui.isGrid ? 'flex flex-col h-full' : 'flex flex-col md:flex-row',
             ]"
           >
-            <div 
+            <div
               :class="[
                 'relative overflow-hidden',
-                state.ui.isGrid 
-                  ? 'h-48 w-full' 
-                  : 'h-48 w-full md:w-56 lg:w-64 flex-shrink-0'
+                state.ui.isGrid ? 'h-48 w-full' : 'h-48 w-full md:w-56 lg:w-64 flex-shrink-0',
               ]"
             >
               <HoverProductSwiper :slides="item.images" />
@@ -487,107 +475,112 @@ const toggleBrand = brand => {
               </div>
             </div>
 
-            <div 
-              :class="[
-                'flex flex-col',
-                state.ui.isGrid 
-                  ? 'p-4 flex-grow' 
-                  : 'p-4 flex-grow'
-              ]"
-            >
+            <div :class="['flex flex-col', state.ui.isGrid ? 'p-4 flex-grow' : 'p-4 flex-grow']">
               <div v-if="state.ui.isGrid">
                 <h3 class="font-semibold text-gray-900 hover:text-red-600 transition-colors line-clamp-2 text-lg mb-2">
                   {{ item.name }}
                 </h3>
                 <span class="text-gray-500 text-sm mb-1">Код: {{ item.article }}</span>
-                
+
                 <div class="mt-3 mb-4">
                   <span class="text-red-600 font-bold text-xl">{{ item.price.toLocaleString() }} ₽</span>
                 </div>
-                
+
                 <div class="mt-auto">
-                  <p class="text-sm mb-4 flex items-center" :class="item.count === 'Нет в наличии' ? 'text-red-600' : 'text-green-600'">
+                  <p
+                    class="text-sm mb-4 flex items-center"
+                    :class="item.count === 'Нет в наличии' ? 'text-red-600' : 'text-green-600'"
+                  >
                     <Icon
-                      :name="item.count === 'Нет в наличии' 
-                        ? 'material-symbols:close-rounded' 
-                        : 'material-symbols:check-rounded'"
+                      :name="
+                        item.count === 'Нет в наличии'
+                          ? 'material-symbols:close-rounded'
+                          : 'material-symbols:check-rounded'
+                      "
                       class="h-5 w-5 inline mr-2"
                     />
                     {{ item.count }}
                   </p>
-                  
+
                   <button
                     :disabled="item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)"
                     @click.prevent="add(item)"
                     class="w-full text-white py-2.5 px-4 rounded-lg transition-colors font-medium text-sm"
                     :class="
                       item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)
-                        ? 'bg-gray-400 cursor-not-allowed'
-                        : 'bg-red-600 hover:bg-red-700'"
+                        ? 'bg-gray cursor-not-allowed'
+                        : 'bg-red-600 hover:bg-red-700'
+                    "
                   >
                     {{ cartStore.checkProductInCart(item) ? 'Добавлено' : 'В корзину' }}
                   </button>
                 </div>
               </div>
-              
+
               <div v-else>
                 <div class="flex flex-col md:flex-row gap-4 flex-grow">
                   <div class="flex-1">
-                    <h3 class="font-semibold text-gray-900 hover:text-red-600 transition-colors text-lg md:text-xl mb-2">
+                    <h3
+                      class="font-semibold text-gray-900 hover:text-red-600 transition-colors text-lg md:text-xl mb-2"
+                    >
                       {{ item.name }}
                     </h3>
                     <span class="text-gray-500 text-sm block mb-2">Код: {{ item.article }}</span>
-                    
-                   <div class="text-gray-700 text-sm space-y-3 mt-2">
+
+                    <div class="text-gray-700 text-sm space-y-3 mt-2">
                       <div v-if="product && product.specificationsB && product.specificationsB.length > 0">
                         <div v-for="spec in product.specificationsB" :key="spec.id" class="grid grid-cols-1 min-w-0">
                           <div class="flex items-baseline min-w-0">
                             <span class="text-gray-500 text-sm truncate min-w-0">
                               {{ spec.name }}
                             </span>
-                            <span class="flex-1 border-b border-dotted border-slate-400 mx-2 relative bottom-0.5"></span>
+                            <span
+                              class="flex-1 border-b border-dotted border-slate-400 mx-2 relative bottom-0.5"
+                            ></span>
                             <span class="font-medium text-sm whitespace-nowrap">
                               {{ spec.value }}
                             </span>
                           </div>
                         </div>
                       </div>
-                      <div v-else-if="product">
-                        <div class="text-gray-400 text-sm italic">
-                          Характеристики отсутствуют
-                        </div>
+                      <div v-else-if="!product">
+                        <div class="text-gray-400 text-sm italic">Характеристики отсутствуют</div>
                       </div>
                       <div v-else>
-                        <div class="text-gray-400 text-sm italic">
-                          Загрузка характеристик...
-                        </div>
+                        <div class="text-gray-400 text-sm italic">Загрузка характеристик...</div>
                       </div>
                     </div>
                   </div>
-                  
-                  <div class="flex flex-col items-start ">
+
+                  <div class="flex flex-col items-start">
                     <div class="mb-4 text-right">
                       <span class="text-red-600 font-bold text-xl">{{ item.price.toLocaleString() }} ₽</span>
                     </div>
-                    
-                    <p class="text-sm mb-4 flex items-center" :class="item.count === 'Нет в наличии' ? 'text-red-600' : 'text-green-600'">
+
+                    <p
+                      class="text-sm mb-4 flex items-center"
+                      :class="item.count === 'Нет в наличии' ? 'text-red-600' : 'text-green-600'"
+                    >
                       <Icon
-                        :name="item.count === 'Нет в наличии' 
-                          ? 'material-symbols:close-rounded' 
-                          : 'material-symbols:check-rounded'"
+                        :name="
+                          item.count === 'Нет в наличии'
+                            ? 'material-symbols:close-rounded'
+                            : 'material-symbols:check-rounded'
+                        "
                         class="h-5 w-5 inline mr-2"
                       />
                       {{ item.count }}
                     </p>
-                    
+
                     <button
                       :disabled="item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)"
                       @click.prevent="add(item)"
                       class="text-white py-2.5 px-6 rounded-lg transition-colors font-medium min-w-[140px] text-sm"
                       :class="
                         item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)
-                          ? 'bg-gray-400 cursor-not-allowed'
-                          : 'bg-red-600 hover:bg-red-700'"
+                          ? 'bg-gray cursor-not-allowed'
+                          : 'bg-red-600 hover:bg-red-700'
+                      "
                     >
                       {{ cartStore.checkProductInCart(item) ? 'Добавлено' : 'В корзину' }}
                     </button>
@@ -599,10 +592,7 @@ const toggleBrand = brand => {
         </div>
 
         <div v-else class="bg-white rounded-xl shadow-sm p-8 text-center">
-          <Icon 
-            name="ion:search-outline" 
-            class="mx-auto block text-gray-400 h-20 w-20" 
-          />
+          <Icon name="ion:search-outline" class="mx-auto block text-gray-400 h-20 w-20" />
           <h3 class="mt-4 text-lg font-semibold text-gray-900">Товары не найдены</h3>
           <p class="mt-1 text-gray-500">Попробуйте изменить параметры фильтрации</p>
           <button
@@ -623,11 +613,7 @@ const toggleBrand = brand => {
             class="bg-white border border-red-600 text-red-600 hover:bg-red-50 py-2.5 px-8 rounded-lg transition-colors font-medium flex items-center space-x-2"
           >
             <span v-if="!state.ui.isLoading">Показать ещё</span>
-            <Icon
-              v-if="state.ui.isLoading"
-              name="svg-spinners:ring-resize"
-              class="h-5 w-5"
-            />
+            <Icon v-if="state.ui.isLoading" name="svg-spinners:ring-resize" class="h-5 w-5" />
           </button>
         </div>
       </div>
