@@ -43,6 +43,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     ]);
 });
 
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
+
 Route::middleware('auth:sanctum')->prefix('profile/companies')->group(function () {
     Route::get('/', [ProfileController::class, 'getCompanies']);
     Route::post('/', [ProfileController::class, 'addCompany']);

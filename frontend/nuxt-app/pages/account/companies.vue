@@ -12,6 +12,10 @@ const {
   public: { backendUrl },
 } = useRuntimeConfig()
 
+const {
+  public: { dadataApiToken },
+} = useRuntimeConfig()
+
 const userStore = useUserStore()
 const uiState = reactive({
   isEditing: false,
@@ -115,6 +119,79 @@ const cancelEditing = () => {
   resetForm()
 }
 
+const searchCompanyByINN = async () => {
+  if (!isInnValid.value) return;
+
+  isLoadingSuggestions.value = true;
+  companySuggestions.value = [];
+
+  try {
+    const response = await $fetch('https://www.tinkoff.ru/api/common/dadata/suggestions/api/4_1/rs/suggest/party', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Token ${dadataApiToken}`
+      },
+      body: JSON.stringify({
+        query: form.inn,
+        count: 5
+      })
+    });
+
+    if (response?.suggestions?.length) {
+      companySuggestions.value = response.suggestions;
+      uiState.showFullForm = true;
+    } else {
+      innError.value = 'Компания с таким ИНН не найдена';
+    }
+  } catch (err) {
+    console.error('Ошибка при проверке ИНН:', err);
+    innError.value = 'Ошибка при проверке ИНН';
+  } finally {
+    isLoadingSuggestions.value = false;
+  }
+};
+
+const selectCompanySuggestion = suggestion => {
+  selectedCompany.value = suggestion;
+  form.name = suggestion.value || '';
+  form.kpp = suggestion.data.kpp || '';
+  form.address = suggestion.data.address?.unrestricted_value || suggestion.data.address?.value || '';
+  form.director = suggestion.data.management?.name || '';
+  companySuggestions.value = [];
+};
+
+const validate = () => {
+  let isValid = true;
+  form.errors = {};
+
+  if (!form.inn.trim()) {
+    form.errors.inn = 'Введите ИНН компании';
+    isValid = false;
+  } else if (!isInnValid.value) {
+    form.errors.inn = innError.value || 'Некорректный ИНН';
+    isValid = false;
+  }
+
+  if (uiState.showFullForm) {
+    if (!form.name.trim()) {
+      form.errors.name = 'Введите название компании';
+      isValid = false;
+    }
+    if (!form.address.trim()) {
+      form.errors.address = 'Введите адрес компании';
+      isValid = false;
+    }
+    if (!form.director.trim()) {
+      form.errors.director = 'Введите ФИО директора';
+      isValid = false;
+    }
+  }
+
+  return isValid;
+};
+
 const validateInn = async () => {
   if (!form.inn) {
     innError.value = 'Поле обязательно для заполнения'
@@ -143,43 +220,6 @@ const validateInn = async () => {
   return true
 }
 
-const searchCompanyByINN = async () => {
-  if (!isInnValid.value) return
-
-  isLoadingSuggestions.value = true
-  companySuggestions.value = []
-
-  try {
-    const { data } = await fetch('https://www.tinkoff.ru/api/common/dadata/suggestions/api/4_1/rs/suggest/party', {
-      params: {
-        appName: 'company-pages',
-        query: form.inn,
-      },
-    })
-
-    if (data.suggestions?.length) {
-      companySuggestions.value = data.suggestions
-      uiState.showFullForm = true
-    } else {
-      innError.value = 'Компания с таким ИНН не найдена'
-    }
-  } catch (err) {
-    console.error('Ошибка при проверке ИНН:', err)
-    innError.value = 'Ошибка при проверке ИНН'
-  } finally {
-    isLoadingSuggestions.value = false
-  }
-}
-
-const selectCompanySuggestion = suggestion => {
-  selectedCompany.value = suggestion
-  form.name = suggestion.value || ''
-  form.kpp = suggestion.data.kpp || ''
-  form.address = suggestion.data.address?.unrestricted_value || ''
-  form.director = suggestion.data.management?.name || ''
-  companySuggestions.value = []
-}
-
 const resetCompanySelection = () => {
   selectedCompany.value = null
   companySuggestions.value = []
@@ -187,28 +227,6 @@ const resetCompanySelection = () => {
   form.kpp = ''
   form.address = ''
   form.director = ''
-}
-
-const validate = () => {
-  let isValid = true
-  form.errors = {}
-
-  if (!form.inn.trim()) {
-    form.errors.inn = 'Введите ИНН компании'
-    isValid = false
-  } else if (!isInnValid.value) {
-    form.errors.inn = innError.value || 'Некорректный ИНН'
-    isValid = false
-  }
-
-  if (uiState.showFullForm) {
-    if (!form.name.trim()) {
-      form.errors.name = 'Введите название компании'
-      isValid = false
-    }
-  }
-
-  return isValid
 }
 
 const deleteCompany = async companyId => {
@@ -325,7 +343,7 @@ watch(
   <div class="min-h-screen py-8">
     <div class="max-w-screen-2xl mx-auto px-1 sm:px-4 lg:px-8">
       <div class="flex flex-col md:flex-row gap-6">
-        <SidebarMenu class="hidden md:block" />
+        <SidebarMenu class="hidden lg:block" />
 
         <div class="flex-1 space-y-6">
           <div class="flex items-center justify-between">

@@ -63,7 +63,7 @@ const changePage = async newPage => {
   <div class="min-h-screen py-8">
     <div class="max-w-screen-2xl mx-auto px-1 sm:px-4 lg:px-8">
       <div class="flex flex-col md:flex-row gap-6">
-        <SidebarMenu class="hidden md:block" />
+        <SidebarMenu class="hidden lg:block" />
         <div class="flex-1 space-y-6">
           <div class="bg-white shadow-2xl rounded-lg p-6">
             <h2 class="text-lg font-medium mb-4">Бонусный баланс: {{ bonusBalance }}</h2>
