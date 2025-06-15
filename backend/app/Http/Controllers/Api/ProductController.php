@@ -774,6 +774,7 @@ class ProductController extends Controller
         // Находим категорию по slug
         $category = Category::where('slug', $slug)->first();
         
+        
         if (!$category) {
             return response()->json(['message' => 'Категория не найдена'], 404);
         }
@@ -890,6 +891,9 @@ class ProductController extends Controller
             ];
         });
 
+
+        $category->parents = json_decode($category->getPath());
+
         $categoryResponse = [
             'id' => $category->id,
             'name' => $category->name,
@@ -898,6 +902,8 @@ class ProductController extends Controller
             'description' => $category->description,
             'image_url' => $category->image_url,
             'description_image_url' => $category->description_image_url,
+            'parents' => $category->parents,
+
         ];
 
         if ($additionData) {

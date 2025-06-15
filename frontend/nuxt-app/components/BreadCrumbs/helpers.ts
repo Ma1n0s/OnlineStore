@@ -2,9 +2,9 @@ export const getBreadcrumbs = (slug: string[]) => {
   const breadcrumbs = []
   let url = ''
   slug.forEach(item => {
-    url += `/${item}`
+    url += `/${item.slug}`
     breadcrumbs.push({
-      name: item,
+      name: item.name,
       url: `/category${url}`,
     })
   })

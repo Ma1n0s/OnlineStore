@@ -137,6 +137,8 @@ class CategoryController extends Controller
             $child->haveProducts = count($child->children) == 0;
             $child = $this->transformImagesPaths($child);
         }
+
+        $category->parents = json_decode($category->getPath());
         
         return response()->json($category);
     }

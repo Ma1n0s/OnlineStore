@@ -39,6 +39,8 @@ const { data } = await useAsyncData(`products-list-${slug}`, () =>
   })
 )
 
+console.log(data.value, 'YESS')
+
 const add = async product => {
   if (!product?.id || product.count === 'Нет в наличии' || checkAuthForm()) return
 
@@ -69,7 +71,7 @@ const breadcrumbs = [
     name: 'Категории',
     url: '/category',
   },
-  ...getBreadcrumbs(slug.slice(0, -1)),
+  ...getBreadcrumbs(data.value.category.parents.slice(0, -1)),
   {
     name: data.value.category.name,
     url: '/products/category/' + slug.join('/'),
