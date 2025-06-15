@@ -43,9 +43,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     ]);
 });
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
 
 Route::middleware('auth:sanctum')->prefix('profile/companies')->group(function () {
     Route::get('/', [ProfileController::class, 'getCompanies']);
@@ -218,30 +218,14 @@ Route::post('/auth/logout', function(Request $request) {
     ]);
 });
 
-
-
 // Маршруты для новостей
 Route::apiResource('news', NewsController::class);
 
 // Маршрут для свайпера
 Route::get('/swiper', [SwiperController::class, 'index']);
 
-
-
 // Маршрут для поиска
 Route::get('/search', [ProductController::class, 'search']);
-
-
-use App\Jobs\SendApiRequest;
-
-Route::get('/test', function(Request $request) {
-    
-
-    // $response = SendApiRequest::dispatch('', $data)->onQueue('high-priority');
-    
-
-    return response()->json(['message' => 'Request queued successfully']);;
-});
 
 Route::get('/orders/active-cart', [OrderController::class, 'activeCart']);
 Route::post('/orders/create-order', [OrderController::class, 'createOrderFromSelected']);

@@ -82,11 +82,6 @@ class User extends Authenticatable
         return $this->hasOne(UserProfile::class);
     }
 
-    public function bonusCard()
-    {
-        return $this->hasOne(BonusCard::class);
-    }
-
     public function bonusTransactions()
     {
         return $this->hasMany(BonusTransaction::class);

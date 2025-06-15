@@ -127,7 +127,7 @@ class OrderController extends Controller
         
         SendApiRequest::dispatch(
             env('services.external_url', ''),
-            $order,
+            ['order'=>$order],
             ['Authorization' => 'Bearer '.config('services.api.token')]
         )->onQueue('api-requests');
 
