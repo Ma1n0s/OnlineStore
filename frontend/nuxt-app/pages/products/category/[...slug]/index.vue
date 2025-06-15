@@ -442,7 +442,6 @@ const toggleBrand = brand => {
         </div>
       </div>
 
-      <!-- Список товаров -->
       <div class="w-full lg:w-3/4">
         <div
           v-if="state.products.length > 0"
@@ -460,7 +459,7 @@ const toggleBrand = brand => {
             <div
               :class="[
                 'relative overflow-hidden',
-                state.ui.isGrid ? 'h-48 w-full' : 'h-48 w-full md:w-56 lg:w-64 flex-shrink-0',
+                state.ui.isGrid ? 'h-48 w-full' : 'h-48 w-full md:w-40 lg:w-48 flex-shrink-0',
               ]"
             >
               <HoverProductSwiper :slides="item.images" />
@@ -472,14 +471,14 @@ const toggleBrand = brand => {
               </div>
             </div>
 
-            <div :class="['flex flex-col', state.ui.isGrid ? 'p-4 flex-grow' : 'p-4 flex-grow']">
+            <div class="flex flex-col p-4 flex-grow">
               <div v-if="state.ui.isGrid">
-                <h3 class="font-semibold text-gray-900 hover:text-red-600 transition-colors line-clamp-2 text-lg mb-2">
+                <h3 class="font-medium text-base mb-2 line-clamp-2">
                   {{ item.name }}
                 </h3>
-                <span class="text-gray-500 text-sm mb-1">Код: {{ item.article }}</span>
+                <span class="text-gray-500 text-xs mb-1">Код: {{ item.article }}</span>
 
-                <div class="mt-3 mb-4">
+                <div class="my-3">
                   <span class="text-red-600 font-bold text-xl">{{ item.price.toLocaleString() }} ₽</span>
                 </div>
 
@@ -494,7 +493,7 @@ const toggleBrand = brand => {
                           ? 'material-symbols:close-rounded'
                           : 'material-symbols:check-rounded'
                       "
-                      class="h-5 w-5 inline mr-2"
+                      class="h-5 w-5 mr-2"
                     />
                     {{ item.count }}
                   </p>
@@ -502,11 +501,11 @@ const toggleBrand = brand => {
                   <button
                     :disabled="item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)"
                     @click.prevent="add(item)"
-                    class="w-full text-white py-2.5 px-4 rounded-lg transition-colors font-medium text-sm"
+                    class="w-full text-white py-2.5 px-4 rounded-lg font-medium text-sm"
                     :class="
                       item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)
-                        ? 'bg-gray cursor-not-allowed'
-                        : 'bg-red-600 hover:bg-red-700'
+                        ? 'bg-gray-300 cursor-not-allowed'
+                        : 'bg-red-600'
                     "
                   >
                     {{ cartStore.checkProductInCart(item) ? 'Добавлено' : 'В корзину' }}
@@ -515,39 +514,29 @@ const toggleBrand = brand => {
               </div>
 
               <div v-else>
-                <div class="flex flex-col md:flex-row gap-4 flex-grow">
-                  <div class="flex-1">
-                    <h3
-                      class="font-semibold text-gray-900 hover:text-red-600 transition-colors text-lg md:text-xl mb-2"
-                    >
+                <div class="flex flex-col md:flex-row gap-4">
+                  <div class="flex-1 min-w-0">
+                    <h3 class="text-base md:mb-2">
                       {{ item.name }}
                     </h3>
-                    <span class="text-gray-500 text-sm block mb-2">Код: {{ item.article }}</span>
+                    <span class="text-sm block mb-2">Код: {{ item.article }}</span>
 
-                    <div class="text-gray-700 text-sm space-y-3 mt-2">
-                      <div v-if="item && item.specificationsB">
-                        <div v-for="spec in item.specificationsB" :key="spec.id" class="grid grid-cols-1 min-w-0">
-                          <div class="flex items-baseline min-w-0">
-                            <span class="text-gray-500 text-sm truncate min-w-0">
-                              {{ spec.name }}
-                            </span>
-                            <span
-                              class="flex-1 border-b border-dotted border-slate-400 mx-2 relative bottom-0.5"
-                            ></span>
-                            <span class="font-medium text-sm whitespace-nowrap">
-                              {{ spec.value }}
-                            </span>
-                          </div>
+                    <div class="text-sm space-y-3 mt-2 w-[50%]">
+                      <div v-if="item?.specificationsB?.length">
+                        <div v-for="spec in item.specificationsB" :key="spec.id" class="flex items-baseline min-w-0">
+                          <span class="text-sm truncate">{{ spec.name }}</span>
+                          <span class="flex-1 border-b border-dotted border-gray-300 mx-2"></span>
+                          <span class="font-medium text-sm whitespace-nowrap">{{ spec.value }}</span>
                         </div>
                       </div>
                       <div v-else>
-                        <div class="text-gray-400 text-sm italic">Характеристики не указаны</div>
+                        <div class="text-sm italic">Характеристики не указаны</div>
                       </div>
                     </div>
                   </div>
 
                   <div class="flex flex-col items-start">
-                    <div class="mb-4 text-right">
+                    <div class="mb-4">
                       <span class="text-red-600 font-bold text-xl">{{ item.price.toLocaleString() }} ₽</span>
                     </div>
 
@@ -561,7 +550,7 @@ const toggleBrand = brand => {
                             ? 'material-symbols:close-rounded'
                             : 'material-symbols:check-rounded'
                         "
-                        class="h-5 w-5 inline mr-2"
+                        class="h-5 w-5 mr-2"
                       />
                       {{ item.count }}
                     </p>
@@ -569,11 +558,11 @@ const toggleBrand = brand => {
                     <button
                       :disabled="item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)"
                       @click.prevent="add(item)"
-                      class="text-white py-2.5 px-6 rounded-lg transition-colors font-medium min-w-[140px] text-sm"
+                      class="text-white py-2.5 px-6 rounded-lg font-medium min-w-[140px] text-sm"
                       :class="
                         item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)
-                          ? 'bg-gray cursor-not-allowed'
-                          : 'bg-red-600 hover:bg-red-700'
+                          ? 'bg-gray-300 cursor-not-allowed'
+                          : 'bg-red-600'
                       "
                     >
                       {{ cartStore.checkProductInCart(item) ? 'Добавлено' : 'В корзину' }}

@@ -101,7 +101,7 @@ class User extends Authenticatable
     {
         return $this->hasOne(Order::class)->where('status', 'created');
     }
-    
+
 
     public function isAdmin(): bool
     {
