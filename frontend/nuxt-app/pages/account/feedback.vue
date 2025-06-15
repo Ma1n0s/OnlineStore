@@ -7,6 +7,10 @@ definePageMeta({
   middleware: ['auth'],
 })
 
+const {
+  public: { backendUrl },
+} = useRuntimeConfig()
+
 const userStore = useUserStore()
 
 const form = reactive({
@@ -43,7 +47,7 @@ const submitForm = async () => {
   state.isSubmitting = true
 
   try {
-    const response = await $fetch('http://127.0.0.1:8000/api/feedback', {
+    const response = await $fetch(`${backendUrl}/api/feedback`, {
       method: 'POST',
       body: form,
       headers: {
@@ -98,10 +102,6 @@ const submitForm = async () => {
                   <div>
                     <p class="text-xs text-gray-500">Email</p>
                     <p class="text-sm font-medium">{{ profile.email }}</p>
-                  </div>
-                  <div>
-                    <p class="text-xs text-gray-500">Телефон</p>
-                    <p class="text-sm font-medium">{{ profile.phone }}</p>
                   </div>
                 </div>
               </div>
