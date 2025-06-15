@@ -814,7 +814,7 @@ class ProductController extends Controller
         $brands = $request->input('brands', []);
 
         // Фильтруем продукты по всем категориям
-        $query = Product::with(['category', 'images'])
+        $query = Product::with(['category', 'images', 'specificationsB'])
             ->where(function($query) use ($categoryIds, $brands, $minPrice, $maxPrice) {
                 $query->where(function($subQuery) use ($categoryIds) {
                     $subQuery->whereIn('category_id', $categoryIds);
@@ -878,6 +878,7 @@ class ProductController extends Controller
                 'article' => $product->article,
                 'slug' => $product->slug,
                 'count' => $count,
+                'specificationsB' => $product->specificationsB,
                 // 'category' => $product->category ? [
                 //     'id' => $product->category->id,
                 //     'name' => $product->category->name,
