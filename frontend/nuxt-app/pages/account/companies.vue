@@ -320,6 +320,29 @@ watch(
     }
   }
 )
+
+const fetchCompanies = async () => {
+  try {
+    const response = await $fetch(`${backendUrl}/api/profile`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+      },
+      credentials: 'include',
+    })
+    
+    if (response.companies) {
+      companies.value = response.companies
+    }
+  } catch (error) {
+    console.error('Ошибка при загрузке компаний:', error)
+  }
+}
+
+onMounted(() => {
+  fetchCompanies()
+})
 </script>
 
 <template>
@@ -341,7 +364,7 @@ watch(
             </button>
           </div>
 
-          <div v-if="!uiState.isEditing && companies.length > 0" class="space-y-4 md:space-y-6">
+          <div v-if="companies.length > 0" class="space-y-4 md:space-y-6">
             <div
               v-for="company in companies"
               :key="company.id"
@@ -358,17 +381,6 @@ watch(
                       >Основная</span
                     >
                   </h3>
-                  <div class="flex gap-1 md:gap-2">
-                    <button
-                      v-if="!company.is_main"
-                      @click="setMainCompany(company.id)"
-                      class="text-xs md:text-sm text-primary hover:text-primary-hover flex items-center gap-1"
-                    >
-                      <Icon name="mdi:star-outline" class="w-3 h-3 md:w-4 md:h-4" />
-                      <span class="hidden sm:inline">Сделать основной</span>
-                      <span class="sm:hidden">Основная</span>
-                    </button>
-                  </div>
                 </div>
 
                 <div class="space-y-4 md:space-y-0 md:grid md:grid-cols-2 gap-4 md:gap-6">
@@ -407,24 +419,6 @@ watch(
                       </div>
                     </div>
                   </div>
-                </div>
-
-                <div class="mt-4 md:mt-6 pt-3 md:pt-4 border-t flex justify-end gap-2 md:gap-3 flex-wrap">
-                  <button
-                    @click="startEditing(company)"
-                    class="px-3 py-1.5 md:px-4 md:py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition flex items-center gap-1 md:gap-2 text-sm md:text-base"
-                  >
-                    <Icon name="mdi:pencil" class="w-4 h-4 md:w-5 md:h-5" />
-                    <span>Изменить</span>
-                  </button>
-                  <button
-                    @click="deleteCompany(company.id)"
-                    :disabled="uiState.isLoading"
-                    class="px-3 py-1.5 md:px-4 md:py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-1 md:gap-2 text-sm md:text-base disabled:opacity-70"
-                  >
-                    <Icon name="mdi:trash-can-outline" class="w-4 h-4 md:w-5 md:h-5" />
-                    <span>Удалить</span>
-                  </button>
                 </div>
               </div>
             </div>

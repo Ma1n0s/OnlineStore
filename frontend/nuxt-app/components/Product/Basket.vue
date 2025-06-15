@@ -23,6 +23,15 @@ const { product } = defineProps({
   },
 })
 
+const declOfNum = (number, titles) => {
+  const cases = [2, 0, 1, 1, 1, 2];
+  return titles[
+    number % 100 > 4 && number % 100 < 20
+      ? 2
+      : cases[number % 10 < 5 ? number % 10 : 5]
+  ];
+};
+
 const userStore = useUserStore()
 const { showAuthForm, isAuth } = storeToRefs(userStore)
 
@@ -164,27 +173,29 @@ const add = async () => {
       </Button>
     </div>
 
-    <!-- <div class="bg-slate-100 rounded-xl shadow-md border-gray-100 p-3 flex items-center gap-2">
+    <div class="bg-slate-100 rounded-xl shadow-md border-gray-100 p-3 flex items-center gap-2">
       <div class="bg-primary/10 p-1.5 rounded-lg">
         <Icon name="mdi:percent-box" class="h-4 w-4 text-primary" />
       </div>
       <div>
-        <p class="font-medium text-sm">+900 Кешбэк</p>
-        <p class="text-xs text-gray-500">Баллы для следующих покупок</p>
+        <p class="font-medium text-sm">+5% Бонусов</p>
+        <p class="text-xs text-gray-500">Баллы за покупку</p>
       </div>
     </div>
 
-    <div class="bg-slate-100 rounded-xl shadow-md border-gray-100 p-3">
+    <div v-if="product.type === 'order'" class="bg-slate-100 rounded-xl shadow-md border-gray-100 p-3">
       <div class="flex items-start gap-2 mb-1">
         <div class="bg-primary/10 p-1.5 rounded-lg">
           <Icon name="mdi:store" class="h-4 w-4 text-primary" />
         </div>
         <div>
-          <p class="font-medium text-sm">Самовывоз сегодня</p>
-          <p class="text-xs text-gray-500">Из 13 магазинов, бесплатно</p>
+          <p class="font-medium text-sm">Товар под заказ</p>
+          <p class="text-xs text-gray-500">
+            Доставка через {{ product.delivery_days }} {{ declOfNum(product.delivery_days, ['день', 'дня', 'дней']) }}
+          </p>
         </div>
       </div>
-    </div> -->
+    </div>
 
     <Modal :isOpen="isRentalModalOpen" title="Аренда товара" @close="closeRentalModal">
       <div class="mt-6 space-y-6">
