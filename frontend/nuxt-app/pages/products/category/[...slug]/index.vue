@@ -7,11 +7,6 @@ import { getBreadcrumbs } from '~/components/BreadCrumbs/helpers'
 import HoverProductSwiper from '~/components/Swiper/ProductSwiper/HoverProductSwiper.vue'
 import { useCartStore } from '~/stores/cart'
 import { storeToRefs } from 'pinia'
-import type { Product } from '~/types/product.types'
-
-defineProps<{
-  product: Product
-}>()
 
 const cartStore = useCartStore()
 const userStore = useUserStore()
@@ -267,7 +262,7 @@ const toggleBrand = brand => {
 <template>
   <div class="mx-auto w-full max-w-screen-2xl px-4 sm:px-8 py-8">
     <Breadcrumbs :list="breadcrumbs" />
-    <CategoryDescription :data="data.category" :products-count="state.ui.products" />
+    <CategoryDescription :data="data.category" :products-count="state.products.length" />
 
     <!-- Заголовок результатов -->
     <div
@@ -528,8 +523,8 @@ const toggleBrand = brand => {
                     <span class="text-gray-500 text-sm block mb-2">Код: {{ item.article }}</span>
 
                     <div class="text-gray-700 text-sm space-y-3 mt-2">
-                      <div v-if="product && product.specificationsB && product.specificationsB.length > 0">
-                        <div v-for="spec in product.specificationsB" :key="spec.id" class="grid grid-cols-1 min-w-0">
+                      <div v-if="item && item.specificationsB">
+                        <div v-for="spec in item.specificationsB" :key="spec.id" class="grid grid-cols-1 min-w-0">
                           <div class="flex items-baseline min-w-0">
                             <span class="text-gray-500 text-sm truncate min-w-0">
                               {{ spec.name }}
@@ -543,11 +538,8 @@ const toggleBrand = brand => {
                           </div>
                         </div>
                       </div>
-                      <div v-else-if="!product">
-                        <div class="text-gray-400 text-sm italic">Характеристики отсутствуют</div>
-                      </div>
                       <div v-else>
-                        <div class="text-gray-400 text-sm italic">Загрузка характеристик...</div>
+                        <div class="text-gray-400 text-sm italic">Характеристики не указаны</div>
                       </div>
                     </div>
                   </div>

@@ -70,14 +70,16 @@ const { data: product, refresh } = await useAsyncData<Product>(
   `product-${product_id}`,
   () => $fetch(`${backendUrl}/api/products/slug/${product_id}`),
   {
-    transform: (data) => {
+    transform: data => {
       if (!data) {
         throw createError({ statusCode: 404, statusMessage: 'Продукт не найден' })
       }
       return data
-    }
+    },
   }
 )
+
+console.log(product.value)
 
 // Вкладки
 const tabs = ref([{ id: 'description', title: 'ОПИСАНИЕ И ХАРАКТЕРИСТИКИ' }])

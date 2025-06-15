@@ -1,6 +1,6 @@
 <template>
   <NuxtLayout>
-    <div class="min-h-screen flex flex-col">
+    <div class="min-h-[50vh] flex flex-col">
       <NuxtPage />
       <MobileBottomNav />
     </div>
