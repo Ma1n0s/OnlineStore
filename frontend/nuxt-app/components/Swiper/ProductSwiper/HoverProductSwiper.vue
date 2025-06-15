@@ -1,27 +1,45 @@
 <template>
   <ClientOnly>
-    <swiper-container :loop="false" :space-between="0" :slides-per-view="1" :pagination="true" class="w-full h-full">
-      <swiper-slide v-for="(slide, idx) in slides" :key="idx" class="bg-white w-full h-full">
-        <NuxtImg
-          :alt="`swiperslide produtc - ${idx}`"
-          :src="slide.url"
-          width="300"
-          height="300"
-          format="webp"
-          class="w-full h-full object-fit"
-        />
+    <swiper-container 
+      :loop="false" 
+      :space-between="0" 
+      :slides-per-view="1" 
+      :pagination="true"
+      class="w-full h-full"
+    >
+      <swiper-slide 
+        v-for="(slide, idx) in slides" 
+        :key="idx" 
+        class="w-full h-full"
+      >
+        <div class="w-full h-full flex items-center justify-center bg-gray-100">
+          <NuxtImg
+            :alt="slide.alt || `Product image ${idx}`"
+            :src="slide.url"
+            format="webp"
+            :class="[
+              'max-w-full max-h-full',
+              mode === 'grid' ? 'object-contain' : 'object-cover'
+            ]"
+            loading="lazy"
+            sizes="sm:300px md:400px lg:500px"
+          />
+        </div>
       </swiper-slide>
     </swiper-container>
   </ClientOnly>
 </template>
 
 <script setup lang="ts">
-const { slides } = defineProps<{
+const props = defineProps<{
   slides: {
     url: string
     position: string
     alt: string
     id: string
   }[]
+  mode?: 'grid' | 'list'
 }>()
+
+const mode = props.mode || 'list'
 </script>

@@ -259,6 +259,27 @@ const toggleBrand = brand => {
     state.filters.selectedBrands = [...state.filters.selectedBrands, brand]
   }
 }
+
+const checkScreenSize = () => {
+  if (process.client) {
+    // Переключаем на grid view при ширине экрана >= lg (1024px в Tailwind)
+    state.ui.isGrid = window.innerWidth <= 1024
+  }
+}
+
+// Устанавливаем обработчик при монтировании компонента
+onMounted(() => {
+  checkScreenSize() // Проверяем при загрузке
+  window.addEventListener('resize', checkScreenSize)
+})
+
+// Удаляем обработчик при размонтировании компонента
+onBeforeUnmount(() => {
+  if (process.client) {
+    window.removeEventListener('resize', checkScreenSize)
+  }
+})
+
 </script>
 
 <template>
@@ -318,22 +339,24 @@ const toggleBrand = brand => {
           </transition>
         </div>
 
-        <div class="hidden lg:flex items-center space-x-1">
-          <button
-            @click="showGrid"
-            :class="{ 'bg-gray-100 text-red-600': state.ui.isGrid }"
-            class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            <Icon name="material-symbols:grid-view-rounded" class="w-5 h-5" />
-          </button>
-          <button
-            @click="showList"
-            :class="{ 'bg-gray-100 text-red-600': !state.ui.isGrid }"
-            class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            <Icon name="material-symbols:view-stream-rounded" class="w-5 h-5" />
-          </button>
-        </div>
+<div class="hidden lg:flex items-center space-x-1">
+  <button
+    @click="state.ui.isGrid = true"
+    :class="{ 'bg-gray-100 text-red-600': state.ui.isGrid }"
+    class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+    :disabled="state.ui.isGrid"
+  >
+    <Icon name="material-symbols:grid-view-rounded" class="w-5 h-5" />
+  </button>
+  <button
+    @click="state.ui.isGrid = false"
+    :class="{ 'bg-gray-100 text-red-600': !state.ui.isGrid }"
+    class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+    :disabled="!state.ui.isGrid"
+  >
+    <Icon name="material-symbols:view-stream-rounded" class="w-5 h-5" />
+  </button>
+</div>
       </div>
     </div>
 
@@ -456,13 +479,16 @@ const toggleBrand = brand => {
               state.ui.isGrid ? 'flex flex-col h-full' : 'flex flex-col md:flex-row',
             ]"
           >
-            <div
-              :class="[
-                'relative overflow-hidden',
-                state.ui.isGrid ? 'h-48 w-full' : 'h-48 w-full md:w-40 lg:w-48 flex-shrink-0',
-              ]"
-            >
-              <HoverProductSwiper :slides="item.images" />
+          <div
+            :class="[
+              'relative overflow-hidden',
+              state.ui.isGrid ? 'aspect-square h-auto w-full' : 'h-48 w-full md:w-40 lg:w-48 flex-shrink-0',
+            ]"
+          >
+            <HoverProductSwiper 
+              :slides="item.images" 
+              :mode="state.ui.isGrid ? 'grid' : 'list'"
+            />
               <div
                 v-if="item.discount"
                 class="absolute top-3 left-3 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded"
@@ -501,11 +527,11 @@ const toggleBrand = brand => {
                   <button
                     :disabled="item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)"
                     @click.prevent="add(item)"
-                    class="w-full text-white py-2.5 px-4 rounded-lg font-medium text-sm"
+                    class="w-full text-white py-2.5 px-4 rounded-lg transition-colors font-medium text-sm"
                     :class="
                       item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)
-                        ? 'bg-gray-300 cursor-not-allowed'
-                        : 'bg-red-600'
+                        ? 'bg-gray cursor-not-allowed'
+                        : 'bg-red-600 hover:bg-red-700'
                     "
                   >
                     {{ cartStore.checkProductInCart(item) ? 'Добавлено' : 'В корзину' }}
@@ -558,11 +584,11 @@ const toggleBrand = brand => {
                     <button
                       :disabled="item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)"
                       @click.prevent="add(item)"
-                      class="text-white py-2.5 px-6 rounded-lg font-medium min-w-[140px] text-sm"
+                      class="w-full text-white py-2.5 px-4 rounded-lg transition-colors font-medium text-sm"
                       :class="
                         item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)
-                          ? 'bg-gray-300 cursor-not-allowed'
-                          : 'bg-red-600'
+                          ? 'bg-gray cursor-not-allowed'
+                          : 'bg-red-600 hover:bg-red-700'
                       "
                     >
                       {{ cartStore.checkProductInCart(item) ? 'Добавлено' : 'В корзину' }}

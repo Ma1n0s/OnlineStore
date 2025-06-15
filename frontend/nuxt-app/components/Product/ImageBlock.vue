@@ -14,19 +14,23 @@
               @slide-change="onMainSlideChange"
             >
               <swiper-slide v-for="(image, index) in product.images" :key="'main-' + index">
-                <NuxtImg
-                  :src="image.url"
-                  :alt="product.alt"
-                  class="w-full h-full object-contain cursor-zoom-in"
-                  @click="openFullscreenImage(index)"
-                />
+                <div class="w-full h-full flex items-center justify-center bg-gray-50">
+                  <NuxtImg
+                    :src="image.url"
+                    :alt="product.alt || product.name"
+                    format="webp"
+                    class="max-w-full max-h-full object-contain"
+                    loading="lazy"
+                    sizes="sm:100vw md:50vw lg:400px"
+                    @click="openFullscreenImage(index)"
+                  />
+                </div>
               </swiper-slide>
             </swiper-container>
           </div>
 
-          <!-- Вертикальный слайдер миниатюр с кастомными стрелками -->
+          <!-- Вертикальный слайдер миниатюр -->
           <div class="w-16 hidden lg:flex flex-col">
-            <!-- Кнопка вверх - теперь черная и выше -->
             <button
               v-if="product.images.length > 4"
               @click="scrollThumbsUp"
@@ -54,12 +58,15 @@
                 <NuxtImg
                   :src="image.url"
                   :alt="'Изображение ' + (index + 1)"
+                  format="webp"
                   class="w-full h-full object-cover rounded cursor-pointer border border-gray-200"
+                  loading="lazy"
+                  width="80"
+                  height="80"
                 />
               </swiper-slide>
             </swiper-container>
 
-            <!-- Кнопка вниз -->
             <button
               v-if="product.images.length > 4"
               @click="scrollThumbsDown"
@@ -70,7 +77,7 @@
           </div>
         </div>
 
-        <!-- Горизонтальный слайдер миниатюр для мобильных устройств -->
+        <!-- Горизонтальный слайдер миниатюр для мобильных -->
         <div class="lg:hidden mt-4">
           <swiper-container
             ref="mobileThumbsSwiper"
@@ -89,7 +96,11 @@
               <NuxtImg
                 :src="image.url"
                 :alt="'Изображение ' + (index + 1)"
+                format="webp"
                 class="w-full h-16 object-cover rounded cursor-pointer border border-gray-200"
+                loading="lazy"
+                width="80"
+                height="64"
               />
             </swiper-slide>
           </swiper-container>
@@ -107,11 +118,15 @@
       </button>
 
       <div class="relative w-full h-4/5 flex items-center justify-center mb-4">
-        <NuxtImg
-          :src="product.images[fullscreenIndex].url"
-          :alt="product.name"
-          class="max-w-full max-h-full object-contain"
-        />
+        <div class="max-w-full max-h-full flex items-center justify-center">
+          <NuxtImg
+            :src="product.images[fullscreenIndex].url"
+            :alt="product.name"
+            format="webp"
+            class="max-w-full max-h-full object-contain"
+            loading="eager"
+          />
+        </div>
 
         <button
           v-if="product.images.length > 1"
@@ -148,7 +163,11 @@
             <NuxtImg
               :src="image.url"
               :alt="'Изображение ' + (index + 1)"
+              format="webp"
               class="w-full h-full object-cover rounded cursor-pointer border border-gray-200"
+              loading="lazy"
+              width="80"
+              height="80"
             />
           </swiper-slide>
         </swiper-container>
@@ -202,6 +221,7 @@ const openFullscreenImage = (index: number) => {
   fullscreenIndex.value = index
   isFullscreenOpen.value = true
   document.body.style.overflow = 'hidden'
+  document.documentElement.style.overflow = 'hidden'
 
   nextTick(() => {
     if (fullscreenThumbsSwiper.value && fullscreenThumbsSwiper.value.swiper) {
@@ -213,6 +233,7 @@ const openFullscreenImage = (index: number) => {
 const closeFullscreenImage = () => {
   isFullscreenOpen.value = false
   document.body.style.overflow = ''
+  document.documentElement.style.overflow = ''
 }
 
 const prevFullscreenImage = () => {
@@ -308,11 +329,12 @@ swiper-container {
   filter: brightness(1.05);
 }
 
-.cursor-zoom-in {
-  cursor: zoom-in;
-}
-
 .fullscreen-thumbs-swiper {
   --swiper-navigation-color: #d10026;
+}
+
+.active-thumb {
+  border-color: #ef4444 !important;
+  opacity: 1 !important;
 }
 </style>
