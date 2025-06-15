@@ -31,9 +31,9 @@ class ProfileEditScreen extends Screen
         $this->user = $user;
         
         return [
-            // 'user' => $user->load(['profile', 'bonusCard']),
-            'user' => $user ?? $user->create(),
-            // 'bonus_card' => $user->bonusCard,
+            'user' => $user->load(['profile', 'bonusCard']),
+            'profile' => $user->profile ?? $user->profile()->create(),
+            'bonus_card' => $user->bonusCard,
             'bonus_transactions' => $user->bonusTransactions()->latest()->get(),
             // 'orders' => $user->orders()->latest()->get(),
         ];
@@ -199,6 +199,70 @@ class ProfileEditScreen extends Screen
                         
                     ]),
                 ],
+                
+                // 'Заказы' => [
+                //     Layout::table('orders', [
+                //         TD::make('order_number', 'Номер заказа')
+                //             ->sort()
+                //             ->filter(TD::FILTER_TEXT),
+                            
+                //         TD::make('created_at', 'Дата')
+                //             ->sort()
+                //             ->render(function ($order) {
+                //                 return $order->created_at->format('d.m.Y H:i');
+                //             }),
+                            
+                //         TD::make('total_amount', 'Сумма')
+                //             ->sort()
+                //             ->render(function ($order) {
+                //                 return number_format($order->total_amount, 2, '.', ' ') . ' ₽';
+                //             }),
+                            
+                //         TD::make('status', 'Статус')
+                //             ->sort()
+                //             ->render(function ($order) {
+                //                 return Select::make("orders.{$order->id}.status")
+                //                     ->options([
+                //                         'pending' => 'В обработке',
+                //                         'processing' => 'В процессе',
+                //                         'completed' => 'Завершен',
+                //                         'cancelled' => 'Отменен'
+                //                     ])
+                //                     ->value($order->status);
+                //             }),
+                            
+                //         TD::make('is_paid', 'Оплата')
+                //             ->sort()
+                //             ->render(function ($order) {
+                //                 return CheckBox::make("orders.{$order->id}.is_paid")
+                //                     ->value($order->is_paid)
+                //                     ->sendTrueOrFalse();
+                //             }),
+                            
+                //         TD::make('Действия')
+                //             ->render(function ($order) {
+                //                 return DropDown::make()
+                //                     ->icon('options-vertical')
+                //                     ->list([
+                //                         Link::make('Просмотр')
+                //                             ->route('platform.orders.view', $order->id)
+                //                             ->icon('eye'),
+                                            
+                //                         Button::make('Удалить')
+                //                             ->method('removeOrder')
+                //                             ->parameters(['id' => $order->id])
+                //                             ->icon('trash')
+                //                             ->confirm('Вы уверены что хотите удалить этот заказ?'),
+                //                     ]);
+                //             }),
+                //     ]),
+                    
+                //     // Layout::rows([
+                //     //     Button::make('Сохранить изменения')
+                //     //         ->method('saveOrders')
+                //     //         ->icon('check'),
+                //     // ]),
+                // ],
             ])
         ];
     }

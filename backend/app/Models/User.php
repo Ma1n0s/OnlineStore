@@ -20,18 +20,6 @@ class User extends Authenticatable
         'password',
         'phone',
         'role',
-        'last_name',
-        'first_name',
-        'patronymic',
-        'company_name',
-        'inn',
-        'kpp',
-        'profile_phone',
-        'profile_email',
-        'legal_address',
-        'director',
-        'company_phone',
-        'company_email'
     ];
 
     /**
@@ -89,10 +77,15 @@ class User extends Authenticatable
     public const ROLE_USER = 'user';
     public const ROLE_ADMIN = 'admin';
 
-    // public function bonusCard()
-    // {
-    //     return $this->hasOne(BonusCard::class);
-    // }
+    public function profile()
+    {
+        return $this->hasOne(UserProfile::class);
+    }
+
+    public function bonusCard()
+    {
+        return $this->hasOne(BonusCard::class);
+    }
 
     public function bonusTransactions()
     {

@@ -41,29 +41,28 @@ export const useUserStore = defineStore('user', () => {
 
       if (data.value) {
         console.log('Full API response:', data.value)
+        console.log('Orders in response:', data.value.orders)
 
         user.value = {
           ...data.value,
+          // ...data.value.profile,
           companyDetails: {
-            name: data.value.company_name,
-            inn: data.value.inn,
-            kpp: data.value.kpp,
-            address: data.value.legal_address,
-            director: data.value.director,
-            phone: data.value.company_phone,
-            email: data.value.company_email,
+            name: data.value.profile?.company_name,
+            inn: data.value.profile?.inn,
+            kpp: data.value.profile?.kpp,
+            address: data.value.profile?.legal_address,
+            director: data.value.profile?.director,
+            phone: data.value.profile?.company_phone,
+            email: data.value.profile?.company_email,
           },
           bonusBalance: data.value.bonus_balance,
           bonusTransactions: data.value.bonus_transactions || [],
           orders: data.value.orders || [],
           phone: data.value.phone,
-          lastName: data.value.last_name,
-          firstName: data.value.first_name,
-          patronymic: data.value.patronymic,
         }
-        
         isAuth.value = true
         console.log('User data after processing:', user.value)
+        console.log('Processed orders:', user.value.orders)
       }
     } catch (error) {
       console.error('Error fetching user:', error)

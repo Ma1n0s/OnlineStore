@@ -16,7 +16,7 @@ class ProfileListScreen extends Screen
     public function query(): array
     {
         return [
-            'users' => User::query()
+            'users' => User::with('profile')
                 ->filters()
                 ->defaultSort('created_at', 'desc')
                 ->paginate()
@@ -44,10 +44,10 @@ class ProfileListScreen extends Screen
                     ->sort()
                     ->filter(TD::FILTER_TEXT),
                     
-                TD::make('last_name', 'Фамилия')
+                TD::make('profile.last_name', 'Фамилия')
                     ->sort()
                     ->render(function (User $user) {
-                        return $user->last_name ?? '-';
+                        return $user->profile->last_name ?? '-';
                     }),
 
                 TD::make('email', 'Email')
@@ -60,10 +60,10 @@ class ProfileListScreen extends Screen
                         return $user->phone ?? '-';
                     }),
 
-                TD::make('company_name', 'Компания')
+                TD::make('profile.company_name', 'Компания')
                     ->sort()
                     ->render(function (User $user) {
-                        return $user->company_name ?? '-';
+                        return $user->profile->company_name ?? '-';
                     }),
 
                 TD::make('role', 'Роль')
