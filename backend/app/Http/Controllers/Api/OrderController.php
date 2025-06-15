@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendApiRequest;
 use App\Models\BonusTransaction;
 use App\Models\Order;
 use App\Models\OrderProduct;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use App\Models\Category;
 use Illuminate\Support\Str;
+use Log;
 use Validator;
 use Illuminate\Http\Response;
 class OrderController extends Controller
@@ -104,12 +106,32 @@ class OrderController extends Controller
             // 9. Обновляем сумму в корзине
             $cart->updateTotalAmount();
 
+            $newOrder->load('orderProducts.product');
+            $cart->fresh()->load('orderProducts.product');
+
+            $this->sync($newOrder);
+
             return response()->json([
                 'message' => 'Заказ успешно создан',
-                'order' => $newOrder->load('orderProducts.product'),
-                'cart' => $cart->fresh()->load('orderProducts.product')
+                'order' => $newOrder,
+                'cart' => $cart
             ], 201);
         });
+    }
+
+    public function sync(Order $order){
+        
+        $order->load('user');
+        $order->user->load('profile');
+        
+        
+        SendApiRequest::dispatch(
+            env('services.external_url', ''),
+            $order,
+            ['Authorization' => 'Bearer '.config('services.api.token')]
+        )->onQueue('api-requests');
+
+
     }
 
      public function activeCart(Request $request)
@@ -303,7 +325,51 @@ class OrderController extends Controller
             ]
         ]);
     }
-    public function updateOrder(Request $request, Order $order)
+
+    public function setProId(Request $request, Order $order) {
+        $validated = $request->validate([
+            'id' => 'required|integer',       // pro_id из внешней системы
+        ]);
+    
+        $token = $request->header('Authorization');
+    
+        if($token !== env('services.external_api.token', '')) {
+            return response()->json(['error'=>'auth error'], 401);
+        }
+    
+        if (!$order) {
+            Log::error('Webhook error: Order not found', $validated);
+            return response()->json(['error' => 'Order not found'], 404);
+        }
+        
+        try {
+            $order->update([
+                'pro_id' => $validated['id'],
+            ]);
+            
+            Log::info('Webhook processed successfully', [
+                'order_id' => $order->id,
+                'pro_id' => $validated['id']
+            ]);
+    
+            // 4. Ответ для внешней системы
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Order updated',
+                'order_number' => $order->order_number
+            ]);
+    
+        } catch (\Exception $e) {
+            Log::error('Webhook update failed', [
+                'error' => $e->getMessage(),
+                'request' => $validated
+            ]);
+            
+            return response()->json(['error' => 'Update failed'], 500);
+        }
+    }
+
+    public function updateOrder(Request $request, $order)
     {
 
         $validator = Validator::make($request->all(), [
@@ -335,6 +401,7 @@ class OrderController extends Controller
             return response()->json(['error'=>'auth error'], 401);
         }
 
+        $order = Order::where('pro_id', $order)->first();
 
         return DB::transaction(function () use ($order, $validated) {
             // 1. Обновляем основные данные заказа
