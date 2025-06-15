@@ -161,9 +161,8 @@ class ProfileController extends Controller
     {
         $user = Auth::user()->load('companies');
         
-        return response()->json([
-            'user' => $user,
-            'mainCompany' => $user->companies->where('is_main', true)->first()
-        ]);
+        return response()->json(
+            $user->companies,
+        );
     }
 }

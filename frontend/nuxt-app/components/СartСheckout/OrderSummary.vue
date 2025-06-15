@@ -15,7 +15,9 @@ const sendOrder = useDebounceFn(async () => {
 
 const isEmpty = computed(() => products.value.length === 0)
 const isSelected = computed(() => products.value.some(product => product.selected))
-const isNotEnough = computed(() => products.value.some(product => product.quantity < product.orderQuantity))
+const isNotEnough = computed(() =>
+  products.value.filter(product => product.type === 'instock').some(product => product.quantity < product.orderQuantity)
+)
 console.log(!isNotEnough.value, 'enough')
 
 const weight = computed(() => {

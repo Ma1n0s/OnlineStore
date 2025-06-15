@@ -45,6 +45,8 @@ class OrderController extends Controller
                 ], 422);
             }
 
+            $prevPrice = $cart->amount;
+
             // 3. Проверяем доступное количество
             $productsToOrder = [];
             $errors = [];
@@ -55,7 +57,7 @@ class OrderController extends Controller
                 $availableQuantity = $product->quantity;
                 $requestedQuantity = $orderProduct->quantity;
 
-                if ($requestedQuantity > $availableQuantity) {
+                if ($requestedQuantity > $availableQuantity && $product->type == 'instock') {
                     $errors[] = [
                         'product_id' => $product->id,
                         'product_name' => $product->name,
@@ -68,7 +70,7 @@ class OrderController extends Controller
                 $productsToOrder[] = [
                     'product_id' => $product->id,
                     'quantity' => $requestedQuantity,
-                    'price_at_order' => $orderProduct->price_at_order,
+                    'price_at_order' => $product->price,
                     'selected' => false
                 ];
 
@@ -81,6 +83,16 @@ class OrderController extends Controller
                     'message' => 'Недостаточно товаров на складе',
                     'errors' => $errors,
                     'error' => 'insufficient_quantity'
+                ], 422);
+            }
+
+            $cart->updateOrderProductsPrices();
+            $new = $cart->amount;
+
+            if($prevPrice !== $new){
+                return response()->json([
+                    'message' => 'Неверная цена',
+                    'error' => 'no_active_cart_or_selected_products'
                 ], 422);
             }
 
@@ -104,7 +116,7 @@ class OrderController extends Controller
                 ->delete();
 
             // 9. Обновляем сумму в корзине
-            $cart->updateTotalAmount();
+            $cart->updateOrderProductsPrices();
 
             $newOrder->load('orderProducts.product');
             $cart->fresh()->load('orderProducts.product');
@@ -114,7 +126,7 @@ class OrderController extends Controller
             return response()->json([
                 'message' => 'Заказ успешно создан',
                 'order' => $newOrder,
-                'cart' => $cart
+                'cart' => $cart,
             ], 201);
         });
     }
@@ -153,7 +165,9 @@ class OrderController extends Controller
             $cart = $user->orders()->create([
                 'order_number' => 'ORD-' . now()->format('Ymd') . '-' . strtoupper(uniqid()),
                 'status' => 'created',
-                'total_amount' => 0
+                'total_amount' => 0,
+                'amount' => 0,
+                'bonuses' => 0,
             ]);
             
             // Инициализируем пустой массив продуктов

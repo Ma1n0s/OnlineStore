@@ -153,7 +153,7 @@ class OrderProductController extends Controller
                 'integer',
                 'min:1',
                 function ($attribute, $value, $fail) use ($product) {
-                    if ($value > $product->quantity) {
+                    if ($value > $product->quantity && $product->type == 'instock') {
                         $fail('Количество не может превышать доступное количество продукта.');
                     }
                 }
