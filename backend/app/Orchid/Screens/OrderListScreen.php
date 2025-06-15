@@ -18,7 +18,7 @@ class OrderListScreen extends Screen
     {
         return [
             'orders' => Order::with(['user', 'products'])
-                ->where('status', '!=', 'pending')
+                ->where('status', '!=', 'created')
                 ->filters()
                 ->defaultSort('created_at', 'desc')
                 ->paginate(),

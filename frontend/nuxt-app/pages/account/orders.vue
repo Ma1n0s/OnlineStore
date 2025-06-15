@@ -36,6 +36,7 @@ const orders = computed(() => {
 
 function getStatusText(status) {
   const statuses = {
+    created: 'Создана',
     pending: 'В обработке',
     processing: 'В процессе',
     completed: 'Завершен',
