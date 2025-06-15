@@ -20,7 +20,7 @@ return new class extends Migration
             $table->decimal('bonuses', 10, 2)->default(0);
             $table->decimal('amount', 10, 2)->default(0);
             $table->string('weight')->nullable();
-            $table->string('status')->default('pending');
+            $table->string('status')->default('created');
             $table->boolean('is_paid')->default(false);
             $table->boolean('selected')->default(true);
             $table->timestamps();

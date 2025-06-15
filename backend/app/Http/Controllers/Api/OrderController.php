@@ -34,7 +34,7 @@ class OrderController extends Controller
                     $query->where('selected', true)
                         ->with('product');
                 }])
-                ->where('status', 'pending')
+                ->where('status', 'created')
                 ->first();
 
             // 2. Если корзина не найдена или нет товаров
@@ -152,7 +152,7 @@ class OrderController extends Controller
         if (!$cart) {
             $cart = $user->orders()->create([
                 'order_number' => 'ORD-' . now()->format('Ymd') . '-' . strtoupper(uniqid()),
-                'status' => 'pending',
+                'status' => 'created',
                 'total_amount' => 0
             ]);
             
@@ -168,7 +168,7 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $request->validate([
-            'status' => 'sometimes|in:pending,processing,completed,cancelled',
+            'status' => 'sometimes|in:pending,processing,completed,cancelled,created',
             'per_page' => 'sometimes|integer|min:1|max:100',
             'page' => 'sometimes|integer|min:1'
         ]);
@@ -198,7 +198,7 @@ class OrderController extends Controller
         
         // Проверяем есть ли у пользователя активный заказ (status = pending)
         $hasActiveOrder = $user->orders()
-            ->where('status', 'pending')
+            ->where('status', 'created')
             ->exists();
         
         if ($hasActiveOrder) {
@@ -217,7 +217,7 @@ class OrderController extends Controller
         return DB::transaction(function () use ($user, $validated) {
             $order = $user->orders()->create([
                 'order_number' => 'ORD-' . now()->format('Ymd') . '-' . strtoupper(uniqid()),
-                'status' => 'pending',
+                'status' => 'created',
                 'total_amount' => 0
             ]);
     

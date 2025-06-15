@@ -15,6 +15,8 @@ const sendOrder = useDebounceFn(async () => {
 
 const isEmpty = computed(() => products.value.length === 0)
 const isSelected = computed(() => products.value.some(product => product.selected))
+const isNotEnough = computed(() => products.value.some(product => product.quantity < product.orderQuantity))
+console.log(!isNotEnough.value, 'enough')
 
 const weight = computed(() => {
   const result = products.value.reduce(
@@ -99,7 +101,7 @@ console.log(isEmpty.value, isSelected.value)
     <Button
       variant="primary"
       size="medium"
-      :disabled="!isEmpty && !isSelected"
+      :disabled="isEmpty || !isSelected || isNotEnough"
       class="w-full shadow-md text-sm sm:text-base"
       type="submit"
       @click="sendOrder"

@@ -99,7 +99,7 @@ class User extends Authenticatable
 
     public function cart()
     {
-        return $this->hasOne(Order::class)->where('status', 'pending');
+        return $this->hasOne(Order::class)->where('status', 'created');
     }
 
 
