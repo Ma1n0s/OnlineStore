@@ -363,7 +363,7 @@ watch(
             <button
               v-if="canAddMoreCompanies && !uiState.isEditing"
               @click="startAdding"
-              class="px-5 py-3  from-primary to-primary-600 text-black rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 text-base font-medium"
+              class="px-5 py-3 bg-primary from-primary to-primary-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 text-base font-medium"
             >
               <Icon name="mdi:plus" class="w-5 h-5" />
               <span>Добавить организацию</span>
@@ -498,7 +498,7 @@ watch(
               </p>
               <button
                 @click="startAdding"
-                class="px-8 py-4 bg-gradient-to-r from-primary to-primary-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-3 mx-auto text-base font-medium"
+                class="px-8 py-4 bg-primary from-primary to-primary-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-3 mx-auto text-base font-medium"
               >
                 <Icon name="mdi:plus" class="w-6 h-6" />
                 <span>Добавить организацию</span>
@@ -660,7 +660,7 @@ watch(
                   <button
                     type="submit"
                     :disabled="uiState.isLoading"
-                    class="px-6 py-3 bg-gradient-to-r from-primary to-primary-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-70 text-base font-medium flex items-center gap-2"
+                    class="px-6 py-3 bg-primary from-primary to-primary-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-70 text-base font-medium flex items-center gap-2"
                   >
                     <Icon v-if="uiState.isLoading" name="mdi:loading" class="animate-spin w-5 h-5" />
                     <span>{{ uiState.editingCompanyId ? 'Сохранить изменения' : 'Добавить организацию' }}</span>
