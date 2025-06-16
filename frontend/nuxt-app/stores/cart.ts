@@ -10,6 +10,7 @@ export const useCartStore = defineStore('cart', () => {
     updateOrderProduct,
     removeSelectedOrderProducts,
     removeOrderProducts,
+    changeBonus,
   } = useCart()
   const cart = ref<Record<any, any> | null>(null)
   const products = ref<Array<any>>([]) // Используем ref вместо reactive
@@ -80,6 +81,10 @@ export const useCartStore = defineStore('cart', () => {
     await refetchCart()
   }
 
+  const updateOrderBonus = async bonus => {
+    await changeBonus(bonus)
+  }
+
   // Инициализируем корзину при создании хранилища
   initCart()
 
@@ -96,6 +101,7 @@ export const useCartStore = defineStore('cart', () => {
     setSelected,
     updateProduct,
     createOrder,
+    updateOrderBonus,
     initCart, // Добавляем возможность повторной инициализации
   }
 })

@@ -17,6 +17,7 @@ class Order extends Model
         'order_number',
         'pro_id',
         'total_amount',
+        'checkBonus',
         'status',
         'bonuses',
         'amount',

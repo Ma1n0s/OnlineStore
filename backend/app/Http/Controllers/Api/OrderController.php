@@ -23,6 +23,54 @@ class OrderController extends Controller
      */
 
 
+
+     public function updateOrderBonus(Request $request){
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'checkBonus' => 'required|boolean',
+        ]);
+
+        $checkBonus = $validated['checkBonus'];
+
+        $cart = $user->cart()->first();
+    
+        if (!$cart) {
+            return response()->json(['message' => 'Корзина не найдена'], 404);
+        }
+
+        $cart->updateOrderProductsPrices();
+
+
+        // // if ($cart->bonuses > 0) {
+        //     $this->createBonusTransaction(
+        //         $cart->user_id,
+        //         $cart->id,
+        //         'пополнение',
+        //         100,
+        //         'Списание бонусов за заказ #' . $cart->order_number
+        //     );
+            
+        //     // Уменьшаем бонусы пользователя
+        //     $cart->user->increment('bonus_balance', 100);
+        // // }
+        
+        if ($checkBonus) {
+            $newBonus = $user->bonus_balance > $cart->amount ? $cart->amount : $user->bonus_balance ;
+
+            $cart->update([
+                'checkBonus' => $checkBonus,
+                'bonus' => $newBonus,
+            ]);
+        } else {
+            $cart->update([
+                'checkBonus' => $checkBonus,
+                'bonus' => 0,
+            ]);
+        }
+        
+     }
+
     public function createOrderFromSelected(Request $request)
     {
         $user = $request->user();
@@ -520,7 +568,7 @@ class OrderController extends Controller
             );
             
             // Уменьшаем бонусы пользователя
-            $order->user->decrement('scores', $order->bonuses);
+            $order->user->decrement('bonus_balance', $order->bonuses);
         }
         
         // Начисляем новые бонусы (3% от итоговой суммы), если не использовались бонусы
@@ -536,7 +584,7 @@ class OrderController extends Controller
             );
             
             // Увеличиваем бонусы пользователя
-            $order->user->increment('scores', $newBonuses);
+            $order->user->increment('bonus_balance', $newBonuses);
         }
     }
 

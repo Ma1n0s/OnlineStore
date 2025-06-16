@@ -18,7 +18,6 @@ const isSelected = computed(() => products.value.some(product => product.selecte
 const isNotEnough = computed(() =>
   products.value.filter(product => product.type === 'instock').some(product => product.quantity < product.orderQuantity)
 )
-console.log(!isNotEnough.value, 'enough')
 
 const weight = computed(() => {
   const result = products.value.reduce(
@@ -36,6 +35,17 @@ const sum = computed(() => {
   return result
 })
 
+const bonus = computed(() => {
+  console.log(cart.value && cart.value?.user && cart.value?.user?.bonus_balance, 'test')
+  if (cart.value && cart.value?.user && cart.value?.user?.bonus_balance) {
+    return cart.value?.user?.bonus_balance > sum.value ? sum.value : cart.value?.user?.bonus_balance
+  }
+  return 0
+})
+
+const checkBonus = ref(!!cart.value?.checkBonus)
+const total = computed(() => (checkBonus.value ? sum.value - bonus.value : sum.value))
+
 const formatDateTime = datatime => {
   const date = new Date(datatime)
   return new Intl.DateTimeFormat('ru-RU', {
@@ -49,6 +59,10 @@ const formatDateTime = datatime => {
     .format(date)
     .replace(',', '')
 }
+
+onMounted(() => {
+  // checkBonus.value = cart.value?.checkBonus === 1
+})
 
 console.log(isEmpty.value, isSelected.value)
 
@@ -91,12 +105,20 @@ console.log(isEmpty.value, isSelected.value)
         <span>Сумма</span>
         <span class="font-medium text-gray-800">{{ sum }} ₽</span>
       </div>
+
+      <div class="flex justify-between items-center text-sm sm:text-base">
+        <span>
+          <input type="checkbox" v-model="checkBonus" @change="e => cartStore.updateOrderBonus(e.target.checked)" />
+          Бонусы
+        </span>
+        <span class="font-medium text-gray-800">{{ bonus }} ₽</span>
+      </div>
     </div>
 
     <div class="border-t border-gray-200 pt-3 sm:pt-4 mb-3 sm:mb-4">
       <div class="flex justify-between items-center mb-4 sm:mb-6">
         <span class="text-base sm:text-lg font-bold text-gray-800">Итого</span>
-        <span class="text-xl sm:text-2xl font-bold text-gray-800"> {{ isEmpty ? 0 : sum }} ₽ </span>
+        <span class="text-xl sm:text-2xl font-bold text-gray-800"> {{ isEmpty ? 0 : total }} ₽ </span>
       </div>
     </div>
 
