@@ -124,18 +124,18 @@ const breadcrumbs = [
 </script>
 
 <template>
-  <div class="md:mx-auto w-full max-w-screen-2xl px-8 space-y-8 py-8">
-    <Breadcrumbs :list="breadcrumbs" />
+  <div class="mx-auto w-full max-w-screen-2xl px-4 sm:px-8 space-y-6 sm:space-y-8 py-4 sm:py-8">
+    <Breadcrumbs :list="breadcrumbs" class="px-2 sm:px-0" />
 
     <div v-if="!loading">
-      <div class="flex flex-col lg:flex-row gap-8">
-        <ImageBlock :product="product" />
+      <div class="flex flex-col lg:flex-row gap-4 sm:gap-8">
+        <ImageBlock :product="product" class="w-full lg:w-2/5" />
 
         <div class="lg:flex-1 flex flex-col">
           <ActionsPanel :product="product" />
 
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4 flex-grow">
-            <div class="lg:col-span-2 pr-24">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mt-4 flex-grow">
+            <div class="lg:col-span-2 lg:pr-24">
               <DescriptionBlock :product="product" />
             </div>
             <div class="lg:col-span-1">
@@ -145,13 +145,13 @@ const breadcrumbs = [
         </div>
       </div>
 
-      <div class="border-b border-gray-200 mb-8">
-        <nav class="flex space-x-6">
+      <div class="border-b border-gray-200 mb-6 sm:mb-8 overflow-x-auto">
+        <nav class="flex space-x-6 min-w-max px-4 sm:px-0">
           <button
             v-for="tab in tabs"
             :key="tab.id"
             @click="activeTab = tab.id"
-            class="py-4 px-1 border-b-2 font-medium text-sm"
+            class="py-3 sm:py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap"
             :class="{
               'border-second text-second': activeTab === tab.id,
               'border-transparent text-gray hover:text-dark hover:border-gray-300': activeTab !== tab.id,
@@ -163,13 +163,13 @@ const breadcrumbs = [
       </div>
 
       <div>
-        <div v-show="activeTab === 'description'" class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div v-show="activeTab === 'description'" class="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8">
           <div class="lg:col-span-3">
             <BasicDescriptionBlock :product="product" />
             <SpecificationsBlock :product="product" />
           </div>
 
-          <div class="sticky top-4 h-fit">
+          <div class="sticky top-4 h-fit lg:block hidden">
             <BrandBlock :product="product" />
           </div>
         </div>

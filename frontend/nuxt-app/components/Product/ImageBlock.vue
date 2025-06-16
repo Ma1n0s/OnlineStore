@@ -78,7 +78,7 @@
         </div>
 
         <!-- Горизонтальный слайдер миниатюр для мобильных -->
-        <div class="lg:hidden mt-4">
+        <!-- <div class="lg:hidden mt-4">
           <swiper-container
             ref="mobileThumbsSwiper"
             class="mobile-thumbs-swiper"
@@ -104,7 +104,7 @@
               />
             </swiper-slide>
           </swiper-container>
-        </div>
+        </div> -->
       </ClientOnly>
     </div>
 
