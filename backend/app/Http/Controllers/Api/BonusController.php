@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Models\BonusTransaction;
 
 class BonusController extends Controller
 {
@@ -16,6 +17,14 @@ class BonusController extends Controller
             'per_page' => 'nullable|integer|min:1|max:100',
             'sort' => 'nullable|string|in:newest,oldest',
         ]);
+
+        $request->validate([
+            'page' => 'nullable|integer|min:1',
+            'limit' => 'nullable|integer|min:1|max:50',
+            'sort' => 'nullable|string|in:asc,desc',
+        ]);
+
+        $user = $request->user();
 
         try {
             $query = $user->bonusTransactions()
@@ -28,7 +37,7 @@ class BonusController extends Controller
                     'created_at'
                 ]);
 
-            if ($validated['sort'] === 'newest') {
+            if (isset($validated['sort']) && $validated['sort'] === 'asc') {
                 $query->latest();
             } else {
                 $query->oldest();
