@@ -24,6 +24,7 @@ class Order extends Model
         'weight',
         'is_paid',
         'selected',
+        'selectedCompany',
     ];
 
     protected $with = [

@@ -27,7 +27,7 @@ class OrderController extends Controller
         $user = $request->user();
 
         $validated = $request->validate([
-            'selectedCompany' => 'required|integer|nullable',
+            'selectedCompany' => 'integer|nullable',
         ]);
 
         $cart = $user->cart()->first();
