@@ -3,7 +3,7 @@
 import OrderSummary from '~/components/СartСheckout/OrderSummary.vue'
 import CartHeader from '~/components/СartСheckout/CartHeader.vue'
 import CartItemsList from '~/components/СartСheckout/CartItemsList.vue'
-// import RecipientData from '~/components/СartСheckout/RecipientData.vue'
+import RecipientData from '~/components/СartСheckout/RecipientData.vue'
 import { useCartStore } from '~/stores/cart'
 import { storeToRefs } from 'pinia'
 
@@ -65,7 +65,7 @@ onMounted(async () => {
 
           <template v-else>
             <CartItemsList />
-            <!-- <RecipientData :cart="cart" /> -->
+            <RecipientData />
           </template>
         </div>
 
