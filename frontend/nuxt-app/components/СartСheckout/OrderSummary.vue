@@ -91,6 +91,10 @@ console.log(isEmpty.value, isSelected.value)
         <p class="text-sm sm:text-base font-medium" v-if="cart.user">{{ cart.user.name }}</p>
         <p class="text-xs sm:text-sm text-gray-400 italic" v-else>Не указано</p>
       </div>
+
+      <div>
+        <p class="text-sm sm:text-base font-medium">Доступно бонусов: {{ bonus }} ₽</p>
+      </div>
     </div>
 
     <div v-if="!isEmpty && isSelected" class="flex items-center justify-between mb-3 sm:mb-4">
@@ -106,7 +110,7 @@ console.log(isEmpty.value, isSelected.value)
         <span class="font-medium text-gray-800">{{ sum }} ₽</span>
       </div>
 
-      <div class="flex justify-between items-center text-sm sm:text-base">
+      <div class="flex justify-between items-center text-sm sm:text-base" v-if="!!bonus">
         <span>
           <input type="checkbox" v-model="checkBonus" @change="e => cartStore.updateOrderBonus(e.target.checked)" />
           Бонусы
