@@ -202,4 +202,27 @@ class OrderProductController extends Controller
 
         return response()->json(null, 204);
     }
+
+    public function index(Request $request)
+    {
+
+        $user = $request->user();
+        $validated = $request->validate([
+            'per_page' => 'nullable|integer|min:1|max:100',
+            'page' => 'nullable|integer|min:1',
+        ]);
+        
+        // Получаем заказы с пагинацией
+        $orders = $user->orders()
+            ->with(['orderProducts.product'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(
+                $request->per_page ?? 15,  
+                ['*'],                      
+                'page',                     
+                $request->page ?? 1        
+            );
+        
+        return response()->json($orders);
+    }
 }
