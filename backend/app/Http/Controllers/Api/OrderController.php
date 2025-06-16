@@ -22,7 +22,26 @@ class OrderController extends Controller
      * Display a paginated list of authenticated user's orders
      */
 
+     
+     public function updateOrderCompany(Request $request){
+        $user = $request->user();
 
+        $validated = $request->validate([
+            'selectedCompany' => 'required|integer|nullable',
+        ]);
+
+        $cart = $user->cart()->first();
+
+        if (!$cart) {
+            return response()->json(['message' => 'Корзина не найдена'], 404);
+        }
+
+        $cart->update([
+            'selectedCompany' => $validated['selectedCompany'],
+        ]);
+
+        return response()->json($cart,200);
+     }
 
      public function updateOrderBonus(Request $request){
         $user = $request->user();
@@ -38,22 +57,6 @@ class OrderController extends Controller
         if (!$cart) {
             return response()->json(['message' => 'Корзина не найдена'], 404);
         }
-
-        // $cart->updateOrderProductsPrices();
-
-
-        // // if ($cart->bonuses > 0) {
-        //     $this->createBonusTransaction(
-        //         $cart->user_id,
-        //         $cart->id,
-        //         'пополнение',
-        //         100,
-        //         'Списание бонусов за заказ #' . $cart->order_number
-        //     );
-            
-        //     // Уменьшаем бонусы пользователя
-        //     $cart->user->increment('bonus_balance', 100);
-        // // }
         
         if (!!$checkBonus) {
             $newBonus = $user->bonus_balance > $cart->amount ? $cart->amount : $user->bonus_balance;
