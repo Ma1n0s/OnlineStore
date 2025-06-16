@@ -236,7 +236,7 @@ Route::get('/orders/active-cart', [OrderController::class, 'activeCart']);
 Route::post('/orders/create-order', [OrderController::class, 'createOrderFromSelected']);
 Route::post('/orders/use-bonus', [OrderController::class, 'updateOrderBonus']);
 
-Route::middleware('auth:sanctum')->get('orders/', action: [OrderProductController::class, 'index']);
+Route::middleware('auth:sanctum')->get('orders/full', action: [OrderProductController::class, 'index']);
 
 Route::middleware('auth:sanctum')->prefix('orders/{order}/products')->group(function () {
     Route::post('/', action: [OrderProductController::class, 'store']);
