@@ -67,6 +67,29 @@ const changePage = newPage => {
   }
 }
 
+const {
+  public: { backendUrl },
+} = useRuntimeConfig()
+
+const getBonus = async () => {
+  try {
+    return await $fetch(`${backendUrl}/api/bonus/transactions`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+      },
+      credentials: 'include',
+    })
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+const b = getBonus()
+
+console.log(b, 'bonusska')
+
 // Изменение количества элементов на странице
 // const changePerPage = (newPerPage) => {
 //   perPage.value = newPerPage

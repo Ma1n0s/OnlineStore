@@ -20,6 +20,7 @@ class User extends Authenticatable
         'password',
         'phone',
         'role',
+        'bonus_balance',
     ];
 
     /**

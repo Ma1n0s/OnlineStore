@@ -24,6 +24,7 @@ return new class extends Migration
             $table->timestamps();
             $table->timestamp('expires_at')->nullable();
             $table->integer('scores')->default(0);
+            $table->integer('bonus_balance')->default(0);
 
             // $table->index('email')->unique()->nullable();
             // $table->index('phone')->unique()->nullable();

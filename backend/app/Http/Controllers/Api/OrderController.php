@@ -23,6 +23,54 @@ class OrderController extends Controller
      */
 
 
+
+     public function updateOrderBonus(Request $request){
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'checkBonus' => 'required|boolean',
+        ]);
+
+        $checkBonus = $validated['checkBonus'];
+
+        $cart = $user->cart()->first();
+    
+        if (!$cart) {
+            return response()->json(['message' => 'Корзина не найдена'], 404);
+        }
+
+        $cart->updateOrderProductsPrices();
+
+
+        // // if ($cart->bonuses > 0) {
+        //     $this->createBonusTransaction(
+        //         $cart->user_id,
+        //         $cart->id,
+        //         'пополнение',
+        //         100,
+        //         'Списание бонусов за заказ #' . $cart->order_number
+        //     );
+            
+        //     // Уменьшаем бонусы пользователя
+        //     $cart->user->increment('bonus_balance', 100);
+        // // }
+        
+        if ($checkBonus) {
+            $newBonus = $user->bonus_balance > $cart->amount ? $cart->amount : $user->bonus_balance ;
+
+            $cart->update([
+                'checkBonus' => $checkBonus,
+                'bonus' => $newBonus,
+            ]);
+        } else {
+            $cart->update([
+                'checkBonus' => $checkBonus,
+                'bonus' => 0,
+            ]);
+        }
+        
+     }
+
     public function createOrderFromSelected(Request $request)
     {
         $user = $request->user();
@@ -45,6 +93,8 @@ class OrderController extends Controller
                 ], 422);
             }
 
+            $prevPrice = $cart->amount;
+
             // 3. Проверяем доступное количество
             $productsToOrder = [];
             $errors = [];
@@ -55,7 +105,7 @@ class OrderController extends Controller
                 $availableQuantity = $product->quantity;
                 $requestedQuantity = $orderProduct->quantity;
 
-                if ($requestedQuantity > $availableQuantity) {
+                if ($requestedQuantity > $availableQuantity && $product->type == 'instock') {
                     $errors[] = [
                         'product_id' => $product->id,
                         'product_name' => $product->name,
@@ -68,7 +118,7 @@ class OrderController extends Controller
                 $productsToOrder[] = [
                     'product_id' => $product->id,
                     'quantity' => $requestedQuantity,
-                    'price_at_order' => $orderProduct->price_at_order,
+                    'price_at_order' => $product->price,
                     'selected' => false
                 ];
 
@@ -81,6 +131,16 @@ class OrderController extends Controller
                     'message' => 'Недостаточно товаров на складе',
                     'errors' => $errors,
                     'error' => 'insufficient_quantity'
+                ], 422);
+            }
+
+            $cart->updateOrderProductsPrices();
+            $new = $cart->amount;
+
+            if($prevPrice !== $new){
+                return response()->json([
+                    'message' => 'Неверная цена',
+                    'error' => 'no_active_cart_or_selected_products'
                 ], 422);
             }
 
@@ -104,7 +164,7 @@ class OrderController extends Controller
                 ->delete();
 
             // 9. Обновляем сумму в корзине
-            $cart->updateTotalAmount();
+            $cart->updateOrderProductsPrices();
 
             $newOrder->load('orderProducts.product');
             $cart->fresh()->load('orderProducts.product');
@@ -114,7 +174,7 @@ class OrderController extends Controller
             return response()->json([
                 'message' => 'Заказ успешно создан',
                 'order' => $newOrder,
-                'cart' => $cart
+                'cart' => $cart,
             ], 201);
         });
     }
@@ -153,7 +213,9 @@ class OrderController extends Controller
             $cart = $user->orders()->create([
                 'order_number' => 'ORD-' . now()->format('Ymd') . '-' . strtoupper(uniqid()),
                 'status' => 'created',
-                'total_amount' => 0
+                'total_amount' => 0,
+                'amount' => 0,
+                'bonuses' => 0,
             ]);
             
             // Инициализируем пустой массив продуктов
@@ -506,7 +568,7 @@ class OrderController extends Controller
             );
             
             // Уменьшаем бонусы пользователя
-            $order->user->decrement('scores', $order->bonuses);
+            $order->user->decrement('bonus_balance', $order->bonuses);
         }
         
         // Начисляем новые бонусы (3% от итоговой суммы), если не использовались бонусы
@@ -522,7 +584,7 @@ class OrderController extends Controller
             );
             
             // Увеличиваем бонусы пользователя
-            $order->user->increment('scores', $newBonuses);
+            $order->user->increment('bonus_balance', $newBonuses);
         }
     }
 

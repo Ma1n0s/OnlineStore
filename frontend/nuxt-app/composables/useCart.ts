@@ -120,6 +120,25 @@ export const useCart = () => {
     }
   }
 
+  const changeBonus = async bonus => {
+    try {
+      return await $fetch(`${backendUrl}/api/orders/use-bonus`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+        },
+        credentials: 'include',
+        body: {
+          checkBonus: bonus,
+        },
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
   const completeOrder = async () => {
     try {
       return await $fetch(`${backendUrl}/api/orders/create-order`, {
@@ -144,5 +163,6 @@ export const useCart = () => {
     updateOrderProduct,
     completeOrder,
     updateSelected,
+    changeBonus,
   }
 }

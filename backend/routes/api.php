@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\BonusController;
+use App\Http\Controllers\Api\BonusController;
 use App\Mail\VerificationCodeMail;
 
 // Route::prefix('cart')->group(function () {
@@ -48,9 +48,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
 
-// Route::middleware('auth:sanctum')->group(function() {
-//     Route::get('/bonus/transactions', [BonusController::class, 'getBonusTransactions']);
-// });
+Route::middleware('auth:sanctum')->group(function() {
+    Route::get('/bonus/transactions', [BonusController::class, 'getBonusTransactions']);
+});
 
 Route::middleware('auth:sanctum')->prefix('profile/companies')->group(function () {
     Route::get('/', [ProfileController::class, 'getCompanies']);
@@ -234,6 +234,7 @@ Route::get('/search', [ProductController::class, 'search']);
 
 Route::get('/orders/active-cart', [OrderController::class, 'activeCart']);
 Route::post('/orders/create-order', [OrderController::class, 'createOrderFromSelected']);
+Route::post('/orders/use-bonus', [OrderController::class, 'updateOrderBonus']);
 
 Route::middleware('auth:sanctum')->prefix('orders/{order}/products')->group(function () {
     Route::post('/', action: [OrderProductController::class, 'store']);

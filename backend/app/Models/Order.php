@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DB;
 use Illuminate\Database\Eloquent\Model;
 use Orchid\Filters\Filterable;
 use Orchid\Screen\AsSource;
@@ -16,6 +17,7 @@ class Order extends Model
         'order_number',
         'pro_id',
         'total_amount',
+        'checkBonus',
         'status',
         'bonuses',
         'amount',
@@ -47,6 +49,38 @@ class Order extends Model
             ->using(OrderProduct::class)
             ->withPivot(['quantity', 'price_at_order', 'selected'])
             ->withTimestamps();
+    }
+
+    public function updateOrderProductsPrices()
+    {
+        return DB::transaction(function () {
+            // Получаем все продукты заказа с актуальными ценами
+            $products = Product::whereIn('id', function($query) {
+                    $query->select('product_id')
+                        ->from('order_products')
+                        ->where('order_id', $this->id);
+                })
+                ->select('id', 'price')
+                ->get()
+                ->keyBy('id');
+            
+            // Обновляем цены для каждого товара в заказе
+            $this->orderProducts()->each(function($orderProduct) use ($products) {
+                if (isset($products[$orderProduct->product_id])) {
+                    $newPrice = $products[$orderProduct->product_id]->price;
+                    
+                    // Обновляем только если цена изменилась
+                    if ($orderProduct->price_at_order != $newPrice) {
+                        $orderProduct->update(['price_at_order' => $newPrice]);
+                    }
+                }
+            });
+            
+            // Пересчитываем общую сумму заказа
+            $this->updateTotalAmount();
+            
+            return $this;
+        });
     }
 
     public function updateTotalAmount()
