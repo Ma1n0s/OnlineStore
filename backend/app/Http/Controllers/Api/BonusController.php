@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use App\Models\BonusTransaction;
 
 class BonusController extends Controller
@@ -15,13 +14,6 @@ class BonusController extends Controller
         $validated = $request->validate([
             'page' => 'nullable|integer|min:1',
             'per_page' => 'nullable|integer|min:1|max:100',
-            'sort' => 'nullable|string|in:newest,oldest',
-        ]);
-
-        $request->validate([
-            'page' => 'nullable|integer|min:1',
-            'limit' => 'nullable|integer|min:1|max:50',
-            'sort' => 'nullable|string|in:asc,desc',
         ]);
 
         $user = $request->user();
@@ -37,18 +29,8 @@ class BonusController extends Controller
                     'created_at'
                 ]);
 
-            if (isset($validated['sort']) && $validated['sort'] === 'asc') {
-                $query->latest();
-            } else {
-                $query->oldest();
-            }
-
-            $transactions = $query->paginate(
-                $validated['per_page'] ?? 10,
-                ['*'],
-                'page',
-                $validated['page'] ?? 1
-            );
+            $perPage = $validated['per_page'] ?? 10;
+            $transactions = $query->paginate($perPage, ['*'], 'page', $validated['page'] ?? 1);
 
             return response()->json([
                 'data' => $transactions->items(),
