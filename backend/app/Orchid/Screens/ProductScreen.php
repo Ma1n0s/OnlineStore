@@ -211,14 +211,14 @@ class ProductScreen extends Screen
                             ->title('Гарантия')
                             ->help('Срок гарантии (например, "12 месяцев")'),
 
-                        Input::make('product.bonuses')
-                            ->title('Бонусы (5% от цены)')
-                            ->help('Начисляемые бонусы за покупку (5% от цены)')
-                            ->readonly()
-                            ->value(function () {
-                                $price = $this->product->price ?? 0;
-                                return round($price * 0.05, 2);
-                            }),
+                        // Input::make('product.bonuses')
+                        //     ->title('Бонусы (5% от цены)')
+                        //     ->help('Начисляемые бонусы за покупку (5% от цены)')
+                        //     ->readonly()
+                        //     ->value(function () {
+                        //         $price = $this->product->price ?? 0;
+                        //         return round($price * 0.03, 2);
+                        //     }),
 
                         Input::make('product.weight')
                             ->title('Вес')
@@ -321,20 +321,20 @@ class ProductScreen extends Screen
                         ->help('Дополнительные параметры товара'),
                 ]),
                 
-                'Преимущества' => Layout::rows([
-                    Matrix::make('advantages')
-                        ->title('Преимущества товара')
-                        ->columns([
-                            'Заголовок' => 'Title',
-                            'Описание' => 'Description',
-                        ])
-                        ->fields([
-                            'Title' => Input::make()->placeholder('Например: Удобное использование'),
-                            'Description' => TextArea::make()->placeholder('Подробное описание преимущества')->rows(2),
-                        ])
-                        ->value($this->advantages ?? [])
-                        ->help('Перечислите преимущества этого товара перед конкурентами'),
-                ]),
+                // 'Преимущества' => Layout::rows([
+                //     Matrix::make('advantages')
+                //         ->title('Преимущества товара')
+                //         ->columns([
+                //             'Заголовок' => 'Title',
+                //             'Описание' => 'Description',
+                //         ])
+                //         ->fields([
+                //             'Title' => Input::make()->placeholder('Например: Удобное использование'),
+                //             'Description' => TextArea::make()->placeholder('Подробное описание преимущества')->rows(2),
+                //         ])
+                //         ->value($this->advantages ?? [])
+                //         ->help('Перечислите преимущества этого товара перед конкурентами'),
+                // ]),
             ]),
             Layout::view('admin.product.typeScript')
         ];
