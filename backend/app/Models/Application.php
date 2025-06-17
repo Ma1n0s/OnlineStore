@@ -53,19 +53,19 @@ class Application extends Model
 
     public function awardBonuses()
     {
-        if ($this->product_id && $this->user_id) {
-            $product = Product::find($this->product_id);
-            $user = User::find($this->user_id);
+        // if ($this->product_id && $this->user_id) {
+        //     $product = Product::find($this->product_id);
+        //     $user = User::find($this->user_id);
             
-            if ($product && $user && $product->bonuses > 0) {
-                $user->bonusTransactions()->create([
-                    'date' => now(),
-                    'operation' => 'Начисление бонусов',
-                    'amount' => $product->bonuses,
-                    'status' => 'Завершено',
-                ]);
-            }
-        }
+        //     if ($product && $user && $product->bonuses > 0) {
+        //         $user->bonusTransactions()->create([
+        //             'date' => now(),
+        //             'operation' => 'Начисление',
+        //             'amount' => $product->bonuses,
+        //             'status' => 'Завершено',
+        //         ]);
+        //     }
+        // }
     }
 
     public function user()

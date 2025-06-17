@@ -18,8 +18,8 @@ const bonusData = ref({
     current_page: 1,
     last_page: 1,
     per_page: 10,
-    total: 0
-  }
+    total: 0,
+  },
 })
 
 const {
@@ -29,7 +29,7 @@ const {
 const loadBonusData = async () => {
   bonusData.value.loading = true
   bonusData.value.error = null
-  
+
   try {
     const response = await $fetch(`${backendUrl}/api/bonus/transactions`, {
       headers: {
@@ -41,9 +41,9 @@ const loadBonusData = async () => {
       query: {
         page: page.value,
         per_page: perPage.value,
-      }
+      },
     })
-    
+
     if (response && response.data) {
       bonusData.value = {
         balance: response.bonus_balance || 0,
@@ -53,16 +53,16 @@ const loadBonusData = async () => {
           operation: item.operation || 'Начисление ',
           amount: item.amount || 0,
           status: item.status || 'Завершено',
-          originalDate: item.date || item.created_at
+          originalDate: item.date || item.created_at,
         })),
         pagination: response.meta || {
           current_page: 1,
           last_page: 1,
           per_page: perPage.value,
-          total: 0
+          total: 0,
         },
         loading: false,
-        error: null
+        error: null,
       }
     }
   } catch (e) {
@@ -112,7 +112,7 @@ const isMobileMenuOpen = ref(false)
     <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-8">
       <div class="flex flex-col lg:flex-row gap-6">
         <SidebarMenu class="hidden lg:block" />
-        
+
         <div class="flex-1 space-y-6">
           <div v-if="bonusData.loading" class="text-center py-8">
             <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
@@ -134,7 +134,9 @@ const isMobileMenuOpen = ref(false)
                   <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                       <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дата</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Дата
+                        </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Операция
                         </th>
@@ -182,10 +184,7 @@ const isMobileMenuOpen = ref(false)
                         <p class="font-medium text-gray-900">{{ transaction.operation }}</p>
                         <p class="text-sm text-gray-500 mt-1">{{ transaction.date }}</p>
                       </div>
-                      <span
-                        class="text-sm"
-                        :class="transaction.amount > 0 ? 'text-green-600' : 'text-red-600'"
-                      >
+                      <span class="text-sm" :class="transaction.amount > 0 ? 'text-green-600' : 'text-red-600'">
                         {{ transaction.amount > 0 ? '+' : '' }}{{ transaction.amount.toFixed(2) }}
                       </span>
                     </div>
@@ -204,8 +203,10 @@ const isMobileMenuOpen = ref(false)
                   </div>
                 </div>
 
-
-                <div v-if="bonusData.pagination.last_page > 1" class="w-full mt-6 hidden lg:flex justify-center items-center gap-2">
+                <div
+                  v-if="bonusData.pagination.last_page > 1"
+                  class="w-full mt-6 hidden lg:flex justify-center items-center gap-2"
+                >
                   <button
                     @click="changePage(1)"
                     :disabled="bonusData.pagination.current_page === 1"
@@ -255,7 +256,9 @@ const isMobileMenuOpen = ref(false)
                   </button>
 
                   <template v-if="bonusData.pagination.current_page < bonusData.pagination.last_page - 1">
-                    <span v-if="bonusData.pagination.current_page < bonusData.pagination.last_page - 2" class="px-2">...</span>
+                    <span v-if="bonusData.pagination.current_page < bonusData.pagination.last_page - 2" class="px-2"
+                      >...</span
+                    >
                     <button
                       @click="changePage(bonusData.pagination.last_page)"
                       class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700"
@@ -281,7 +284,10 @@ const isMobileMenuOpen = ref(false)
                   </button>
                 </div>
 
-                <div v-if="bonusData.pagination.last_page > 1" class="lg:hidden flex items-center justify-between mt-6 px-4">
+                <div
+                  v-if="bonusData.pagination.last_page > 1"
+                  class="lg:hidden flex items-center justify-between mt-6 px-4"
+                >
                   <button
                     @click="changePage(bonusData.pagination.current_page - 1)"
                     :disabled="bonusData.pagination.current_page === 1"
@@ -289,11 +295,11 @@ const isMobileMenuOpen = ref(false)
                   >
                     Назад
                   </button>
-                  
+
                   <div class="text-sm text-gray-600">
                     Страница {{ bonusData.pagination.current_page }} из {{ bonusData.pagination.last_page }}
                   </div>
-                  
+
                   <button
                     @click="changePage(bonusData.pagination.current_page + 1)"
                     :disabled="bonusData.pagination.current_page === bonusData.pagination.last_page"
