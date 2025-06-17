@@ -456,6 +456,13 @@ onBeforeUnmount(() => {
           <!-- Кнопки фильтров -->
           <div class="space-y-3">
             <button
+              @click="toggleFilters"
+              class="w-full bg-slate-200  flex items-center rounded-xl justify-center space-x-2 py-2.5 px-4 hover:font-medium shadow-sm"
+            >
+              <Icon name="material-symbols:filter-alt" class="h-5 w-5" />
+              <span>Фильтры</span>
+            </button>
+            <button
               @click="searchData"
               class="w-full bg-red-600 hover:bg-red-700 text-white rounded-xl py-2 px-4 transition-colors font-medium"
             >
