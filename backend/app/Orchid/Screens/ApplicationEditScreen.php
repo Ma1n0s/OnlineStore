@@ -126,7 +126,7 @@ class ApplicationEditScreen extends Screen
             if ($user && $product->bonus_points ?? 0 > 0) {
                 $user->bonusTransactions()->create([
                     'date' => now(),
-                    'operation' => 'Начисление бонусов',
+                    'operation' => 'Начисление',
                     'amount' => $product->bonus_points,
                     'status' => 'Завершено',
                 ]);
