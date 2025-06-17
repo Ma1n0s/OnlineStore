@@ -106,6 +106,16 @@ class OrderController extends Controller
                 ], 422);
             }
 
+            if($user->bonus_balance < $cart->bonuses){
+                $cart->update([
+                    'checkBonus'=> false,
+                    'bonuses' => max(0,$user->bonus_balance),
+                ]);
+                
+            }
+
+            $cart->updateOrderProductsPrices();
+
             $prevPrice = $cart->amount;
 
             // 3. Проверяем доступное количество
@@ -184,9 +194,14 @@ class OrderController extends Controller
             $newOrder->load('orderProducts.product');
             $cart->fresh()->load('orderProducts.product');
 
-
+            $cart->updateOrderProductsPrices();
             $this->sync($newOrder);
             $this->processCompletedOrder($newOrder);
+
+
+            
+            
+           
 
 
             return response()->json([
@@ -573,22 +588,35 @@ class OrderController extends Controller
     protected function processCompletedOrder(Order $order)
     {
         // Если бонусы использовались - создаем транзакцию на списание
+
+        $user = $order->user;
+        if($user->bonus_balance < 0){
+            $user->update([
+            'bonus_balance'=> 0
+            ]);
+        }
+
+
         if ($order->bonuses > 0) {
-            $this->createBonusTransaction(
-                $order->user_id,
-                $order->id,
-                'Списание',
-                -(int)($order->bonuses),
-                'Списание бонусов за заказ #' . $order->order_number
-            );
+            if($user->bonus_balance > 0 ){
+
+                $this->createBonusTransaction(
+                    $order->user_id,
+                    $order->id,
+                    'Списание',
+                    -max(0, round($order->bonuses)),
+                    'Списание бонусов за заказ #' . $order->order_number
+                );
+                
+                // Уменьшаем бонусы пользователя
+                $order->user->decrement('bonus_balance', max(0,round($order->bonuses)));
+            }
             
-            // Уменьшаем бонусы пользователя
-            $order->user->decrement('bonus_balance', (int)$order->bonuses);
         }
         
         // Начисляем новые бонусы (3% от итоговой суммы), если не использовались бонусы
         if ($order->bonuses == 0) {
-            $newBonuses = max(0,(int)($order->amount * 0.03));
+            $newBonuses = max(0,round($order->amount * 0.03));
             
             $this->createBonusTransaction(
                 $order->user_id,
@@ -600,6 +628,12 @@ class OrderController extends Controller
             
             // Увеличиваем бонусы пользователя
             $order->user->increment('bonus_balance', $newBonuses);
+        }
+
+        if($user->bonus_balance < 0){
+            $user->update([
+            'bonus_balance'=> 0
+            ]);
         }
     }
 
