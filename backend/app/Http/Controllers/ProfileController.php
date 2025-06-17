@@ -49,7 +49,7 @@ class ProfileController extends Controller
             'inn' => ['required', 'string', 'digits_between:10,12', 'unique:companies,inn'],
             'kpp' => 'nullable|string|digits:9',
             'address' => 'required|string|max:500',
-            'director' => 'required|string|max:255',
+            'director' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
             'is_main' => 'sometimes|boolean'
