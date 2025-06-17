@@ -3,13 +3,13 @@ import Button from '~/components/ui/Button/Button.vue'
 import { Icon } from '#components'
 
 const cartStore = useCartStore()
-const { cart, products } = storeToRefs(cartStore)
+const { cart, products, isLoading } = storeToRefs(cartStore)
 
 const debouncedUpdate = useDebounceList(
   async product => {
     await cartStore.updateProduct(product)
   },
-  2000,
+  1000,
   cartStore.refetchCart
 )
 
@@ -32,11 +32,13 @@ const toggleSelected = item => {
 
 const increaseQuantity = item => {
   if (item.quantity > item.orderQuantity && item.type === 'instock') {
+    isLoading.value = true
     item.orderQuantity += 1
     debouncedUpdate(item.id, item)
   }
 
   if (item.type !== 'instock') {
+    isLoading.value = true
     item.orderQuantity += 1
     debouncedUpdate(item.id, item)
   }
@@ -44,6 +46,7 @@ const increaseQuantity = item => {
 
 const decreaseQuantity = item => {
   if (item.orderQuantity !== 1 && item.type === 'instock') {
+    isLoading.value = true
     item.orderQuantity -= 1
 
     if (item.quantity < item.orderQuantity) item.orderQuantity = item.quantity

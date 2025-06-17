@@ -3,7 +3,7 @@ import Button from '~/components/ui/Button/Button.vue'
 import { useCartStore } from '~/stores/cart'
 
 const cartStore = useCartStore()
-const { cart, products } = storeToRefs(cartStore)
+const { cart, products, isLoading } = storeToRefs(cartStore)
 
 const sendOrder = useDebounceFn(async () => {
   try {
@@ -129,7 +129,7 @@ console.log(isEmpty.value, isSelected.value)
     <Button
       variant="primary"
       size="medium"
-      :disabled="isEmpty || !isSelected || isNotEnough"
+      :disabled="isEmpty || !isSelected || isNotEnough || isLoading"
       class="w-full shadow-md text-sm sm:text-base"
       type="submit"
       @click="sendOrder"
