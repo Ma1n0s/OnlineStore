@@ -541,7 +541,7 @@ onBeforeUnmount(() => {
                       "
                       class="h-5 w-5 mr-2"
                     />
-                    {{ item.count === 'Нет в наличии' && item.type === 'instock' ? item.count : 'Под заказ' }}
+                    {{ item.type === 'instock' ? item.count : 'Под заказ' }}
                   </p>
 
                   <button
@@ -602,7 +602,7 @@ onBeforeUnmount(() => {
                         "
                         class="h-5 w-5 mr-2"
                       />
-                      {{ item.count === 'Нет в наличии' && item.type === 'instock' ? item.count : 'Под заказ' }}
+                      {{ item.type === 'instock' ? item.count : 'Под заказ' }}
                     </p>
 
                     <button
