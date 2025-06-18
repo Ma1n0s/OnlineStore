@@ -72,7 +72,7 @@ console.log(category.value, 'category')
       </div>
 
       <div class="p-2 lg:p-0">
-        <WrapperHeader title="Преимущества" class="text-center text-3xl">
+        <WrapperHeader title="Преимущества" class="text-center text-3xl mt-4">
           <Advantages />
         </WrapperHeader>
       </div>
