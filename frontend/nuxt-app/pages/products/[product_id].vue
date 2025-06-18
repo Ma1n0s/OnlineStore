@@ -81,6 +81,16 @@ const { data: product, refresh } = await useAsyncData<Product>(
 
 console.log(product.value)
 
+useHead({
+  title: `${product.value.name} | Абсолют техно`,
+  meta: [
+    {
+      name: 'description',
+      content: `Инструменты для строительства и ремота, ${product.value.description}`,
+    },
+  ],
+})
+
 // Вкладки
 const tabs = ref([{ id: 'description', title: 'ОПИСАНИЕ И ХАРАКТЕРИСТИКИ' }])
 

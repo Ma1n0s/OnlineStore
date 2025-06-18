@@ -244,6 +244,24 @@ class ProductController extends Controller
             ->limit(5)
             ->get();
 
+
+        if ($products->isEmpty()) {
+            $products = Product::where(function($q) use ($query) {
+                    // Вариант 1: LIKE с более широким поиском
+                    // $q->where('name', 'like', "%".substr($query, 0, -1)."%")
+                    //     ->orWhere('name', 'like', "%".substr($query, 1)."%");
+                    
+                    // Вариант 2: Фонетический поиск (SOUNDEX)
+                    // $q->orWhereRaw("SOUNDEX(name) = SOUNDEX(?)", [$query]);
+                    $q->orWhereRaw("similarity(name, ?) > 0.3", [$query]);
+                    
+                    
+                })
+                ->limit(5)
+                ->get();
+        }
+        
+
         // Поиск категорий
         $categories = Category::where('name', 'like', "%{$query}%")
             ->limit(5)
@@ -792,7 +810,7 @@ class ProductController extends Controller
         ]);
         
         $page = $request->input('page', 1);
-        $limit = $request->input('limit', 1);
+        $limit = $request->input('limit', 10);
         $sort = $request->input('sort', 'newest');
         $additionData = $request->boolean('addition_data', false);
         

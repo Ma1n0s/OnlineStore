@@ -3,7 +3,7 @@ import Button from '~/components/ui/Button/Button.vue'
 import { useCartStore } from '~/stores/cart'
 
 const cartStore = useCartStore()
-const { cart, products } = storeToRefs(cartStore)
+const { cart, products, isLoading } = storeToRefs(cartStore)
 
 const sendOrder = useDebounceFn(async () => {
   try {
@@ -14,14 +14,14 @@ const sendOrder = useDebounceFn(async () => {
 }, 1000)
 
 const isEmpty = computed(() => products.value.length === 0)
-const isSelected = computed(() => products.value.some(product => product.selected))
+const isSelected = computed(() => products.value.some(product => product.pivot.selected))
 const isNotEnough = computed(() =>
   products.value.filter(product => product.type === 'instock').some(product => product.quantity < product.orderQuantity)
 )
 
 const weight = computed(() => {
   const result = products.value.reduce(
-    (acc, val) => (val.selected ? acc + val?.weight * val?.orderQuantity : acc + 0),
+    (acc, val) => (val.pivot.selected ? acc + val?.weight * val?.orderQuantity : acc + 0),
     0
   )
   return result ? result : 0
@@ -29,7 +29,7 @@ const weight = computed(() => {
 
 const sum = computed(() => {
   const result = products.value.reduce(
-    (acc, val) => (val.selected ? acc + val?.price * val?.orderQuantity : acc + 0),
+    (acc, val) => (val.pivot.selected ? acc + val?.price * val?.orderQuantity : acc + 0),
     0
   )
   return result
@@ -99,7 +99,7 @@ console.log(isEmpty.value, isSelected.value)
 
     <div v-if="!isEmpty && isSelected" class="flex items-center justify-between mb-3 sm:mb-4">
       <h2 class="text-sm sm:text-base font-bold text-gray-800">
-        {{ products.reduce((acc, val) => (val.selected ? acc + 1 : acc + 0), 0) }} товар
+        {{ products.reduce((acc, val) => (val.pivot.selected ? acc + 1 : acc + 0), 0) }} товар
         <span v-if="weight">• {{ weight }} кг</span>
       </h2>
     </div>
@@ -129,7 +129,7 @@ console.log(isEmpty.value, isSelected.value)
     <Button
       variant="primary"
       size="medium"
-      :disabled="isEmpty || !isSelected || isNotEnough"
+      :disabled="isEmpty || !isSelected || isNotEnough || isLoading"
       class="w-full shadow-md text-sm sm:text-base"
       type="submit"
       @click="sendOrder"

@@ -39,7 +39,7 @@
     >
       <div class="text-white text-2xl font-bold">Покупайте как юрлицо</div>
       <div class="flex flex-row flex-wrap items-start gap-2">
-        <div class="bg-white rounded-2xl p-2 px-4 text-black font-bold text-sm">Вычет НДС до 20%</div>
+        <div class="bg-white rounded-2xl p-2 px-4 text-black font-bold text-sm">Вычет НДС 20%</div>
         <div class="bg-white rounded-2xl p-2 px-4 text-black font-bold text-sm">ЭДО</div>
         <div class="bg-white rounded-2xl p-2 px-4 text-black font-bold text-sm">Персональный менеджер</div>
         <div class="bg-white rounded-2xl p-2 px-4 text-black font-bold text-sm">ИП и ООО</div>

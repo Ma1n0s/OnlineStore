@@ -53,13 +53,17 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   const setSelected = async selected => {
+    isLoading.value = true
     await updateSelected(cart, selected)
     cart.value.selected = selected
     await refetchCart()
+    isLoading.value = false
   }
 
   const updateProduct = async product => {
+    isLoading.value = true
     await updateOrderProduct(cart, product)
+    isLoading.value = false
   }
 
   const createOrder = async () => {
