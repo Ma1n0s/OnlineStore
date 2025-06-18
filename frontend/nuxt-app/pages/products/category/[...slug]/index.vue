@@ -44,7 +44,7 @@ const { data } = await useAsyncData(`products-list-${slug}`, () =>
 console.log(data.value, 'YESS')
 
 const add = async product => {
-  if (!product?.id || product.count === 'Нет в наличии' || checkAuthForm()) return
+  if (!product?.id || (product.count === 'Нет в наличии' && product.type === 'instock') || checkAuthForm()) return
 
   try {
     await cartStore.addToCart({
@@ -529,25 +529,29 @@ onBeforeUnmount(() => {
                 <div class="mt-auto">
                   <p
                     class="text-sm mb-4 flex items-center"
-                    :class="item.count === 'Нет в наличии' ? 'text-red-600' : 'text-green-600'"
+                    :class="
+                      item.count === 'Нет в наличии' && item.type === 'instock' ? 'text-red-600' : 'text-green-600'
+                    "
                   >
                     <Icon
                       :name="
-                        item.count === 'Нет в наличии'
+                        item.count === 'Нет в наличии' && item.type === 'instock'
                           ? 'material-symbols:close-rounded'
                           : 'material-symbols:check-rounded'
                       "
                       class="h-5 w-5 mr-2"
                     />
-                    {{ item.count }}
+                    {{ item.type === 'instock' ? item.count : 'Под заказ' }}
                   </p>
 
                   <button
-                    :disabled="item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)"
+                    :disabled="
+                      (item.count === 'Нет в наличии' && item.type === 'instock') || cartStore.checkProductInCart(item)
+                    "
                     @click.prevent="add(item)"
                     class="w-full text-white py-2.5 px-4 rounded-lg transition-colors font-medium text-sm"
                     :class="
-                      item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)
+                      (item.count === 'Нет в наличии' && item.type === 'instock') || cartStore.checkProductInCart(item)
                         ? 'bg-gray cursor-not-allowed'
                         : 'bg-red-600 hover:bg-red-700'
                     "
@@ -586,25 +590,31 @@ onBeforeUnmount(() => {
 
                     <p
                       class="text-sm mb-4 flex items-center"
-                      :class="item.count === 'Нет в наличии' ? 'text-red-600' : 'text-green-600'"
+                      :class="
+                        item.count === 'Нет в наличии' && item.type === 'instock' ? 'text-red-600' : 'text-green-600'
+                      "
                     >
                       <Icon
                         :name="
-                          item.count === 'Нет в наличии'
+                          item.count === 'Нет в наличии' && item.type === 'instock'
                             ? 'material-symbols:close-rounded'
                             : 'material-symbols:check-rounded'
                         "
                         class="h-5 w-5 mr-2"
                       />
-                      {{ item.count }}
+                      {{ item.type === 'instock' ? item.count : 'Под заказ' }}
                     </p>
 
                     <button
-                      :disabled="item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)"
+                      :disabled="
+                        (item.count === 'Нет в наличии' && item.type === 'instock') ||
+                        cartStore.checkProductInCart(item)
+                      "
                       @click.prevent="add(item)"
                       class="w-full text-white py-2.5 px-4 rounded-lg transition-colors font-medium text-sm"
                       :class="
-                        item.count === 'Нет в наличии' || cartStore.checkProductInCart(item)
+                        (item.count === 'Нет в наличии' && item.type === 'instock') ||
+                        cartStore.checkProductInCart(item)
                           ? 'bg-gray cursor-not-allowed'
                           : 'bg-red-600 hover:bg-red-700'
                       "

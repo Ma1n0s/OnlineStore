@@ -895,6 +895,7 @@ class ProductController extends Controller
                 'brand' => $product->brand,
                 'article' => $product->article,
                 'slug' => $product->slug,
+                'type' => $product->type,
                 'count' => $count,
                 'specificationsB' => $product->specificationsB,
                 // 'category' => $product->category ? [
