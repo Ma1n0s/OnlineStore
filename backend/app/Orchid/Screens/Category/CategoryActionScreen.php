@@ -19,16 +19,16 @@ class CategoryActionScreen extends Screen
 {
     public $category;
 
-public function query(Category $category): array
-{
-    return [
-        'category' => $category,
-        'children' => $category->children()->paginate(10),
-        'products' => Product::where('category_id', $category->id)
-            ->with('category')
-            ->paginate(10),
-    ];
-}
+    public function query(Category $category): array
+    {
+        return [
+            'category' => $category,
+            'children' => $category->children()->paginate(10),
+            'products' => Product::where('category_id', $category->id)
+                ->with('category')
+                ->paginate(10),
+        ];
+    }
 
     public function name(): ?string
     {
@@ -85,124 +85,107 @@ public function query(Category $category): array
             ]),
         ];
 
-            $layouts[] = Layout::table('children', [
-                TD::make('name', 'Название')
-                    ->width('300px')
-                    ->render(function (Category $category) {
-                        $currentDepth = $this->category->exists ? $this->category->depth : 0;
-                        $indentLevel = max(0, $category->depth - $currentDepth - 1);
-                        $indent = str_repeat('&nbsp;&nbsp;&nbsp;', $indentLevel);
-                        $icon = $category->children()->exists() ? '' : '';
-                        return Link::make($icon . $indent . $category->name)
-                            ->route('platform.category.action', $category);
-                    })
-                    ->sort(),
+        $layouts[] = Layout::table('children', [
+            TD::make('name', 'Название')
+                ->width('300px')
+                ->render(function (Category $category) {
+                    $currentDepth = $this->category->exists ? $this->category->depth : 0;
+                    $indentLevel = max(0, $category->depth - $currentDepth - 1);
+                    $indent = str_repeat('&nbsp;&nbsp;&nbsp;', $indentLevel);
+                    $icon = $category->children()->exists() ? '' : '';
                     
-                TD::make('title', 'Заголовок')
-                    ->width('200px'),
+                    $name = $category->name;
+                    $displayName = mb_strlen($name) > 50 ? mb_substr($name, 0, 50) . '...' : $name;
+                    
+                    return Link::make($icon . $indent . e($displayName))
+                        ->route('platform.category.action', $category);
+                })
+                ->sort(),
                 
+            TD::make('title', 'Заголовок')
+                ->width('200px')
+                ->render(function (Category $category) {
+                    $title = $category->title ?? '';
+                    return mb_strlen($title) > 30 ? mb_substr($title, 0, 30) . '...' : $title;
+                }),
                 
-                
-                TD::make('actions', 'Действия')
-                    ->alignRight()
-                    ->render(function (Category $category) {
-                        return DropDown::make()
-                            ->icon('three-dots-vertical')
-                            ->list([
-                                Link::make('Редактировать')
-                                    ->route('platform.category.edit', $category)
-                                    ->icon('pencil'),
-                                    
-                                Button::make('Удалить')
-                                    ->icon('trash')
-                                    ->method('removeCategory')
-                                    ->confirm('This will delete the subcategory and all its products. Are you sure?')
-                                    ->parameters(['id' => $category->id]),
-                            ]);
-                    }),
-            ]);
+            TD::make('actions', 'Действия')
+                ->alignRight()
+                ->render(function (Category $category) {
+                    return DropDown::make()
+                        ->icon('three-dots-vertical')
+                        ->list([
+                            Link::make('Редактировать')
+                                ->route('platform.category.edit', $category)
+                                ->icon('pencil'),
+                                
+                            Button::make('Удалить')
+                                ->icon('trash')
+                                ->method('removeCategory')
+                                ->confirm('This will delete the subcategory and all its products. Are you sure?')
+                                ->parameters(['id' => $category->id]),
+                        ]);
+                }),
+        ]);
 
-            $layouts[] = Layout::table('products', [
-                TD::make('id', 'ID')
-                    ->sort()
-                    ->render(function (Product $product) {
-                        return $product->id;
-                    }),
+        $layouts[] = Layout::table('products', [
+            TD::make('id', 'ID')
+                ->sort()
+                ->render(function (Product $product) {
+                    return $product->id;
+                }),
 
-                TD::make('name', 'Название')
-                    ->sort()
-                    ->filter(Input::make())
-                    ->render(function (Product $product) {
-                        return Link::make($product->name)
-                            ->route('platform.product.edit', $product);
-                    }),
+            TD::make('name', 'Название')
+                ->sort()
+                ->filter(Input::make())
+                ->render(function (Product $product) {
+                    $name = $product->name ?? 'Без названия';
+                    $displayName = mb_strlen($name) > 50 ? mb_substr($name, 0, 50) . '...' : $name;
+                    
+                    return Link::make(e($displayName))
+                        ->route('platform.product.edit', $product);
+                }),
 
-                TD::make('code', 'Артикул')
-                    ->sort()
-                    ->filter(Input::make())
-                     ->render(function (Product $product) {
-                        return $product->code;
-                    }),
+            TD::make('code', 'Артикул')
+                ->sort()
+                ->filter(Input::make())
+                ->render(function (Product $product) {
+                    return $product->code;
+                }),
 
-                TD::make('price', 'Цена')
-                    ->sort()
-                    ->render(function (Product $product) {
-                        return number_format((float)$product->price, 2) . ' ₽';
-                    }),
+            TD::make('price', 'Цена')
+                ->sort()
+                ->render(function (Product $product) {
+                    return number_format((float)$product->price, 2) . ' ₽';
+                }),
 
-                // TD::make('brand', 'Бренд')
-                //     ->sort()
-                //     ->filter(Input::make())
-                //     ->render(function (Product $product) {
-                //         return $product->brand;
-                //     }),
-
-                // TD::make('slug', 'slug')
-                //     ->sort()
-                //     ->filter(Input::make())
-                //     ->render(function (Product $product) {
-                //         return $product->slug;
-                //     }),
-
-                TD::make('category.name', 'Подкатегория')
-                    ->sort()
-                    ->render(function (Product $product) {
-                        return $product->category ? $product->category->name : '-'; 
-                    }),
-
-                // TD::make('rating', 'Рейтинг')
-                //     ->sort()
-                //     ->render(function (Product $product) {
-                //         return number_format($product->rating, 1);
-                //     }),
-
-                // TD::make('created_at', 'Дата создания')
-                //     ->sort()
-                //     ->render(function (Product $product) {
-                //         return $product->created_at->toDateTimeString();
-                //     }),
-                
-                TD::make('actions', 'Действия')
-                    ->alignRight()
-                    ->render(function (Product $product) {
-                        return DropDown::make()
-                            ->icon('three-dots-vertical')
-                            ->list([
-                                Link::make('Редактировать')
-                                    ->route('platform.product.edit', $product)
-                                    ->icon('pencil'),
-                                    
-                                Button::make('Удалить')
-                                    ->icon('trash')
-                                    ->method('removeProduct')
-                                    ->confirm('Are you sure you want to delete this product?')
-                                    ->parameters([
-                                        'product_id' => $product->id,
-                                        'category_id' => $this->category->id,
-                                    ]),
-                            ]);
-                    }),
-            ]);
+            TD::make('category.name', 'Подкатегория')
+                ->sort()
+                ->render(function (Product $product) {
+                    return $product->category ? e($product->category->name) : '-'; 
+                }),
+            
+            TD::make('actions', 'Действия')
+                ->alignRight()
+                ->render(function (Product $product) {
+                    return DropDown::make()
+                        ->icon('three-dots-vertical')
+                        ->list([
+                            Link::make('Редактировать')
+                                ->route('platform.product.edit', $product)
+                                ->icon('pencil'),
+                                
+                            Button::make('Удалить')
+                                ->icon('trash')
+                                ->method('removeProduct')
+                                ->confirm('Are you sure you want to delete this product?')
+                                ->parameters([
+                                    'product_id' => $product->id,
+                                    'category_id' => $this->category->id,
+                                ]),
+                        ]);
+                }),
+        ]);
 
         return $layouts;
     }
@@ -241,7 +224,6 @@ public function query(Category $category): array
         return redirect()->route('platform.category.list');
     }
 
-
     protected function deleteCategoryImages(Category $category)
     {
         if ($category->image_url) {
@@ -267,7 +249,6 @@ public function query(Category $category): array
     {
         $product = Product::findOrFail($request->get('product_id'));
         
-        // Удаляем изображения товара
         $this->deleteProductImages($product);
         
         $product->delete();

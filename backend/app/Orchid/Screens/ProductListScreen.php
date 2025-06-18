@@ -86,32 +86,33 @@ class ProductListScreen extends Screen
             ]),
 
             Layout::table('products', [
-                TD::make('id', '№')
-                    ->width('50px')
+                TD::make('id', 'ID')
+                    ->width('70px')
                     ->align(TD::ALIGN_CENTER)
                     ->sort()
+                    ->style('white-space: nowrap;')
                     ->render(function (Product $product) {
-                        return $product->id;
+                        return $product->id ? number_format($product->id, 0, '', '') : '-';
                     }),
 
                 TD::make('type', 'Тип')
-                    ->width('120px')
+                    ->width('100px')
                     ->sort()
                     ->render(function (Product $product) {
                         $types = [
                             'preorder' => 'Под заказ',
-                            'rent' => 'В аренду',
+                            'rent' => 'Аренда',
                             'instock' => 'В наличии',
                         ];
-                        return $types[$product->type] ?? $product->type;
+                        return $types[$product->type ?? ''] ?? ($product->type ?? '-');
                     }),
 
                 TD::make('delivery_days', 'Доставка')
-                    ->width('100px')
+                    ->width('90px')
                     ->sort()
                     ->align(TD::ALIGN_CENTER)
                     ->render(function (Product $product) {
-                        return $product->type === 'preorder' 
+                        return ($product->type === 'preorder' && $product->delivery_days) 
                             ? $product->delivery_days . ' дн.' 
                             : '-';
                     }),
@@ -120,63 +121,62 @@ class ProductListScreen extends Screen
                     ->sort()
                     ->filter(Input::make())
                     ->render(function (Product $product) {
-                        $html = '<div class="d-flex flex-column">';
+                        $html = '<div class="d-flex flex-column" style="min-width: 250px;">';
                         
-                        // Название товара
-                        $html .= '<div>' . Link::make($product->name)
-                            ->route('platform.product.edit', $product) . '</div>';
+                        $name = $product->name ?? 'Без названия';
+                        $displayName = mb_strlen($name) > 50 ? mb_substr($name, 0, 50) . '...' : $name;
                         
-                        // Категории (путь)
-                        if ($product->category) {
-                            $html .= '<div class="w-100 pt-1" style="font-size: 0.875rem; display: flex; align-items: center;">';
-                            
-                            $path = [];
-                            $current = $product->category;
-                            while ($current) {
-                                array_unshift($path, $current);
-                                $current = $current->parent;
+                        if ($product->exists && $product->id) {
+                            try {
+                                $editUrl = route('platform.product.edit', ['product' => $product->id]);
+                                $html .= '<div class="text-truncate"><a href="'.e($editUrl).'">'.e($displayName).'</a></div>';
+                            } catch (\Exception $e) {
+                                $html .= '<div class="text-truncate">'.e($displayName).'</div>';
+                                \Log::error('Route error for product '.$product->id.': '.$e->getMessage());
                             }
-                            
-                            $breadcrumbs = [];
-                            foreach ($path as $item) {
-                                $breadcrumbs[] = Link::make($item->name)
-                                    ->route('platform.category.action', $item)
-                                    ->class('text-decoration-none');
-                            }
-                            
-                            $html .= implode(' <span class="mx-1">›</span> ', $breadcrumbs);
-                            $html .= '</div>';
+                        } else {
+                            $html .= '<div class="text-truncate">'.e($displayName).'</div>';
                         }
+                        
+                        // if ($product->category) {
+                        //     $html .= $this->renderCategoryPath($product->category);
+                        // }
                         
                         $html .= '</div>';
                         return $html;
                     }),
                     
                 TD::make('price', 'Цена')
-                    ->width('150px')
+                    ->width('120px')
                     ->sort()
                     ->align(TD::ALIGN_RIGHT)
                     ->render(function (Product $product) {
-                        return '₽' . number_format((float)$product->price, 2);
+                        return isset($product->price) 
+                            ? number_format((float)$product->price, 2) . ' ₽' 
+                            : '0.00 ₽';
                     }),
 
-                TD::make('quantity', 'Количество')
-                    ->width('120px')
+                TD::make('quantity', 'Кол-во')
+                    ->width('80px')
                     ->sort()
                     ->align(TD::ALIGN_CENTER)
                     ->render(function (Product $product) {
-                        return $product->quantity;
+                        return $product->quantity ?? 0;
                     }),
                     
                 TD::make('actions', '')
-                    ->width('100px')
-                    ->alignRight()
+                    ->width('80px')
+                    ->align(TD::ALIGN_CENTER)
                     ->render(function (Product $product) {
+                        if (!$product->exists || !$product->id) {
+                            return '';
+                        }
+                        
                         return DropDown::make()
                             ->icon('three-dots-vertical')
                             ->list([
                                 Link::make('Редактировать')
-                                    ->route('platform.product.edit', $product)
+                                    ->route('platform.product.edit', $product->id)
                                     ->icon('pencil'),
                                     
                                 Button::make('Удалить')
@@ -189,6 +189,40 @@ class ProductListScreen extends Screen
             ])->title('Список товаров'),
         ];
     }
+
+    protected function renderCategoryPath($category)
+{
+    $html = '<div class="w-100 pt-1" style="font-size: 0.75rem; color: #6c757d; display: flex; align-items: center;">';
+    
+    $path = [];
+    $current = $category;
+    while ($current) {
+        if ($current->name) {
+            array_unshift($path, $current);
+        }
+        $current = $current->parent ?? null;
+    }
+    
+    $breadcrumbs = [];
+    foreach ($path as $item) {
+        if ($item->id && $item->name) {
+            try {
+                $url = route('platform.category.action', ['category' => $item->id]);
+                $breadcrumbs[] = '<a href="'.e($url).'" class="text-decoration-none">'.e($item->name).'</a>';
+            } catch (\Exception $e) {
+                $breadcrumbs[] = e($item->name);
+                \Log::error('Route error for category '.$item->id.': '.$e->getMessage());
+            }
+        }
+    }
+    
+    if (!empty($breadcrumbs)) {
+        $html .= implode(' <span class="mx-1">›</span> ', $breadcrumbs);
+    }
+    $html .= '</div>';
+    
+    return $html;
+}
 
     /**
      * Perform search action.
