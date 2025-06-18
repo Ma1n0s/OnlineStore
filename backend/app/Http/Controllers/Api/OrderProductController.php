@@ -97,7 +97,7 @@ class OrderProductController extends Controller
                 'min:1',
                 function ($attribute, $value, $fail) use ($request) {
                     $product = Product::find($request->product_id);
-                    if ($product && $value > $product->quantity) {
+                    if ($product && $value > $product->quantity && $product->type === 'instock') {
                         $fail('Количество не может превышать доступное количество продукта.');
                     }
                 }
