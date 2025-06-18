@@ -26,7 +26,7 @@ const removeProduct = async product => {
 }
 
 const toggleSelected = item => {
-  item.selected = !item.selected
+  item.pivot.selected = !item.pivot.selected
   debouncedUpdate(item.id, item)
 }
 
@@ -66,7 +66,7 @@ const printToExcel = () => {
     return
   }
 
-  const selectedProducts = products.value.filter(item => item.selected)
+  const selectedProducts = products.value.filter(item => item.pivot.selected)
   const dataToExport = selectedProducts.length > 0 ? selectedProducts : products.value
 
   const data = dataToExport.map(item => ({
@@ -122,7 +122,7 @@ const printToExcel = () => {
           size="small"
           class="ml-3"
           @click="removeSelected"
-          :disabled="!products.some(p => p.selected)"
+          :disabled="!products.some(p => p.pivot.selected)"
         >
           <Icon name="heroicons:trash" class="w-4 h-4 mr-1.5" />
           Удалить выбранные
@@ -156,7 +156,7 @@ const printToExcel = () => {
             <input
               type="checkbox"
               :id="'select-item-' + item.id"
-              :checked="item.selected"
+              :checked="item.pivot.selected"
               @change="toggleSelected(item)"
               class="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary mt-0.5 sm:mt-0"
             />
