@@ -39,11 +39,11 @@ onMounted(async () => {
 })
 
 useHead({
-  title: `${slug.at(-1)} | Абсолют техно`,
+  title: `${category.value.name} | Абсолют техно`,
   meta: [
     {
       name: 'description',
-      content: `Инструменты для строительства и ремота, категория ${slug.at(-1)}`,
+      content: `Инструменты для строительства и ремота, категория ${category.value.name}`,
     },
   ],
 })

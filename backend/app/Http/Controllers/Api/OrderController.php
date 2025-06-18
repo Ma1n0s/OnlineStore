@@ -174,7 +174,8 @@ class OrderController extends Controller
                 'total_amount' => 0,
                 'bonuses' => (int)$cart->bonuses,
                 'checkBonus' => $cart->checkBonus,
-                'weight' => $totalWeight
+                'weight' => $totalWeight,
+                'selectedCompany' => $cart->selectedCompany,
             ]);
 
             // 6. Добавляем товары в заказ
@@ -197,12 +198,6 @@ class OrderController extends Controller
             $cart->updateOrderProductsPrices();
             $this->sync($newOrder);
             $this->processCompletedOrder($newOrder);
-
-
-            
-            
-           
-
 
             return response()->json([
                 'message' => 'Заказ успешно создан',

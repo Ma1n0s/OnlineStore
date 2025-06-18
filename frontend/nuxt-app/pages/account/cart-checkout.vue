@@ -22,7 +22,7 @@ useHead({
 })
 
 const cartStore = useCartStore()
-const { products, isLoading: loading } = storeToRefs(cartStore)
+const { products, isInitialized: loading } = storeToRefs(cartStore)
 // const loading = ref(isLoading.value)
 
 // Альтернативный вариант с await
@@ -44,11 +44,11 @@ onMounted(async () => {
         <div class="lg:w-3/4">
           <CartHeader />
 
-          <div v-if="loading" class="flex justify-center items-center h-64">
+          <div v-if="!loading" class="flex justify-center items-center h-64">
             <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
           </div>
 
-          <div v-else-if="!loading && products.length === 0" class="bg-white rounded-xl p-6 mb-6 shadow-sm text-center">
+          <div v-else-if="loading && products.length === 0" class="bg-white rounded-xl p-6 mb-6 shadow-sm text-center">
             <div class="mx-auto max-w-md">
               <h2 class="mt-3 sm:mt-4 text-lg sm:text-xl font-bold text-gray-800">Ваша корзина пока пуста</h2>
               <p class="mt-2 text-sm sm:text-base text-gray-600">

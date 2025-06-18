@@ -89,7 +89,7 @@ export const useCart = () => {
         method: 'PUT',
         body: {
           quantity: product.orderQuantity,
-          selected: product.selected,
+          selected: product.pivot.selected,
         },
         headers: {
           'Content-Type': 'application/json',

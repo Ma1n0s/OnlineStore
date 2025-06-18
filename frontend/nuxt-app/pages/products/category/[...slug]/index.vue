@@ -23,12 +23,14 @@ const {
 
 const route = useRoute()
 const { slug } = route.params
+const { page } = route.query
 
 const { data } = await useAsyncData(`products-list-${slug}`, () =>
   $fetch(`${backendUrl}/api/products/category-slug/${slug.at(-1)}`, {
     query: {
       addition_data: 1,
       with_specs: 1,
+      page: page || 1,
     },
     method: 'GET',
     headers: {
@@ -116,6 +118,15 @@ const changeSort = value => {
   searchData()
 }
 
+// watch([state], newState => {
+//   if (currentMin !== min || currentMax !== max) {
+
+//   }
+//   const { currentMin, min, currentMax, max } = state.priceRange
+//   if(newState.)
+//   console.log(newState, 'data was changed')
+// })
+
 const searchData = async () => {
   loading.value = true
   const query = {
@@ -128,10 +139,14 @@ const searchData = async () => {
   if (currentMin !== min || currentMax !== max) {
     query.price_min = currentMin
     query.price_max = currentMax
+
+    state.pagination.current_page = 1
   }
 
   if (state.filters.selectedBrands.length > 0) {
     query['brands[]'] = state.filters.selectedBrands
+
+    state.pagination.current_page = 1
   }
 
   query.page = state.pagination.current_page
@@ -175,13 +190,13 @@ const getProductLink = item => {
   return `/products/${encodeURIComponent(item.slug)}`
 }
 
-const showGrid = () => {
-  state.ui.isGrid = true
-}
+// const showGrid = () => {
+//   state.ui.isGrid = true
+// }
 
-const showList = () => {
-  state.ui.isGrid = false
-}
+// const showList = () => {
+//   state.ui.isGrid = false
+// }
 
 const loadMoreItems = () => {
   if (state.ui.isLoading) return
@@ -279,7 +294,6 @@ onBeforeUnmount(() => {
     window.removeEventListener('resize', checkScreenSize)
   }
 })
-
 </script>
 
 <template>
@@ -339,24 +353,24 @@ onBeforeUnmount(() => {
           </transition>
         </div>
 
-<div class="hidden lg:flex items-center space-x-1">
-  <button
-    @click="state.ui.isGrid = true"
-    :class="{ 'bg-gray-100 text-red-600': state.ui.isGrid }"
-    class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-    :disabled="state.ui.isGrid"
-  >
-    <Icon name="material-symbols:grid-view-rounded" class="w-5 h-5" />
-  </button>
-  <button
-    @click="state.ui.isGrid = false"
-    :class="{ 'bg-gray-100 text-red-600': !state.ui.isGrid }"
-    class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-    :disabled="!state.ui.isGrid"
-  >
-    <Icon name="material-symbols:view-stream-rounded" class="w-5 h-5" />
-  </button>
-</div>
+        <div class="hidden lg:flex items-center space-x-1">
+          <button
+            @click="state.ui.isGrid = true"
+            :class="{ 'bg-gray-100 text-red-600': state.ui.isGrid }"
+            class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            :disabled="state.ui.isGrid"
+          >
+            <Icon name="material-symbols:grid-view-rounded" class="w-5 h-5" />
+          </button>
+          <button
+            @click="state.ui.isGrid = false"
+            :class="{ 'bg-gray-100 text-red-600': !state.ui.isGrid }"
+            class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            :disabled="!state.ui.isGrid"
+          >
+            <Icon name="material-symbols:view-stream-rounded" class="w-5 h-5" />
+          </button>
+        </div>
       </div>
     </div>
 
@@ -457,7 +471,7 @@ onBeforeUnmount(() => {
           <div class="space-y-3">
             <button
               @click="toggleFilters"
-              class="w-full bg-slate-200  flex items-center rounded-xl justify-center space-x-2 py-2.5 px-4 hover:font-medium shadow-sm"
+              class="w-full bg-slate-200 flex items-center rounded-xl justify-center space-x-2 py-2.5 px-4 hover:font-medium shadow-sm"
             >
               <Icon name="material-symbols:filter-alt" class="h-5 w-5" />
               <span>Фильтры</span>
@@ -486,16 +500,13 @@ onBeforeUnmount(() => {
               state.ui.isGrid ? 'flex flex-col h-full' : 'flex flex-col md:flex-row',
             ]"
           >
-          <div
-            :class="[
-              'relative overflow-hidden',
-              state.ui.isGrid ? 'aspect-square h-auto w-full' : 'h-48 w-full md:w-40 lg:w-48 flex-shrink-0',
-            ]"
-          >
-            <HoverProductSwiper 
-              :slides="item.images" 
-              :mode="state.ui.isGrid ? 'grid' : 'list'"
-            />
+            <div
+              :class="[
+                'relative overflow-hidden',
+                state.ui.isGrid ? 'aspect-square h-auto w-full' : 'h-48 w-full md:w-40 lg:w-48 flex-shrink-0',
+              ]"
+            >
+              <HoverProductSwiper :slides="item.images" :mode="state.ui.isGrid ? 'grid' : 'list'" />
               <div
                 v-if="item.discount"
                 class="absolute top-3 left-3 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded"
@@ -636,33 +647,61 @@ onBeforeUnmount(() => {
     </div>
 
     <div class="w-full p-4 flex justify-center items-center gap-4">
-      <button
+      <NuxtLink
+        :to="{
+          path: $route.path,
+          query: {
+            ...$route.query,
+            page: 1,
+          },
+        }"
         @click="changePage(1)"
         v-if="state.pagination.current_page !== 1 && !loading"
         class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-gray hover:bg-primary-hover text-white"
       >
         1
-      </button>
+      </NuxtLink>
       <div v-if="state.pagination.current_page > 2 && !loading">...</div>
-      <button
+      <NuxtLink
+        :to="{
+          path: $route.path,
+          query: {
+            ...$route.query,
+            page: state.pagination.current_page - 1,
+          },
+        }"
         @click="changePage(state.pagination.current_page - 1)"
         class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-gray hover:bg-primary-hover text-white"
         v-if="state.pagination.current_page !== 1 && state.pagination.current_page - 1 !== 1 && !loading"
       >
         {{ state.pagination.current_page - 1 }}
-      </button>
-      <button
+      </NuxtLink>
+      <NuxtLink
+        :to="{
+          path: $route.path,
+          query: {
+            ...$route.query,
+            page: state.pagination.current_page,
+          },
+        }"
         class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-primary hover:bg-primary-hover text-white"
       >
         {{ state.pagination.current_page }}
-      </button>
-      <button
+      </NuxtLink>
+      <NuxtLink
+        :to="{
+          path: $route.path,
+          query: {
+            ...$route.query,
+            page: state.pagination.current_page + 1,
+          },
+        }"
         @click="changePage(state.pagination.current_page + 1)"
         class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-gray hover:bg-primary-hover text-white"
         v-if="state.pagination.has_more && state.pagination.current_page + 1 !== state.pagination.last_page && !loading"
       >
         {{ state.pagination.current_page + 1 }}
-      </button>
+      </NuxtLink>
       <div
         v-if="
           state.pagination.current_page !== state.pagination.last_page &&
@@ -672,13 +711,20 @@ onBeforeUnmount(() => {
       >
         ...
       </div>
-      <button
+      <NuxtLink
+        :to="{
+          path: $route.path,
+          query: {
+            ...$route.query,
+            page: state.pagination.last_page,
+          },
+        }"
         @click="changePage(state.pagination.last_page)"
         v-if="state.pagination.current_page !== state.pagination.last_page && !loading"
         class="w-14 h-14 flex items-center justify-center text-xl font-bold rounded-full bg-gray hover:bg-primary-hover text-white"
       >
         {{ state.pagination.last_page || '>' }}
-      </button>
+      </NuxtLink>
     </div>
 
     <!-- Модальное окно фильтров для мобильных -->
