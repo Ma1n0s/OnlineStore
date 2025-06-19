@@ -1,7 +1,7 @@
 <template>
   <div class="fixed z-50 w-full">
     <div
-      class="bg-zinc-200 justify-center items-center flex-col w-full lg:flex transition-all duration-300"
+      class="bg-zinc-200 justify-center items-center flex-col w-full lg:flex hidden transition-all duration-300"
       :class="{ 'opacity-0 h-0 overflow-hidden': isScrolled }"
     >
       <div class="flex justify-center items-center gap-1 xl:gap-2 w-full max-w-screen-2xl px-8">
