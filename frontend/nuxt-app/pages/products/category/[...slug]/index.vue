@@ -378,7 +378,7 @@ onBeforeUnmount(() => {
     <div class="flex flex-col lg:flex-row gap-6">
       <!-- Боковая панель фильтров - скрыта на мобильных и планшетах -->
       <div class="hidden lg:block w-full lg:w-1/4">
-        <div class="bg-white rounded-lg shadow-sm p-5 sticky top-4">
+        <div class="bg-white rounded-lg shadow-sm p-5">
           <!-- Фильтр по цене -->
           <div class="mb-6">
             <div class="flex justify-between items-center mb-3">
@@ -486,24 +486,24 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <div class="w-full lg:w-3/4">
+      <div class="w-full lg:w-5/6">
         <div
           v-if="state.products.length > 0"
-          :class="state.ui.isGrid ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-6'"
+          :class="state.ui.isGrid ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6' : 'space-y-6'"
         >
           <NuxtLink
             v-for="item in validProducts"
             :to="getProductLink(item)"
             :key="item.id"
             :class="[
-              'bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300',
+              'bg-white rounded-xl p-2 shadow-md hover:shadow-lg transition-shadow duration-300',
               state.ui.isGrid ? 'flex flex-col h-full' : 'flex flex-col md:flex-row',
             ]"
           >
             <div
               :class="[
                 'relative overflow-hidden',
-                state.ui.isGrid ? 'aspect-square h-auto w-full' : 'h-48 w-full md:w-40 lg:w-48 flex-shrink-0',
+                state.ui.isGrid ? 'aspect-square h-auto w-full' : 'h-48 w-full md:w-56 lg:w-64 flex-shrink-0',
               ]"
             >
               <HoverProductSwiper :slides="item.images" :mode="state.ui.isGrid ? 'grid' : 'list'" />
