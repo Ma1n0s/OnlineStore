@@ -215,7 +215,7 @@ class OrderController extends Controller
         SendApiRequest::dispatch(
             env('services.external_url', '').'/hs/order',
             ['order'=>$order],
-            ['Authorization' => env('services.external_api.token', 'no auth token')],
+            ['Authorization' => env('services.external_token', 'no auth token')],
         )->onQueue('api-requests');
     }
 
