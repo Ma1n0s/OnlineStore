@@ -210,16 +210,13 @@ class OrderController extends Controller
     public function sync(Order $order){
         
         $order->load('user');
-        $order->user->load('profile');
-        
+        $order->user->load('companies');
         
         SendApiRequest::dispatch(
-            env('services.external_url', ''),
+            env('services.external_url', '').'/hs/order',
             ['order'=>$order],
-            ['Authorization' => 'Bearer '.config('services.api.token')]
+            ['Authorization' => env('services.external_api.token', 'no auth token')],
         )->onQueue('api-requests');
-
-
     }
 
      public function activeCart(Request $request)
@@ -419,7 +416,7 @@ class OrderController extends Controller
 
     public function setProId(Request $request, Order $order) {
         $validated = $request->validate([
-            'id' => 'required|integer',       // pro_id из внешней системы
+            'id' => 'required|string',       // pro_id из внешней системы
         ]);
     
         $token = $request->header('Authorization');

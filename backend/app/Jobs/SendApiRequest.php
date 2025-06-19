@@ -36,7 +36,7 @@ class SendApiRequest implements ShouldQueue
     {
         $response = Http::withHeaders($this->headers)
             ->timeout(30)
-            ->post($this->url, $this->data);
+            ->put($this->url, $this->data);
             
         if ($response->failed()) {
             Log::error('API request failed', [
