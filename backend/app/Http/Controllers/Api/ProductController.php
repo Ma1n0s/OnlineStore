@@ -383,6 +383,8 @@ class ProductController extends Controller
         'specifications' => $product->specifications,
         'specificationsB' => $product->specificationsB,
         'advantages' => $product->advantages,
+        'type' => $product->type,
+        'delivery_days' => $product->delivery_days,
      // 'specifications' => $product->specificationCategories->mapWithKeys(function ($category) {
      //     return [$category->name => $category->specifications->mapWithKeys(function ($spec) {
      //         return [$spec->name => $spec->value];
