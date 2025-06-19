@@ -34,6 +34,8 @@ export default defineNuxtConfig({
   //   payloadExtraction: false, // отключаем генерацию _payload.json
   // },
 
+  ogImage: { enabled: false },
+
   image: {
     provider: 'ipx',
     ipx: {},
@@ -79,15 +81,15 @@ export default defineNuxtConfig({
 
   routeRules: {
     '/products/**': {
-      isr: 10,
+      isr: 43200,
       cache: {
         swr: true,
       },
     },
-    '/news': { isr: 10 },
-    '/news/**': { isr: 10 },
-    '/category': { isr: 10 },
-    '/category/**': { isr: 10 },
+    '/news': { isr: 86400 },
+    '/news/**': { isr: 86400 },
+    '/category': { isr: 43200 },
+    '/category/**': { isr: 43200 },
     // '/': { isr: 10 },
     '/about': { static: true },
     '/contacts': { static: true },
