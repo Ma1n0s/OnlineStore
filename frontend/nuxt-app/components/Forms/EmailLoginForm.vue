@@ -9,7 +9,7 @@ const { setUser } = useUserStore()
 const isSend = ref(false)
 
 const form = reactive({
-  email: 'asfahaikrkt6k56@yandex.ru',
+  email: '',
   code: '',
   isLoading: false,
   emailError: '',

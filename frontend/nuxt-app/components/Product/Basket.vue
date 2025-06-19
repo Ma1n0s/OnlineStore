@@ -24,13 +24,9 @@ const { product } = defineProps({
 })
 
 const declOfNum = (number, titles) => {
-  const cases = [2, 0, 1, 1, 1, 2];
-  return titles[
-    number % 100 > 4 && number % 100 < 20
-      ? 2
-      : cases[number % 10 < 5 ? number % 10 : 5]
-  ];
-};
+  const cases = [2, 0, 1, 1, 1, 2]
+  return titles[number % 100 > 4 && number % 100 < 20 ? 2 : cases[number % 10 < 5 ? number % 10 : 5]]
+}
 
 const userStore = useUserStore()
 const { showAuthForm, isAuth } = storeToRefs(userStore)
@@ -81,7 +77,7 @@ const checkAuthForm = () => {
 }
 
 const confirmRental = async () => {
-  if (!product?.id || product.count === 'Нет в наличии' || checkAuthForm()) return
+  if (!product?.id || (product.count === 'Нет в наличии' && product.type === 'instock') || checkAuthForm()) return
   await addToCart({
     ...product,
     rental_days: rentalDays.value,
@@ -96,7 +92,7 @@ const cartStore = useCartStore()
 console.log(cartStore, 'store cart')
 
 const add = async () => {
-  if (!product?.id || product.count === 'Нет в наличии' || checkAuthForm()) return
+  if (!product?.id || (product.count === 'Нет в наличии' && product.type === 'instock') || checkAuthForm()) return
 
   isLoading.value = true
   try {
@@ -149,22 +145,27 @@ const add = async () => {
       <div>
         <p
           class="text-sm mb-3 flex items-center"
-          :class="product.count === 'Нет в наличии' ? 'text-red-600' : 'text-green-600'"
+          :class="product.count === 'Нет в наличии' && product.type === 'instock' ? 'text-red-600' : 'text-green-600'"
         >
           <Icon
             :name="
-              product.count === 'Нет в наличии' ? 'material-symbols:close-rounded' : 'material-symbols:check-rounded'
+              product.count === 'Нет в наличии' && product.type === 'instock'
+                ? 'material-symbols:close-rounded'
+                : 'material-symbols:check-rounded'
             "
             class="h-4 w-4 inline mr-1"
           />
-          {{ product.count }}
+          {{ product.type === 'instock' ? product.count : 'Под заказ' }}
         </p>
       </div>
 
       <Button
         @click="add"
         :disabled="
-          isLoading || !product?.id || product.count === 'Нет в наличии' || cartStore.checkProductInCart(product)
+          isLoading ||
+          !product?.id ||
+          (product.count === 'Нет в наличии' && product.type === 'instock') ||
+          cartStore.checkProductInCart(product)
         "
         class="w-full bg-primary hover:bg-primary text-white py-2 px-4 rounded-lg font-medium text-sm flex items-center justify-center gap-1"
       >
@@ -173,20 +174,10 @@ const add = async () => {
       </Button>
     </div>
 
-    <div class="bg-slate-100 rounded-xl shadow-md border-gray-100 p-3 flex items-center gap-2">
-      <div class="bg-primary/10 p-1.5 rounded-lg">
-        <Icon name="mdi:percent-box" class="h-4 w-4 text-primary" />
-      </div>
-      <div>
-        <p class="font-medium text-sm">+5% Бонусов</p>
-        <p class="text-xs text-gray-500">Баллы за покупку</p>
-      </div>
-    </div>
-
-    <div v-if="product.type === 'order'" class="bg-slate-100 rounded-xl shadow-md border-gray-100 p-3">
+    <div v-if="product.type === 'preorder'" class="bg-slate-100 rounded-xl shadow-md border-gray-100 p-3">
       <div class="flex items-start gap-2 mb-1">
         <div class="bg-primary/10 p-1.5 rounded-lg">
-          <Icon name="mdi:store" class="h-4 w-4 text-primary" />
+          <Icon name="material-symbols:local-shipping-outline-rounded" class="h-4 w-4 text-primary" />
         </div>
         <div>
           <p class="font-medium text-sm">Товар под заказ</p>
