@@ -203,16 +203,16 @@ const saveCompany = async () => {
 }
 
 const changePassword = async () => {
-  if (!validatePassword()) return;
-  uiState.isLoading = true;
-  
+  if (!validatePassword()) return
+  uiState.isLoading = true
+
   try {
-    const response = await $fetch(`${backendUrl}/api/profile/password`, {
+    await $fetch(`${backendUrl}/api/profile/password`, {
       method: 'PUT',
       body: {
         current_password: forms.password.current,
         new_password: forms.password.new,
-        new_password_confirmation: forms.password.confirm // if using backend confirmation
+        new_password_confirmation: forms.password.confirm, // if using backend confirmation
       },
       headers: {
         'Content-Type': 'application/json',
@@ -220,28 +220,28 @@ const changePassword = async () => {
         'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
       },
       credentials: 'include',
-    });
+    })
 
-    uiState.isModalOpen = false;
-    resetPasswordForm();
-    
+    uiState.isModalOpen = false
+    resetPasswordForm()
+
     useToast().add({
       title: 'Пароль успешно изменен',
       icon: 'i-heroicons-check-circle',
       color: 'green',
-    });
+    })
   } catch (error) {
     if (error.data?.message === 'Текущий пароль неверный') {
-      forms.password.errors.current = error.data.message;
+      forms.password.errors.current = error.data.message
     } else if (error.data?.errors?.new_password) {
-      forms.password.errors.new = error.data.errors.new_password[0];
+      forms.password.errors.new = error.data.errors.new_password[0]
     } else {
-      uiState.error = error.data?.message || 'Произошла ошибка при изменении пароля';
+      uiState.error = error.data?.message || 'Произошла ошибка при изменении пароля'
     }
   } finally {
-    uiState.isLoading = false;
+    uiState.isLoading = false
   }
-};
+}
 
 const handlePhoneInput = (e, field = 'profile') => {
   const input = e.target

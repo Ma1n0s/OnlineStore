@@ -1,6 +1,5 @@
 <script setup>
 import { ref, reactive, onMounted, computed, watch } from 'vue'
-import { useUserStore } from '~/stores/user'
 import SidebarMenu from '~/components/Account/SidebarMenu.vue'
 import CheckBox from '~/components/Account/CheckBox.vue'
 
@@ -12,7 +11,6 @@ const {
   public: { backendUrl },
 } = useRuntimeConfig()
 
-const userStore = useUserStore()
 const uiState = reactive({
   isEditing: false,
   isLoading: false,
@@ -72,12 +70,10 @@ const loadCompaniesData = async () => {
     if (Array.isArray(response)) {
       companies.value = response
       mainCompany.value = response.find(c => c.is_main) || null
-    } 
-    else if (response.id) {
+    } else if (response.id) {
       companies.value = [response]
       mainCompany.value = response.is_main ? response : null
-    }
-    else {
+    } else {
       companies.value = response.companies || []
       mainCompany.value = response.mainCompany || null
     }
@@ -85,7 +81,6 @@ const loadCompaniesData = async () => {
     companies.value.forEach(company => {
       company.is_main = company.id === (mainCompany.value?.id || null)
     })
-
   } catch (error) {
     console.error('Ошибка загрузки компаний:', error)
     uiState.error = 'Не удалось загрузить данные компаний. Пожалуйста, попробуйте позже.'
@@ -370,7 +365,6 @@ watch(
             </button>
           </div>
 
-
           <div v-if="!uiState.isEditing && companies.length > 0" class="grid gap-6 md:gap-8">
             <div
               v-for="company in companies"
@@ -402,7 +396,7 @@ watch(
                       </div>
                     </div>
                   </div>
-                  
+
                   <button
                     v-if="!company.is_main"
                     @click="setMainCompany(company.id)"
@@ -423,11 +417,15 @@ watch(
                     <dl class="space-y-4">
                       <div class="grid grid-cols-3 gap-4">
                         <dt class="text-sm text-gray-500">ИНН</dt>
-                        <dd class="text-sm font-medium text-gray-900 col-span-2 font-mono tracking-wide">{{ company.inn }}</dd>
+                        <dd class="text-sm font-medium text-gray-900 col-span-2 font-mono tracking-wide">
+                          {{ company.inn }}
+                        </dd>
                       </div>
                       <div v-if="company.kpp" class="grid grid-cols-3 gap-4">
                         <dt class="text-sm text-gray-500">КПП</dt>
-                        <dd class="text-sm font-medium text-gray-900 col-span-2 font-mono tracking-wide">{{ company.kpp }}</dd>
+                        <dd class="text-sm font-medium text-gray-900 col-span-2 font-mono tracking-wide">
+                          {{ company.kpp }}
+                        </dd>
                       </div>
                     </dl>
                   </div>
@@ -487,9 +485,14 @@ watch(
             </div>
           </div>
 
-          <div v-if="!uiState.isEditing && companies.length === 0" class="bg-white rounded-2xl shadow-xl overflow-hidden">
+          <div
+            v-if="!uiState.isEditing && companies.length === 0"
+            class="bg-white rounded-2xl shadow-xl overflow-hidden"
+          >
             <div class="p-10 md:p-12 lg:p-16 text-center">
-              <div class="mx-auto h-24 w-24 rounded-2xl bg-primary bg-opacity-10 flex items-center justify-center mb-8 shadow-inner">
+              <div
+                class="mx-auto h-24 w-24 rounded-2xl bg-primary bg-opacity-10 flex items-center justify-center mb-8 shadow-inner"
+              >
                 <Icon name="mdi:office-building" class="w-12 h-12 text-primary" />
               </div>
               <h3 class="text-2xl font-bold text-gray-900 mb-4">У вас пока нет добавленных организаций</h3>
@@ -509,10 +512,7 @@ watch(
           <div v-if="uiState.isEditing" class="bg-white rounded-2xl shadow-2xl overflow-hidden">
             <div class="p-8">
               <div class="flex items-center gap-4 mb-8">
-                <button
-                  @click="cancelEditing"
-                  class="p-2.5 rounded-xl hover:bg-gray-100 transition-colors"
-                >
+                <button @click="cancelEditing" class="p-2.5 rounded-xl hover:bg-gray-100 transition-colors">
                   <Icon name="mdi:arrow-left" class="w-6 h-6 text-gray-500" />
                 </button>
                 <h2 class="text-2xl font-bold text-gray-900">

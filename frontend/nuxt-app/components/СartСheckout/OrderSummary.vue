@@ -2,15 +2,27 @@
 import Button from '~/components/ui/Button/Button.vue'
 import { useCartStore } from '~/stores/cart'
 
+const {
+  public: { backendUrl },
+} = useRuntimeConfig()
+
+const userStore = useUserStore()
 const cartStore = useCartStore()
 const { cart, products, isLoading } = storeToRefs(cartStore)
+const isPhone = ref(false)
 
 const sendOrder = useDebounceFn(async () => {
-  try {
-    await cartStore.createOrder()
-  } catch (e) {
-    console.log(e)
+  if (cart.value?.user?.phone && cart.value?.user?.phone.length === 18) {
+    try {
+      await cartStore.createOrder()
+    } catch (e) {
+      console.log(e)
+    }
+  } else {
+    isPhone.value = true
   }
+
+  console.log(cart.value?.user)
 }, 1000)
 
 const isEmpty = computed(() => products.value.length === 0)
@@ -60,19 +72,98 @@ const formatDateTime = datatime => {
     .replace(',', '')
 }
 
-onMounted(() => {
-  // checkBonus.value = cart.value?.checkBonus === 1
-})
-
 console.log(isEmpty.value, isSelected.value)
 
-// const orderDate = computed(() => {
-//   const today = new Date()
-//   const options = { year: 'numeric', month: 'long', day: 'numeric' }
-//   return today.toLocaleDateString('ru-RU', options)
-// })
+const handlePhoneInput = e => {
+  const input = e.target
+  // Оставляем только цифры и удаляем первый символ, если это 7 или 8
+  let digits = input.value.replace(/\D/g, '')
+
+  // Удаляем лишние цифры (максимум 10 цифр после +7)
+  digits = digits.substring(0, 11)
+
+  // Если номер начинается с 7 или 8, используем оставшиеся цифры
+  if (digits.startsWith('7') || digits.startsWith('8')) {
+    digits = digits.substring(1)
+  }
+
+  // Собираем номер в формате +7 (XXX) XXX-XX-XX
+  let formattedValue = '+7'
+
+  if (digits.length > 0) {
+    formattedValue += ` (${digits.substring(0, 3)}`
+
+    if (digits.length > 3) {
+      formattedValue += `) ${digits.substring(3, 6)}`
+    }
+    if (digits.length > 6) {
+      formattedValue += `-${digits.substring(6, 8)}`
+    }
+    if (digits.length > 8) {
+      formattedValue += `-${digits.substring(8, 10)}`
+    }
+  }
+
+  // Обновляем значение
+  cart.value.user.phone = formattedValue
+
+  // Перемещаем курсор в конец
+  requestAnimationFrame(() => {
+    input.setSelectionRange(formattedValue.length, formattedValue.length)
+  })
+}
+
+const UpdatePhone = async user => {
+  try {
+    const response = await $fetch(`${backendUrl}/api/profile`, {
+      method: 'PUT',
+      body: {
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+      },
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+      },
+      credentials: 'include',
+    })
+
+    userStore.setUser(response.user)
+  } catch (error) {
+    console.log(error)
+  } finally {
+    await cartStore.refetchCart()
+    isPhone.value = false
+  }
+}
 </script>
 <template>
+  <Modal
+    :isOpen="isPhone"
+    @close="
+      () => {
+        isPhone = false
+        cart.user.phone = ''
+      }
+    "
+  >
+    <div class="flex flex-col gap-4">
+      <span class="text-lg text-center">Укажите номер телефона</span>
+      <input
+        type="tel"
+        id="phone"
+        v-model="cart.user.phone"
+        @input="handlePhoneInput"
+        placeholder="+7 (___) ___-__-__"
+        class="w-full px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition"
+      />
+
+      <Button class="w-full" @click="UpdatePhone(cart.user)">Сохранить</Button>
+    </div>
+  </Modal>
+
   <div class="bg-white rounded-xl p-4 shadow-2xl sm:p-6 sticky top-8 sm:top-20">
     <h2 class="text-base sm:text-lg font-bold mb-3 sm:mb-4 text-gray-800" v-if="isEmpty">Ваш заказ</h2>
     <h2 class="text-base sm:text-lg font-bold mb-3 sm:mb-4 text-gray-800" v-else>Оформление</h2>
