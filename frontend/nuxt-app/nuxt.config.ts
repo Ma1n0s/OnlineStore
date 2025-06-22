@@ -96,7 +96,7 @@ export default defineNuxtConfig({
     '/account/**': { ssr: true },
   },
 
-  ssr: false,
+  ssr: true,
   nitro: {
     compressPublicAssets: false,
     prerender: {
