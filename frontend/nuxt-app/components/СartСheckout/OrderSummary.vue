@@ -1,6 +1,7 @@
 <script setup>
 import Button from '~/components/ui/Button/Button.vue'
 import { useCartStore } from '~/stores/cart'
+import { useUserStore } from '~/stores/user'
 
 const {
   public: { backendUrl },
