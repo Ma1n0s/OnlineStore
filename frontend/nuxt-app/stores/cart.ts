@@ -11,6 +11,7 @@ export const useCartStore = defineStore('cart', () => {
     removeSelectedOrderProducts,
     removeOrderProducts,
     changeBonus,
+    updateMessage,
   } = useCart()
   const cart = ref<Record<any, any> | null>(null)
   const products = ref<Array<any>>([]) // Используем ref вместо reactive
@@ -44,6 +45,14 @@ export const useCartStore = defineStore('cart', () => {
     } catch (error) {
       console.error('Failed to initialize cart:', error)
     }
+  }
+
+  const updateCartMessage = async message => {
+    isLoading.value = true
+    await updateMessage(cart, message)
+    isLoading.value = false
+
+    await refetchCart()
   }
 
   const addToCart = async product => {
@@ -106,6 +115,7 @@ export const useCartStore = defineStore('cart', () => {
     updateProduct,
     createOrder,
     updateOrderBonus,
+    updateCartMessage,
     initCart, // Добавляем возможность повторной инициализации
   }
 })

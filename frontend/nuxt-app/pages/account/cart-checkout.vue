@@ -6,6 +6,7 @@ import CartItemsList from '~/components/СartСheckout/CartItemsList.vue'
 import RecipientData from '~/components/СartСheckout/RecipientData.vue'
 import { useCartStore } from '~/stores/cart'
 import { storeToRefs } from 'pinia'
+import MessageCart from '~/components/СartСheckout/MessageCart.vue'
 
 definePageMeta({
   middleware: ['auth'],
@@ -65,6 +66,7 @@ onMounted(async () => {
 
           <template v-else>
             <CartItemsList />
+            <MessageCart />
             <RecipientData />
           </template>
         </div>

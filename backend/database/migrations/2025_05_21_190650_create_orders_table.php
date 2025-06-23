@@ -20,6 +20,7 @@ return new class extends Migration
             $table->decimal('bonuses', 10, 2)->default(0);
             $table->decimal('amount', 10, 2)->default(0);
             $table->string('weight')->nullable();
+            $table->string('message')->nullable();
             $table->string('status')->default('created');
             $table->integer('selectedCompany')->nullable();
             $table->boolean('checkBonus')->default(true);

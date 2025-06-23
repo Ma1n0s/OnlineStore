@@ -25,6 +25,7 @@ class Order extends Model
         'is_paid',
         'selected',
         'selectedCompany',
+        'message',
     ];
 
     protected $with = [

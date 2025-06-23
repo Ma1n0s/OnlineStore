@@ -3,7 +3,7 @@
     <div class="bg-white p-5 rounded-xl shadow-2xl h-full flex flex-col">
       <nav class="space-y-2 flex-1">
         <NuxtLink
-          to="/account/personal"
+          to="/account"
           class="flex items-center gap-3 p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors text-sm hover:shadow-sm"
           active-class="bg-gray-100 text-primary font-medium"
         >

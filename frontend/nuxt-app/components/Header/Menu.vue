@@ -31,7 +31,7 @@ const handleLogout = async () => {
       <nav class="flex-1">
         <NuxtLink
           @click="close"
-          to="/account/personal"
+          to="/account"
           class="flex items-center gap-3 p-2 text-dark hover:bg-zinc-200 rounded-t-lg transition-colors text-sm hover:shadow-sm"
         >
           <Icon name="tabler:user" class="w-6 h-6" />

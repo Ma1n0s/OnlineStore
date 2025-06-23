@@ -22,7 +22,7 @@
     <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 py-6 space-y-4">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <NuxtLink
-          to="/account/personal"
+          to="/account"
           class="flex items-center justify-between p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all"
         >
           <div class="flex items-center gap-3">

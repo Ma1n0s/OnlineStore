@@ -84,6 +84,26 @@ class OrderController extends Controller
         
      }
 
+    public function updateMessageOrder(Request $request) {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'message' => 'string|nullable',
+        ]);
+
+        $cart = $user->cart()->first();
+
+        if (!$cart) {
+            return response()->json(['message' => 'Корзина не найдена'], 404);
+        }
+
+        $cart->update([
+            'message' => $validated['message'],
+        ]);
+
+        return response()->json($cart,200);
+    }
+
     public function createOrderFromSelected(Request $request)
     {
         $user = $request->user();
@@ -176,6 +196,7 @@ class OrderController extends Controller
                 'checkBonus' => $cart->checkBonus,
                 'weight' => $totalWeight,
                 'selectedCompany' => $cart->selectedCompany,
+                'message' => $cart->message,
             ]);
 
             // 6. Добавляем товары в заказ
@@ -195,7 +216,10 @@ class OrderController extends Controller
             $newOrder->load('orderProducts.product');
             $cart->fresh()->load('orderProducts.product');
 
+            $cart->message = '';
+
             $cart->updateOrderProductsPrices();
+            
             $this->sync($newOrder);
             $this->processCompletedOrder($newOrder);
 

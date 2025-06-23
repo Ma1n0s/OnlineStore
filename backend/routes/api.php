@@ -236,6 +236,7 @@ Route::get('/orders/active-cart', [OrderController::class, 'activeCart']);
 Route::post('/orders/create-order', [OrderController::class, 'createOrderFromSelected']);
 Route::post('/orders/use-bonus', [OrderController::class, 'updateOrderBonus']);
 Route::post('/orders/company', [OrderController::class, 'updateOrderCompany']);
+Route::post('/orders/{order}/message', [OrderController::class, 'updateMessageOrder']);
 
 Route::middleware('auth:sanctum')->get('orders/full', action: [OrderProductController::class, 'index']);
 

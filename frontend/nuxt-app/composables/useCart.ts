@@ -83,6 +83,25 @@ export const useCart = () => {
     }
   }
 
+  const updateMessage = async (cart, message) => {
+    try {
+      return await $fetch(`${backendUrl}/api/orders/${cart.value.id}/message`, {
+        method: 'POST',
+        body: {
+          message,
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+        },
+        credentials: 'include',
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
   const updateOrderProduct = async (cart, product) => {
     try {
       return await $fetch(`${backendUrl}/api/orders/${cart.value.id}/products/${product.id}`, {
@@ -164,5 +183,6 @@ export const useCart = () => {
     completeOrder,
     updateSelected,
     changeBonus,
+    updateMessage,
   }
 }
