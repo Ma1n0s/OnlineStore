@@ -11,11 +11,17 @@ const userStore = useUserStore()
 const cartStore = useCartStore()
 const { cart, products, isLoading } = storeToRefs(cartStore)
 const isPhone = ref(false)
+const isSuccess = ref(false)
 
 const sendOrder = useDebounceFn(async () => {
   if (cart.value?.user?.phone && cart.value?.user?.phone.length === 18) {
     try {
-      await cartStore.createOrder()
+      await cartStore.createOrder().then(() => {
+        isSuccess.value = true
+        setTimeout(() => {
+          isSuccess.value = false
+        }, 5000)
+      })
     } catch (e) {
       console.log(e)
     }
@@ -162,6 +168,21 @@ const UpdatePhone = async user => {
       />
 
       <Button class="w-full" @click="UpdatePhone(cart.user)">Сохранить</Button>
+    </div>
+  </Modal>
+
+  <Modal
+    class="!p-4 md:p-6 !w-72 md:!w-96 !h-40 rounded-lg"
+    :isOpen="isSuccess"
+    @close="
+      () => {
+        isSuccess = false
+      }
+    "
+  >
+    <div class="flex flex-col gap-4 items-center justify-center w-full overflow-hidden">
+      <p class="text-lg md:text-xl font-bold text-nowrap">Заказ создан</p>
+      <p class="text-lg md:text-xl font-bold text-nowrap">Мы свяжимся с вами</p>
     </div>
   </Modal>
 
