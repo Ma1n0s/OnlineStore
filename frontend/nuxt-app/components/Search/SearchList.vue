@@ -1,5 +1,7 @@
 <template>
-  <div class="box-border absolute mt-1 w-full bg-white shadow-2xl p-1 rounded-xl z-20">
+  <div
+    class="box-content absolute mt-1 w-screen lg:w-full !left-0 lg:left-auto bg-white shadow-2xl p-0 lg:p-1 rounded-xl z-20"
+  >
     <div v-if="categories.length === 0 && products.length === 0">
       <p class="p-4 text-xl">Ничего не найдено</p>
     </div>
