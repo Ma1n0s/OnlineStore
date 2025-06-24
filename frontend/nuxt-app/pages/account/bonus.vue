@@ -6,6 +6,16 @@ definePageMeta({
   middleware: ['auth'],
 })
 
+useHead({
+  title: `Абсолют техно`,
+  meta: [
+    {
+      name: 'description',
+      content: `Инструменты и оборудование для строительства и ремота`,
+    },
+  ],
+})
+
 const page = ref(1)
 const perPage = ref(10)
 

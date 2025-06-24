@@ -1,4 +1,3 @@
-// можно без обертки чтобы были элементы title картинка и текст
 <script setup>
 import ArticleCard from '~/components/News/ArticleCard.vue'
 
@@ -52,6 +51,16 @@ const articles = [
       'https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
   },
 ]
+
+useHead({
+  title: `Новости Абсолют техно`,
+  meta: [
+    {
+      name: 'description',
+      content: `Инструменты и оборудование для строительства и ремота`,
+    },
+  ],
+})
 </script>
 
 <template>

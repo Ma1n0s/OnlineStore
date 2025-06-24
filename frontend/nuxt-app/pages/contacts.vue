@@ -4,6 +4,16 @@ import Textarea from '~/components/ui/Textarea/Textarea.vue'
 import Button from '~/components/ui/Button/Button.vue'
 import Gis from '~/components/Map/2Gis.vue'
 
+useHead({
+  title: `Абсолют техно`,
+  meta: [
+    {
+      name: 'description',
+      content: `Инструменты и оборудование для строительства и ремота`,
+    },
+  ],
+})
+
 const form = reactive({
   name: '',
   email: '',

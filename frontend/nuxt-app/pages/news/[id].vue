@@ -21,6 +21,16 @@ const { data: article } = await useAsyncData(
     revalidate: 3600,
   }
 )
+
+useHead({
+  title: article.value.title || `Абсолют техно`,
+  meta: [
+    {
+      name: 'description',
+      content: `Инструменты и оборудование для строительства и ремота`,
+    },
+  ],
+})
 </script>
 
 <template>

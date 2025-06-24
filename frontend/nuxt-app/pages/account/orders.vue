@@ -6,6 +6,16 @@ definePageMeta({
   middleware: ['auth'],
 })
 
+useHead({
+  title: `Заказы | Абсолют техно`,
+  meta: [
+    {
+      name: 'description',
+      content: `Инструменты и оборудование для строительства и ремота`,
+    },
+  ],
+})
+
 const page = ref(1)
 const perPage = ref(10)
 
@@ -17,8 +27,8 @@ const ordersData = reactive({
     current_page: 1,
     last_page: 1,
     per_page: 10,
-    total: 0
-  }
+    total: 0,
+  },
 })
 
 const {
@@ -28,7 +38,7 @@ const {
 const loadOrders = async () => {
   ordersData.loading = true
   ordersData.error = null
-  
+
   try {
     const response = await $fetch(`${backendUrl}/api/orders/full`, {
       headers: {
@@ -40,16 +50,16 @@ const loadOrders = async () => {
       query: {
         page: page.value,
         per_page: perPage.value,
-      }
+      },
     })
-    
+
     if (response && response.data) {
       ordersData.data = response.data
       ordersData.pagination = {
         current_page: response.current_page,
         last_page: response.last_page,
         per_page: response.per_page,
-        total: response.total
+        total: response.total,
       }
     }
   } catch (error) {
@@ -87,11 +97,12 @@ const orders = computed(() => {
       }).format(order.total_amount),
       numericAmount: order.total_amount,
       paid: order.is_paid,
-      products: order.products?.map(p => ({
-        id: p.id,
-        name: p.name,
-        image: p.main_image || '/images/placeholder-product.png',
-      })) || [],
+      products:
+        order.products?.map(p => ({
+          id: p.id,
+          name: p.name,
+          image: p.main_image || '/images/placeholder-product.png',
+        })) || [],
     }))
 })
 
@@ -105,7 +116,7 @@ function getStatusText(status) {
   return statuses[status] || status
 }
 
-const changePage = (newPage) => {
+const changePage = newPage => {
   if (newPage >= 1 && newPage <= ordersData.pagination.last_page) {
     page.value = newPage
   }
@@ -126,7 +137,7 @@ const isMobileMenuOpen = ref(false)
     <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-8">
       <div class="flex flex-col lg:flex-row gap-6">
         <SidebarMenu class="hidden lg:block" />
-        
+
         <div class="flex-1 space-y-6">
           <div v-if="ordersData.loading" class="text-center py-8">
             <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
@@ -136,9 +147,7 @@ const isMobileMenuOpen = ref(false)
             <div class="bg-white shadow rounded-lg p-4 lg:p-6">
               <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
                 <h2 class="text-lg font-medium">Мои заказы</h2>
-                <div class="text-sm text-gray-500">
-                  Всего: {{ ordersData.pagination.total }}
-                </div>
+                <div class="text-sm text-gray-500">Всего: {{ ordersData.pagination.total }}</div>
               </div>
 
               <div v-if="ordersData.error" class="bg-red-50 p-4 rounded-lg text-red-600 mb-4">
@@ -150,18 +159,26 @@ const isMobileMenuOpen = ref(false)
                   <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                       <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Номер</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дата</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Сумма</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Статус</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Товары</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Номер
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Дата
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Сумма
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Статус
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Товары
+                        </th>
                       </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                       <tr v-for="order in orders" :key="order.id">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          #{{ order.id }}
-                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{{ order.id }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {{ order.date }}
                         </td>
@@ -175,7 +192,7 @@ const isMobileMenuOpen = ref(false)
                               'bg-blue-100 text-blue-800': order.status === 'В обработке',
                               'bg-yellow-100 text-yellow-800': order.status === 'В процессе',
                               'bg-green-100 text-green-800': order.status === 'Завершен',
-                              'bg-red-100 text-red-800': order.status === 'Отменен'
+                              'bg-red-100 text-red-800': order.status === 'Отменен',
                             }"
                           >
                             {{ order.status }}
@@ -218,7 +235,7 @@ const isMobileMenuOpen = ref(false)
                           'bg-blue-100 text-blue-800': order.status === 'В обработке',
                           'bg-yellow-100 text-yellow-800': order.status === 'В процессе',
                           'bg-green-100 text-green-800': order.status === 'Завершен',
-                          'bg-red-100 text-red-800': order.status === 'Отменен'
+                          'bg-red-100 text-red-800': order.status === 'Отменен',
                         }"
                       >
                         {{ order.status }}
@@ -239,7 +256,10 @@ const isMobileMenuOpen = ref(false)
                   </div>
                 </div>
 
-                <div v-if="ordersData.pagination.last_page > 1" class="w-full mt-6 hidden lg:flex justify-center items-center gap-2">
+                <div
+                  v-if="ordersData.pagination.last_page > 1"
+                  class="w-full mt-6 hidden lg:flex justify-center items-center gap-2"
+                >
                   <button
                     @click="changePage(1)"
                     :disabled="ordersData.pagination.current_page === 1"
@@ -289,7 +309,9 @@ const isMobileMenuOpen = ref(false)
                   </button>
 
                   <template v-if="ordersData.pagination.current_page < ordersData.pagination.last_page - 1">
-                    <span v-if="ordersData.pagination.current_page < ordersData.pagination.last_page - 2" class="px-2">...</span>
+                    <span v-if="ordersData.pagination.current_page < ordersData.pagination.last_page - 2" class="px-2"
+                      >...</span
+                    >
                     <button
                       @click="changePage(ordersData.pagination.last_page)"
                       class="w-10 h-10 flex items-center justify-center text-sm font-medium rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700"
@@ -315,7 +337,10 @@ const isMobileMenuOpen = ref(false)
                   </button>
                 </div>
 
-                <div v-if="ordersData.pagination.last_page > 1" class="lg:hidden flex items-center justify-between mt-6 px-4">
+                <div
+                  v-if="ordersData.pagination.last_page > 1"
+                  class="lg:hidden flex items-center justify-between mt-6 px-4"
+                >
                   <button
                     @click="changePage(ordersData.pagination.current_page - 1)"
                     :disabled="ordersData.pagination.current_page === 1"
@@ -323,11 +348,11 @@ const isMobileMenuOpen = ref(false)
                   >
                     Назад
                   </button>
-                  
+
                   <div class="text-sm text-gray-600">
                     Страница {{ ordersData.pagination.current_page }} из {{ ordersData.pagination.last_page }}
                   </div>
-                  
+
                   <button
                     @click="changePage(ordersData.pagination.current_page + 1)"
                     :disabled="ordersData.pagination.current_page === ordersData.pagination.last_page"

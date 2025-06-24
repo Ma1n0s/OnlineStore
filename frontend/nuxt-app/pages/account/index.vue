@@ -8,6 +8,16 @@ definePageMeta({
   middleware: ['auth'],
 })
 
+useHead({
+  title: `Личные данные | Абсолют техно`,
+  meta: [
+    {
+      name: 'description',
+      content: `Инструменты и оборудование для строительства и ремота`,
+    },
+  ],
+})
+
 const {
   public: { backendUrl },
 } = useRuntimeConfig()

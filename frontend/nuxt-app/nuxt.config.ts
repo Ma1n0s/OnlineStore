@@ -12,7 +12,7 @@ export default defineNuxtConfig({
   modules: [
     '@pinia/nuxt',
     '@nuxt/image',
-    '@nuxtjs/sitemap',
+    // '@nuxtjs/sitemap',
     '@nuxtjs/seo',
     '@nuxtjs/robots',
     '@nuxt/icon',
@@ -22,8 +22,9 @@ export default defineNuxtConfig({
     '@nuxtjs/google-fonts',
     'nuxt-auth-sanctum',
     '@samk-dev/nuxt-vcalendar',
-    'nuxt-aos',
     // '@nuxtjs/proxy',
+    'nuxt-aos',
+    'nuxt-schema-org',
   ],
 
   icon: {
@@ -33,6 +34,24 @@ export default defineNuxtConfig({
   // experimental: {
   //   payloadExtraction: false, // отключаем генерацию _payload.json
   // },
+
+  // sitemap: {
+  //   hostname: 'https://absolutetechno.ru',
+  //   defaults: {
+  //     changefreq: 'daily',
+  //     priority: 1,
+  //     lastmod: new Date().toISOString(),
+  //   },
+  //   exclude: ['/account/*', '/account'],
+  //   routes: ['/category/**', '/products/category/**', '/products/**', '/news/**', '/about', '/', '/category'],
+  // },
+
+  robots: {
+    UserAgent: '*',
+    Disallow: '',
+    CrawlDelay: 10,
+    Sitemap: ['https://absolutetechno.ru/sitemap.xml'],
+  },
 
   ogImage: { enabled: false },
 

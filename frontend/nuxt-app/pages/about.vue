@@ -1,3 +1,15 @@
+<script setup>
+useHead({
+  title: `О компании Абсолют техно`,
+  meta: [
+    {
+      name: 'description',
+      content: `Инструменты и оборудование для строительства и ремота`,
+    },
+  ],
+})
+</script>
+
 <template>
   <div class="bg-white w-full mt-12 p-2 ~pb-4/8">
     <div class="max-w-screen-2xl mx-auto px-1 sm:px-2 lg:px-8">

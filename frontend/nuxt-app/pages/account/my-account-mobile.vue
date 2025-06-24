@@ -105,6 +105,16 @@
 import { useUserStore } from '~/stores/user'
 const userStore = useUserStore()
 
+useHead({
+  title: `Абсолют техно`,
+  meta: [
+    {
+      name: 'description',
+      content: `Инструменты и оборудование для строительства и ремота`,
+    },
+  ],
+})
+
 definePageMeta({
   middleware: ['auth'],
 })

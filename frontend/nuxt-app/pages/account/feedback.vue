@@ -7,6 +7,16 @@ definePageMeta({
   middleware: ['auth'],
 })
 
+useHead({
+  title: `Обратная связь | Абсолют техно`,
+  meta: [
+    {
+      name: 'description',
+      content: `Инструменты и оборудование для строительства и ремота`,
+    },
+  ],
+})
+
 const {
   public: { backendUrl },
 } = useRuntimeConfig()

@@ -8,6 +8,16 @@ const {
   public: { backendUrl },
 } = useRuntimeConfig()
 
+useHead({
+  title: `Абсолют техно`,
+  meta: [
+    {
+      name: 'description',
+      content: `Инструменты и оборудование для строительства и ремота`,
+    },
+  ],
+})
+
 const { data: category } = await useAsyncData(`category-list`, () =>
   $fetch(`${backendUrl}/api/categories`, {
     method: 'GET',
@@ -31,29 +41,6 @@ const { data: slides } = await useAsyncData(`slides`, () =>
 )
 
 console.log(slides.value.data, 'slides')
-
-// const slidesTime = ref([
-//   {
-//     brand: 'Зубр',
-//     image: 'https://cdn.vseinstrumenti.ru/res/content/page_templates/e37a4e459931bb202ac81144bf28a0a5.jpeg',
-//     link: '/news/1',
-//   },
-//   {
-//     brand: 'STIHL',
-//     image: 'https://cdn.vseinstrumenti.ru/res/content/page_templates/8cda9503758e95e5abf3820ae1278488.jpeg',
-//     link: '/news/2',
-//   },
-//   {
-//     brand: 'Сибур',
-//     image: 'https://cdn.vseinstrumenti.ru/res/content/page_templates/5db4e95cb28531ba151e5df026156bcd.jpeg',
-//     link: '/news/3',
-//   },
-//   {
-//     brand: 'Haier',
-//     image: 'https://cdn.vseinstrumenti.ru/res/content/page_templates/4ce23a87a706eaf19ce2b4d12471a56c.jpeg',
-//     link: '/news/4',
-//   },
-// ])
 
 console.log(category.value, 'category')
 </script>
