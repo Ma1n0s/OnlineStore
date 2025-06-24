@@ -81,16 +81,20 @@
 
           <div class="relative w-full h-full">
             <Button
-              v-if="isAuth"
               variant="transparent"
               class="flex items-center gap-2 h-full !px-4"
-              @click="miniMenu = true"
-              >{{ userDisplayName }}
+              @click="
+                () => {
+                  if (isAuth) miniMenu = true
+                  else openModal()
+                }
+              "
+            >
+              <ClientOnly>
+                {{ isAuth ? userDisplayName : '' }}
+              </ClientOnly>
               <Icon name="material-symbols:account-circle" class="h-8 w-8 text-dark" alt="Пользователь" />
             </Button>
-            <Button variant="transparent" class="flex items-center gap-2 h-full !px-4" @click="openModal" v-else>
-              <Icon name="material-symbols:account-circle" class="h-8 w-8 text-dark" alt="Вход"
-            /></Button>
 
             <Menu v-if="miniMenu" v-model="miniMenu" />
           </div>
