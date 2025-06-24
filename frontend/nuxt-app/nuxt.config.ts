@@ -100,16 +100,16 @@ export default defineNuxtConfig({
 
   routeRules: {
     '/products/**': {
-      isr: 43200,
+      isr: 600,
       cache: {
         swr: true,
       },
     },
-    '/news': { isr: 86400 },
-    '/news/**': { isr: 86400 },
-    '/category': { isr: 43200 },
-    '/category/**': { isr: 43200 },
-    // '/': { isr: 10 },
+    '/news': { isr: 600 },
+    '/news/**': { isr: 600 },
+    '/category': { isr: 600 },
+    '/category/**': { isr: 600 },
+    '/': { isr: 600 },
     '/about': { static: true },
     '/contacts': { static: true },
     '/account/**': { ssr: true },

@@ -39,6 +39,7 @@
     "@pinia/nuxt": "^0.10.1",
     "@popperjs/core": "^2.11.8",
     "@samk-dev/nuxt-vcalendar": "^1.0.4",
+    "@vue/devtools-api": "^7.7.7",
     "@vueuse/nuxt": "^13.0.0",
     "nuxt": "^3.17.3",
     "nuxt-aos": "^1.2.5",

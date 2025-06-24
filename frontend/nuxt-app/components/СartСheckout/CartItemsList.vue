@@ -1,6 +1,7 @@
 <script setup>
 import Button from '~/components/ui/Button/Button.vue'
 import { Icon } from '#components'
+import { utils, writeFileXLSX } from 'xlsx'
 
 const cartStore = useCartStore()
 const { cart, products, isLoading } = storeToRefs(cartStore)
