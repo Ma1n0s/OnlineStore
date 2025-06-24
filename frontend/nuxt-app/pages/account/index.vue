@@ -85,15 +85,10 @@ const validatePassword = () => {
   let isValid = true
   forms.password.errors = {}
 
-  if (!forms.password.current) {
-    forms.password.errors.current = 'Введите текущий пароль'
-    isValid = false
-  }
-
   if (!forms.password.new) {
     forms.password.errors.new = 'Введите новый пароль'
     isValid = false
-  } else if (forms.password.new.length < 8) {
+  } else if (forms.password.new.length <= 6) {
     forms.password.errors.new = 'Пароль должен содержать минимум 6 символов'
     isValid = false
   }
@@ -220,7 +215,6 @@ const changePassword = async () => {
     await $fetch(`${backendUrl}/api/profile/password`, {
       method: 'PUT',
       body: {
-        current_password: forms.password.current,
         new_password: forms.password.new,
         new_password_confirmation: forms.password.confirm, // if using backend confirmation
       },
@@ -436,21 +430,6 @@ onMounted(() => {
       :isLoading="uiState.isLoading"
     >
       <div class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Текущий пароль</label>
-          <input
-            type="password"
-            v-model="forms.password.current"
-            :class="{
-              'shadow-red-100 focus:ring-red-200': forms.password.errors.current,
-              'shadow-sm focus:ring-primary': !forms.password.errors.current,
-            }"
-            class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-opacity-50 transition shadow-sm"
-          />
-          <p v-if="forms.password.errors.current" class="mt-1 text-sm text-red-600">
-            {{ forms.password.errors.current }}
-          </p>
-        </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Новый пароль</label>
           <input
