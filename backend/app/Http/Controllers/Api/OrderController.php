@@ -126,7 +126,7 @@ class OrderController extends Controller
                 ], 422);
             }
 
-            if($user->bonus_balance < $cart->bonuses){
+            if($user->bonus_balance <= $cart->bonuses){
                 $cart->update([
                     'checkBonus'=> false,
                     'bonuses' => max(0,$user->bonus_balance),
@@ -532,9 +532,21 @@ class OrderController extends Controller
                 $this->updateOrderProducts($order, $validated['products']);
             }
 
-            // if ($order->status === 'completed') {
-            //     $this->processCompletedOrder($order);
-            // }
+
+            if ($order->bonuses == 0 && $order->status === 'completed') {
+                $newBonuses = max(0,round($order->amount * 0.03));
+                
+                $this->createBonusTransaction(
+                    $order->user_id,
+                    $order->id,
+                    'Начисление',
+                    $newBonuses,
+                    'Начисление бонусов за заказ #' . $order->order_number
+                );
+                
+                // Увеличиваем бонусы пользователя
+                $order->user->increment('bonus_balance', $newBonuses);
+            }
 
             $order->updateTotalAmount();
     
@@ -631,20 +643,6 @@ class OrderController extends Controller
         }
         
         // Начисляем новые бонусы (3% от итоговой суммы), если не использовались бонусы
-        if ($order->bonuses == 0) {
-            $newBonuses = max(0,round($order->amount * 0.03));
-            
-            $this->createBonusTransaction(
-                $order->user_id,
-                $order->id,
-                'Начисление',
-                $newBonuses,
-                'Начисление бонусов за заказ #' . $order->order_number
-            );
-            
-            // Увеличиваем бонусы пользователя
-            $order->user->increment('bonus_balance', $newBonuses);
-        }
 
         if($user->bonus_balance < 0){
             $user->update([
