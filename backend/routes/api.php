@@ -100,7 +100,7 @@ Route::group(['middleware' => [ 'guest']], function() {
 
         $passwd = Str::random(10);
         $user = User::where('email', $request->email)->first();
-        
+        $verificationCode = "";
         if (!$user) {
             // Создаем нового пользователя
             $verificationCode = Str::random(6);
