@@ -159,8 +159,10 @@ export default defineNuxtConfig({
           '*': '',
         },
         headers: {
-          'X-Forwarded-Host': process.env.BACKEND_URL || 'localhost:8000',
+          'X-Forwarded-Host': process.env.BACKEND_URL?.split('//')[1] || 'localhost:8000',
           'X-Forwarded-Proto': 'http',
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
         },
         secure: false,
         // bypass: req => {
