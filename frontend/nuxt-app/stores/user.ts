@@ -34,42 +34,40 @@ export const useUserStore = defineStore('user', () => {
 
   const fetchUser = async () => {
     try {
-      await useAsyncData('user', async () => {
-        const { data } = await useSanctumFetch('/api/user', {
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
-          },
-        })
-
-        if (data.value) {
-          console.log('Full API response:', data.value)
-          console.log('Orders in response:', data.value.orders)
-
-          user.value = {
-            ...data.value,
-            // ...data.value.profile,
-            companyDetails: {
-              name: data.value.profile?.company_name,
-              inn: data.value.profile?.inn,
-              kpp: data.value.profile?.kpp,
-              address: data.value.profile?.legal_address,
-              director: data.value.profile?.director,
-              phone: data.value.profile?.company_phone,
-              email: data.value.profile?.company_email,
-            },
-            bonusBalance: data.value.bonus_balance,
-            bonusTransactions: data.value.bonus_transactions || [],
-            orders: data.value.orders || [],
-            phone: data.value.phone,
-          }
-          isAuth.value = true
-          console.log('User data after processing:', user.value)
-          console.log('Processed orders:', user.value.orders)
-        }
+      const { data } = await useSanctumFetch('/api/user', {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+        },
       })
+
+      if (data.value) {
+        console.log('Full API response:', data.value)
+        console.log('Orders in response:', data.value.orders)
+
+        user.value = {
+          ...data.value,
+          // ...data.value.profile,
+          companyDetails: {
+            name: data.value.profile?.company_name,
+            inn: data.value.profile?.inn,
+            kpp: data.value.profile?.kpp,
+            address: data.value.profile?.legal_address,
+            director: data.value.profile?.director,
+            phone: data.value.profile?.company_phone,
+            email: data.value.profile?.company_email,
+          },
+          bonusBalance: data.value.bonus_balance,
+          bonusTransactions: data.value.bonus_transactions || [],
+          orders: data.value.orders || [],
+          phone: data.value.phone,
+        }
+        isAuth.value = true
+        console.log('User data after processing:', user.value)
+        console.log('Processed orders:', user.value.orders)
+      }
     } catch (error) {
       console.error('Error fetching user:', error)
       user.value = null
