@@ -159,7 +159,7 @@ export default defineNuxtConfig({
           '*': '',
         },
         headers: {
-          'X-Forwarded-Host': 'localhost:3000',
+          'X-Forwarded-Host': process.env.BACKEND_URL || 'localhost:8000',
           'X-Forwarded-Proto': 'http',
         },
         secure: false,
