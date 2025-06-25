@@ -41,8 +41,6 @@ const { data } = await useAsyncData(`products-list-${slug}`, () =>
   })
 )
 
-console.log(data.value, 'YESS')
-
 const add = async product => {
   if (!product?.id || (product.count === 'Нет в наличии' && product.type === 'instock') || checkAuthForm()) return
 
@@ -117,15 +115,6 @@ const changeSort = value => {
   state.showSortDropdown = false
   searchData()
 }
-
-// watch([state], newState => {
-//   if (currentMin !== min || currentMax !== max) {
-
-//   }
-//   const { currentMin, min, currentMax, max } = state.priceRange
-//   if(newState.)
-//   console.log(newState, 'data was changed')
-// })
 
 const searchData = async () => {
   loading.value = true

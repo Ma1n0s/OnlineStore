@@ -89,7 +89,6 @@ const confirmRental = async () => {
 }
 
 const cartStore = useCartStore()
-console.log(cartStore, 'store cart')
 
 const add = async () => {
   if (!product?.id || (product.count === 'Нет в наличии' && product.type === 'instock') || checkAuthForm()) return

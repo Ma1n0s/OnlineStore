@@ -39,10 +39,6 @@ const { data: slides } = await useAsyncData(`slides`, () =>
     },
   })
 )
-
-console.log(slides.value.data, 'slides')
-
-console.log(category.value, 'category')
 </script>
 
 <template>

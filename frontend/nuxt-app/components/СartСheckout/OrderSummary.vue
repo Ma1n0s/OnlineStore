@@ -28,8 +28,6 @@ const sendOrder = useDebounceFn(async () => {
   } else {
     isPhone.value = true
   }
-
-  console.log(cart.value?.user)
 }, 1000)
 
 const isEmpty = computed(() => products.value.length === 0)
@@ -55,7 +53,6 @@ const sum = computed(() => {
 })
 
 const bonus = computed(() => {
-  console.log(cart.value && cart.value?.user && cart.value?.user?.bonus_balance, 'test')
   if (cart.value && cart.value?.user && cart.value?.user?.bonus_balance) {
     return cart.value?.user?.bonus_balance > sum.value ? sum.value : cart.value?.user?.bonus_balance
   }
@@ -78,8 +75,6 @@ const formatDateTime = datatime => {
     .format(date)
     .replace(',', '')
 }
-
-console.log(isEmpty.value, isSelected.value)
 
 const handlePhoneInput = e => {
   const input = e.target

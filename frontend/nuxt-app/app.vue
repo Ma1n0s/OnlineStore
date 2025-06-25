@@ -15,12 +15,6 @@ body {
 
 <script setup>
 import MobileBottomNav from './components/MobileBottomNav/MobileBottomNav.vue'
-
-// onMounted(() => {
-//   const { isAuthenticated, user } = useSanctumAuth();
-//   console.log(user.value, isAuthenticated.value, "user pinia");
-// });
-
 import { defineOrganization, defineWebPage, defineWebSite, useSchemaOrg } from '@unhead/schema-org/vue'
 
 // we can remove a lot of boilerplate from Schema.org by providing template params

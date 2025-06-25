@@ -44,7 +44,6 @@ const {
 const debouncedSearch = useDebounce(search)
 
 watch(debouncedSearch, async newQuery => {
-  console.log(newQuery)
   if (!!newQuery && newQuery.trim().length > 0) {
     await performSearch(newQuery)
     showSearch()
@@ -69,8 +68,6 @@ const performSearch = async (query: string) => {
       },
     })
   })
-
-  console.log(data.value)
   products.value = data.value.products
   categories.value = data.value.categories
 }

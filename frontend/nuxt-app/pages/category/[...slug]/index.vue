@@ -25,8 +25,6 @@ const { data: category } = await useAsyncData(
   { revalidate: 3600 }
 )
 
-console.log(category.value, 'category data')
-
 if (!category.value?.children?.length) {
   // Если нет, перенаправляем на страницу товаров
   await navigateTo(`/products/category/${route.params.slug.join('/')}`)

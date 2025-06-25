@@ -186,7 +186,7 @@ const saveCompany = async () => {
   if (!validateCompany()) return
   uiState.isLoading = true
   try {
-    const response = await $fetch(`${backendUrl}/api/profile/company`, {
+    await $fetch(`${backendUrl}/api/profile/company`, {
       method: 'PUT',
       body: forms.company,
       headers: {
@@ -195,8 +195,6 @@ const saveCompany = async () => {
         'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
       },
     })
-
-    console.log(response)
 
     await loadProfile()
     uiState.isCompanyModalOpen = false

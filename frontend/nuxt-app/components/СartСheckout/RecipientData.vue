@@ -14,8 +14,6 @@ const selectedIndex = ref(cart.value.selectedCompany || null)
 const companies = ref([])
 const isLoading = ref(true)
 
-console.log(selectedIndex.value === null, 'selectedCompany')
-
 const getCompanies = async () => {
   isLoading.value = true
   try {
@@ -31,8 +29,6 @@ const getCompanies = async () => {
     })
 
     companies.value = data
-
-    console.log(data, 'companies')
   } catch (e) {
     console.log(e)
   } finally {

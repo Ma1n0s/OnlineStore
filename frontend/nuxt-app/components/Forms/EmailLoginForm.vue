@@ -58,8 +58,6 @@ const authorize = async () => {
       }),
     })
 
-    console.log('123123')
-
     if (data.value && data.value.status === 'verified') {
       setUser(data.value.user)
       const { user } = useSanctumAuth()
@@ -85,7 +83,7 @@ const handleEmailLogin = async () => {
       credentials: 'include',
     })
 
-    const response = await useSanctumFetch('/api/auth/request-code', {
+    await useSanctumFetch('/api/auth/request-code', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -97,8 +95,6 @@ const handleEmailLogin = async () => {
         email: form.email,
       }),
     })
-
-    console.log(response)
     isSend.value = true
   } catch (error) {
     console.error('Email login error:', error)

@@ -23,12 +23,6 @@ const { data: category } = await useAsyncData(
   }
 )
 
-// getCachedData(key) {
-//       return useNuxtApp().payload.data[key] // Использование кешированных данных
-//     }
-
-console.log(category.value, 'category')
-
 useHead({
   title: `Категории | Абсолют техно`,
   meta: [

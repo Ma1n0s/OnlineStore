@@ -34,7 +34,6 @@ onMounted(async () => {
     await cartStore.refetchCart()
   }
   // loading.value = false
-  console.log('Cart products:', products.value)
 })
 </script>
 

@@ -79,8 +79,6 @@ const { data: product, refresh } = await useAsyncData<Product>(
   }
 )
 
-console.log(product.value)
-
 useHead({
   title: `${product.value.name} | Абсолют техно`,
   meta: [
@@ -103,13 +101,7 @@ onMounted(async () => {
   isFavorite.value = false
   loading.value = false
 
-  console.log('mounted')
-
   await refresh()
-
-  // if (process.client && product_id && !product.value) {
-  //   await refresh()
-  // }
 
   if (!product.value) {
     navigateTo('/404')
