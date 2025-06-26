@@ -93,4 +93,12 @@ useSchemaOrg([
     name: 'Nuxt SEO',
   }),
 ])
+
+const user = useSanctumUser()
+
+onMounted(() => {
+  setInterval(() => {
+    console.log(user.value)
+  }, 5000)
+})
 </script>
