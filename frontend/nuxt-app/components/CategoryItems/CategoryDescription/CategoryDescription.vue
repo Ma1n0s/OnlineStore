@@ -2,9 +2,7 @@
   <div class="pb-4">
     <div class="flex items-center justify-between">
       <h1 v-if="data.title" class="text-2xl font-bold">{{ data.title }}</h1>
-      <span v-if="productsCount" class="text-gray-500 text-sm">
-        Товаров: {{ productsCount }}
-      </span>
+      <span v-if="productsCount" class="text-gray-500 text-sm"> Товаров: {{ productsCount }} </span>
     </div>
     <div class="w-full flex flex-col py-2">
       <NuxtImg

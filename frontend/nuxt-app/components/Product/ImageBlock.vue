@@ -16,13 +16,25 @@
               <swiper-slide v-for="(image, index) in product.images" :key="'main-' + index">
                 <div class="w-full h-full flex items-center justify-center bg-gray-50">
                   <NuxtImg
-                    :src="image.url || 'no-photo.webp'"
+                    :src="image?.url"
                     :alt="product.alt || product.name"
                     format="webp"
                     class="max-w-full max-h-full object-contain"
                     loading="lazy"
                     sizes="sm:100vw md:50vw lg:400px"
                     @click="openFullscreenImage(index)"
+                  />
+                </div>
+              </swiper-slide>
+              <swiper-slide v-if="!product.images || !product.images.length">
+                <div>
+                  <NuxtImg
+                    :src="'no-photo.webp'"
+                    :alt="'No img'"
+                    format="webp"
+                    class="max-w-full max-h-full object-contain"
+                    loading="lazy"
+                    sizes="sm:100vw md:50vw lg:400px"
                   />
                 </div>
               </swiper-slide>

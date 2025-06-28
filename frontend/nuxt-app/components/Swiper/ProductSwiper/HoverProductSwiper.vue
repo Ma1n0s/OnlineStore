@@ -13,6 +13,19 @@
           />
         </div>
       </swiper-slide>
+
+      <swiper-slide v-if="!slides || !slides.length">
+        <div>
+          <NuxtImg
+            :src="'no-photo.webp'"
+            :alt="'No img'"
+            format="webp"
+            :class="['max-w-full max-h-full', mode === 'grid' ? 'object-contain' : 'object-cover']"
+            loading="lazy"
+            sizes="sm:300px md:400px lg:500px"
+          />
+        </div>
+      </swiper-slide>
     </swiper-container>
   </ClientOnly>
 </template>
