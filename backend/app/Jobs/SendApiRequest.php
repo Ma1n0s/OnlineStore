@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\OrderApiProcessed;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -23,7 +24,8 @@ class SendApiRequest implements ShouldQueue
     public function __construct(
         protected string $url,
         protected array $data,
-        protected array $headers = []
+        protected array $headers = [],
+        protected int $orderId,
     )
     {
         //
@@ -35,7 +37,6 @@ class SendApiRequest implements ShouldQueue
     public function handle()
     {
         $response = Http::withHeaders($this->headers)
-            ->timeout(30)
             ->post($this->url, $this->data);
             
         if ($response->failed()) {
@@ -46,8 +47,12 @@ class SendApiRequest implements ShouldQueue
             ]);
             throw new \Exception("API request failed with status: " . $response->status());
         }
+
+        $responseData = $response->json();
+
+        event(new OrderApiProcessed($this->orderId, $responseData));
         
-        return $response->json();
+        return $responseData;
     }
 
     public function failed(\Throwable $exception)

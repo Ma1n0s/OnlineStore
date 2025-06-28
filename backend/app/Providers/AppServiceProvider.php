@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Queue\Events\JobFailed;
 use Mail;
 
+use Illuminate\Support\Facades\Event;
+use App\Events\OrderApiProcessed;
+use App\Listeners\UpdateOrderFromApiResponse;
+
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -24,6 +29,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
+
+        Event::listen(
+            OrderApiProcessed::class,
+            UpdateOrderFromApiResponse::class
+        );
 
         // Horizon::routeMailNotificationsTo(explode(',', env('HORIZON_ALERT_EMAILS', 'admin@example.com')));
         

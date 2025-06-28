@@ -233,13 +233,13 @@ class OrderController extends Controller
 
     public function sync(Order $order){
         
-        $order->load('user');
-        $order->user->load('companies');
-        
+        $order->load('user.companies');
+    
         SendApiRequest::dispatch(
-            env('services.external_url', '').'/hs/order',
+            config('services.external_url').'/hs/order',
             $order->toArray(),
-            ['Authorization' => env('services.external_token', 'no auth token')],
+            ['Authorization' => config('services.external_token')],
+            $order->id
         )->onQueue('api-requests');
     }
 
