@@ -104,6 +104,7 @@
 <script setup>
 import { useUserStore } from '~/stores/user'
 const userStore = useUserStore()
+const { clearUser } = userStore
 
 useHead({
   title: `Абсолют техно`,
@@ -121,19 +122,14 @@ definePageMeta({
 
 const logout = async () => {
   try {
-    await $fetch('/api/logout', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
-      },
-    })
-    userStore.clearUser()
+    const { logout: exit } = useSanctumAuth()
+    await exit()
+    clearUser()
     navigateTo('/')
   } catch (error) {
-    console.error('Logout error:', error)
+    console.log('Logout error:', error)
   }
+  close()
 }
 </script>
 
