@@ -34,7 +34,6 @@
                     format="webp"
                     class="max-w-full max-h-full object-contain"
                     loading="lazy"
-                    sizes="sm:100vw md:50vw lg:400px"
                   />
                 </div>
               </swiper-slide>

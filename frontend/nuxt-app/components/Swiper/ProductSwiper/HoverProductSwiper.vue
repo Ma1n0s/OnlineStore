@@ -22,7 +22,6 @@
             format="webp"
             :class="['max-w-full max-h-full', mode === 'grid' ? 'object-contain' : 'object-cover']"
             loading="lazy"
-            sizes="sm:300px md:400px lg:500px"
           />
         </div>
       </swiper-slide>
