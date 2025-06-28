@@ -166,7 +166,7 @@ setTimeout(() => {
       >
         <div :class="state.ui.isGrid ? 'relative h-48 flex-shrink-0' : 'relative w-1/3 flex-shrink-0'">
           <NuxtImg
-            :src="item.image"
+            :src="item.image || 'no-photo.webp'"
             :alt="item.title"
             :class="state.ui.isGrid ? 'w-full h-full object-contain p-4' : 'w-full h-full object-cover'"
             width="300"
@@ -221,7 +221,7 @@ setTimeout(() => {
     <!-- Нет результатов -->
     <div v-else class="bg-white rounded-lg shadow-sm p-8 text-center">
       <NuxtImg
-        src="/images/empty-state.png"
+        :src="'/images/empty-state.png' || 'no-photo.webp'"
         alt="Товары не найдены"
         width="200"
         height="200"

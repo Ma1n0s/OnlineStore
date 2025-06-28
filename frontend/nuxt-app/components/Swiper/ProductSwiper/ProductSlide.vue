@@ -1,7 +1,12 @@
 <template>
   <div class="flex flex-col rounded-3xl p-1 ~max-w-56/80 h-fit shadow-xl cursor-pointer">
     <div class="w-full h-fit">
-      <NuxtImg :src="product.images[0].src" :alt="product.images[0].alt" format="webp" class="bg-cover" />
+      <NuxtImg
+        :src="product.images[0].src || 'no-photo.webp'"
+        :alt="product.images[0].alt"
+        format="webp"
+        class="bg-cover"
+      />
     </div>
     <div class="p-2">
       <div class="flex items-center">

@@ -16,7 +16,7 @@
               <swiper-slide v-for="(image, index) in product.images" :key="'main-' + index">
                 <div class="w-full h-full flex items-center justify-center bg-gray-50">
                   <NuxtImg
-                    :src="image.url"
+                    :src="image.url || 'no-photo.webp'"
                     :alt="product.alt || product.name"
                     format="webp"
                     class="max-w-full max-h-full object-contain"
@@ -56,7 +56,7 @@
                 :class="{ 'border-red-500': activeIndex === index, 'border-transparent': activeIndex !== index }"
               >
                 <NuxtImg
-                  :src="image.url"
+                  :src="image.url || 'no-photo.webp'"
                   :alt="'Изображение ' + (index + 1)"
                   format="webp"
                   class="w-full h-full object-cover rounded cursor-pointer border border-gray-200"
@@ -120,7 +120,7 @@
       <div class="relative w-full h-4/5 flex items-center justify-center mb-4">
         <div class="max-w-full max-h-full flex items-center justify-center">
           <NuxtImg
-            :src="product.images[fullscreenIndex].url"
+            :src="product.images[fullscreenIndex].url || 'no-photo.webp'"
             :alt="product.name"
             format="webp"
             class="max-w-full max-h-full object-contain"
@@ -161,7 +161,7 @@
             :class="{ 'active-thumb': fullscreenIndex === index }"
           >
             <NuxtImg
-              :src="image.url"
+              :src="image.url || 'no-photo.webp'"
               :alt="'Изображение ' + (index + 1)"
               format="webp"
               class="w-full h-full object-cover rounded cursor-pointer border border-gray-200"

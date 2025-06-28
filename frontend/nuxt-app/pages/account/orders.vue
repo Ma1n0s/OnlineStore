@@ -203,7 +203,7 @@ const isMobileMenuOpen = ref(false)
                             <NuxtImg
                               v-for="product in order.products"
                               :key="product.id"
-                              :src="product.image"
+                              :src="product.image || 'no-photo.webp'"
                               :alt="product.name"
                               width="32"
                               height="32"
@@ -245,7 +245,7 @@ const isMobileMenuOpen = ref(false)
                       <NuxtImg
                         v-for="product in order.products"
                         :key="product.id"
-                        :src="product.image"
+                        :src="product.image || 'no-photo.webp'"
                         :alt="product.name"
                         width="32"
                         height="32"

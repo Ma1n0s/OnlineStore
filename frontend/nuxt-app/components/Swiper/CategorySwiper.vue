@@ -23,7 +23,7 @@
           <div class="flex-1 relative">
             <NuxtImg
               :alt="category.name"
-              :src="category.src"
+              :src="category.src || 'no-photo.webp'"
               class="absolute h-full w-full object-cover"
               format="webp"
             />

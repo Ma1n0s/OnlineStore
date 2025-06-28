@@ -172,7 +172,7 @@ const printToExcel = () => {
             <NuxtLink :to="`/products/${item.slug}`" class="flex items-start sm:items-center gap-4 flex-1 min-w-0">
               <div class="relative flex-shrink-0">
                 <NuxtImg
-                  :src="item.main_image"
+                  :src="item.main_image || 'no-photo.webp'"
                   :alt="item.name"
                   width="96"
                   height="96"
