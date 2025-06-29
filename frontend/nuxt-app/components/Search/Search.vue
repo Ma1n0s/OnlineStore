@@ -1,6 +1,6 @@
 <template>
   <div class="relative w-full h-full shadow-2xl rounded-full" ref="target">
-    <TextInput :setAtr="true" v-model="search" @click="showSearch" class="!rounded-full !outline-none">
+    <TextInput :setAtr="true" v-model="search" @click.prevent="handleInputClick" class="!rounded-full !outline-none">
       <template v-slot:right>
         <div class="cursor-pointer h-full flex justify-center">
           <Icon name="material-symbols:search-rounded" class="mr-1 h-8 w-8" />
@@ -20,59 +20,60 @@
 <script setup lang="ts">
 import TextInput from '~/components/ui/Inputs/TextInput.vue'
 import SearchList from './SearchList.vue'
+
 const searchBar = ref(false)
-
 const search = ref('')
-
 const products = ref([])
 const categories = ref([])
-
-const showSearch = () => {
-  searchBar.value = !!search.value
-}
-
-const hideSearch = () => {
-  searchBar.value = false
-}
-
 const target = useTemplateRef<HTMLElement>('target')
 
 const {
   public: { backendUrl },
 } = useRuntimeConfig()
 
-const debouncedSearch = useDebounce(search)
+// Handle input click (show search bar if there's text)
+const handleInputClick = () => {
+  searchBar.value = !!search.value && search.value.trim().length > 0
+}
 
-watch(debouncedSearch, async newQuery => {
-  if (!!newQuery && newQuery.trim().length > 0) {
-    await performSearch(newQuery)
-    showSearch()
+// Watch for search changes
+watch(search, newValue => {
+  if (newValue && newValue.trim().length > 0) {
+    debouncedSearch()
+    searchBar.value = true
   } else {
     products.value = []
     categories.value = []
-    hideSearch()
+    searchBar.value = false
   }
 })
 
+const debouncedSearch = useDebounceFn(async () => {
+  await performSearch(search.value)
+}, 500) // Reduced debounce time for better UX
+
 const performSearch = async (query: string) => {
   try {
-    const { data } = await useAsyncData('search', async () => {
-      return await $fetch(`${backendUrl}/api/search`, {
-        method: 'GET',
-        params: {
-          query: query,
-        },
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
-        },
-      })
+    const data = await $fetch(`${backendUrl}/api/search`, {
+      method: 'GET',
+      params: { query },
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+      },
     })
-    products.value = data.value.products
-    categories.value = data.value.categories
+
+    products.value = data?.products || []
+    categories.value = data?.categories || []
   } catch (e) {
-    console.log(e)
+    console.error('Search error:', e)
+    products.value = []
+    categories.value = []
   }
+}
+
+const hideSearch = () => {
+  searchBar.value = false
 }
 </script>
