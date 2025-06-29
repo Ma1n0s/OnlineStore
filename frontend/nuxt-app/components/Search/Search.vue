@@ -55,20 +55,24 @@ watch(debouncedSearch, async newQuery => {
 })
 
 const performSearch = async (query: string) => {
-  const { data } = await useAsyncData('search', async () => {
-    return await $fetch(`${backendUrl}/api/search`, {
-      method: 'GET',
-      params: {
-        query: query,
-      },
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
-      },
+  try {
+    const { data } = await useAsyncData('search', async () => {
+      return await $fetch(`${backendUrl}/api/search`, {
+        method: 'GET',
+        params: {
+          query: query,
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'X-XSRF-TOKEN': useCookie('XSRF-TOKEN').value,
+        },
+      })
     })
-  })
-  products.value = data.value.products
-  categories.value = data.value.categories
+    products.value = data.value.products
+    categories.value = data.value.categories
+  } catch (e) {
+    console.log(e)
+  }
 }
 </script>
