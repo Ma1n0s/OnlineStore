@@ -19,7 +19,7 @@ const handleLogout = async () => {
     await logout()
     clearUser()
   } catch (error) {
-    console.error('Logout error:', error)
+    console.log('Logout error:', error)
   }
   close()
 }

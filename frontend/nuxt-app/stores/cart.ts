@@ -24,7 +24,6 @@ export const useCartStore = defineStore('cart', () => {
     isLoading.value = true
     try {
       const response = await getCart()
-      console.log(response.value, 'wait what')
       cart.value = response.value
       products.value = response.value.products || []
       isInitialized.value = true
@@ -40,8 +39,6 @@ export const useCartStore = defineStore('cart', () => {
       const response = await getCart()
       cart.value = response.value
       products.value = response.value.products || []
-      console.log(cart.value.selected)
-      console.log(products.value)
     } catch (error) {
       console.log('Failed to initialize cart:', error)
     }

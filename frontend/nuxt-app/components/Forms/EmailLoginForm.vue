@@ -67,7 +67,7 @@ const authorize = async () => {
       form.authError = 'Неверный код подтверждения'
     }
   } catch (error) {
-    console.error('Verification error:', error)
+    console.log('Verification error:', error)
     form.authError = 'Ошибка при проверке кода. Попробуйте позже.'
   } finally {
     form.isLoading = false
@@ -97,7 +97,7 @@ const handleEmailLogin = async () => {
     })
     isSend.value = true
   } catch (error) {
-    console.error('Email login error:', error)
+    console.log('Email login error:', error)
     form.emailError = 'Ошибка при отправке кода. Попробуйте позже.'
   } finally {
     form.isLoading = false

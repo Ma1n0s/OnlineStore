@@ -25,9 +25,6 @@ export const useUserStore = defineStore('user', () => {
         Accept: 'application/json',
       },
     })
-
-    const token = useCookie('XSRF-TOKEN')
-    console.log('csrf token is setted', token)
   }
 
   loadCsrfToken()
@@ -44,9 +41,6 @@ export const useUserStore = defineStore('user', () => {
       })
 
       if (data.value) {
-        console.log('Full API response:', data.value)
-        console.log('Orders in response:', data.value.orders)
-
         user.value = {
           ...data.value,
           // ...data.value.profile,
@@ -65,8 +59,6 @@ export const useUserStore = defineStore('user', () => {
           phone: data.value.phone,
         }
         isAuth.value = true
-        console.log('User data after processing:', user.value)
-        console.log('Processed orders:', user.value.orders)
       }
     } catch (error) {
       console.error('Error fetching user:', error)

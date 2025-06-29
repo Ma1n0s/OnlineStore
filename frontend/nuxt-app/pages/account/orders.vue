@@ -63,7 +63,7 @@ const loadOrders = async () => {
       }
     }
   } catch (error) {
-    console.error('Ошибка загрузки заказов:', error)
+    console.log('Ошибка загрузки заказов:', error)
     ordersData.error = 'Не удалось загрузить данные заказов. Пожалуйста, попробуйте позже.'
   } finally {
     ordersData.loading = false

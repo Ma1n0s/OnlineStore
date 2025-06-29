@@ -67,7 +67,7 @@ const performSearch = async (query: string) => {
     products.value = data?.products || []
     categories.value = data?.categories || []
   } catch (e) {
-    console.error('Search error:', e)
+    console.log('Search error:', e)
     products.value = []
     categories.value = []
   }

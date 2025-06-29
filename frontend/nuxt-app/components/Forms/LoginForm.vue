@@ -76,7 +76,7 @@ const handleLogin = async () => {
       form.passwordError = 'Неверный email или пароль'
     }
   } catch (error) {
-    console.error('Login error:', error)
+    console.log('Login error:', error)
   } finally {
     form.isLoading = false
   }

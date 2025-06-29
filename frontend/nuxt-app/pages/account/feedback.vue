@@ -74,7 +74,7 @@ const submitForm = async () => {
       form.rating = 0
     }
   } catch (error) {
-    console.error('Error submitting feedback:', error)
+    console.log('Error submitting feedback:', error)
     alert('Произошла ошибка при отправке обращения. Пожалуйста, попробуйте позже.')
   } finally {
     state.isSubmitting = false

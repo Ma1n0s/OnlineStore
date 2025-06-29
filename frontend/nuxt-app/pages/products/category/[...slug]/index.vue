@@ -50,7 +50,7 @@ const add = async product => {
       quantity: 1,
     })
   } catch (error) {
-    console.error('Ошибка при добавлении в корзину:', error)
+    console.log('Ошибка при добавлении в корзину:', error)
   }
 }
 
@@ -173,7 +173,7 @@ const validProducts = computed(() => {
 
 const getProductLink = item => {
   if (!item.slug || typeof item.slug !== 'string') {
-    console.error('Invalid product slug:', item)
+    console.log('Invalid product slug:', item)
     return '/404'
   }
   return `/products/${encodeURIComponent(item.slug)}`

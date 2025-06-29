@@ -92,7 +92,7 @@ const loadCompaniesData = async () => {
       company.is_main = company.id === (mainCompany.value?.id || null)
     })
   } catch (error) {
-    console.error('Ошибка загрузки компаний:', error)
+    console.log('Ошибка загрузки компаний:', error)
     uiState.error = 'Не удалось загрузить данные компаний. Пожалуйста, попробуйте позже.'
   } finally {
     uiState.isLoading = false
@@ -195,7 +195,7 @@ const searchCompanyByINN = async () => {
       innError.value = 'Компания с таким ИНН не найдена'
     }
   } catch (err) {
-    console.error('Ошибка при проверке ИНН:', err)
+    console.log('Ошибка при проверке ИНН:', err)
     innError.value = 'Ошибка при проверке ИНН. Попробуйте ввести данные вручную.'
   } finally {
     isLoadingSuggestions.value = false
@@ -263,7 +263,7 @@ const deleteCompany = async companyId => {
 
     await loadCompaniesData()
   } catch (error) {
-    console.error('Ошибка при удалении компании:', error)
+    console.log('Ошибка при удалении компании:', error)
     uiState.error = 'Ошибка при удалении: ' + (error.data?.message || error.message)
   } finally {
     uiState.isLoading = false
@@ -287,7 +287,7 @@ const setMainCompany = async companyId => {
 
     await loadCompaniesData()
   } catch (error) {
-    console.error('Ошибка при установке основной компании:', error)
+    console.log('Ошибка при установке основной компании:', error)
     uiState.error = 'Ошибка: ' + (error.data?.message || error.message)
   } finally {
     uiState.isLoading = false
@@ -331,7 +331,7 @@ const saveCompany = async () => {
     await loadCompaniesData()
     cancelEditing()
   } catch (error) {
-    console.error('Ошибка ответа сервера:', error.data)
+    console.log('Ошибка ответа сервера:', error.data)
     uiState.error = 'Ошибка при сохранении: ' + (error.data?.message || error.message)
   } finally {
     uiState.isLoading = false

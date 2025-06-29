@@ -101,7 +101,7 @@ const add = async () => {
     })
     // Можно добавить уведомление об успешном добавлении
   } catch (error) {
-    console.error('Ошибка при добавлении в корзину:', error)
+    console.log('Ошибка при добавлении в корзину:', error)
     // Можно добавить уведомление об ошибке
   } finally {
     isLoading.value = false

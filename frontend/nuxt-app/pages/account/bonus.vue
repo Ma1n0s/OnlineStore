@@ -76,7 +76,7 @@ const loadBonusData = async () => {
       }
     }
   } catch (e) {
-    console.error('Ошибка при загрузке бонусных данных:', e)
+    console.log('Ошибка при загрузке бонусных данных:', e)
     bonusData.value.error = 'Не удалось загрузить данные'
     bonusData.value.loading = false
   }

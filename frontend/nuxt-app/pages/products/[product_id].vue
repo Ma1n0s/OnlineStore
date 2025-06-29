@@ -33,7 +33,7 @@ const { product_id } = route.params
 //     try {
 //       return await $fetch(`${backendUrl}/api/products/slug/${product_id}`)
 //     } catch (err) {
-//       console.error('Ошибка загрузки продукта:', err)
+//       console.log('Ошибка загрузки продукта:', err)
 //       throw createError({
 //         statusCode: 500,
 //         message: 'Не удалось загрузить данные продукта',
